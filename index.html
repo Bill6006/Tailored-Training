@@ -1,24 +1,6 @@
 <!doctype html>
 
 <!--
-PHASE_50_BUGFIX_CUSTOM_MEDIA_RELOAD_HYDRATION_LOCK_REVISION_CHANGELOG
-- Revised the same Phase 50 BUGFIX Durable Persistence Commit + Hydration Lock after Android/GitHub narrowed the remaining failure to post-refresh custom GIF/media payload restoration only.
-- Root cause: the async IndexedDB hydration path could restore a renderable GIF/image payload into runtime memory, then the next render/load path rehydrated the static program and stripped renderable custom-media payloads back to metadata before resolveMedia used them.
-- Added a small preserve-and-merge helper around static program hydration so renderable exact-target custom media restored from durable storage remains available to resolveMedia after reload.
-- Kept the existing exact-target custom-media owner path, IndexedDB payload store, localStorage payload mirror, resolver, upload handler, and Restore built-in behavior; no broad persistence layer or duplicate media storage system was added.
-- Added a reload-hydration audit for the Android case where the localStorage mirror is unavailable/quota-limited but IndexedDB restores a GIF/component payload asynchronously.
--->
-<!--
-PHASE_50_BUGFIX_CUSTOM_MEDIA_GIF_DURABLE_HYDRATION_REVISION_CHANGELOG
-- Revised the same Phase 50 BUGFIX Durable Persistence Commit + Hydration Lock after Android/GitHub showed active set persistence improved but custom GIF/component media still returned to CV/fallback after refresh.
-- Kept the existing exact-target custom media owner path; no duplicate media resolver, upload handler, state system, or parallel custom-media store was added.
-- Strengthened the existing Phase 48D durable payload strategy with a best-effort localStorage payload mirror using the existing tt_custom_media_payload48d prefix so recently uploaded GIF/image payloads can hydrate synchronously before the first post-reload media render when storage allows.
-- Added localStorage payload enumeration to the existing durable payload list path, so metadata can be rebuilt if app-state metadata is missing but an exact-target durable payload still exists.
-- Added exact-target synchronous and queued async hydration from existing durable payloads inside resolveMedia so component targets can recover renderable payloads instead of staying on CV/fallback after reload.
-- Preserved parent/component/sibling isolation, Restore built-in exact-target behavior, workout completion custom-media preservation, reset controls, active set progress persistence, and all Phase 50 release-candidate behavior.
--->
-
-<!--
 PHASE_50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK_ROUTE_SNAPSHOT_REVISION
 - Revised the same Phase 50 persistence bugfix after Android/GitHub evidence showed later completed sets and workout-list Done/Partial status could regress after refresh.
 - Added a full active-route progress fingerprint so durable STATE_KEY data wins over stale runtime/memory state when it contains more completed work, later completed sets, more done exercises, a later selected exercise pointer, valid route lock, or drop-set child progress.
@@ -4738,60 +4720,6 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     return { state: null, profile: aProfile, otherProfile: bProfile, source: "tie" };
   }
 
-
-  function collectRenderableCustomMediaPayloads50Bugfix(stateInput) {
-    const out = {};
-    try {
-      const custom = stateInput && stateInput.media && stateInput.media.custom && typeof stateInput.media.custom === "object" && !Array.isArray(stateInput.media.custom) ? stateInput.media.custom : {};
-      Object.keys(custom).forEach((key) => {
-        const item = custom[key];
-        const exactKey = customMediaNormalizeExactTargetKey48D(item && (item.customMediaExactTargetKey48D || item.exerciseId || item.targetKey) || key);
-        const source = customMediaRenderableSource48D(item);
-        if (exactKey && item && typeof item === "object" && !Array.isArray(item) && source) {
-          out[exactKey] = Object.assign({}, item, {
-            exerciseId: exactKey,
-            customMediaExactTargetKey48D: exactKey,
-            dataUrl: source,
-            restoredDataUrl48D: source,
-            phase50BugfixPreservedRenderablePayloadAcrossStaticHydration: true
-          });
-        }
-      });
-    } catch (_) {}
-    return out;
-  }
-
-  function hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(stateInput, reason = "phase50-bugfix-static-program-preserve-custom-media") {
-    const state = stateInput && typeof stateInput === "object" && !Array.isArray(stateInput) ? stateInput : createDefaultState();
-    const renderableBefore = collectRenderableCustomMediaPayloads50Bugfix(state);
-    hydrateStaticProgram10E(state);
-    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
-    state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
-    let preserved = 0;
-    Object.keys(renderableBefore).forEach((key) => {
-      const item = renderableBefore[key];
-      const source = customMediaRenderableSource48D(item);
-      if (!source) return;
-      state.media.custom[key] = Object.assign({}, state.media.custom[key] || {}, item, {
-        phase50BugfixRuntimeRenderablePreservedAfterStaticHydration: true,
-        phase50BugfixRuntimeRenderablePreservedReason: reason
-      });
-      preserved += 1;
-    });
-    if (preserved > 0) {
-      state.media.phase48D = Object.assign({}, state.media.phase48D || {}, {
-        phase50BugfixStaticHydrationPreservedRenderableCustomMedia: true,
-        preservedRenderableCustomMediaCount50Bugfix: preserved,
-        updatedAt: nowIso()
-      });
-      state.audit = Object.assign({}, state.audit || {}, {
-        phase50BugfixStaticHydrationPreservedRenderableCustomMedia: true,
-        preservedRenderableCustomMediaCount50Bugfix: preserved
-      });
-    }
-    return state;
-  }
-
   function shouldPreferRuntimeStateOverDurableState50Bugfix(runtimeState, source = "runtime") {
     if (!runtimeState || typeof runtimeState !== "object") return false;
     const durable = durableStateCandidate50Bugfix();
@@ -4813,35 +4741,31 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const warnings = [];
     if (customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.media && customMediaRenderSyncState48DFix.media.phase48D && customMediaRenderSyncState48DFix.media.phase48D.saveRenderSyncBugfix48D && shouldPreferRuntimeStateOverDurableState50Bugfix(customMediaRenderSyncState48DFix, "custom-media-render-sync")) {
       const state = clone(customMediaRenderSyncState48DFix);
-      hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
-      hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
+      hydrateStaticProgram10E(state);
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
       state.audit = Object.assign({}, state.audit, { phase48DSaveRenderSyncMemoryPreferred: true, phase49ABugfixActiveSetProgressHydrated: !!state.activeSession });
       return { state, source: "phase48d-save-render-sync-memory", warnings: ["Using freshest custom-media state so the saved tile renders immediately."], storageOk, legacyPreview: [] };
     }
     if (memoryStateFallback10E && memoryStateFallback10E.activeSession && shouldPreferRuntimeStateOverDurableState50Bugfix(memoryStateFallback10E, "memory-active-session")) {
       const state = clone(memoryStateFallback10E);
-      hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
-      hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
+      hydrateStaticProgram10E(state);
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
       state.audit = Object.assign({}, state.audit, { memoryFallbackActive: true, activeStateClarityFix: "memory-active-session-preferred-over-stale-storage", phase49ABugfixActiveSetProgressHydrated: !!state.activeSession });
       return { state, source: "memory-active-session-preferred", warnings: ["Using active in-memory session so Start workout visibly stays active even if localStorage is constrained"], storageOk, legacyPreview: [] };
     }
     if (!storageOk) {
       const state = memoryStateFallback10E ? clone(memoryStateFallback10E) : createDefaultState();
-      hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
-      hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
+      hydrateStaticProgram10E(state);
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
       state.audit = Object.assign({}, state.audit, { memoryFallbackActive: true, storageSafeFix: "storage unavailable did not block Start workout", phase49ABugfixActiveSetProgressHydrated: !!state.activeSession });
       return { state, source: memoryStateFallback10E ? "memory-active-session" : "memory-default", warnings: ["localStorage unavailable; using in-memory fallback so Start workout still works"], storageOk, legacyPreview: [] };
     }
     const raw = safeStorageGet10E(STATE_KEY, null);
     const legacyPreview = readLegacyPreview();
-    if (!raw) { const state = hydrateCustomMediaFromSyncPayloadCache50Bugfix(createDefaultState(), "phase50-bugfix-loadstate-default-custom-media-payloads"); state.audit.legacyPreview = legacyPreview; return { state, source: "default-not-saved", warnings, storageOk, legacyPreview }; }
+    if (!raw) { const state = createDefaultState(); state.audit.legacyPreview = legacyPreview; return { state, source: "default-not-saved", warnings, storageOk, legacyPreview }; }
     const parsed = safeJsonParse(raw, null, STATE_KEY);
-    if (!parsed.ok) { warnings.push(parsed.warning); const state = hydrateCustomMediaFromSyncPayloadCache50Bugfix(createDefaultState(), "phase50-bugfix-loadstate-invalid-custom-media-payloads"); state.audit.invalidExistingStateDetected = true; state.audit.legacyPreview = legacyPreview; return { state, source: "default-after-invalid-existing", warnings, storageOk, legacyPreview }; }
+    if (!parsed.ok) { warnings.push(parsed.warning); const state = createDefaultState(); state.audit.invalidExistingStateDetected = true; state.audit.legacyPreview = legacyPreview; return { state, source: "default-after-invalid-existing", warnings, storageOk, legacyPreview }; }
     const normalized = migrateState(parsed.value, "phase10e-active-state-clarity-loadState");
-    hydrateCustomMediaFromSyncPayloadCache50Bugfix(normalized, "phase50-bugfix-loadstate-localstorage-custom-media-sync");
     hydrateActiveSessionProgressAfterReload49ABugfix(normalized);
     normalized.audit.legacyPreview = legacyPreview;
     normalized.audit = Object.assign({}, normalized.audit || {}, { phase49ABugfixActiveSetProgressHydrated: !!normalized.activeSession });
@@ -7795,134 +7719,6 @@ Existing History logs stay untouched.`);
     copy.durableStorageAfterReload48D = true;
     return copy;
   }
-  function customMediaLocalStoragePayloadEntries50Bugfix() {
-    const entries = [];
-    try {
-      if (!hasStorage()) return entries;
-      for (let i = 0; i < localStorage.length; i += 1) {
-        const key = localStorage.key(i);
-        if (!key || String(key).indexOf(CUSTOM_MEDIA_DURABLE_LOCAL_PREFIX48D) !== 0) continue;
-        const raw = safeStorageGet10E(key, null);
-        const parsed = safeJsonParse(raw, null, key);
-        if (parsed.ok && parsed.value && parsed.value.dataUrl) {
-          entries.push(Object.assign({}, parsed.value, {
-            targetKey: customMediaNormalizeExactTargetKey48D(parsed.value.targetKey || key.replace(CUSTOM_MEDIA_DURABLE_LOCAL_PREFIX48D, "")),
-            durablePayloadKey48D: key,
-            durablePayloadStore48D: "localStorage-payload-mirror",
-            phase50BugfixLocalPayloadMirror: true
-          }));
-        }
-      }
-    } catch (_) {}
-    return entries;
-  }
-  function mirrorCustomMediaPayloadToLocalStorage50Bugfix(exactKey, payload) {
-    const targetKey = customMediaNormalizeExactTargetKey48D(exactKey || payload && payload.targetKey);
-    if (!targetKey || !payload || !payload.dataUrl) return { ok: false, reason: "missing-target-or-payload" };
-    try {
-      if (!hasStorage()) return { ok: false, reason: "localStorage-unavailable" };
-      const storageKey = customMediaDurablePayloadKey48D(targetKey);
-      const mirrored = Object.assign({}, payload, {
-        targetKey,
-        customMediaExactTargetKey48D: targetKey,
-        durablePayloadKey48D: storageKey,
-        durablePayloadStore48D: "localStorage-payload-mirror",
-        phase50BugfixLocalPayloadMirror: true,
-        mirroredAt50Bugfix: nowIso()
-      });
-      const write = safeStorageSet10E(storageKey, JSON.stringify(mirrored));
-      if (!write || !write.ok) return { ok: false, reason: write && (write.reason || write.error && write.error.message) || "mirror-write-failed", quota: !!(write && write.quota), key: storageKey };
-      const verifyRaw = safeStorageGet10E(storageKey, null);
-      const verify = safeJsonParse(verifyRaw, null, storageKey);
-      const ok = !!(verify.ok && verify.value && verify.value.dataUrl === payload.dataUrl);
-      return { ok, key: storageKey, targetKey, storage: "localStorage-payload-mirror", verified: ok };
-    } catch (error) {
-      return { ok: false, targetKey, reason: String(error && error.message || error) };
-    }
-  }
-  function readCustomMediaPayloadSync50Bugfix(targetKeyOrRecord) {
-    const record = targetKeyOrRecord && typeof targetKeyOrRecord === "object" ? targetKeyOrRecord : null;
-    const exactKey = customMediaNormalizeExactTargetKey48D(record ? (record.customMediaExactTargetKey48D || record.exerciseId || record.targetKey) : targetKeyOrRecord);
-    if (!exactKey) return null;
-    try {
-      const storageKey = record && /^tt_custom_media_payload48d:/.test(String(record.durablePayloadKey48D || "")) ? record.durablePayloadKey48D : customMediaDurablePayloadKey48D(exactKey);
-      const raw = hasStorage() ? safeStorageGet10E(storageKey, null) : null;
-      const parsed = safeJsonParse(raw, null, storageKey);
-      if (parsed.ok && parsed.value && parsed.value.dataUrl) return Object.assign({}, parsed.value, { targetKey: exactKey, phase50BugfixSyncPayloadHydrated: true });
-    } catch (_) {}
-    const memoryPayload = customMediaDurableMemoryStore48D && customMediaDurableMemoryStore48D[exactKey];
-    return memoryPayload && memoryPayload.dataUrl ? memoryPayload : null;
-  }
-  function hydrateCustomMediaFromSyncPayloadCache50Bugfix(stateInput, reason = "phase50-bugfix-sync-custom-media-hydration") {
-    const state = migrateState(stateInput || createDefaultState(), reason);
-    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
-    state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
-    let restored = 0;
-    Object.keys(state.media.custom).forEach((key) => {
-      const item = state.media.custom[key];
-      if (!item || typeof item !== "object" || Array.isArray(item) || customMediaRenderableSource48D(item) || item.restoreBuiltIn18D === true) return;
-      const payload = readCustomMediaPayloadSync50Bugfix(item) || readCustomMediaPayloadSync50Bugfix(key);
-      if (payload && payload.dataUrl) { state.media.custom[key] = customMediaRecordWithDurablePayload48D(item, payload); restored += 1; }
-    });
-    customMediaLocalStoragePayloadEntries50Bugfix().forEach((payload) => {
-      const key = customMediaNormalizeExactTargetKey48D(payload && payload.targetKey);
-      if (!key || state.media.custom[key]) return;
-      state.media.custom[key] = customMediaRecordWithDurablePayload48D({
-        exerciseId: key,
-        customMediaExactTargetKey48D: key,
-        exactExerciseIdLocked: true,
-        overridesExactTargetOnly48D: true,
-        family: payload.family || "image",
-        type: payload.type || "",
-        name: payload.name || "custom-media",
-        durablePayloadKey48D: payload.durablePayloadKey48D || customMediaDurablePayloadKey48D(key),
-        durablePayloadStore48D: "localStorage-payload-mirror",
-        durablePayloadSaved48D: true,
-        durableStorageAfterReload48D: true,
-        phase50BugfixRebuiltMetadataFromPayload: true
-      }, payload);
-      restored += 1;
-    });
-    if (restored > 0) {
-      state.media.phase48D = Object.assign({}, state.media.phase48D || {}, { phase50BugfixSyncCustomMediaHydrated: true, restoredSyncCustomMediaCount50Bugfix: restored, updatedAt: nowIso() });
-      state.audit = Object.assign({}, state.audit || {}, { phase50BugfixSyncCustomMediaHydrated: true, restoredSyncCustomMediaCount50Bugfix: restored });
-    }
-    if (stateInput && typeof stateInput === "object" && !Array.isArray(stateInput)) {
-      stateInput.media = state.media;
-      stateInput.audit = Object.assign({}, stateInput.audit || {}, state.audit || {});
-      stateInput.qa = Object.assign({}, stateInput.qa || {}, state.qa || {});
-      return stateInput;
-    }
-    return state;
-  }
-  const customMediaAsyncHydrationInFlight50Bugfix = {};
-  function queueCustomMediaAsyncTargetHydration50Bugfix(targetKey, reason = "resolve-media-missing-payload") {
-    const exactKey = customMediaNormalizeExactTargetKey48D(targetKey);
-    if (!exactKey || customMediaAsyncHydrationInFlight50Bugfix[exactKey]) return false;
-    customMediaAsyncHydrationInFlight50Bugfix[exactKey] = true;
-    setTimeout(async () => {
-      try {
-        const payload = await readCustomMediaPayload48D(exactKey);
-        if (!payload || !payload.dataUrl) return;
-        const loaded = loadState();
-        const state = migrateState(loaded.state, `phase50-bugfix-async-custom-media-hydration-${reason}`);
-        state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
-        state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
-        const existing = state.media.custom[exactKey] || { exerciseId: exactKey, customMediaExactTargetKey48D: exactKey, exactExerciseIdLocked: true, overridesExactTargetOnly48D: true, durablePayloadSaved48D: true };
-        state.media.custom[exactKey] = customMediaRecordWithDurablePayload48D(existing, payload);
-        const committed = commitHydratedCustomMediaMetadata50Bugfix(state, "phase50-bugfix-async-custom-media-target-hydration-commit");
-        const runtime = mergeRenderableCustomMediaIntoRuntimeState50Bugfix((committed && committed.state) || state, state);
-        customMediaRenderSyncState48DFix = clone(runtime);
-        memoryStateFallback10E = clone(runtime);
-        if (typeof renderApp === "function") renderApp("Custom media restored after reload");
-      } catch (error) {
-        recordStorageWarning10E(`Custom media async hydrate skipped safely for ${exactKey}: ${error && error.message ? error.message : error}`);
-      } finally {
-        delete customMediaAsyncHydrationInFlight50Bugfix[exactKey];
-      }
-    }, 0);
-    return true;
-  }
   function customMediaMetadataForDurableCommit50Bugfix(record, targetKey = "") {
     const exactKey = customMediaNormalizeExactTargetKey48D(targetKey || record && (record.customMediaExactTargetKey48D || record.exerciseId || record.targetKey));
     const durable = {
@@ -8041,10 +7837,9 @@ Existing History logs stay untouched.`);
       });
       try { tx.db.close(); } catch (_) {}
       customMediaDurableMemoryStore48D[exactKey] = payload;
-      const mirror50 = mirrorCustomMediaPayloadToLocalStorage50Bugfix(exactKey, payload);
       const idbVerify50 = await readCustomMediaPayload48D(exactKey);
       if (!idbVerify50 || idbVerify50.dataUrl !== dataUrl) throw new Error("IndexedDB payload verification failed after transaction complete");
-      return { ok: true, storage: "indexeddb", key: exactKey, durablePayloadKey48D: exactKey, verifiedAfterWrite50: true, localPayloadMirror50Bugfix: mirror50 };
+      return { ok: true, storage: "indexeddb", key: exactKey, durablePayloadKey48D: exactKey, verifiedAfterWrite50: true };
     } catch (idbError) {
       try {
         if (!hasStorage()) throw new Error("localStorage unavailable");
@@ -8100,12 +7895,8 @@ Existing History logs stay untouched.`);
       });
       try { tx.db.close(); } catch (_) {}
     } catch (_) {}
-    customMediaLocalStoragePayloadEntries50Bugfix().forEach((payload) => {
-      const key = customMediaNormalizeExactTargetKey48D(payload && payload.targetKey);
-      if (key && !out.some((item) => customMediaNormalizeExactTargetKey48D(item && item.targetKey) === key)) out.push(payload);
-    });
     Object.keys(customMediaDurableMemoryStore48D).forEach((key) => {
-      if (!out.some((item) => customMediaNormalizeExactTargetKey48D(item && item.targetKey) === key)) out.push(customMediaDurableMemoryStore48D[key]);
+      if (!out.some((item) => item && item.targetKey === key)) out.push(customMediaDurableMemoryStore48D[key]);
     });
     return out;
   }
@@ -8166,13 +7957,12 @@ Existing History logs stay untouched.`);
     try {
       const loaded = loadState();
       const hydrated = await hydrateDurableCustomMediaRecords48D(loaded.state);
-      const shouldRender50 = !!(hydrated && (hydrated.restored > 0 || hydrated.totalCustom > 0));
-      if (shouldRender50) {
+      if (hydrated && hydrated.restored > 0) {
         const committed50 = commitHydratedCustomMediaMetadata50Bugfix(hydrated.state, "phase50-bugfix-custom-media-boot-hydration-commit");
         const freshState50 = mergeRenderableCustomMediaIntoRuntimeState50Bugfix((committed50 && committed50.state) || hydrated.state, hydrated.state);
         customMediaRenderSyncState48DFix = clone(freshState50);
         memoryStateFallback10E = clone(freshState50);
-        try { renderApp(hydrated.restored > 0 ? "Custom media restored after reload" : "Custom media checked after reload"); } catch (_) {}
+        try { renderApp("Custom media restored after reload"); } catch (_) {}
       }
       return hydrated;
     } catch (error) {
@@ -8263,17 +8053,7 @@ Existing History logs stay untouched.`);
     const stateForCustom = stateInput || customMediaRenderSyncState48DFix || memoryStateFallback10E || null;
     const custom = getCustomMediaForExercise18C(targetMeta48D.key, stateForCustom);
     if (!custom) return builtInWithTarget48D;
-    let sourceUrl = customMediaRenderableSource48D(custom);
-    let resolvedCustom50 = custom;
-    if (!sourceUrl) {
-      const syncPayload50 = typeof readCustomMediaPayloadSync50Bugfix === "function" ? readCustomMediaPayloadSync50Bugfix(custom) || readCustomMediaPayloadSync50Bugfix(targetMeta48D.key) : null;
-      if (syncPayload50 && syncPayload50.dataUrl) {
-        resolvedCustom50 = customMediaRecordWithDurablePayload48D(custom, syncPayload50);
-        sourceUrl = customMediaRenderableSource48D(resolvedCustom50);
-      } else if (typeof queueCustomMediaAsyncTargetHydration50Bugfix === "function") {
-        queueCustomMediaAsyncTargetHydration50Bugfix(targetMeta48D.key, "resolve-media-fallback-tile");
-      }
-    }
+    const sourceUrl = customMediaRenderableSource48D(custom);
     if (!sourceUrl) {
       return decorateMediaCustomTarget48D(Object.assign({}, builtInWithTarget48D, {
         customMediaMissingBlob18E: true,
@@ -8283,23 +8063,22 @@ Existing History logs stay untouched.`);
         fallbackCue: builtIn.fallbackCue || phase49MediaFallbackCopy(builtInWithTarget48D),
         builtInResolution17: builtIn,
         builtInIntact: true,
-        missingBlobSafeFallback18E: true,
-        phase50BugfixQueuedCustomMediaHydration: true
+        missingBlobSafeFallback18E: true
       }), targetMeta48D);
     }
     return decorateMediaCustomTarget48D(Object.assign({}, builtInWithTarget48D, {
       mediaType: "customMedia18C",
       custom: true,
       customMedia18C: true,
-      customItem: resolvedCustom50,
+      customItem: custom,
       exact: true,
       label: "Custom media",
       icon: "CM",
       family: "custom",
-      registryTitle: resolvedCustom50.name || "Custom media",
-      previewCue: resolvedCustom50.name ? `Saved media: ${resolvedCustom50.name}. Use this as your reference for the movement.` : "Saved media is ready. Use it as your reference for the movement.",
+      registryTitle: custom.name || "Custom media",
+      previewCue: custom.name ? `Saved media: ${custom.name}. Use this as your reference for the movement.` : "Saved media is ready. Use it as your reference for the movement.",
       sourceUrl,
-      sourceFamily: resolvedCustom50.family || "image",
+      sourceFamily: custom.family || "image",
       builtInResolution17: builtIn,
       builtInIntact: true,
       metadataBackupBuilt18E: true,
@@ -49927,107 +49706,8 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     });
   }
 
-  function runCustomGifMediaDurableHydrationAudit50Bugfix() {
-    const state = migrateState(createDefaultState(), "phase50-bugfix-custom-gif-hydration-audit");
-    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
-    state.media.custom = {};
-    const parent = { id: "audit-combo-parent", displayName: "Band pull-aparts + scap circles + light rows", block: "Warm-up", targetMuscles: ["scapula"], media: { mediaKey: "Band_Pull_Apart", exact: false, fallbackAllowed: true }, equipment: ["bands"] };
-    const combo = resolveComboWarmupStackedMedia30EMedia(parent, state);
-    const scapEntry = combo.components.find((entry) => /scap circles/i.test(String(entry && entry.component && entry.component.name || entry && entry.exercise && entry.exercise.displayName || ""))) || combo.components[1] || combo.components[0];
-    const component = scapEntry && scapEntry.exercise ? scapEntry.exercise : { id: "audit-combo-parent--component-2-scap-circles", displayName: "Scap circles", childName: "Scap circles", comboComponent30EMedia: true, parentComboExerciseId30EMedia: parent.id, parentComboExerciseName30EMedia: parent.displayName, media: { mediaKey: "Scap_Circles", exact: false, fallbackAllowed: true } };
-    const parentPayload = { targetKey: parent.id, dataUrl: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==", family: "image", type: "image/gif", name: "parent.gif", sizeBytes: 64, savedAt: nowIso() };
-    const componentPayload = { targetKey: component.id, dataUrl: "data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs=", family: "image", type: "image/gif", name: "scap-circles-component.gif", sizeBytes: 72, savedAt: nowIso() };
-    customMediaDurableMemoryStore48D[parent.id] = parentPayload;
-    customMediaDurableMemoryStore48D[component.id] = componentPayload;
-    const parentMeta = customMediaPayloadMetadata48D(normalizeCustomMediaRecord18C(parent.id, { name: parentPayload.name, type: parentPayload.type, size: parentPayload.sizeBytes }, validateCustomMediaFile18B({ name: parentPayload.name, type: parentPayload.type, size: parentPayload.sizeBytes }), parentPayload.dataUrl, resolveBuiltInMedia17(parent), customMediaTargetMeta48D(parent, resolveBuiltInMedia17(parent))), { ok: true, key: parent.id, storage: "audit-memory" });
-    const componentMeta = customMediaPayloadMetadata48D(normalizeCustomMediaRecord18C(component.id, { name: componentPayload.name, type: componentPayload.type, size: componentPayload.sizeBytes }, validateCustomMediaFile18B({ name: componentPayload.name, type: componentPayload.type, size: componentPayload.sizeBytes }), componentPayload.dataUrl, resolveBuiltInMedia17(component), customMediaTargetMeta48D(component, resolveBuiltInMedia17(component))), { ok: true, key: component.id, storage: "audit-memory" });
-    const metadataOnly = migrateState(state, "phase50-bugfix-custom-gif-metadata-only");
-    metadataOnly.media.custom[parent.id] = parentMeta;
-    metadataOnly.media.custom[component.id] = componentMeta;
-    const syncHydrated = hydrateCustomMediaFromSyncPayloadCache50Bugfix(metadataOnly, "phase50-bugfix-custom-gif-sync-hydration-audit");
-    const hydratedParent = resolveMedia(parent, syncHydrated);
-    const hydratedCombo = resolveComboWarmupStackedMedia30EMedia(parent, syncHydrated);
-    const hydratedComponent = hydratedCombo.components.find((entry) => entry.exercise && entry.exercise.id === component.id) || hydratedCombo.components.find((entry) => /scap circles/i.test(String(entry && entry.component && entry.component.name || "")));
-    const hydratedComponentMedia = hydratedComponent && hydratedComponent.media ? hydratedComponent.media : resolveMedia(component, syncHydrated);
-    const sibling = hydratedCombo.components.find((entry) => entry.exercise && entry.exercise.id !== component.id && entry.exercise.id !== parent.id);
-    const siblingMedia = sibling && sibling.media;
-    const restored = buildRestoredBuiltInMediaState18D(syncHydrated, component.id);
-    const restoredComponent = resolveMedia(component, restored.state);
-    const restoredParent = resolveMedia(parent, restored.state);
-    const completedClear = markFinishedWorkoutStateClear32CBugfix(migrateState(Object.assign({}, syncHydrated, { activeSession: buildActiveSession(syncHydrated, "Monday", "Gym", "Full") }), "phase50-bugfix-custom-gif-completion-audit"), { id: "audit-archive" });
-    const checks = {
-      syncPayloadHydrationBuilt: typeof hydrateCustomMediaFromSyncPayloadCache50Bugfix === "function" && typeof readCustomMediaPayloadSync50Bugfix === "function",
-      localPayloadMirrorBuilt: /mirrorCustomMediaPayloadToLocalStorage50Bugfix/.test(String(persistCustomMediaPayload48D || "")) && typeof customMediaLocalStoragePayloadEntries50Bugfix === "function",
-      asyncTargetHydrationBuilt: typeof queueCustomMediaAsyncTargetHydration50Bugfix === "function" && /queueCustomMediaAsyncTargetHydration50Bugfix/.test(String(resolveMedia || "")),
-      parentGifHydrates: !!(hydratedParent && hydratedParent.customMedia18C === true && hydratedParent.sourceUrl === parentPayload.dataUrl),
-      componentGifHydrates: !!(hydratedComponentMedia && hydratedComponentMedia.customMedia18C === true && hydratedComponentMedia.sourceUrl === componentPayload.dataUrl),
-      siblingIsolationPreserved: !(siblingMedia && siblingMedia.customMedia18C === true && siblingMedia.sourceUrl === componentPayload.dataUrl),
-      parentComponentIsolationPreserved: hydratedParent.sourceUrl !== hydratedComponentMedia.sourceUrl,
-      restoreBuiltInExactTargetOnly: !!(restoredComponent && restoredComponent.customMedia18C !== true && restoredParent && restoredParent.customMedia18C === true),
-      workoutCompletionPreservesCustomMedia: !!(completedClear && completedClear.media && completedClear.media.custom && completedClear.media.custom[parent.id] && completedClear.media.custom[component.id]),
-      noDuplicateMediaStorage: true,
-      noDuplicateResolver: true,
-      noDuplicateUploadHandler: true
-    };
-    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
-    return Object.freeze({
-      phase: "Phase 50 BUGFIX — Custom GIF/Media Durable Hydration Revision",
-      status,
-      checks,
-      parentTargetKey: parent.id,
-      componentTargetKey: component.id,
-      strategy: "Exact-target custom media still uses state.media.custom metadata plus existing Phase 48D durable payloads. Phase 50 now mirrors payloads best-effort to the existing localStorage payload prefix for synchronous first-render hydration and queues an exact-target async IDB hydration if a metadata-only tile still resolves to fallback."
-    });
-  }
-
-  function runCustomMediaReloadPayloadRestorationAudit50Bugfix() {
-    const state = migrateState(createDefaultState(), "phase50-bugfix-custom-media-reload-payload-restoration-audit");
-    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
-    state.media.custom = {};
-    const parent = { id: "audit-reload-parent-media", displayName: "Audit parent media", media: { mediaKey: "audit-parent-media", exact: false, fallbackAllowed: true } };
-    const component = { id: "audit-reload-parent-media--component-2-scap-circles", displayName: "Scap circles", childName: "Scap circles", comboComponent30EMedia: true, parentComboExerciseId30EMedia: parent.id, parentComboExerciseName30EMedia: parent.displayName, media: { mediaKey: "audit-scap-circles", exact: false, fallbackAllowed: true } };
-    const parentGif = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-    const componentGif = "data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs=";
-    const parentPayload = { targetKey: parent.id, customMediaExactTargetKey48D: parent.id, dataUrl: parentGif, family: "image", type: "image/gif", name: "parent-reload.gif", savedAt: nowIso(), durableStorageAfterReload48D: true };
-    const componentPayload = { targetKey: component.id, customMediaExactTargetKey48D: component.id, dataUrl: componentGif, family: "image", type: "image/gif", name: "component-reload.gif", savedAt: nowIso(), durableStorageAfterReload48D: true };
-    state.media.custom[parent.id] = customMediaPayloadMetadata48D(normalizeCustomMediaRecord18C(parent.id, { name: "parent-reload.gif", type: "image/gif", size: 64 }, { valid: true, family: "image", type: "image/gif", name: "parent-reload.gif", sizeBytes: 64 }, parentGif, resolveBuiltInMedia17(parent), { key: parent.id, type: "exercise", name: "Audit parent", appliesCopy: "Applies to this exercise only" }), { ok: true, key: parent.id, storage: "indexeddb" });
-    state.media.custom[component.id] = customMediaPayloadMetadata48D(normalizeCustomMediaRecord18C(component.id, { name: "component-reload.gif", type: "image/gif", size: 72 }, { valid: true, family: "image", type: "image/gif", name: "component-reload.gif", sizeBytes: 72 }, componentGif, resolveBuiltInMedia17(component), { key: component.id, type: "component", name: "Scap circles", parentExerciseId: parent.id, parentExerciseName: parent.displayName, appliesCopy: "Applies to this move only" }), { ok: true, key: component.id, storage: "indexeddb" });
-    const runtimeRestored = mergeRenderableCustomMediaIntoRuntimeState50Bugfix(state, { media: { custom: { [parent.id]: customMediaRecordWithDurablePayload48D(state.media.custom[parent.id], parentPayload), [component.id]: customMediaRecordWithDurablePayload48D(state.media.custom[component.id], componentPayload) } } });
-    hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(runtimeRestored, "phase50-bugfix-audit-static-hydration-preserves-reload-payload");
-    const parentResolved = resolveMedia(parent, runtimeRestored);
-    const componentResolved = resolveMedia(component, runtimeRestored);
-    const parentOk = !!(parentResolved && parentResolved.customMedia18C === true && parentResolved.sourceUrl === parentGif);
-    const componentOk = !!(componentResolved && componentResolved.customMedia18C === true && componentResolved.sourceUrl === componentGif);
-    const sibling = { id: "audit-reload-parent-media--component-3-light-rows", displayName: "Light rows", childName: "Light rows", comboComponent30EMedia: true, parentComboExerciseId30EMedia: parent.id, parentComboExerciseName30EMedia: parent.displayName, media: { mediaKey: "audit-light-rows", exact: false, fallbackAllowed: true } };
-    const siblingResolved = resolveMedia(sibling, runtimeRestored);
-    const siblingIsolated = !(siblingResolved && siblingResolved.customMedia18C === true);
-    const helperSource = String(hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix || "");
-    const loadSource = String(loadState || "");
-    const noBroadLayer = typeof resolveMedia === "function" && typeof saveCustomMediaToExactExercise18C === "function" && typeof persistCustomMediaPayload48D === "function";
-    const status = parentOk && componentOk && siblingIsolated && /collectRenderableCustomMediaPayloads50Bugfix/.test(helperSource) && /hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix/.test(loadSource) && noBroadLayer ? "GREEN" : "YELLOW";
-    return {
-      phase: "Phase 50 BUGFIX — Custom Media Reload Payload Restoration Lock",
-      status,
-      parentOk,
-      componentOk,
-      siblingIsolated,
-      parentSourceAfterReload: parentResolved && parentResolved.sourceUrl || "",
-      componentSourceAfterReload: componentResolved && componentResolved.sourceUrl || "",
-      helperPreservesRenderablePayloads: /collectRenderableCustomMediaPayloads50Bugfix/.test(helperSource),
-      loadStateUsesPreservingHydration: /hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix/.test(loadSource),
-      indexedDbOnlyReloadPathCovered: true,
-      noDuplicateResolver: true,
-      noDuplicateUploadHandler: true,
-      noBroadPersistenceLayer: true,
-      androidPhoneGate: "YELLOW until Android/GitHub confirms upload refresh keeps parent and component GIF/custom media visible"
-    };
-  }
-
-
   function runDurablePersistenceCommitHydrationLockAudit50Bugfix() {
     const fullRouteSnapshotAudit50Bugfix = runFullActiveRouteSnapshotPersistenceAudit50Bugfix();
-    const customGifMediaAudit50Bugfix = runCustomGifMediaDurableHydrationAudit50Bugfix();
-    const customMediaReloadPayloadRestoration50 = typeof runCustomMediaReloadPayloadRestorationAudit50Bugfix === "function" ? runCustomMediaReloadPayloadRestorationAudit50Bugfix() : { status: "YELLOW", missing: true };
     const source = String(document.documentElement && document.documentElement.outerHTML || "");
     const bugfixStart50 = source.indexOf("const PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK");
     const bugfixEnd50 = source.indexOf("\n  window.TailoredTrainingComponentMediaStatusCopyCleanup49D = Object.freeze({");
@@ -50091,11 +49771,6 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       customMediaMetadataOnlyCommit: !!(metadataState.media.custom["scap-circles"] && !customMediaRenderableSource48D(metadataState.media.custom["scap-circles"]) && metadataState.media.custom["scap-circles"].durablePayloadSaved48D === true),
       runtimeKeepsRenderableGif: !!(runtimeState.media.custom["scap-circles"] && customMediaRenderableSource48D(runtimeState.media.custom["scap-circles"]) === gifPayload),
       workoutCompletionPreservesCustomMedia: !!(completedClear.media && completedClear.media.custom && completedClear.media.custom["scap-circles"] && completedClear.media.custom["combo-parent--component-scap-circles"]),
-      customGifMediaHydrationAuditPasses: customGifMediaAudit50Bugfix.status === "GREEN",
-      customMediaReloadPayloadRestorationPasses: customMediaReloadPayloadRestoration50.status === "GREEN",
-      staticHydrationPreservesRenderablePayloads: typeof hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix === "function" && /collectRenderableCustomMediaPayloads50Bugfix/.test(String(hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix || "")),
-      customGifParentHydratesAfterReload: !!(customGifMediaAudit50Bugfix.checks && customGifMediaAudit50Bugfix.checks.parentGifHydrates),
-      customGifComponentHydratesAfterReload: !!(customGifMediaAudit50Bugfix.checks && customGifMediaAudit50Bugfix.checks.componentGifHydrates),
       parentComponentIsolationPreserved: !!(metadataState.media.custom["scap-circles"] && metadataState.media.custom["combo-parent--component-scap-circles"] && metadataState.media.custom["scap-circles"] !== metadataState.media.custom["combo-parent--component-scap-circles"]),
       restoreBuiltInExactTargetStillPresent: typeof restoreBuiltInMedia18D === "function" && typeof removeCustomMediaPayload48D === "function",
       factoryResetOnlyExplicit: typeof factoryResetApp49A === "function" && /Type RESET/.test(String(factoryResetApp49A || "")),
@@ -50113,13 +49788,10 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       outputFile: PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE,
       status,
       checks,
-      fullRouteSnapshotAudit50Bugfix,
-      customGifMediaAudit50Bugfix,
-      customMediaReloadPayloadRestoration50,
-      rootCauseFound: "Runtime render-sync memory could outrank newer durable STATE_KEY data, and custom-media hydration restored renderable payloads too late or not at all for exact component GIF targets, causing metadata-only custom media to resolve as CV/fallback after reload. IndexedDB payload writes also resolved on request success instead of transaction completion.",
+      rootCauseFound: "Runtime render-sync memory could outrank newer durable STATE_KEY data, and custom-media hydration restored renderable payloads to memory/render without a metadata-only durable commit. IndexedDB payload writes also resolved on request success instead of transaction completion.",
       activeSessionPersistenceStrategy: "Normal set and drop-set completion now use commitCriticalActiveSessionProgress50Bugfix, which saves through existing saveState/STATE_KEY, writes the Phase 49A direct active-session snapshot, and verifies hydration before rendering success messaging.",
-      customMediaDurableStorageStrategy: "Custom media remains global exact-target metadata in state.media.custom plus durable payloads in the existing Phase 48D IndexedDB/localStorage payload path. Payload writes wait for transaction completion, verify readback, and best-effort mirror payloads to the existing tt_custom_media_payload48d localStorage prefix so GIF/image targets can hydrate synchronously before first render when storage allows.",
-      bootReloadHydrationStrategy: "loadState now refuses stale runtime memory when localStorage is newer, hydrates custom media from the synchronous payload mirror when available, then hydrates active-session progress before Today renders. If an exact-target metadata tile still lacks a renderable source, resolveMedia queues one async existing-payload hydration and re-renders when the payload is restored.",
+      customMediaDurableStorageStrategy: "Custom media remains global exact-target metadata in state.media.custom plus durable payloads in IndexedDB/localStorage payload keys. Payload writes wait for transaction completion and verify readback before success.",
+      bootReloadHydrationStrategy: "loadState now refuses stale runtime memory when localStorage is newer, then hydrates active-session progress before Today renders. Boot custom-media hydration commits metadata-only state while retaining renderable payloads in runtime memory.",
       workoutCompletionCleanupStrategy: "Finish/auto-save clears active workout/rest state only after archive creation and saves a metadata-only custom-media state, while runtime renderable custom media is merged into memory so media does not vanish after completion.",
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
@@ -50141,8 +49813,6 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     commitCriticalActiveSessionProgress50Bugfix,
     commitHydratedCustomMediaMetadata50Bugfix,
     shouldPreferRuntimeStateOverDurableState50Bugfix,
-    hydrateCustomMediaFromSyncPayloadCache50Bugfix,
-    runCustomGifMediaDurableHydrationAudit50Bugfix,
     runDurablePersistenceCommitHydrationLockAudit50Bugfix,
     runFullActiveRouteSnapshotPersistenceAudit50Bugfix,
     runFullAppAudit50BugfixDurablePersistence,
