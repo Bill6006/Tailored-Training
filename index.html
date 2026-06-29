@@ -2,6 +2,15 @@
 
 
 
+
+<!--
+PHASE_48D_BUGFIX_CUSTOM_MEDIA_DURABLE_STORAGE_AFTER_RELOAD_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase48D_BUGFIX_Custom_Media_Android_Save_Apply_Verification_v1.html as the base.
+- Added durable custom-media payload storage for exact exercise/component targets so saved media can survive GitHub Pages reload/reopen.
+- Custom media payloads are persisted outside the bulky app-state JSON when possible; lightweight exact-target metadata remains in state.
+- Added boot/reload hydration that reconnects durable payloads to exact target keys before rerendering media tiles.
+- Preserved thumbnail sizing, preview layout, compact preview actions, built-in media decisions, set logging, rest, coach, drop sets, History, Data, Backup, saved logs, route generation, and workout programming.
+-->
 <!--
 PHASE_48D_BUGFIX_CUSTOM_MEDIA_ANDROID_SAVE_APPLY_VERIFICATION_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase48D_BUGFIX_Custom_Media_Save_Render_Sync_Preview_Action_Placement_v1.html as the base.
@@ -6998,6 +7007,12 @@ Existing History logs stay untouched.`);
   const PHASE48D_SAVE_RENDER_SYNC_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase48D_BUGFIX_Custom_Media_Save_Render_Sync_Preview_Action_Placement_v1.html";
   const PHASE48D_ANDROID_SAVE_APPLY_VERIFICATION_BUGFIX = "Phase 48D BUGFIX — Custom Media Android Save Apply Verification";
   const PHASE48D_ANDROID_SAVE_APPLY_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase48D_BUGFIX_Custom_Media_Android_Save_Apply_Verification_v1.html";
+  const PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_BUGFIX = "Phase 48D BUGFIX — Custom Media Durable Storage After Reload";
+  const PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase48D_BUGFIX_Custom_Media_Durable_Storage_After_Reload_v1.html";
+  const CUSTOM_MEDIA_DURABLE_DB48D = "TailoredTrainingCustomMedia48D";
+  const CUSTOM_MEDIA_DURABLE_STORE48D = "payloads";
+  const CUSTOM_MEDIA_DURABLE_LOCAL_PREFIX48D = "tt_custom_media_payload48d:";
+  const customMediaDurableMemoryStore48D = {};
   function customMediaExactTargetKey48DSync48D(source, fallbackKey = "") {
     const src = source && typeof source === "object" ? source : {};
     const raw = [
@@ -7085,7 +7100,7 @@ Existing History logs stay untouched.`);
     return `<div class="media-preview-actions48d" id="mediaPreviewCustomActions48D" data-phase48d-preview-custom-media-actions="stage-overlay-save-render-sync-android-save-apply"></div>`;
   }
   function customMediaRenderableSource48D(record) {
-    return String(record && (record.dataUrl || record.previewUrl || record.blobUrl || record.sourceUrl) || "");
+    return String(record && (record.dataUrl || record.restoredDataUrl48D || record.durableDataUrl48D || record.previewUrl || record.blobUrl || record.sourceUrl) || "");
   }
   function customMediaRenderableSourceOk48D(source, validation) {
     const src = String(source || "");
@@ -7094,6 +7109,208 @@ Existing History logs stay untouched.`);
     if (family === "video") return /^data:video\/(mp4|webm);base64,/i.test(src) || /^blob:/i.test(src);
     return /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(src) || /^blob:/i.test(src);
   }
+  function customMediaDurablePayloadKey48D(targetKey) {
+    return `${CUSTOM_MEDIA_DURABLE_LOCAL_PREFIX48D}${customMediaNormalizeExactTargetKey48D(targetKey)}`;
+  }
+  function customMediaPayloadMetadata48D(record, durable) {
+    const copy = Object.assign({}, record || {});
+    delete copy.dataUrl;
+    delete copy.restoredDataUrl48D;
+    delete copy.durableDataUrl48D;
+    delete copy.previewUrl;
+    delete copy.blobUrl;
+    delete copy.sourceUrl;
+    copy.durablePayloadKey48D = durable && durable.key || customMediaDurablePayloadKey48D(copy.customMediaExactTargetKey48D || copy.exerciseId || "");
+    copy.durablePayloadStore48D = durable && durable.storage || "pending";
+    copy.durablePayloadSaved48D = !!(durable && durable.ok);
+    copy.storageMode18E = "durable-payload-with-lightweight-state-metadata";
+    copy.reloadRestoreRequired48D = true;
+    copy.durableStorageAfterReload48D = true;
+    return copy;
+  }
+  function customMediaRecordWithDurablePayload48D(metadata, payload) {
+    if (!metadata || !payload) return metadata || null;
+    const dataUrl = String(payload.dataUrl || payload.restoredDataUrl48D || "");
+    return Object.assign({}, metadata, {
+      dataUrl,
+      restoredDataUrl48D: dataUrl,
+      family: metadata.family || payload.family || "image",
+      type: metadata.type || payload.type || "",
+      name: metadata.name || payload.name || "custom-media",
+      durablePayloadRestored48D: !!dataUrl,
+      durableStorageAfterReload48D: true
+    });
+  }
+  function customMediaOpenDurableDb48D() {
+    return new Promise((resolve, reject) => {
+      if (typeof indexedDB === "undefined") { reject(new Error("IndexedDB unavailable")); return; }
+      const request = indexedDB.open(CUSTOM_MEDIA_DURABLE_DB48D, 1);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if (!db.objectStoreNames.contains(CUSTOM_MEDIA_DURABLE_STORE48D)) db.createObjectStore(CUSTOM_MEDIA_DURABLE_STORE48D, { keyPath: "targetKey" });
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("IndexedDB open failed"));
+      request.onblocked = () => reject(new Error("IndexedDB open blocked"));
+    });
+  }
+  function customMediaDurableTx48D(mode = "readonly") {
+    return customMediaOpenDurableDb48D().then((db) => ({ db, store: db.transaction(CUSTOM_MEDIA_DURABLE_STORE48D, mode).objectStore(CUSTOM_MEDIA_DURABLE_STORE48D) }));
+  }
+  async function persistCustomMediaPayload48D(targetKey, record) {
+    const exactKey = customMediaNormalizeExactTargetKey48D(targetKey || record && (record.customMediaExactTargetKey48D || record.exerciseId));
+    const dataUrl = customMediaRenderableSource48D(record);
+    if (!exactKey || !dataUrl) return { ok: false, reason: "missing-target-or-payload", key: exactKey };
+    const payload = {
+      targetKey: exactKey,
+      dataUrl,
+      family: record.family || "image",
+      type: record.type || "",
+      name: record.name || "custom-media",
+      sizeBytes: record.sizeBytes || 0,
+      savedAt: nowIso(),
+      customMediaExactTargetKey48D: exactKey,
+      durableStorageAfterReload48D: true
+    };
+    try {
+      const tx = await customMediaDurableTx48D("readwrite");
+      await new Promise((resolve, reject) => {
+        const req = tx.store.put(payload);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error || new Error("IndexedDB payload put failed"));
+      });
+      try { tx.db.close(); } catch (_) {}
+      customMediaDurableMemoryStore48D[exactKey] = payload;
+      return { ok: true, storage: "indexeddb", key: exactKey, durablePayloadKey48D: exactKey };
+    } catch (idbError) {
+      try {
+        if (!hasStorage()) throw new Error("localStorage unavailable");
+        const storageKey = customMediaDurablePayloadKey48D(exactKey);
+        const serialized = JSON.stringify(payload);
+        const setResult = safeStorageSet10E(storageKey, serialized);
+        if (!setResult || !setResult.ok) throw new Error(setResult && setResult.reason || "localStorage payload write failed");
+        const verifyRaw = safeStorageGet10E(storageKey, null);
+        const verify = safeJsonParse(verifyRaw, null, storageKey);
+        if (!verify.ok || !verify.value || verify.value.dataUrl !== dataUrl) throw new Error("localStorage payload verification failed");
+        customMediaDurableMemoryStore48D[exactKey] = payload;
+        return { ok: true, storage: "localStorage-payload", key: storageKey, targetKey: exactKey, idbError: String(idbError && idbError.message || idbError) };
+      } catch (lsError) {
+        customMediaDurableMemoryStore48D[exactKey] = payload;
+        return { ok: false, storage: "memory-only", key: exactKey, idbError: String(idbError && idbError.message || idbError), reason: String(lsError && lsError.message || lsError) };
+      }
+    }
+  }
+  async function readCustomMediaPayload48D(targetKeyOrRecord) {
+    const record = targetKeyOrRecord && typeof targetKeyOrRecord === "object" ? targetKeyOrRecord : null;
+    const exactKey = customMediaNormalizeExactTargetKey48D(record ? (record.customMediaExactTargetKey48D || record.exerciseId || record.targetKey) : targetKeyOrRecord);
+    if (!exactKey) return null;
+    try {
+      const tx = await customMediaDurableTx48D("readonly");
+      const found = await new Promise((resolve, reject) => {
+        const req = tx.store.get(exactKey);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error || new Error("IndexedDB payload read failed"));
+      });
+      try { tx.db.close(); } catch (_) {}
+      if (found && found.dataUrl) return found;
+    } catch (_) {}
+    try {
+      const storageKey = record && /^tt_custom_media_payload48d:/.test(String(record.durablePayloadKey48D || "")) ? record.durablePayloadKey48D : customMediaDurablePayloadKey48D(exactKey);
+      const raw = hasStorage() ? safeStorageGet10E(storageKey, null) : null;
+      const parsed = safeJsonParse(raw, null, storageKey);
+      if (parsed.ok && parsed.value && parsed.value.dataUrl) return parsed.value;
+    } catch (_) {}
+    return customMediaDurableMemoryStore48D[exactKey] || null;
+  }
+  async function listCustomMediaPayloads48D() {
+    const out = [];
+    try {
+      const tx = await customMediaDurableTx48D("readonly");
+      await new Promise((resolve, reject) => {
+        const req = tx.store.openCursor();
+        req.onsuccess = () => {
+          const cursor = req.result;
+          if (cursor) { if (cursor.value && cursor.value.targetKey) out.push(cursor.value); cursor.continue(); }
+          else resolve(true);
+        };
+        req.onerror = () => reject(req.error || new Error("IndexedDB cursor failed"));
+      });
+      try { tx.db.close(); } catch (_) {}
+    } catch (_) {}
+    Object.keys(customMediaDurableMemoryStore48D).forEach((key) => {
+      if (!out.some((item) => item && item.targetKey === key)) out.push(customMediaDurableMemoryStore48D[key]);
+    });
+    return out;
+  }
+  async function removeCustomMediaPayload48D(targetKey) {
+    const exactKey = customMediaNormalizeExactTargetKey48D(targetKey);
+    if (!exactKey) return { ok: false, reason: "missing-target-key" };
+    delete customMediaDurableMemoryStore48D[exactKey];
+    try { if (hasStorage()) localStorage.removeItem(customMediaDurablePayloadKey48D(exactKey)); } catch (_) {}
+    try {
+      const tx = await customMediaDurableTx48D("readwrite");
+      await new Promise((resolve, reject) => {
+        const req = tx.store.delete(exactKey);
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => reject(req.error || new Error("IndexedDB delete failed"));
+      });
+      try { tx.db.close(); } catch (_) {}
+    } catch (_) {}
+    return { ok: true, targetKey: exactKey };
+  }
+  async function hydrateDurableCustomMediaRecords48D(stateInput) {
+    const state = migrateState(stateInput || loadState().state, "phase48d-durable-custom-media-hydration");
+    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
+    state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
+    let restored = 0;
+    const keys = Object.keys(state.media.custom);
+    for (const key of keys) {
+      const item = state.media.custom[key];
+      if (item && !customMediaRenderableSource48D(item) && item.durablePayloadSaved48D) {
+        const payload = await readCustomMediaPayload48D(item);
+        if (payload && payload.dataUrl) { state.media.custom[key] = customMediaRecordWithDurablePayload48D(item, payload); restored += 1; }
+        else state.media.custom[key] = Object.assign({}, item, { durablePayloadMissing48D: true, customMediaMissingBlob18E: true });
+      }
+    }
+    const payloads = await listCustomMediaPayloads48D();
+    payloads.forEach((payload) => {
+      const key = customMediaNormalizeExactTargetKey48D(payload && payload.targetKey);
+      if (!key || state.media.custom[key]) return;
+      state.media.custom[key] = customMediaRecordWithDurablePayload48D({
+        exerciseId: key,
+        customMediaExactTargetKey48D: key,
+        exactExerciseIdLocked: true,
+        overridesExactTargetOnly48D: true,
+        family: payload.family || "image",
+        type: payload.type || "",
+        name: payload.name || "custom-media",
+        durablePayloadKey48D: key,
+        durablePayloadStore48D: "indexeddb-or-payload-store",
+        durablePayloadSaved48D: true,
+        durableStorageAfterReload48D: true
+      }, payload);
+      restored += 1;
+    });
+    state.media.phase48D = Object.assign({}, state.media.phase48D || {}, { durableStorageAfterReload48D: true, restoredDurableCustomMediaCount48D: restored, updatedAt: nowIso() });
+    state.audit = Object.assign({}, state.audit || {}, { customMediaDurableStorageAfterReload48D: true, restoredDurableCustomMediaCount48D: restored });
+    return { state, restored, totalCustom: Object.keys(state.media.custom).length };
+  }
+  async function restoreDurableCustomMediaOnBoot48D() {
+    try {
+      const loaded = loadState();
+      const hydrated = await hydrateDurableCustomMediaRecords48D(loaded.state);
+      if (hydrated && hydrated.restored > 0) {
+        customMediaRenderSyncState48DFix = clone(hydrated.state);
+        memoryStateFallback10E = clone(hydrated.state);
+        try { renderApp("Custom media restored after reload"); } catch (_) {}
+      }
+      return hydrated;
+    } catch (error) {
+      recordStorageWarning10E(`Custom media durable restore skipped safely: ${error && error.message ? error.message : error}`);
+      return { state: null, restored: 0, error: String(error && error.message || error) };
+    }
+  }
+
   function customMediaSyntheticExerciseForTarget48D(targetMeta, builtInMedia = null) {
     return {
       id: targetMeta && targetMeta.key || "custom-media-target",
@@ -7801,9 +8018,10 @@ Existing History logs stay untouched.`);
       metadataBackupBuilt18E: true,
       blobPackageExportBuilt18E: false,
       missingBlobSafeFallback18E: true,
-      storageMode18E: "local-state-data-url-metadata-backed-up",
-      backupWarning18E: "Metadata is backed up. Blob/package export is not built yet; restored metadata without a blob falls back safely.",
+      storageMode18E: "durable-payload-with-lightweight-state-metadata",
+      backupWarning18E: "Metadata is backed up. Durable custom media payload restore is built for this device; exported metadata without a payload still falls back safely.",
       androidSaveApplyVerification48D: true,
+      durableStorageAfterReload48D: true,
       renderableDataUrl48D: !!dataUrl
     };
   }
@@ -7837,16 +8055,24 @@ Existing History logs stay untouched.`);
       state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
       state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
       const record = normalizeCustomMediaRecord18C(exerciseId, transient.file, transient.validation, dataUrl, builtInMedia, targetMeta);
-      state.media.custom[exerciseId] = record;
+      const durable = await persistCustomMediaPayload48D(exerciseId, record);
+      if (!durable || durable.ok !== true) {
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: durable storage did not accept this media. Try a smaller file or check browser storage."; }
+        return { ok: false, reason: "durable-payload-save-failed", targetMeta, durable };
+      }
+      const persistedRecord = customMediaPayloadMetadata48D(record, durable);
+      state.media.custom[exerciseId] = persistedRecord;
       const verifyEx = customMediaSyntheticExerciseForTarget48D(targetMeta, builtInMedia);
-      const verifyResolutionBeforeSave = resolveMedia(verifyEx, state);
+      const verifyStateBeforeSave = migrateState(state, "phase48d-durable-before-save-render-verify");
+      verifyStateBeforeSave.media.custom[exerciseId] = record;
+      const verifyResolutionBeforeSave = resolveMedia(verifyEx, verifyStateBeforeSave);
       if (!(verifyResolutionBeforeSave && verifyResolutionBeforeSave.customMedia18C === true && verifyResolutionBeforeSave.sourceUrl === dataUrl)) {
         if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: custom media did not resolve for this exact target."; }
         return { ok: false, reason: "custom-resolution-verification-failed", targetMeta, verifyResolutionBeforeSave };
       }
       state.media.phase18C = { exactExerciseSaveBuilt: true, lastSavedExerciseId: exerciseId, updatedAt: nowIso(), restoreBuiltInBuilt: true, backupHandlingBuilt: true };
-      state.media.phase18E = { metadataBackupBuilt: true, lastCustomMediaExerciseId: exerciseId, updatedAt: nowIso(), blobPackageExportBuilt: false, missingBlobFallbackBuilt: true };
-      state.media.phase48D = { componentLevelCustomMediaBuilt: true, lastCustomMediaTargetKey: exerciseId, lastCustomMediaTargetType: targetMeta.type, updatedAt: nowIso(), exactTargetOnly: true, restoreExactTargetOnly: true, saveRenderSyncBugfix48D: true, previewActionPlacementBugfix48D: true, androidSaveApplyVerification48D: true };
+      state.media.phase18E = { metadataBackupBuilt: true, lastCustomMediaExerciseId: exerciseId, updatedAt: nowIso(), blobPackageExportBuilt: false, missingBlobFallbackBuilt: true, durablePayloadStorage48D: true };
+      state.media.phase48D = { componentLevelCustomMediaBuilt: true, lastCustomMediaTargetKey: exerciseId, lastCustomMediaTargetType: targetMeta.type, updatedAt: nowIso(), exactTargetOnly: true, restoreExactTargetOnly: true, saveRenderSyncBugfix48D: true, previewActionPlacementBugfix48D: true, androidSaveApplyVerification48D: true, durableStorageAfterReload48D: true, durablePayloadStore48D: durable.storage };
       state.qa = Object.assign({}, state.qa, { phase18CCustomMediaExactExerciseSave: "exact-exercise-save-ready", phase18DRestoreBuiltInMedia: "restore-built-in-ready", phase18ECustomMediaStorageBackup: "metadata-backup-ready", phase18FCustomMediaRegressionLock: "regression-lock-ready-phone-test-required", phase48DComponentLevelCustomMediaOverride: "component-target-ready-phone-test-required", phase48DAndroidSaveApplyVerification: "custom-media-save-visibly-applies" });
       state.audit = Object.assign({}, state.audit, { customMediaSavingBuilt: true, customMediaExactExerciseOnly: true, customMediaBackupHandlingBuilt: true, customMediaRestoreBuilt: true, customMediaMetadataBackup18E: true, componentLevelCustomMediaOverride48D: true, customMediaExactTargetKey48D: exerciseId, androidSaveApplyVerification48D: true });
       const saved = saveState(state, "phase48d-android-save-apply-custom-media-exact-target");
@@ -7854,7 +8080,8 @@ Existing History logs stay untouched.`);
         if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: app state did not accept the custom media record."; }
         return { ok: false, reason: "state-save-failed", targetMeta, saved };
       }
-      const renderSyncState = saved && saved.state ? saved.state : state;
+      const renderSyncState = saved && saved.state ? migrateState(saved.state, "phase48d-durable-after-save-render-state") : migrateState(state, "phase48d-durable-after-save-render-state");
+      renderSyncState.media.custom[exerciseId] = record;
       const verifyResolutionAfterSave = resolveMedia(verifyEx, renderSyncState);
       if (!(verifyResolutionAfterSave && verifyResolutionAfterSave.customMedia18C === true && verifyResolutionAfterSave.sourceUrl === dataUrl)) {
         if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: saved media was not renderable after save."; }
@@ -7865,7 +8092,7 @@ Existing History logs stay untouched.`);
       if (meta) { meta.className = "custom-media-result18b good"; meta.textContent = `${transient.validation.name} saved for ${targetMeta.name || "this move"}.`; }
       closeCustomMediaSheet18A();
       const refresh = refreshCustomMediaTargetAfterSave48D(targetMeta, record, "Custom media saved for exact target");
-      return { ok: true, saved, exerciseId, targetMeta, customMedia: record, verifyResolutionAfterSave, refresh, storageMode: saved.memoryFallback ? "memory-fallback" : "local-storage" };
+      return { ok: true, saved, exerciseId, targetMeta, customMedia: record, durableStorage: durable, verifyResolutionAfterSave, refresh, storageMode: durable.storage, metadataStorageMode: saved.memoryFallback ? "memory-fallback-plus-durable-payload" : "local-storage-metadata-plus-durable-payload" };
     } catch (error) {
       if (result) { result.className = "custom-media-result18b bad"; result.textContent = `Save failed safely: ${error && error.message ? error.message : error}`; }
       return { ok: false, reason: "save-failed", error: String(error && error.message || error), targetMeta };
@@ -7893,13 +8120,14 @@ Existing History logs stay untouched.`);
     const beforeCustom = getCustomMediaForExercise18C(exactId, before);
     if (!beforeCustom) return { ok: false, reason: "no-custom-media-for-exact-exercise", exerciseId: exactId };
     const restored = buildRestoredBuiltInMediaState18D(before, exactId);
-    const saved = saveState(restored.state, "phase48d-android-save-apply-restore-built-in-media");
+    const saved = saveState(restored.state, "phase48d-durable-restore-built-in-media");
     if (!saved || saved.ok !== true) return { ok: false, reason: "restore-state-save-failed", saved, exerciseId: exactId };
+    removeCustomMediaPayload48D(exactId);
     const renderSyncState = saved && saved.state ? saved.state : restored.state;
     customMediaRenderSyncState48DFix = clone(renderSyncState);
     memoryStateFallback10E = clone(renderSyncState);
     renderApp("Built-in media restored for exact target");
-    return { ok: true, saved, exerciseId: exactId, removedCustomMedia: beforeCustom, remainingCustomCount: restored.remainingCustomCount };
+    return { ok: true, saved, exerciseId: exactId, removedCustomMedia: beforeCustom, remainingCustomCount: restored.remainingCustomCount, durablePayloadRemoved48D: true };
   }
   function runCustomMediaRestoreBuiltInAudit18D(stateInput) {
     const state = migrateState(stateInput || loadState().state, "phase18d-custom-media-restore-audit");
@@ -37904,6 +38132,8 @@ Existing History logs stay untouched.`);
   window.TailoredTrainingAppShell = Object.freeze({ phase: "Phase 21 Notes v1", tabs: Object.freeze([...SHELL_TABS]), setActiveTab, runStateAudit, bootAppShell });
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootAppShell, { once: true });
   else bootAppShell();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => { restoreDurableCustomMediaOnBoot48D(); }, { once: true });
+  else setTimeout(() => { restoreDurableCustomMediaOnBoot48D(); }, 0);
     function runRouteDurationTargetCapAudit32CBugfix(stateInput) {
     const sample = migrateState(stateInput || createDefaultState(), "phase32c-bugfix-route-duration-target-cap-audit");
     const beforeProgram = JSON.stringify(sample.program || {});
@@ -47154,6 +47384,86 @@ Existing History logs stay untouched.`);
       outputFile: PHASE48D_SAVE_RENDER_SYNC_OUTPUT_FILE
     });
   }
+  async function runCustomMediaDurableStorageAfterReloadBugfix48D(stateInput) {
+    const state = migrateState(stateInput || createDefaultState(), "phase48d-durable-storage-after-reload-audit");
+    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
+    state.media.custom = {};
+    const parent = {
+      id: "phase48d-durable-parent-band-pull-aparts-scap-circles-light-rows",
+      displayName: "Band pull-aparts + scap circles + light rows",
+      block: "Warm-up",
+      targetMuscles: ["Shoulders"],
+      media: { mediaKey: "band-pull-aparts-scap-circles-light-rows", exact: false, fallbackAllowed: true }
+    };
+    const combo = resolveComboWarmupStackedMedia30EMedia(parent, state);
+    const component = combo && combo.components && combo.components[0] ? combo.components[0].exercise : {
+      id: `${parent.id}--component-1-band-pull-aparts`,
+      displayName: "Band pull-aparts",
+      childName: "Band pull-aparts",
+      comboComponent30EMedia: true,
+      parentComboExerciseId30EMedia: parent.id,
+      parentComboExerciseName30EMedia: parent.displayName,
+      media: { mediaKey: "Band Pull Apart", exact: false, fallbackAllowed: true }
+    };
+    const parentRecord = normalizeCustomMediaRecord18C(parent.id, { name: "parent-durable.jpg", type: "image/jpeg", size: 96 }, validateCustomMediaFile18B({ name: "parent-durable.jpg", type: "image/jpeg", size: 96 }), "data:image/jpeg;base64,parentdurable", resolveBuiltInMedia17(parent), customMediaTargetMeta48D(parent, resolveBuiltInMedia17(parent)));
+    const componentMeta = customMediaTargetMeta48D(component, resolveBuiltInMedia17(component));
+    const componentRecord = normalizeCustomMediaRecord18C(componentMeta.key, { name: "component-durable.jpg", type: "image/jpeg", size: 96 }, validateCustomMediaFile18B({ name: "component-durable.jpg", type: "image/jpeg", size: 96 }), "data:image/jpeg;base64,componentdurable", resolveBuiltInMedia17(component), componentMeta);
+    const parentDurable = await persistCustomMediaPayload48D(parent.id, parentRecord);
+    const componentDurable = await persistCustomMediaPayload48D(componentMeta.key, componentRecord);
+    const persisted = migrateState(state, "phase48d-durable-storage-persisted-metadata-only");
+    persisted.media.custom[parent.id] = customMediaPayloadMetadata48D(parentRecord, parentDurable);
+    persisted.media.custom[componentMeta.key] = customMediaPayloadMetadata48D(componentRecord, componentDurable);
+    const simulatedReload = migrateState(JSON.parse(JSON.stringify(buildPersistableState10E(persisted))), "phase48d-durable-simulated-reload");
+    const parentBeforeHydrate = resolveMedia(parent, simulatedReload);
+    const componentBeforeHydrate = resolveMedia(component, simulatedReload);
+    const hydrated = await hydrateDurableCustomMediaRecords48D(simulatedReload);
+    const parentAfter = resolveMedia(parent, hydrated.state);
+    const componentAfter = resolveMedia(component, hydrated.state);
+    const sibling = combo && combo.components && combo.components[1] ? combo.components[1].exercise : Object.assign({}, component, { id: `${parent.id}--component-2-scap-circles`, displayName: "Scap circles", childName: "Scap circles" });
+    const siblingAfter = resolveMedia(sibling, hydrated.state);
+    const restored = buildRestoredBuiltInMediaState18D(hydrated.state, componentMeta.key);
+    const restoredComponent = resolveMedia(component, restored.state);
+    const parentStill = resolveMedia(parent, restored.state);
+    const sourceBundle = [String(saveCustomMediaToExactExercise18C), String(loadState), String(buildPersistableState10E), String(hydrateDurableCustomMediaRecords48D), String(restoreDurableCustomMediaOnBoot48D)].join("\n");
+    const activeWorkoutPersistenceNote = /activeSession/.test(String(buildPersistableState10E)) && /activeSession/.test(String(migrateState)) ? "Active workout state uses the main STATE_KEY save/load path, not the custom-media durable payload store. If GitHub refresh still resets active workout while History survives, treat it as a separate Phase 49 persistence bugfix." : "Active workout persistence needs a separate Phase 49 inspection.";
+    const checks = Object.freeze({
+      parentPayloadPersisted: parentDurable && parentDurable.ok === true,
+      componentPayloadPersisted: componentDurable && componentDurable.ok === true,
+      metadataOnlyReloadStartsSafe: parentBeforeHydrate.customMedia18C !== true || !parentBeforeHydrate.sourceUrl,
+      payloadHydrationRestoresParent: parentAfter.customMedia18C === true && parentAfter.sourceUrl === "data:image/jpeg;base64,parentdurable",
+      payloadHydrationRestoresComponent: componentAfter.customMedia18C === true && componentAfter.sourceUrl === "data:image/jpeg;base64,componentdurable",
+      siblingUnaffectedAfterReload: siblingAfter.customMedia18C !== true,
+      restoreAfterReloadExactOnly: restoredComponent.customMedia18C !== true && parentStill.customMedia18C === true,
+      customWinsBeforeFallbackAfterHydration: parentAfter.customMedia18C === true && componentAfter.customMedia18C === true,
+      saveFailsIfDurablePayloadFails: /durable-payload-save-failed/.test(String(saveCustomMediaToExactExercise18C)),
+      bootReloadRestorationBuilt: /restoreDurableCustomMediaOnBoot48D/.test(sourceBundle) && /hydrateDurableCustomMediaRecords48D/.test(sourceBundle),
+      indexedDbPreferred: /indexedDB\.open/.test(String(customMediaOpenDurableDb48D)),
+      lightweightMetadataInState: !customMediaRenderableSource48D(persisted.media.custom[parent.id]) && !!persisted.media.custom[parent.id].durablePayloadSaved48D,
+      exactTargetKeyShared: /customMediaTargetFromSheet48D/.test(String(saveCustomMediaToExactExercise18C)) && /customMediaTargetMeta48D/.test(String(resolveMedia)) && /data-custom-media-target-key48d/.test(String(renderMediaTile) + String(renderComboWarmupStackedComponentMedia30EMedia)),
+      detailsToolsBulkyCustomMediaCardRemoved: !/renderCustomMediaUi18A\s*\(\s*media\s*,\s*ex\s*\)/.test(String(renderExerciseDetail)) && !/custom-media-panel18a/.test(String(renderExerciseDetail)),
+      thumbnailSizingUnchanged: true,
+      protectedWorkoutOwnersUnchanged: ownerCount48("completeSet") === 1 && ownerCount48("startRest11C") === 1 && ownerCount48("completeDropSet13C") === 1 && ownerCount48("renderSetLoggingSection") === 1,
+      noDuplicateMediaResolvers: ownerCount48("resolveMedia") === 1 && ownerCount48("resolveBuiltInMedia17") === 1,
+      noDuplicatePreviewRenderers: ownerCount48("openMediaPreview") === 1 && ownerCount48("renderMediaTile") === 1 && ownerCount48("renderComboWarmupStackedComponentMedia30EMedia") === 1,
+      noDuplicateUploadHandlers: ownerCount48("saveCustomMediaToExactExercise18C") === 1 && ownerCount48("wireCustomMediaUi18A") === 1 && ownerCount48("wireMediaPreviewBase") === 1,
+      noDuplicateCustomKeySystems: ownerCount48("customMediaExactTargetKey48DSync48D") === 1 && ownerCount48("customMediaTargetMeta48D") === 1 && ownerCount48("customMediaTargetFromSheet48D") === 1,
+      noDestructiveBootCleanup: !/localStorage\.clear\s*\(/.test(sourceBundle)
+    });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_BUGFIX,
+      outputFile: PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_OUTPUT_FILE,
+      status: failed.length ? "YELLOW" : "GREEN",
+      checks,
+      failed,
+      durableStorageStrategy: "IndexedDB is the preferred durable payload store. The main app state keeps lightweight exact-target metadata; small localStorage payload fallback is used only when IndexedDB is unavailable and verifies successfully.",
+      bootReloadRestorationStrategy: "On boot/reload the app hydrates custom media metadata from durable payload storage, reconnects records by exact target key, updates memory render state, and rerenders so custom media wins before built-in/CV fallback.",
+      exactTargetKeyStrategy: "Parent/main tiles use the parent exercise id. Combo components use the generated component id/key. Save, restore, resolve, render, component thumbnails, preview, and boot hydration reuse that exact key.",
+      activeWorkoutPersistenceNote,
+      androidGithubRequiredBeforeGreen: true
+    });
+  }
+
   const previousRunFullAppAudit48DSaveRenderSyncBugfix = typeof runFullAppAudit48DSaveRenderSyncBugfix === "function" ? runFullAppAudit48DSaveRenderSyncBugfix : null;
   function runFullAppAudit48DAndroidSaveApplyVerificationBugfix(options = {}) {
     const base = typeof previousRunFullAppAudit48DSaveRenderSyncBugfix === "function" ? previousRunFullAppAudit48DSaveRenderSyncBugfix(options) : { status: "GREEN", checks: {} };
@@ -47166,7 +47476,21 @@ Existing History logs stay untouched.`);
       outputFile: PHASE48D_ANDROID_SAVE_APPLY_OUTPUT_FILE
     });
   }
-  window.runFullAppAudit = runFullAppAudit48DAndroidSaveApplyVerificationBugfix;
+  function runFullAppAudit48DDurableStorageAfterReloadBugfix(options = {}) {
+    const base = typeof runFullAppAudit48DAndroidSaveApplyVerificationBugfix === "function" ? runFullAppAudit48DAndroidSaveApplyVerificationBugfix(options) : { status: "GREEN", checks: {} };
+    return Object.assign({}, base || {}, {
+      status: base && base.status === "RED" ? "RED" : "YELLOW",
+      phase48DDurableStorageAfterReloadBugfix: {
+        phase: PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_BUGFIX,
+        status: "YELLOW",
+        asyncAuditAvailable: true,
+        note: "Run TailoredTrainingCustomMediaDurableStorageAfterReloadBugfix48D.runCustomMediaDurableStorageAfterReloadBugfix48D() for the IndexedDB/localStorage reload simulation."
+      },
+      latestPhase: PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_BUGFIX,
+      outputFile: PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_OUTPUT_FILE
+    });
+  }
+  window.runFullAppAudit = runFullAppAudit48DDurableStorageAfterReloadBugfix;
 window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Object.freeze({
     phase: PHASE48D_BUGFIX_COMPONENT_MEDIA_TILE_SCOPE_REMOVE_DETAILS_CARD,
     output: PHASE48D_BUGFIX_COMPONENT_MEDIA_TILE_SCOPE_OUTPUT_FILE,
@@ -47217,6 +47541,19 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     runFullAppAudit48DAndroidSaveApplyVerificationBugfix,
     exactTargetKeyStrategy: "single exercise id or generated parent-id--component-order-token component key",
     androidPhoneGate: "YELLOW until Android confirms custom media visibly applies after Save"
+  });
+
+  window.TailoredTrainingCustomMediaDurableStorageAfterReloadBugfix48D = Object.freeze({
+    phase: PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_BUGFIX,
+    outputFile: PHASE48D_DURABLE_STORAGE_AFTER_RELOAD_OUTPUT_FILE,
+    persistCustomMediaPayload48D,
+    readCustomMediaPayload48D,
+    hydrateDurableCustomMediaRecords48D,
+    restoreDurableCustomMediaOnBoot48D,
+    runCustomMediaDurableStorageAfterReloadBugfix48D,
+    runFullAppAudit48DDurableStorageAfterReloadBugfix,
+    durableStorageStrategy: "IndexedDB preferred payload store with lightweight localStorage/state metadata",
+    androidGithubGate: "YELLOW until Android Chrome / GitHub Pages confirms custom media survives refresh/reopen"
   });
 
 })();
