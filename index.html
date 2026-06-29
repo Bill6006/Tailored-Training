@@ -1,14 +1,14 @@
 <!doctype html>
 
 <!--
-PHASE_50_BUGFIX_GIF_CUSTOM_MEDIA_SAVE_RECORD_AND_RESTORE_V1_CHANGELOG
-- Used Tailored_Training_Rebuild_Phase50_BUGFIX_Durable_Persistence_Commit_Hydration_Lock_v1.html as the base.
-- Fixed only the exact-target custom GIF save record + restore path after Android/GitHub showed valid image/gif files could appear temporarily but fail metadata acceptance or disappear after refresh.
-- Root cause: the optional localStorage payload mirror could run before the required lightweight metadata STATE_KEY commit, allowing a valid GIF payload mirror/quota write to interfere with the app-state metadata record; component targets also used the sheet's lastExerciseId before the exact component target key.
-- Changed GIF save order to durable payload first, metadata STATE_KEY commit second, optional localStorage payload mirror last; a valid image/gif under the limit is now treated the same as valid PNG/JPG/WEBP image media.
-- Added explicit safe failure reasons for file type, target key, data URL/readability, durable payload write, metadata write/quota, metadata commit verification, and post-save render verification instead of the vague app-state record message.
-- Preserved existing Phase 48D exact-target owner path, IndexedDB payload store, localStorage mirror as optional fallback, resolveMedia owner, upload handler, Restore built-in exact-target behavior, active-session persistence, workout programming, thumbnail sizing, visual density, rest timer, coach/drop-set behavior, and History/Data/Backup layout.
+PHASE_50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_LOOP_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase50_BUGFIX_Durable_Persistence_Commit_Hydration_Lock_v1.html as the base; intentionally did not use the failed GIF Save Record + Restore file.
+- Fixed only the custom media/GIF reload hydration path and scroll-loop risk.
+- Added a one-shot boot custom-media hydration gate so IndexedDB/local payload restoration runs once, re-renders only when a renderable payload was actually restored, and preserves scroll position during that single recovery render.
+- Stopped resolveMedia from becoming a repeated hydration/render trigger; exact-target async hydration is now one-time per target and uses scroll-preserving render only after payload restoration.
+- Preserved the Phase 50 full active-route/set-log persistence improvements, workout programming, set logging, rest timer, coach/drop-set behavior, History/Data/Backup layout, thumbnail sizing, visual density, reset controls, and non-destructive boot behavior.
 -->
+
 <!--
 PHASE_50_BUGFIX_CUSTOM_MEDIA_RELOAD_HYDRATION_LOCK_REVISION_CHANGELOG
 - Revised the same Phase 50 BUGFIX Durable Persistence Commit + Hydration Lock after Android/GitHub narrowed the remaining failure to post-refresh custom GIF/media payload restoration only.
@@ -4801,10 +4801,82 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     return state;
   }
 
+
+  const PHASE50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_LOOP = "Phase 50 BUGFIX — Custom Media Reload Without Scroll/Re-render Loop";
+  const PHASE50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase50_BUGFIX_Custom_Media_Reload_No_Scroll_Loop_v1.html";
+  const customMediaBootHydrationState50NoScroll = {
+    started: false,
+    inFlight: false,
+    complete: false,
+    rendered: false,
+    restoredTargets: {},
+    attemptedTargets: {},
+    lastRestoredCount: 0,
+    lastRenderReason: ""
+  };
+  const customMediaAsyncHydrationAttempted50NoScroll = {};
+
+  function customMediaRenderableTargetKeys50NoScroll(stateInput) {
+    const custom = stateInput && stateInput.media && stateInput.media.custom && typeof stateInput.media.custom === "object" && !Array.isArray(stateInput.media.custom) ? stateInput.media.custom : {};
+    return Object.keys(custom).filter((key) => {
+      const item = custom[key];
+      return !!(item && typeof item === "object" && !Array.isArray(item) && customMediaRenderableSource48D(item));
+    });
+  }
+
+  function customMediaMetadataOnlyTargetKeys50NoScroll(stateInput) {
+    const custom = stateInput && stateInput.media && stateInput.media.custom && typeof stateInput.media.custom === "object" && !Array.isArray(stateInput.media.custom) ? stateInput.media.custom : {};
+    return Object.keys(custom).filter((key) => {
+      const item = custom[key];
+      return !!(item && typeof item === "object" && !Array.isArray(item) && !customMediaRenderableSource48D(item) && item.restoreBuiltIn18D !== true);
+    });
+  }
+
+  function shouldPreferRuntimeCustomMediaState50NoScroll(runtimeState, durableState) {
+    const runtimeKeys = customMediaRenderableTargetKeys50NoScroll(runtimeState);
+    if (!runtimeKeys.length) return false;
+    const durableCustom = durableState && durableState.media && durableState.media.custom && typeof durableState.media.custom === "object" && !Array.isArray(durableState.media.custom) ? durableState.media.custom : {};
+    return runtimeKeys.some((key) => {
+      const durableItem = durableCustom[key];
+      return !!(durableItem && typeof durableItem === "object" && !Array.isArray(durableItem) && !customMediaRenderableSource48D(durableItem) && durableItem.restoreBuiltIn18D !== true);
+    });
+  }
+
+  function renderAppPreservingScroll50NoScroll(message = "Custom media restored after reload", selectedOverride = null) {
+    if (typeof renderApp !== "function") return null;
+    const canWindow = typeof window !== "undefined";
+    const x = canWindow ? Number(window.scrollX || window.pageXOffset || 0) : 0;
+    const y = canWindow ? Number(window.scrollY || window.pageYOffset || 0) : 0;
+    const active = typeof document !== "undefined" ? document.activeElement : null;
+    const activeId = active && active.id ? String(active.id) : "";
+    const result = renderApp(message, selectedOverride);
+    if (canWindow && typeof window.scrollTo === "function") {
+      const restore = () => {
+        try {
+          const currentY = Number(window.scrollY || window.pageYOffset || 0);
+          const currentX = Number(window.scrollX || window.pageXOffset || 0);
+          if (Math.abs(currentY - y) > 2 || Math.abs(currentX - x) > 2) window.scrollTo(x, y);
+        } catch (_) {}
+      };
+      try {
+        const raf = window.requestAnimationFrame || ((cb) => window.setTimeout(cb, 0));
+        raf(() => raf(restore));
+      } catch (_) { setTimeout(restore, 0); }
+    }
+    try {
+      if (activeId && typeof document !== "undefined") {
+        const nextActive = document.getElementById(activeId);
+        if (nextActive && typeof nextActive.focus === "function" && /customMedia|mediaPreview|stepper|setInput/i.test(activeId)) nextActive.focus({ preventScroll: true });
+      }
+    } catch (_) {}
+    return result;
+  }
+
   function shouldPreferRuntimeStateOverDurableState50Bugfix(runtimeState, source = "runtime") {
     if (!runtimeState || typeof runtimeState !== "object") return false;
     const durable = durableStateCandidate50Bugfix();
     if (!durable) return true;
+    if (shouldPreferRuntimeCustomMediaState50NoScroll(runtimeState, durable)) return true;
     const runtimeFreshness = phase50BugfixStateFreshnessMs(runtimeState);
     const durableFreshness = phase50BugfixStateFreshnessMs(durable);
     const runtimeProfile = activeRouteProgressProfile50Bugfix(runtimeState.activeSession);
@@ -7758,7 +7830,7 @@ Existing History logs stay untouched.`);
     });
   }
   function customMediaTargetFromSheet48D(sheet, transient) {
-    const key = customMediaNormalizeExactTargetKey48D((sheet && (sheet.dataset.customMediaExactTargetKey48D || sheet.dataset.lastExerciseId18A)) || (transient && (transient.exactTargetKey48D || transient.exerciseId)) || "");
+    const key = customMediaNormalizeExactTargetKey48D((sheet && (sheet.dataset.customMediaExactTargetKey48D || sheet.dataset.lastExactTargetKey48D || sheet.dataset.customMediaTargetKey48D)) || (transient && (transient.exactTargetKey48D || transient.customMediaExactTargetKey48D || transient.exerciseId)) || (sheet && sheet.dataset.lastExerciseId18A) || "");
     const type = sheet && sheet.dataset.customMediaTargetType48D === "component" ? "component" : "exercise";
     const name = String((sheet && sheet.dataset.customMediaTargetName48D) || (transient && transient.targetName48D) || key || "this move");
     return Object.freeze({
@@ -7803,39 +7875,6 @@ Existing History logs stay untouched.`);
     copy.reloadRestoreRequired48D = true;
     copy.durableStorageAfterReload48D = true;
     return copy;
-  }
-  function customMediaSafeFailure50GifBugfix(kind, details = {}) {
-    const reason = String(kind || "custom-media-save-failed");
-    const map = {
-      "file-type-rejected": "Save failed safely: file type rejected. Use GIF, PNG, JPG, WEBP, MP4, or WEBM.",
-      "target-key-missing": "Save failed safely: exact media target key is missing. Reopen the media tile and try again.",
-      "payload-read-failed": "Save failed safely: this file could not be converted into a durable media payload.",
-      "payload-write-failed": "Save failed safely: durable media payload write failed. Try a smaller file or check browser storage.",
-      "metadata-write-failed": "Save failed safely: metadata write failed due to browser storage/quota. The media was not marked saved.",
-      "metadata-verify-failed": "Save failed safely: metadata write could not be verified after save.",
-      "restore-verification-failed": "Save failed safely: restore verification failed for this exact target."
-    };
-    const quota = details && (details.quota || details.storageQuota || details.reason === "quota");
-    const suffix = quota ? " Storage quota was reported." : "";
-    return { reason, message: (map[reason] || `Save failed safely: ${reason}.`) + suffix, details };
-  }
-  function customMediaStateSaveFailure50GifBugfix(saved, targetKey) {
-    if (!targetKey) return customMediaSafeFailure50GifBugfix("target-key-missing", { targetKey });
-    if (!saved) return customMediaSafeFailure50GifBugfix("metadata-write-failed", { missingSaveResult: true, targetKey });
-    if (saved.validationFailed) return customMediaSafeFailure50GifBugfix("metadata-write-failed", { validationFailed: true, validation: saved.validation, targetKey });
-    if (saved.storageWriteFailed) return customMediaSafeFailure50GifBugfix("metadata-write-failed", { storageWriteFailed: true, memoryFallback: !!saved.memoryFallback, targetKey });
-    if (saved.ok !== true) return customMediaSafeFailure50GifBugfix("metadata-write-failed", { saveOk: saved.ok, targetKey });
-    return { reason: "metadata-save-ok", message: "Metadata saved.", details: { targetKey } };
-  }
-  function mirrorCustomMediaPayloadAfterMetadataCommit50GifBugfix(exactKey, payload) {
-    try {
-      const targetKey = customMediaNormalizeExactTargetKey48D(exactKey || payload && payload.targetKey);
-      if (!targetKey || !payload || !payload.dataUrl) return { ok: false, reason: "missing-target-or-payload", deferredMirror50GifBugfix: true };
-      const mirror = mirrorCustomMediaPayloadToLocalStorage50Bugfix(targetKey, payload);
-      return Object.assign({}, mirror || {}, { optionalAfterMetadataCommit50GifBugfix: true });
-    } catch (error) {
-      return { ok: false, reason: String(error && error.message || error), optionalAfterMetadataCommit50GifBugfix: true };
-    }
   }
   function customMediaLocalStoragePayloadEntries50Bugfix() {
     const entries = [];
@@ -7940,25 +7979,32 @@ Existing History logs stay untouched.`);
   const customMediaAsyncHydrationInFlight50Bugfix = {};
   function queueCustomMediaAsyncTargetHydration50Bugfix(targetKey, reason = "resolve-media-missing-payload") {
     const exactKey = customMediaNormalizeExactTargetKey48D(targetKey);
-    if (!exactKey || customMediaAsyncHydrationInFlight50Bugfix[exactKey]) return false;
+    if (!exactKey) return false;
+    if (customMediaAsyncHydrationInFlight50Bugfix[exactKey] || customMediaAsyncHydrationAttempted50NoScroll[exactKey]) return false;
+    customMediaAsyncHydrationAttempted50NoScroll[exactKey] = { reason, attemptedAt: nowIso() };
     customMediaAsyncHydrationInFlight50Bugfix[exactKey] = true;
     setTimeout(async () => {
       try {
         const payload = await readCustomMediaPayload48D(exactKey);
         if (!payload || !payload.dataUrl) return;
         const loaded = loadState();
-        const state = migrateState(loaded.state, `phase50-bugfix-async-custom-media-hydration-${reason}`);
+        const state = migrateState(loaded.state, `phase50-bugfix-one-shot-custom-media-hydration-${reason}`);
         state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
         state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
-        const existing = state.media.custom[exactKey] || { exerciseId: exactKey, customMediaExactTargetKey48D: exactKey, exactExerciseIdLocked: true, overridesExactTargetOnly48D: true, durablePayloadSaved48D: true };
+        const before = state.media.custom[exactKey];
+        const beforeSource = customMediaRenderableSource48D(before);
+        const existing = before || { exerciseId: exactKey, customMediaExactTargetKey48D: exactKey, exactExerciseIdLocked: true, overridesExactTargetOnly48D: true, durablePayloadSaved48D: true };
         state.media.custom[exactKey] = customMediaRecordWithDurablePayload48D(existing, payload);
-        const committed = commitHydratedCustomMediaMetadata50Bugfix(state, "phase50-bugfix-async-custom-media-target-hydration-commit");
+        const afterSource = customMediaRenderableSource48D(state.media.custom[exactKey]);
+        if (!afterSource || afterSource === beforeSource) return;
+        const committed = commitHydratedCustomMediaMetadata50Bugfix(state, "phase50-bugfix-one-shot-custom-media-target-hydration-commit");
         const runtime = mergeRenderableCustomMediaIntoRuntimeState50Bugfix((committed && committed.state) || state, state);
         customMediaRenderSyncState48DFix = clone(runtime);
         memoryStateFallback10E = clone(runtime);
-        if (typeof renderApp === "function") renderApp("Custom media restored after reload");
+        customMediaBootHydrationState50NoScroll.restoredTargets[exactKey] = true;
+        if (typeof renderApp === "function") renderAppPreservingScroll50NoScroll("Custom media restored after reload");
       } catch (error) {
-        recordStorageWarning10E(`Custom media async hydrate skipped safely for ${exactKey}: ${error && error.message ? error.message : error}`);
+        recordStorageWarning10E(`Custom media one-shot hydrate skipped safely for ${exactKey}: ${error && error.message ? error.message : error}`);
       } finally {
         delete customMediaAsyncHydrationInFlight50Bugfix[exactKey];
       }
@@ -8083,9 +8129,10 @@ Existing History logs stay untouched.`);
       });
       try { tx.db.close(); } catch (_) {}
       customMediaDurableMemoryStore48D[exactKey] = payload;
+      const mirror50 = mirrorCustomMediaPayloadToLocalStorage50Bugfix(exactKey, payload);
       const idbVerify50 = await readCustomMediaPayload48D(exactKey);
       if (!idbVerify50 || idbVerify50.dataUrl !== dataUrl) throw new Error("IndexedDB payload verification failed after transaction complete");
-      return { ok: true, storage: "indexeddb", key: exactKey, durablePayloadKey48D: exactKey, verifiedAfterWrite50: true, localPayloadMirror50Bugfix: { ok: false, deferredUntilMetadataCommit50GifBugfix: true, reason: "metadata-first-save-order" } };
+      return { ok: true, storage: "indexeddb", key: exactKey, durablePayloadKey48D: exactKey, verifiedAfterWrite50: true, localPayloadMirror50Bugfix: mirror50 };
     } catch (idbError) {
       try {
         if (!hasStorage()) throw new Error("localStorage unavailable");
@@ -8116,13 +8163,19 @@ Existing History logs stay untouched.`);
         req.onerror = () => reject(req.error || new Error("IndexedDB payload read failed"));
       });
       try { tx.db.close(); } catch (_) {}
-      if (found && found.dataUrl) return found;
+      if (found && found.dataUrl) {
+        customMediaDurableMemoryStore48D[exactKey] = Object.assign({}, found, { targetKey: exactKey, customMediaExactTargetKey48D: exactKey, phase50NoScrollIdbPayloadCached: true });
+        return customMediaDurableMemoryStore48D[exactKey];
+      }
     } catch (_) {}
     try {
       const storageKey = record && /^tt_custom_media_payload48d:/.test(String(record.durablePayloadKey48D || "")) ? record.durablePayloadKey48D : customMediaDurablePayloadKey48D(exactKey);
       const raw = hasStorage() ? safeStorageGet10E(storageKey, null) : null;
       const parsed = safeJsonParse(raw, null, storageKey);
-      if (parsed.ok && parsed.value && parsed.value.dataUrl) return parsed.value;
+      if (parsed.ok && parsed.value && parsed.value.dataUrl) {
+        customMediaDurableMemoryStore48D[exactKey] = Object.assign({}, parsed.value, { targetKey: exactKey, customMediaExactTargetKey48D: exactKey, phase50NoScrollLocalPayloadCached: true });
+        return customMediaDurableMemoryStore48D[exactKey];
+      }
     } catch (_) {}
     return customMediaDurableMemoryStore48D[exactKey] || null;
   }
@@ -8204,23 +8257,46 @@ Existing History logs stay untouched.`);
     return { state, restored, totalCustom: Object.keys(state.media.custom).length };
   }
   async function restoreDurableCustomMediaOnBoot48D() {
+    if (customMediaBootHydrationState50NoScroll.inFlight) return { state: customMediaRenderSyncState48DFix || memoryStateFallback10E || null, restored: 0, skipped: "already-in-flight", phase50NoScrollOneShot: true };
+    if (customMediaBootHydrationState50NoScroll.complete) return { state: customMediaRenderSyncState48DFix || memoryStateFallback10E || null, restored: customMediaBootHydrationState50NoScroll.lastRestoredCount || 0, skipped: "already-complete", phase50NoScrollOneShot: true };
+    customMediaBootHydrationState50NoScroll.started = true;
+    customMediaBootHydrationState50NoScroll.inFlight = true;
     try {
       const loaded = loadState();
+      const beforeKeys = customMediaRenderableTargetKeys50NoScroll(loaded.state);
       const hydrated = await hydrateDurableCustomMediaRecords48D(loaded.state);
-      const shouldRender50 = !!(hydrated && (hydrated.restored > 0 || hydrated.totalCustom > 0));
-      if (shouldRender50) {
-        const committed50 = commitHydratedCustomMediaMetadata50Bugfix(hydrated.state, "phase50-bugfix-custom-media-boot-hydration-commit");
+      const restoredKeys = customMediaRenderableTargetKeys50NoScroll(hydrated && hydrated.state).filter((key) => !beforeKeys.includes(key));
+      const restoredCount = restoredKeys.length;
+      customMediaBootHydrationState50NoScroll.complete = true;
+      customMediaBootHydrationState50NoScroll.lastRestoredCount = restoredCount;
+      restoredKeys.forEach((key) => { customMediaBootHydrationState50NoScroll.restoredTargets[key] = true; });
+      if (restoredCount > 0) {
+        const committed50 = commitHydratedCustomMediaMetadata50Bugfix(hydrated.state, "phase50-bugfix-no-scroll-custom-media-boot-hydration-commit");
         const freshState50 = mergeRenderableCustomMediaIntoRuntimeState50Bugfix((committed50 && committed50.state) || hydrated.state, hydrated.state);
+        freshState50.media = freshState50.media && typeof freshState50.media === "object" && !Array.isArray(freshState50.media) ? freshState50.media : {};
+        freshState50.media.phase48D = Object.assign({}, freshState50.media.phase48D || {}, {
+          phase50NoScrollBootHydrationRestored: true,
+          phase50NoScrollBootHydrationRestoredTargets: restoredKeys.slice(0, 25),
+          updatedAt: nowIso()
+        });
         customMediaRenderSyncState48DFix = clone(freshState50);
         memoryStateFallback10E = clone(freshState50);
-        try { renderApp(hydrated.restored > 0 ? "Custom media restored after reload" : "Custom media checked after reload"); } catch (_) {}
+        if (!customMediaBootHydrationState50NoScroll.rendered && typeof renderApp === "function") {
+          customMediaBootHydrationState50NoScroll.rendered = true;
+          customMediaBootHydrationState50NoScroll.lastRenderReason = "payload-restored";
+          renderAppPreservingScroll50NoScroll("Custom media restored after reload");
+        }
       }
-      return hydrated;
+      return Object.assign({}, hydrated, { restoredTargets50NoScroll: restoredKeys, phase50NoScrollOneShot: true });
     } catch (error) {
       recordStorageWarning10E(`Custom media durable restore skipped safely: ${error && error.message ? error.message : error}`);
-      return { state: null, restored: 0, error: String(error && error.message || error) };
+      customMediaBootHydrationState50NoScroll.complete = true;
+      return { state: null, restored: 0, error: String(error && error.message || error), phase50NoScrollOneShot: true };
+    } finally {
+      customMediaBootHydrationState50NoScroll.inFlight = false;
     }
   }
+
 
   function customMediaSyntheticExerciseForTarget48D(targetMeta, builtInMedia = null) {
     return {
@@ -8311,8 +8387,8 @@ Existing History logs stay untouched.`);
       if (syncPayload50 && syncPayload50.dataUrl) {
         resolvedCustom50 = customMediaRecordWithDurablePayload48D(custom, syncPayload50);
         sourceUrl = customMediaRenderableSource48D(resolvedCustom50);
-      } else if (typeof queueCustomMediaAsyncTargetHydration50Bugfix === "function") {
-        queueCustomMediaAsyncTargetHydration50Bugfix(targetMeta48D.key, "resolve-media-fallback-tile");
+      } else if (typeof queueCustomMediaAsyncTargetHydration50Bugfix === "function" && customMediaBootHydrationState50NoScroll.complete === true) {
+        queueCustomMediaAsyncTargetHydration50Bugfix(targetMeta48D.key, "one-shot-resolve-media-fallback-tile");
       }
     }
     if (!sourceUrl) {
@@ -8947,9 +9023,7 @@ Existing History logs stay untouched.`);
       backupWarning18E: "Metadata is backed up. Durable custom media payload restore is built for this device; exported metadata without a payload still falls back safely.",
       androidSaveApplyVerification48D: true,
       durableStorageAfterReload48D: true,
-      renderableDataUrl48D: !!dataUrl,
-      gifCustomMediaFirstClass50Bugfix: String(validation && validation.type || file && file.type || "").toLowerCase() === "image/gif",
-      saveRecordAndRestore50GifBugfix: true
+      renderableDataUrl48D: !!dataUrl
     };
   }
   function findExerciseById18C(state, exerciseId) {
@@ -8964,17 +9038,15 @@ Existing History logs stay untouched.`);
     const targetMeta = customMediaTargetFromSheet48D(sheet, transient);
     const exerciseId = targetMeta.key;
     if (!transient || !transient.validation || !transient.validation.valid || !transient.file || !exerciseId || customMediaNormalizeExactTargetKey48D(transient.exactTargetKey48D || transient.exerciseId) !== exerciseId) {
-      const failure50 = !exerciseId ? customMediaSafeFailure50GifBugfix("target-key-missing", { targetMeta, transient }) : customMediaSafeFailure50GifBugfix("file-type-rejected", { validation: transient && transient.validation, targetMeta });
-      if (result) { result.className = "custom-media-result18b bad"; result.textContent = failure50.message; }
-      return { ok: false, reason: failure50.reason, targetMeta, failure50 };
+      if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Choose a valid file for this exact move before saving."; }
+      return { ok: false, reason: "no-valid-exact-target-preview", targetMeta };
     }
     try {
       if (result) { result.className = "custom-media-result18b good"; result.textContent = targetMeta.type === "component" ? "Saving media to this move..." : "Saving media to this exercise..."; }
       const dataUrl = await readFileAsDataUrl18C(transient.file);
       if (!customMediaRenderableSourceOk48D(dataUrl, transient.validation)) {
-        const failure50 = customMediaSafeFailure50GifBugfix("payload-read-failed", { type: transient.validation && transient.validation.type, dataUrlPrefix: String(dataUrl || "").slice(0, 32), targetMeta });
-        if (result) { result.className = "custom-media-result18b bad"; result.textContent = failure50.message; }
-        return { ok: false, reason: failure50.reason, targetMeta, failure50 };
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: this file could not be converted into a renderable media source."; }
+        return { ok: false, reason: "unrenderable-data-url", targetMeta };
       }
       const loaded = loadState();
       const state = migrateState(loaded.state, "phase48d-android-save-apply-before-save");
@@ -8986,9 +9058,8 @@ Existing History logs stay untouched.`);
       const record = normalizeCustomMediaRecord18C(exerciseId, transient.file, transient.validation, dataUrl, builtInMedia, targetMeta);
       const durable = await persistCustomMediaPayload48D(exerciseId, record);
       if (!durable || durable.ok !== true) {
-        const failure50 = customMediaSafeFailure50GifBugfix("payload-write-failed", { targetMeta, durable, quota: durable && durable.quota, reason: durable && durable.reason });
-        if (result) { result.className = "custom-media-result18b bad"; result.textContent = failure50.message; }
-        return { ok: false, reason: failure50.reason, targetMeta, durable, failure50 };
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: durable storage did not accept this media. Try a smaller file or check browser storage."; }
+        return { ok: false, reason: "durable-payload-save-failed", targetMeta, durable };
       }
       const persistedRecord = customMediaPayloadMetadata48D(record, durable);
       state.media.custom[exerciseId] = persistedRecord;
@@ -8997,9 +9068,8 @@ Existing History logs stay untouched.`);
       verifyStateBeforeSave.media.custom[exerciseId] = record;
       const verifyResolutionBeforeSave = resolveMedia(verifyEx, verifyStateBeforeSave);
       if (!(verifyResolutionBeforeSave && verifyResolutionBeforeSave.customMedia18C === true && verifyResolutionBeforeSave.sourceUrl === dataUrl)) {
-        const failure50 = customMediaSafeFailure50GifBugfix("restore-verification-failed", { stage: "pre-state-save", targetMeta, verifyResolutionBeforeSave });
-        if (result) { result.className = "custom-media-result18b bad"; result.textContent = failure50.message; }
-        return { ok: false, reason: failure50.reason, targetMeta, verifyResolutionBeforeSave, failure50 };
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: custom media did not resolve for this exact target."; }
+        return { ok: false, reason: "custom-resolution-verification-failed", targetMeta, verifyResolutionBeforeSave };
       }
       state.media.phase18C = { exactExerciseSaveBuilt: true, lastSavedExerciseId: exerciseId, updatedAt: nowIso(), restoreBuiltInBuilt: true, backupHandlingBuilt: true };
       state.media.phase18E = { metadataBackupBuilt: true, lastCustomMediaExerciseId: exerciseId, updatedAt: nowIso(), blobPackageExportBuilt: false, missingBlobFallbackBuilt: true, durablePayloadStorage48D: true };
@@ -9008,31 +9078,28 @@ Existing History logs stay untouched.`);
       state.audit = Object.assign({}, state.audit, { customMediaSavingBuilt: true, customMediaExactExerciseOnly: true, customMediaBackupHandlingBuilt: true, customMediaRestoreBuilt: true, customMediaMetadataBackup18E: true, componentLevelCustomMediaOverride48D: true, customMediaExactTargetKey48D: exerciseId, androidSaveApplyVerification48D: true });
       const saved = saveState(state, "phase48d-android-save-apply-custom-media-exact-target");
       if (!saved || saved.ok !== true || saved.storageWriteFailed === true) {
-        const failure50 = customMediaStateSaveFailure50GifBugfix(saved, exerciseId);
-        if (result) { result.className = "custom-media-result18b bad"; result.textContent = failure50.message; }
-        return { ok: false, reason: failure50.reason, targetMeta, saved, failure50 };
+        const saveReason50 = saved && (saved.reason || saved.error || saved.warning || (saved.quota ? "metadata storage quota/browser storage failed" : "metadata state write failed")) || "metadata state write failed";
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = `Save failed safely: metadata write failed for this exact target (${saveReason50}).`; }
+        return { ok: false, reason: "custom-media-metadata-state-save-failed", targetMeta, saved, saveReason50 };
       }
-      const optionalMirror50Gif = mirrorCustomMediaPayloadAfterMetadataCommit50GifBugfix(exerciseId, Object.assign({}, record, { targetKey: exerciseId, dataUrl }));
       const metadataCommit50 = verifyCustomMediaMetadataCommit50Bugfix(exerciseId, persistedRecord);
       if (!metadataCommit50 || metadataCommit50.ok !== true) {
-        const failure50 = customMediaSafeFailure50GifBugfix("metadata-verify-failed", { targetMeta, metadataCommit50 });
-        if (result) { result.className = "custom-media-result18b bad"; result.textContent = failure50.message; }
-        return { ok: false, reason: failure50.reason, targetMeta, metadataCommit50, failure50 };
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: custom media metadata was not durably committed."; }
+        return { ok: false, reason: "custom-media-metadata-commit-verification-failed", targetMeta, metadataCommit50 };
       }
       const renderSyncState = saved && saved.state ? migrateState(saved.state, "phase48d-durable-after-save-render-state") : migrateState(state, "phase48d-durable-after-save-render-state");
       renderSyncState.media.custom[exerciseId] = record;
       const verifyResolutionAfterSave = resolveMedia(verifyEx, renderSyncState);
       if (!(verifyResolutionAfterSave && verifyResolutionAfterSave.customMedia18C === true && verifyResolutionAfterSave.sourceUrl === dataUrl)) {
-        const failure50 = customMediaSafeFailure50GifBugfix("restore-verification-failed", { stage: "post-state-save", targetMeta, verifyResolutionAfterSave });
-        if (result) { result.className = "custom-media-result18b bad"; result.textContent = failure50.message; }
-        return { ok: false, reason: failure50.reason, targetMeta, verifyResolutionAfterSave, failure50 };
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: saved media was not renderable after save."; }
+        return { ok: false, reason: "post-save-resolution-verification-failed", targetMeta, verifyResolutionAfterSave };
       }
       customMediaRenderSyncState48DFix = clone(renderSyncState);
       memoryStateFallback10E = clone(renderSyncState);
       if (meta) { meta.className = "custom-media-result18b good"; meta.textContent = `${transient.validation.name} saved for ${targetMeta.name || "this move"}.`; }
       closeCustomMediaSheet18A();
       const refresh = refreshCustomMediaTargetAfterSave48D(targetMeta, record, "Custom media saved for exact target");
-      return { ok: true, saved, exerciseId, targetMeta, customMedia: record, durableStorage: durable, optionalPayloadMirror50GifBugfix: optionalMirror50Gif, verifyResolutionAfterSave, refresh, storageMode: durable.storage, metadataStorageMode: saved.memoryFallback ? "memory-fallback-plus-durable-payload" : "local-storage-metadata-plus-durable-payload" };
+      return { ok: true, saved, exerciseId, targetMeta, customMedia: record, durableStorage: durable, verifyResolutionAfterSave, refresh, storageMode: durable.storage, metadataStorageMode: saved.memoryFallback ? "memory-fallback-plus-durable-payload" : "local-storage-metadata-plus-durable-payload" };
     } catch (error) {
       if (result) { result.className = "custom-media-result18b bad"; result.textContent = `Save failed safely: ${error && error.message ? error.message : error}`; }
       return { ok: false, reason: "save-failed", error: String(error && error.message || error), targetMeta };
@@ -49902,8 +49969,6 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
 
   const PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK = "Phase 50 BUGFIX — Durable Persistence Commit + Hydration Lock";
   const PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase50_BUGFIX_Durable_Persistence_Commit_Hydration_Lock_v1.html";
-  const PHASE50_BUGFIX_GIF_CUSTOM_MEDIA_SAVE_RECORD_AND_RESTORE = "Phase 50 BUGFIX — GIF Custom Media Save Record + Restore";
-  const PHASE50_BUGFIX_GIF_CUSTOM_MEDIA_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase50_BUGFIX_GIF_Custom_Media_Save_Record_And_Restore_v1.html";
 
   function runFullActiveRouteSnapshotPersistenceAudit50Bugfix() {
     const sample = migrateState(createDefaultState(), "phase50-bugfix-full-route-snapshot-audit");
@@ -50011,7 +50076,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     const checks = {
       syncPayloadHydrationBuilt: typeof hydrateCustomMediaFromSyncPayloadCache50Bugfix === "function" && typeof readCustomMediaPayloadSync50Bugfix === "function",
       localPayloadMirrorBuilt: /mirrorCustomMediaPayloadToLocalStorage50Bugfix/.test(String(persistCustomMediaPayload48D || "")) && typeof customMediaLocalStoragePayloadEntries50Bugfix === "function",
-      asyncTargetHydrationBuilt: typeof queueCustomMediaAsyncTargetHydration50Bugfix === "function" && /queueCustomMediaAsyncTargetHydration50Bugfix/.test(String(resolveMedia || "")),
+      asyncTargetHydrationBuilt: typeof queueCustomMediaAsyncTargetHydration50Bugfix === "function" && /customMediaBootHydrationState50NoScroll\.complete/.test(String(resolveMedia || "")),
       parentGifHydrates: !!(hydratedParent && hydratedParent.customMedia18C === true && hydratedParent.sourceUrl === parentPayload.dataUrl),
       componentGifHydrates: !!(hydratedComponentMedia && hydratedComponentMedia.customMedia18C === true && hydratedComponentMedia.sourceUrl === componentPayload.dataUrl),
       siblingIsolationPreserved: !(siblingMedia && siblingMedia.customMedia18C === true && siblingMedia.sourceUrl === componentPayload.dataUrl),
@@ -50031,53 +50096,6 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       componentTargetKey: component.id,
       strategy: "Exact-target custom media still uses state.media.custom metadata plus existing Phase 48D durable payloads. Phase 50 now mirrors payloads best-effort to the existing localStorage payload prefix for synchronous first-render hydration and queues an exact-target async IDB hydration if a metadata-only tile still resolves to fallback."
     });
-  }
-
-  function runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix(stateInput) {
-    const state = migrateState(stateInput || loadState().state, "phase50-bugfix-gif-custom-media-save-record-restore-audit");
-    const gifFile = { name: "28849.gif", type: "image/gif", size: Math.round(107.1 * 1024) };
-    const pngFile = { name: "audit.png", type: "image/png", size: 64 * 1024 };
-    const validGif = validateCustomMediaFile18B(gifFile);
-    const validPng = validateCustomMediaFile18B(pngFile);
-    const componentKey = "mon-01-band-pull-aparts-scap-circles-light-rows--component-scap-circles";
-    const sheetLike = { dataset: { customMediaExactTargetKey48D: componentKey, lastExerciseId18A: "mon-01-band-pull-aparts-scap-circles-light-rows", customMediaTargetType48D: "component", customMediaTargetName48D: "scap circles" } };
-    const transient = { exactTargetKey48D: componentKey, exerciseId: componentKey, validation: validGif };
-    const targetMeta = customMediaTargetFromSheet48D(sheetLike, transient);
-    const gifDataUrl = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-    const record = normalizeCustomMediaRecord18C(componentKey, gifFile, validGif, gifDataUrl, { mediaKey: "Scap_Circles", registryTitle: "Scap circles" }, targetMeta);
-    const metadata = customMediaPayloadMetadata48D(record, { ok: true, key: componentKey, storage: "indexeddb" });
-    const sample = migrateState(state, "phase50-bugfix-gif-custom-media-sample");
-    sample.media = sample.media && typeof sample.media === "object" && !Array.isArray(sample.media) ? sample.media : {};
-    sample.media.custom = {};
-    sample.media.custom[componentKey] = metadata;
-    const persistable = buildPersistableState10E(sample);
-    const persistedMeta = persistable && persistable.media && persistable.media.custom && persistable.media.custom[componentKey];
-    const renderState = migrateState(sample, "phase50-bugfix-gif-custom-media-render-sample");
-    renderState.media.custom[componentKey] = customMediaRecordWithDurablePayload48D(metadata, { targetKey: componentKey, dataUrl: gifDataUrl, type: "image/gif", family: "image", name: gifFile.name });
-    const componentEx = { id: componentKey, displayName: "scap circles", childName: "scap circles", comboComponent30EMedia: true, componentKey30EMedia: componentKey, media: { mediaKey: "Scap_Circles", exact: false, fallbackAllowed: true } };
-    const resolution = resolveMedia(componentEx, renderState);
-    const sourceBundle = [String(saveCustomMediaToExactExercise18C), String(persistCustomMediaPayload48D), String(customMediaTargetFromSheet48D), String(resolveMedia)].join("\n");
-    const checks = {
-      validGifAccepted: validGif.valid === true && validGif.type === "image/gif" && validGif.family === "image" && validGif.maxBytes === CUSTOM_MEDIA_MAX_IMAGE_BYTES18B,
-      validPngStillAccepted: validPng.valid === true,
-      componentExactTargetWinsOverParent: targetMeta.key === componentKey,
-      gifRecordFirstClass: record.gifCustomMediaFirstClass50Bugfix === true && record.type === "image/gif" && record.family === "image",
-      metadataOnlyPersistable: !!(persistedMeta && persistedMeta.durablePayloadSaved48D === true && !customMediaRenderableSource48D(persistedMeta) && persistedMeta.customMediaExactTargetKey48D === componentKey),
-      renderableRestoreResolvesGif: !!(resolution && resolution.customMedia18C === true && resolution.sourceUrl === gifDataUrl),
-      vagueAppStateFailureRemoved: !/app state did not accept the custom media record/.test(String(saveCustomMediaToExactExercise18C)),
-      optionalMirrorAfterMetadata: /mirrorCustomMediaPayloadAfterMetadataCommit50GifBugfix/.test(sourceBundle) && /deferredUntilMetadataCommit50GifBugfix/.test(String(persistCustomMediaPayload48D)),
-      noObjectUrlDurableStore: !/createObjectURL\(file\)[\s\S]{0,200}persistCustomMediaPayload48D/.test(sourceBundle)
-    };
-    const status = Object.keys(checks).every((key) => checks[key]) ? "GREEN" : "YELLOW";
-    return {
-      phase: "Phase 50 BUGFIX — GIF Custom Media Save Record + Restore",
-      status,
-      outputFile: "Tailored_Training_Rebuild_Phase50_BUGFIX_GIF_Custom_Media_Save_Record_And_Restore_v1.html",
-      sampleFile: `${gifFile.name} · ${formatBytes18B(gifFile.size)} · ${gifFile.type}`,
-      rootCause: "Optional localStorage payload mirror ran before required lightweight metadata commit, and component sheet target selection could prefer parent lastExerciseId over exact component target key.",
-      failureConditionBehindOldMessage: "saveState returned storageWriteFailed/metadata write failure after the GIF payload step; the prior UI collapsed that into the vague app state did not accept message.",
-      checks
-    };
   }
 
   function runCustomMediaReloadPayloadRestorationAudit50Bugfix() {
@@ -50124,11 +50142,62 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
   }
 
 
+
+  function runCustomMediaReloadNoScrollLoopAudit50Bugfix() {
+    const source = document.documentElement && document.documentElement.outerHTML || "";
+    const state = migrateState(createDefaultState(), "phase50-bugfix-custom-media-reload-no-scroll-audit");
+    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
+    state.media.custom = {};
+    const parent = { id: "audit-no-scroll-parent", displayName: "Audit parent media", media: { mediaKey: "audit-no-scroll-parent", exact: false, fallbackAllowed: true } };
+    const component = { id: "audit-no-scroll-parent--component-2-scap-circles", displayName: "Scap circles", childName: "Scap circles", comboComponent30EMedia: true, parentComboExerciseId30EMedia: parent.id, parentComboExerciseName30EMedia: parent.displayName, media: { mediaKey: "audit-no-scroll-scap", exact: false, fallbackAllowed: true } };
+    const gif = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+    const componentGif = "data:image/gif;base64,R0lGODlhAQABAIABAP///wAAACwAAAAAAQABAAACAkQBADs=";
+    const parentPayload = { targetKey: parent.id, customMediaExactTargetKey48D: parent.id, dataUrl: gif, family: "image", type: "image/gif", name: "parent.gif", durableStorageAfterReload48D: true };
+    const componentPayload = { targetKey: component.id, customMediaExactTargetKey48D: component.id, dataUrl: componentGif, family: "image", type: "image/gif", name: "scap.gif", durableStorageAfterReload48D: true };
+    const parentRecord = normalizeCustomMediaRecord18C(parent.id, { name: "parent.gif", type: "image/gif", size: 107 * 1024 }, { valid: true, family: "image", type: "image/gif", name: "parent.gif", sizeBytes: 107 * 1024 }, gif, resolveBuiltInMedia17(parent), { key: parent.id, type: "exercise", name: parent.displayName });
+    const componentRecord = normalizeCustomMediaRecord18C(component.id, { name: "scap.gif", type: "image/gif", size: 107 * 1024 }, { valid: true, family: "image", type: "image/gif", name: "scap.gif", sizeBytes: 107 * 1024 }, componentGif, resolveBuiltInMedia17(component), { key: component.id, type: "component", name: "Scap circles", parentExerciseId: parent.id });
+    state.media.custom[parent.id] = customMediaPayloadMetadata48D(parentRecord, { ok: true, key: parent.id, storage: "indexeddb" });
+    state.media.custom[component.id] = customMediaPayloadMetadata48D(componentRecord, { ok: true, key: component.id, storage: "indexeddb" });
+    customMediaDurableMemoryStore48D[parent.id] = parentPayload;
+    customMediaDurableMemoryStore48D[component.id] = componentPayload;
+    const hydrated = hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-no-scroll-audit-sync-hydration");
+    const parentMedia = resolveMedia(parent, hydrated);
+    const componentMedia = resolveMedia(component, hydrated);
+    const sibling = { id: "audit-no-scroll-parent--component-3-light-rows", displayName: "Light rows", comboComponent30EMedia: true, parentComboExerciseId30EMedia: parent.id, media: { mediaKey: "audit-no-scroll-sibling", exact: false, fallbackAllowed: true } };
+    const siblingMedia = resolveMedia(sibling, hydrated);
+    const checks = {
+      sourceBaseIsDurableBugfixNotFailedGifFile: !new RegExp("PHASE_50_BUGFIX_" + "GIF_CUSTOM_MEDIA_SAVE_RECORD_AND_RESTORE_V1_CHANGELOG", "i").test(source),
+      bootHydrationOneShotStateBuilt: typeof customMediaBootHydrationState50NoScroll === "object" && customMediaBootHydrationState50NoScroll !== null,
+      renderPreservingScrollBuilt: typeof renderAppPreservingScroll50NoScroll === "function" && /scrollTo/.test(String(renderAppPreservingScroll50NoScroll || "")),
+      restoreRunsOnce: /already-in-flight/.test(String(restoreDurableCustomMediaOnBoot48D || "")) && /already-complete/.test(String(restoreDurableCustomMediaOnBoot48D || "")),
+      restoreRendersOnlyWhenPayloadRestored: /restoredCount > 0/.test(String(restoreDurableCustomMediaOnBoot48D || "")) && !/totalCustom > 0/.test(String(restoreDurableCustomMediaOnBoot48D || "")),
+      resolveMediaDoesNotHydrateBeforeBootComplete: /customMediaBootHydrationState50NoScroll\.complete === true/.test(String(resolveMedia || "")),
+      oneShotTargetHydration: /customMediaAsyncHydrationAttempted50NoScroll/.test(String(queueCustomMediaAsyncTargetHydration50Bugfix || "")),
+      parentGifHydrates: !!(parentMedia && parentMedia.customMedia18C === true && parentMedia.sourceUrl === gif),
+      componentGifHydrates: !!(componentMedia && componentMedia.customMedia18C === true && componentMedia.sourceUrl === componentGif),
+      siblingIsolationPreserved: !(siblingMedia && siblingMedia.customMedia18C === true && siblingMedia.sourceUrl === componentGif),
+      componentTargetKeyPreferred: /customMediaExactTargetKey48D/.test(String(customMediaTargetFromSheet48D || "")) && String(customMediaTargetFromSheet48D || "").indexOf("lastExerciseId18A") > String(customMediaTargetFromSheet48D || "").indexOf("customMediaExactTargetKey48D"),
+      noDuplicateResolver: (source.match(/function\s+resolveMedia\s*\(/g) || []).length === 1,
+      noDuplicateUploadHandler: (source.match(/function\s+saveCustomMediaToExactExercise18C\s*\(/g) || []).length === 1,
+      noDuplicateMediaStorage: (source.match(/function\s+persistCustomMediaPayload48D\s*\(/g) || []).length === 1 && !/function\s+persistCustomMediaPayload50\s*\(/.test(source),
+      noDestructiveBootCleanup: !/localStorage\.clear\s*\(/.test(source),
+      noScrollLoopRisk: (source.match(/Custom media restored after reload/g) || []).length <= 8 && !/setInterval[\s\S]{0,250}Custom media restored after reload/.test(source)
+    };
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_LOOP,
+      outputFile: PHASE50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_OUTPUT_FILE,
+      status,
+      checks,
+      strategy: "Run one boot custom-media payload hydration pass, keep restored exact-target payloads in runtime memory, prefer runtime renderable media over metadata-only durable state, and render at most once with scroll position preserved when a payload was actually restored."
+    });
+  }
+
   function runDurablePersistenceCommitHydrationLockAudit50Bugfix() {
     const fullRouteSnapshotAudit50Bugfix = runFullActiveRouteSnapshotPersistenceAudit50Bugfix();
     const customGifMediaAudit50Bugfix = runCustomGifMediaDurableHydrationAudit50Bugfix();
-    const gifCustomMediaSaveRecordAndRestore50 = typeof runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix === "function" ? runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix() : { status: "YELLOW", missing: true };
     const customMediaReloadPayloadRestoration50 = typeof runCustomMediaReloadPayloadRestorationAudit50Bugfix === "function" ? runCustomMediaReloadPayloadRestorationAudit50Bugfix() : { status: "YELLOW", missing: true };
+    const customMediaReloadNoScroll50 = typeof runCustomMediaReloadNoScrollLoopAudit50Bugfix === "function" ? runCustomMediaReloadNoScrollLoopAudit50Bugfix() : { status: "YELLOW", missing: true };
     const source = String(document.documentElement && document.documentElement.outerHTML || "");
     const bugfixStart50 = source.indexOf("const PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK");
     const bugfixEnd50 = source.indexOf("\n  window.TailoredTrainingComponentMediaStatusCopyCleanup49D = Object.freeze({");
@@ -50193,8 +50262,8 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       runtimeKeepsRenderableGif: !!(runtimeState.media.custom["scap-circles"] && customMediaRenderableSource48D(runtimeState.media.custom["scap-circles"]) === gifPayload),
       workoutCompletionPreservesCustomMedia: !!(completedClear.media && completedClear.media.custom && completedClear.media.custom["scap-circles"] && completedClear.media.custom["combo-parent--component-scap-circles"]),
       customGifMediaHydrationAuditPasses: customGifMediaAudit50Bugfix.status === "GREEN",
-      gifCustomMediaSaveRecordAndRestorePasses: gifCustomMediaSaveRecordAndRestore50.status === "GREEN",
       customMediaReloadPayloadRestorationPasses: customMediaReloadPayloadRestoration50.status === "GREEN",
+      customMediaReloadNoScrollLoopPasses: customMediaReloadNoScroll50.status === "GREEN",
       staticHydrationPreservesRenderablePayloads: typeof hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix === "function" && /collectRenderableCustomMediaPayloads50Bugfix/.test(String(hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix || "")),
       customGifParentHydratesAfterReload: !!(customGifMediaAudit50Bugfix.checks && customGifMediaAudit50Bugfix.checks.parentGifHydrates),
       customGifComponentHydratesAfterReload: !!(customGifMediaAudit50Bugfix.checks && customGifMediaAudit50Bugfix.checks.componentGifHydrates),
@@ -50217,12 +50286,12 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       fullRouteSnapshotAudit50Bugfix,
       customGifMediaAudit50Bugfix,
-      gifCustomMediaSaveRecordAndRestore50,
       customMediaReloadPayloadRestoration50,
-      rootCauseFound: "Valid GIFs could pass validation and write a payload, but the optional localStorage payload mirror could run before the required lightweight metadata STATE_KEY commit; when storage/quota was tight this surfaced as the vague app state did not accept message. Component target save also needed to prefer the exact component key over the parent lastExerciseId. Earlier route/runtime hydration protections remain preserved.",
+      customMediaReloadNoScroll50,
+      rootCauseFound: "Runtime render-sync memory could outrank newer durable STATE_KEY data, and custom-media hydration could restore a renderable payload but then immediately fall back to metadata-only durable state on re-render. The previous GIF-specific attempt also left a render/hydration retry path capable of firing while scrolling. Phase 50 no-scroll revision gates boot hydration to one pass, prefers runtime renderable media over metadata-only durable state, and re-renders only when a payload was actually restored.",
       activeSessionPersistenceStrategy: "Normal set and drop-set completion now use commitCriticalActiveSessionProgress50Bugfix, which saves through existing saveState/STATE_KEY, writes the Phase 49A direct active-session snapshot, and verifies hydration before rendering success messaging.",
       customMediaDurableStorageStrategy: "Custom media remains global exact-target metadata in state.media.custom plus durable payloads in the existing Phase 48D IndexedDB/localStorage payload path. Payload writes wait for transaction completion, verify readback, and best-effort mirror payloads to the existing tt_custom_media_payload48d localStorage prefix so GIF/image targets can hydrate synchronously before first render when storage allows.",
-      bootReloadHydrationStrategy: "loadState now refuses stale runtime memory when localStorage is newer, hydrates custom media from the synchronous payload mirror when available, then hydrates active-session progress before Today renders. If an exact-target metadata tile still lacks a renderable source, resolveMedia queues one async existing-payload hydration and re-renders when the payload is restored.",
+      bootReloadHydrationStrategy: "loadState now keeps runtime renderable custom media ahead of metadata-only durable state. Custom media payload restoration runs through one boot hydration pass, and any late exact-target async hydration is one-time per target with scroll-preserving render only after a payload is actually restored.",
       workoutCompletionCleanupStrategy: "Finish/auto-save clears active workout/rest state only after archive creation and saves a metadata-only custom-media state, while runtime renderable custom media is merged into memory so media does not vanish after completion.",
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
@@ -50235,38 +50304,10 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     return Object.freeze({ phase: PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK, outputFile: PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE, status, previous, durable, androidGithubGate: true });
   }
 
-  function runFullAppAudit50BugfixGifCustomMediaSaveRecordAndRestore(options = {}) {
-    const previous = runFullAppAudit50BugfixDurablePersistence(options);
-    const gifCustomMedia = runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix();
-    return Object.freeze({
-      phase: PHASE50_BUGFIX_GIF_CUSTOM_MEDIA_SAVE_RECORD_AND_RESTORE,
-      outputFile: PHASE50_BUGFIX_GIF_CUSTOM_MEDIA_OUTPUT_FILE,
-      status: "YELLOW",
-      previous,
-      gifCustomMedia,
-      androidGithubGate: true
-    });
-  }
-
+  window.runCustomMediaReloadNoScrollLoopAudit50Bugfix = runCustomMediaReloadNoScrollLoopAudit50Bugfix;
   window.runDurablePersistenceCommitHydrationLockAudit50Bugfix = runDurablePersistenceCommitHydrationLockAudit50Bugfix;
   window.runFullAppAudit50BugfixDurablePersistence = runFullAppAudit50BugfixDurablePersistence;
-  window.runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix = runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix;
-  window.runFullAppAudit50BugfixGifCustomMediaSaveRecordAndRestore = runFullAppAudit50BugfixGifCustomMediaSaveRecordAndRestore;
-  window.runFullAppAudit = runFullAppAudit50BugfixGifCustomMediaSaveRecordAndRestore;
-  window.TailoredTrainingGifCustomMediaSaveRecordRestore50Bugfix = Object.freeze({
-    phase: PHASE50_BUGFIX_GIF_CUSTOM_MEDIA_SAVE_RECORD_AND_RESTORE,
-    outputFile: PHASE50_BUGFIX_GIF_CUSTOM_MEDIA_OUTPUT_FILE,
-    saveOwnerPath: "saveCustomMediaToExactExercise18C",
-    durablePayloadOwnerPath: "persistCustomMediaPayload48D",
-    resolverOwnerPath: "resolveMedia",
-    customMediaTargetFromSheet48D,
-    customMediaSafeFailure50GifBugfix,
-    mirrorCustomMediaPayloadAfterMetadataCommit50GifBugfix,
-    runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix,
-    runFullAppAudit50BugfixGifCustomMediaSaveRecordAndRestore,
-    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
-  });
-
+  window.runFullAppAudit = runFullAppAudit50BugfixDurablePersistence;
   window.TailoredTrainingDurablePersistenceCommitHydrationLock50Bugfix = Object.freeze({
     phase: PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK,
     outputFile: PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE,
@@ -50274,11 +50315,26 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     commitHydratedCustomMediaMetadata50Bugfix,
     shouldPreferRuntimeStateOverDurableState50Bugfix,
     hydrateCustomMediaFromSyncPayloadCache50Bugfix,
+    renderAppPreservingScroll50NoScroll,
     runCustomGifMediaDurableHydrationAudit50Bugfix,
-    runGifCustomMediaSaveRecordAndRestoreAudit50GifBugfix,
+    runCustomMediaReloadNoScrollLoopAudit50Bugfix,
     runDurablePersistenceCommitHydrationLockAudit50Bugfix,
     runFullActiveRouteSnapshotPersistenceAudit50Bugfix,
     runFullAppAudit50BugfixDurablePersistence,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+  window.TailoredTrainingCustomMediaReloadNoScrollLoop50Bugfix = Object.freeze({
+    phase: PHASE50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_LOOP,
+    outputFile: PHASE50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_OUTPUT_FILE,
+    restoreDurableCustomMediaOnBoot48D,
+    queueCustomMediaAsyncTargetHydration50Bugfix,
+    renderAppPreservingScroll50NoScroll,
+    shouldPreferRuntimeCustomMediaState50NoScroll,
+    runCustomMediaReloadNoScrollLoopAudit50Bugfix,
+    duplicateMediaResolver: false,
+    duplicateMediaStorage: false,
+    duplicateUploadHandler: false,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
