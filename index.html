@@ -1,4 +1,22 @@
 <!doctype html>
+
+<!--
+PHASE_50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK_ROUTE_SNAPSHOT_REVISION
+- Revised the same Phase 50 persistence bugfix after Android/GitHub evidence showed later completed sets and workout-list Done/Partial status could regress after refresh.
+- Added a full active-route progress fingerprint so durable STATE_KEY data wins over stale runtime/memory state when it contains more completed work, later completed sets, more done exercises, a later selected exercise pointer, valid route lock, or drop-set child progress.
+- Strengthened active-session snapshot/hydration/verification to preserve every exercise and every setLog, not only the currently visible set card.
+- Kept custom media durable payload/metadata protections from the original Phase 50 bugfix and did not change workout programming, CSS, set logging UI, rest timing, coach rules, route generation, History/Data/Backup layout, or reset behavior.
+-->
+
+<!--
+PHASE_50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase50_Final_Android_Regression_Lock_Release_Candidate_v1.html as the approved RC base after Phase 50 GREEN.
+- Tightened the existing persistence/save/load owner paths so active-session set progress and custom media metadata/payloads commit durably before refresh-sensitive UI continues.
+- Prevented stale runtime render-sync memory from outranking newer localStorage state during load/hydration.
+- Strengthened IndexedDB custom-media payload writes to wait for transaction completion and verify the saved payload before showing success.
+- Committed hydrated custom-media metadata back to the existing app state without storing bulky data URLs in STATE_KEY, while preserving renderable in-memory media for the current session.
+- Preserved workout programming, route generation, set logging UI, preview layout, thumbnail sizing, reset controls, custom media parent/component isolation, normal-set carry-forward, manual numeric entry, timer sound, History/Data/Backup, and non-destructive boot behavior.
+-->
 <!--
 PHASE_50_FINAL_ANDROID_REGRESSION_LOCK_RELEASE_CANDIDATE_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase49E_Timer_Sound_Countdown_Beeps_v1.html as the GREEN base after Phase 49E Android/GitHub confirmation.
@@ -4470,7 +4488,14 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
   }
   function dynamicMediaFromCandidate10E(candidate) {
     const sourceMedia = candidate && candidate.media && typeof candidate.media === "object" && !Array.isArray(candidate.media) ? candidate.media : {};
-    const custom = sourceMedia.custom && typeof sourceMedia.custom === "object" && !Array.isArray(sourceMedia.custom) ? sourceMedia.custom : {};
+    const sourceCustom = sourceMedia.custom && typeof sourceMedia.custom === "object" && !Array.isArray(sourceMedia.custom) ? sourceMedia.custom : {};
+    const custom = {};
+    Object.keys(sourceCustom).forEach((key) => {
+      const item = sourceCustom[key];
+      if (item && typeof item === "object" && !Array.isArray(item) && typeof customMediaRenderableSource48D === "function" && customMediaRenderableSource48D(item) && typeof customMediaMetadataForDurableCommit50Bugfix === "function") {
+        custom[key] = customMediaMetadataForDurableCommit50Bugfix(item, key);
+      } else custom[key] = clone(item);
+    });
     const phase18E = sourceMedia.phase18E && typeof sourceMedia.phase18E === "object" && !Array.isArray(sourceMedia.phase18E) ? clone(sourceMedia.phase18E) : {};
     return {
       custom,
@@ -4556,17 +4581,172 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     if (!hasStorage()) return [];
     return LEGACY_KEYS.map((key) => { const raw = safeStorageGet10E(key, null); if (!raw) return null; const parsed = safeJsonParse(raw, null, key); return { key, present: true, parseOk: parsed.ok, type: parsed.ok ? typeof parsed.value : "invalid", warning: parsed.warning }; }).filter(Boolean);
   }
+
+  function phase50BugfixIsoMs(value) {
+    const time = Date.parse(String(value || ""));
+    return Number.isFinite(time) ? time : 0;
+  }
+  function phase50BugfixStateFreshnessMs(state) {
+    if (!state || typeof state !== "object") return 0;
+    return Math.max(
+      phase50BugfixIsoMs(state.updatedAt),
+      phase50BugfixIsoMs(state.migratedAt),
+      phase50BugfixIsoMs(state.audit && state.audit.phase50BugfixCommittedAt),
+      phase50BugfixIsoMs(state.audit && state.audit.phase49AActiveSetProgressCommittedAt),
+      phase50BugfixIsoMs(state.media && state.media.phase48D && state.media.phase48D.updatedAt)
+    );
+  }
+  function durableStateCandidate50Bugfix() {
+    try {
+      if (!hasStorage()) return null;
+      const raw = safeStorageGet10E(STATE_KEY, null);
+      if (!raw) return null;
+      const parsed = safeJsonParse(raw, null, STATE_KEY);
+      if (!parsed.ok || !parsed.value || typeof parsed.value !== "object") return null;
+      return parsed.value;
+    } catch (_) { return null; }
+  }
+  function activeRouteProgressProfile50Bugfix(activeSession) {
+    const active = activeSession && typeof activeSession === "object" && Array.isArray(activeSession.exercises) ? clone(activeSession) : null;
+    if (!active) {
+      return Object.freeze({ active: false, completedMainCount: 0, completedDropCount: 0, completedTotal: 0, doneExerciseCount: 0, partialExerciseCount: 0, selectedExerciseIndex: 0, weightedProgressScore: 0, routeLockScore: 0, completedKeys: Object.freeze([]), completedKeyMap: Object.freeze({}), fingerprint: "no-active-session" });
+    }
+    const completedKeys = [];
+    let completedMainCount = 0;
+    let completedDropCount = 0;
+    let doneExerciseCount = 0;
+    let partialExerciseCount = 0;
+    let weightedProgressScore = 0;
+    const exercises = Array.isArray(active.exercises) ? active.exercises : [];
+    exercises.forEach((exercise, exerciseIndex) => {
+      const sets = normalizeSessionExerciseSets(exercise);
+      let completedInExercise = 0;
+      let plannedInExercise = 0;
+      sets.forEach((set, setIndex) => {
+        if (!set || set.planned === false || String(set.type || "normal").toLowerCase() === "drop") return;
+        plannedInExercise += 1;
+        if (set.completed === true) {
+          completedMainCount += 1;
+          completedInExercise += 1;
+          const key = ["main", exerciseIndex, exercise && exercise.id || "exercise", setIndex, Number(set.weight || 0), Number(set.reps || 0), set.completedAt || "done"].join(":");
+          completedKeys.push(key);
+          weightedProgressScore += ((exerciseIndex + 1) * 1000) + (setIndex + 1);
+        }
+      });
+      const dropSets = typeof workoutListDropSetsForExercise46D === "function" ? workoutListDropSetsForExercise46D({ activeSession: active }, exercise) : [];
+      dropSets.forEach((drop, dropIndex) => {
+        if (!drop || drop.completed !== true) return;
+        completedDropCount += 1;
+        completedInExercise += 1;
+        const parent = Number.isFinite(Number(drop.parentSetIndex)) ? Number(drop.parentSetIndex) : dropIndex;
+        const key = ["drop", exerciseIndex, exercise && exercise.id || drop.exerciseId || "exercise", parent, drop.id || dropIndex, Number(drop.weight || 0), Number(drop.reps || 0), drop.completedAt || "done"].join(":");
+        completedKeys.push(key);
+        weightedProgressScore += ((exerciseIndex + 1) * 1000) + 500 + (parent + 1);
+      });
+      const summary = typeof workoutListWorkSummary46D === "function" ? workoutListWorkSummary46D({ activeSession: active }, exercise) : null;
+      const plannedTotal = summary && Number.isFinite(Number(summary.plannedTotal)) ? Number(summary.plannedTotal) : plannedInExercise;
+      const completedTotal = summary && Number.isFinite(Number(summary.completedTotal)) ? Number(summary.completedTotal) : completedInExercise;
+      if (plannedTotal > 0 && completedTotal >= plannedTotal) doneExerciseCount += 1;
+      else if (completedTotal > 0) partialExerciseCount += 1;
+    });
+    const registryCandidates = [
+      active.sessionOnlyDropSets13A,
+      active.dropSetModel13A && active.dropSetModel13A.sessionOnlyDropSets13A,
+      active.sessionOnlyDropSets,
+      active.dropSets
+    ].filter((registry) => registry && typeof registry === "object" && !Array.isArray(registry));
+    const seenDropKeys = new Set(completedKeys.filter((key) => String(key).startsWith("drop:")));
+    registryCandidates.forEach((registry) => {
+      Object.keys(registry).forEach((key) => {
+        const drop = registry[key];
+        if (!drop || drop.completed !== true) return;
+        const fingerprint = ["drop-registry", drop.exerciseId || "exercise", Number(drop.parentSetIndex || 0), drop.id || key, Number(drop.weight || 0), Number(drop.reps || 0), drop.completedAt || "done"].join(":");
+        if (seenDropKeys.has(fingerprint)) return;
+        seenDropKeys.add(fingerprint);
+      });
+    });
+    const selectedExerciseIndex = clampExerciseIndex25FBugfix(Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0, exercises.length);
+    const routeLockScore = (active.dayName ? 1 : 0) + (active.mode ? 1 : 0) + (active.route ? 1 : 0) + (active.workoutKey ? 1 : 0) + (Array.isArray(active.exercises) && active.exercises.length ? 1 : 0);
+    const completedKeyMap = completedKeys.reduce((map, key) => { map[key] = true; return map; }, {});
+    const completedKeysSorted = completedKeys.slice().sort();
+    return Object.freeze({
+      active: true,
+      routeKey: [active.dayName || "", active.mode || "", active.route || "", active.workoutKey || ""].join("|"),
+      exerciseCount: exercises.length,
+      completedMainCount,
+      completedDropCount,
+      completedTotal: completedMainCount + completedDropCount,
+      doneExerciseCount,
+      partialExerciseCount,
+      selectedExerciseIndex,
+      openSetKey: active.openSetKey || null,
+      phase12BNextSetIndex: Number.isFinite(Number(active.phase12BNextSetIndex)) ? Number(active.phase12BNextSetIndex) : null,
+      phase12CNextExerciseIndex: Number.isFinite(Number(active.phase12CNextExerciseIndex)) ? Number(active.phase12CNextExerciseIndex) : null,
+      weightedProgressScore,
+      routeLockScore,
+      completedKeys: Object.freeze(completedKeysSorted),
+      completedKeyMap: Object.freeze(completedKeyMap),
+      fingerprint: JSON.stringify({ route: [active.dayName || "", active.mode || "", active.route || "", active.workoutKey || ""], selectedExerciseIndex, exerciseCount: exercises.length, doneExerciseCount, partialExerciseCount, completedKeys: completedKeysSorted })
+    });
+  }
+
+  function activeRouteProfileHasCompletedWorkMissingFrom50Bugfix(aProfile, bProfile) {
+    const a = aProfile && Array.isArray(aProfile.completedKeys) ? aProfile.completedKeys : [];
+    const bMap = bProfile && bProfile.completedKeyMap && typeof bProfile.completedKeyMap === "object" ? bProfile.completedKeyMap : {};
+    return a.some((key) => !bMap[key]);
+  }
+
+  function activeRouteProgressDominates50Bugfix(candidateProfile, otherProfile) {
+    const candidate = candidateProfile || activeRouteProgressProfile50Bugfix(null);
+    const other = otherProfile || activeRouteProgressProfile50Bugfix(null);
+    if (candidate.active && !other.active) return true;
+    if (!candidate.active) return false;
+    if (candidate.completedTotal > other.completedTotal) return true;
+    if (candidate.completedMainCount > other.completedMainCount) return true;
+    if (candidate.completedDropCount > other.completedDropCount) return true;
+    if (candidate.doneExerciseCount > other.doneExerciseCount) return true;
+    if (candidate.weightedProgressScore > other.weightedProgressScore && candidate.completedTotal >= other.completedTotal) return true;
+    if (candidate.selectedExerciseIndex > other.selectedExerciseIndex && candidate.completedTotal >= other.completedTotal) return true;
+    if (candidate.exerciseCount > other.exerciseCount && candidate.completedTotal >= other.completedTotal && candidate.routeLockScore >= other.routeLockScore) return true;
+    if (candidate.completedTotal >= other.completedTotal && activeRouteProfileHasCompletedWorkMissingFrom50Bugfix(candidate, other)) return true;
+    return false;
+  }
+
+  function chooseMoreCompleteActiveRouteState50Bugfix(aState, bState) {
+    const aProfile = activeRouteProgressProfile50Bugfix(aState && aState.activeSession);
+    const bProfile = activeRouteProgressProfile50Bugfix(bState && bState.activeSession);
+    if (activeRouteProgressDominates50Bugfix(aProfile, bProfile)) return { state: aState, profile: aProfile, otherProfile: bProfile, source: "a" };
+    if (activeRouteProgressDominates50Bugfix(bProfile, aProfile)) return { state: bState, profile: bProfile, otherProfile: aProfile, source: "b" };
+    return { state: null, profile: aProfile, otherProfile: bProfile, source: "tie" };
+  }
+
+  function shouldPreferRuntimeStateOverDurableState50Bugfix(runtimeState, source = "runtime") {
+    if (!runtimeState || typeof runtimeState !== "object") return false;
+    const durable = durableStateCandidate50Bugfix();
+    if (!durable) return true;
+    const runtimeFreshness = phase50BugfixStateFreshnessMs(runtimeState);
+    const durableFreshness = phase50BugfixStateFreshnessMs(durable);
+    const runtimeProfile = activeRouteProgressProfile50Bugfix(runtimeState.activeSession);
+    const durableProfile = activeRouteProgressProfile50Bugfix(durable.activeSession);
+    if (activeRouteProgressDominates50Bugfix(durableProfile, runtimeProfile)) return false;
+    if (activeRouteProgressDominates50Bugfix(runtimeProfile, durableProfile)) return true;
+    const durableHasActive = !!durable.activeSession;
+    const runtimeHasActive = !!runtimeState.activeSession;
+    if (durableHasActive && !runtimeHasActive && durableFreshness >= runtimeFreshness) return false;
+    if (durableFreshness > runtimeFreshness) return false;
+    return true;
+  }
   function loadState() {
     const storageOk = hasStorage();
     const warnings = [];
-    if (customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.media && customMediaRenderSyncState48DFix.media.phase48D && customMediaRenderSyncState48DFix.media.phase48D.saveRenderSyncBugfix48D) {
+    if (customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.media && customMediaRenderSyncState48DFix.media.phase48D && customMediaRenderSyncState48DFix.media.phase48D.saveRenderSyncBugfix48D && shouldPreferRuntimeStateOverDurableState50Bugfix(customMediaRenderSyncState48DFix, "custom-media-render-sync")) {
       const state = clone(customMediaRenderSyncState48DFix);
       hydrateStaticProgram10E(state);
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
       state.audit = Object.assign({}, state.audit, { phase48DSaveRenderSyncMemoryPreferred: true, phase49ABugfixActiveSetProgressHydrated: !!state.activeSession });
       return { state, source: "phase48d-save-render-sync-memory", warnings: ["Using freshest custom-media state so the saved tile renders immediately."], storageOk, legacyPreview: [] };
     }
-    if (memoryStateFallback10E && memoryStateFallback10E.activeSession) {
+    if (memoryStateFallback10E && memoryStateFallback10E.activeSession && shouldPreferRuntimeStateOverDurableState50Bugfix(memoryStateFallback10E, "memory-active-session")) {
       const state = clone(memoryStateFallback10E);
       hydrateStaticProgram10E(state);
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
@@ -5532,10 +5712,13 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
   }
   function commitFinishedWorkoutStateClear32CBugfix(next, archived) {
     clearPendingActiveWorkoutPersists32CBugfixFinish();
-    const saved = saveState(next, "phase32c-bugfix-finish-workout-commit-active-state-clear");
-    const committed = saved && saved.state ? saved.state : next;
-    memoryStateFallback10E = clone(committed);
-    return { ok: !!(saved && saved.ok), state: committed, saved };
+    const metadataSafe50 = customMediaMetadataStateForCommit50Bugfix(next);
+    const saved = saveState(metadataSafe50, "phase32c-bugfix-finish-workout-commit-active-state-clear");
+    const committed = saved && saved.state ? saved.state : metadataSafe50;
+    const runtimeCommitted50 = mergeRenderableCustomMediaIntoRuntimeState50Bugfix(committed, customMediaRenderSyncState48DFix || memoryStateFallback10E || next);
+    memoryStateFallback10E = clone(runtimeCommitted50);
+    customMediaRenderSyncState48DFix = clone(runtimeCommitted50);
+    return { ok: !!(saved && saved.ok), state: runtimeCommitted50, saved, phase50BugfixCustomMediaPreserved: true };
   }
   function collectIncompleteWorkoutItems46B(activeSession) {
     const active = activeSession && typeof activeSession === "object" ? activeSession : null;
@@ -7536,6 +7719,62 @@ Existing History logs stay untouched.`);
     copy.durableStorageAfterReload48D = true;
     return copy;
   }
+  function customMediaMetadataForDurableCommit50Bugfix(record, targetKey = "") {
+    const exactKey = customMediaNormalizeExactTargetKey48D(targetKey || record && (record.customMediaExactTargetKey48D || record.exerciseId || record.targetKey));
+    const durable = {
+      ok: !!(record && (record.durablePayloadSaved48D || customMediaRenderableSource48D(record))),
+      key: record && record.durablePayloadKey48D || customMediaDurablePayloadKey48D(exactKey),
+      storage: record && record.durablePayloadStore48D || "verified-durable-payload"
+    };
+    const meta = customMediaPayloadMetadata48D(Object.assign({}, record || {}, { exerciseId: exactKey || record && record.exerciseId, customMediaExactTargetKey48D: exactKey || record && record.customMediaExactTargetKey48D }), durable);
+    meta.phase50BugfixMetadataOnlyCommit = true;
+    meta.phase50BugfixMetadataCommittedAt = nowIso();
+    return meta;
+  }
+  function customMediaMetadataStateForCommit50Bugfix(stateInput) {
+    const state = migrateState(stateInput || createDefaultState(), "phase50-bugfix-custom-media-metadata-state");
+    state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
+    const custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
+    Object.keys(custom).forEach((key) => {
+      const item = custom[key];
+      if (!item || typeof item !== "object" || Array.isArray(item)) return;
+      if (customMediaRenderableSource48D(item) || item.durablePayloadSaved48D || item.durableStorageAfterReload48D) custom[key] = customMediaMetadataForDurableCommit50Bugfix(item, key);
+    });
+    state.media.custom = custom;
+    state.media.phase48D = Object.assign({}, state.media.phase48D || {}, { durableStorageAfterReload48D: true, phase50BugfixMetadataOnlyCommit: true, updatedAt: nowIso() });
+    state.audit = Object.assign({}, state.audit || {}, { phase50BugfixCustomMediaMetadataOnlyCommit: true, phase50BugfixCommittedAt: nowIso() });
+    return state;
+  }
+  function mergeRenderableCustomMediaIntoRuntimeState50Bugfix(baseState, renderSourceState) {
+    const base = migrateState(baseState || createDefaultState(), "phase50-bugfix-renderable-custom-media-base");
+    const sourceCustom = renderSourceState && renderSourceState.media && renderSourceState.media.custom && typeof renderSourceState.media.custom === "object" && !Array.isArray(renderSourceState.media.custom) ? renderSourceState.media.custom : {};
+    base.media = base.media && typeof base.media === "object" && !Array.isArray(base.media) ? base.media : {};
+    base.media.custom = base.media.custom && typeof base.media.custom === "object" && !Array.isArray(base.media.custom) ? Object.assign({}, base.media.custom) : {};
+    Object.keys(sourceCustom).forEach((key) => {
+      const item = sourceCustom[key];
+      if (item && typeof item === "object" && !Array.isArray(item) && customMediaRenderableSource48D(item)) {
+        base.media.custom[key] = Object.assign({}, base.media.custom[key] || {}, item, { phase50BugfixRuntimeRenderableOnly: true });
+      }
+    });
+    base.media.phase48D = Object.assign({}, base.media.phase48D || {}, { phase50BugfixRuntimeRenderableMerged: true, updatedAt: nowIso() });
+    return base;
+  }
+  function commitHydratedCustomMediaMetadata50Bugfix(stateInput, reason = "phase50-bugfix-custom-media-hydration") {
+    const metadataState = customMediaMetadataStateForCommit50Bugfix(stateInput);
+    const saved = saveState(metadataState, reason);
+    const committed = saved && saved.state ? saved.state : metadataState;
+    return { ok: !!(saved && saved.ok && !saved.storageWriteFailed), state: committed, saved, metadataOnly: true, reason };
+  }
+  function verifyCustomMediaMetadataCommit50Bugfix(targetKey, expectedRecord) {
+    const exactKey = customMediaNormalizeExactTargetKey48D(targetKey);
+    if (!exactKey) return { ok: false, reason: "missing-target-key" };
+    if (!hasStorage()) return { ok: false, reason: "localStorage-unavailable-for-metadata" };
+    const raw = safeStorageGet10E(STATE_KEY, null);
+    const parsed = safeJsonParse(raw, null, STATE_KEY);
+    const item = parsed.ok && parsed.value && parsed.value.media && parsed.value.media.custom && parsed.value.media.custom[exactKey];
+    const ok = !!(item && item.durablePayloadSaved48D === true && !customMediaRenderableSource48D(item));
+    return { ok, targetKey: exactKey, parsedOk: parsed.ok, metadataPresent: !!item, metadataOnly: !!(item && !customMediaRenderableSource48D(item)), durablePayloadSaved: !!(item && item.durablePayloadSaved48D), expectedName: expectedRecord && expectedRecord.name || null };
+  }
   function customMediaRecordWithDurablePayload48D(metadata, payload) {
     if (!metadata || !payload) return metadata || null;
     const dataUrl = String(payload.dataUrl || payload.restoredDataUrl48D || "");
@@ -7583,13 +7822,24 @@ Existing History logs stay untouched.`);
     try {
       const tx = await customMediaDurableTx48D("readwrite");
       await new Promise((resolve, reject) => {
+        const transaction = tx.store && tx.store.transaction;
         const req = tx.store.put(payload);
-        req.onsuccess = () => resolve(true);
+        let requestDone = false;
+        req.onsuccess = () => { requestDone = true; };
         req.onerror = () => reject(req.error || new Error("IndexedDB payload put failed"));
+        if (transaction) {
+          transaction.oncomplete = () => requestDone ? resolve(true) : reject(new Error("IndexedDB transaction completed before payload put confirmation"));
+          transaction.onerror = () => reject(transaction.error || new Error("IndexedDB payload transaction failed"));
+          transaction.onabort = () => reject(transaction.error || new Error("IndexedDB payload transaction aborted"));
+        } else {
+          req.onsuccess = () => resolve(true);
+        }
       });
       try { tx.db.close(); } catch (_) {}
       customMediaDurableMemoryStore48D[exactKey] = payload;
-      return { ok: true, storage: "indexeddb", key: exactKey, durablePayloadKey48D: exactKey };
+      const idbVerify50 = await readCustomMediaPayload48D(exactKey);
+      if (!idbVerify50 || idbVerify50.dataUrl !== dataUrl) throw new Error("IndexedDB payload verification failed after transaction complete");
+      return { ok: true, storage: "indexeddb", key: exactKey, durablePayloadKey48D: exactKey, verifiedAfterWrite50: true };
     } catch (idbError) {
       try {
         if (!hasStorage()) throw new Error("localStorage unavailable");
@@ -7708,8 +7958,10 @@ Existing History logs stay untouched.`);
       const loaded = loadState();
       const hydrated = await hydrateDurableCustomMediaRecords48D(loaded.state);
       if (hydrated && hydrated.restored > 0) {
-        customMediaRenderSyncState48DFix = clone(hydrated.state);
-        memoryStateFallback10E = clone(hydrated.state);
+        const committed50 = commitHydratedCustomMediaMetadata50Bugfix(hydrated.state, "phase50-bugfix-custom-media-boot-hydration-commit");
+        const freshState50 = mergeRenderableCustomMediaIntoRuntimeState50Bugfix((committed50 && committed50.state) || hydrated.state, hydrated.state);
+        customMediaRenderSyncState48DFix = clone(freshState50);
+        memoryStateFallback10E = clone(freshState50);
         try { renderApp("Custom media restored after reload"); } catch (_) {}
       }
       return hydrated;
@@ -8487,9 +8739,14 @@ Existing History logs stay untouched.`);
       state.qa = Object.assign({}, state.qa, { phase18CCustomMediaExactExerciseSave: "exact-exercise-save-ready", phase18DRestoreBuiltInMedia: "restore-built-in-ready", phase18ECustomMediaStorageBackup: "metadata-backup-ready", phase18FCustomMediaRegressionLock: "regression-lock-ready-phone-test-required", phase48DComponentLevelCustomMediaOverride: "component-target-ready-phone-test-required", phase48DAndroidSaveApplyVerification: "custom-media-save-visibly-applies" });
       state.audit = Object.assign({}, state.audit, { customMediaSavingBuilt: true, customMediaExactExerciseOnly: true, customMediaBackupHandlingBuilt: true, customMediaRestoreBuilt: true, customMediaMetadataBackup18E: true, componentLevelCustomMediaOverride48D: true, customMediaExactTargetKey48D: exerciseId, androidSaveApplyVerification48D: true });
       const saved = saveState(state, "phase48d-android-save-apply-custom-media-exact-target");
-      if (!saved || saved.ok !== true) {
+      if (!saved || saved.ok !== true || saved.storageWriteFailed === true) {
         if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: app state did not accept the custom media record."; }
         return { ok: false, reason: "state-save-failed", targetMeta, saved };
+      }
+      const metadataCommit50 = verifyCustomMediaMetadataCommit50Bugfix(exerciseId, persistedRecord);
+      if (!metadataCommit50 || metadataCommit50.ok !== true) {
+        if (result) { result.className = "custom-media-result18b bad"; result.textContent = "Save failed safely: custom media metadata was not durably committed."; }
+        return { ok: false, reason: "custom-media-metadata-commit-verification-failed", targetMeta, metadataCommit50 };
       }
       const renderSyncState = saved && saved.state ? migrateState(saved.state, "phase48d-durable-after-save-render-state") : migrateState(state, "phase48d-durable-after-save-render-state");
       renderSyncState.media.custom[exerciseId] = record;
@@ -18256,8 +18513,7 @@ Existing History logs stay untouched.`);
       setActiveTab("today");
       return;
     }
-    const savedDropProgress49A = saveState(next, isDropSetPhase13EOrLater() ? "phase13e-complete-session-only-drop-set-clear-transition-cue-phase34g-post-drop-rest" : "phase13c-complete-session-only-drop-set-phase34g-post-drop-rest");
-    persistActiveSessionProgressNow49ABugfix((savedDropProgress49A && savedDropProgress49A.state) || next, "phase49a-bugfix-complete-drop-set-active-progress");
+    const savedDropProgress49A = commitCriticalActiveSessionProgress50Bugfix(next, isDropSetPhase13EOrLater() ? "complete-drop-set-phase13e-post-drop-rest" : "complete-drop-set-phase13c-post-drop-rest");
     const selectedIndex = Number.isInteger(next.activeSession.selectedExerciseIndex) ? next.activeSession.selectedExerciseIndex : 0;
     const renderIndex34CBugfix = routing34CBugfix && routing34CBugfix.moved ? routing34CBugfix.nextExerciseIndex : selectedIndex;
     const message34CBugfix = routing34CBugfix && routing34CBugfix.moved ? `Drop set saved · moved to ${routing34CBugfix.nextExerciseName}` : (routing34CBugfix && routing34CBugfix.opened ? `Drop set saved · next set ${routing34CBugfix.nextSetIndex + 1} opened` : "Drop set saved");
@@ -19565,8 +19821,7 @@ Existing History logs stay untouched.`);
       setActiveTab("today");
       return;
     }
-    const savedActiveProgress49A = saveState(next, "phase13e-complete-set-bypass-full-rest-before-existing-drop-set");
-    persistActiveSessionProgressNow49ABugfix((savedActiveProgress49A && savedActiveProgress49A.state) || next, "phase49a-bugfix-complete-set-active-progress");
+    const savedActiveProgress49A = commitCriticalActiveSessionProgress50Bugfix(next, "complete-normal-set-active-progress");
     const restMessage = dropBypass13E.bypassed ? "drop transition cue shown" : (restGate.shouldStart && !wasCompletedBefore ? "normal rest started" : (transitionRestGate46A.shouldStart && !wasCompletedBefore ? "transition rest started" : "no normal rest needed"));
     const dropMessage = dropBypass13E.bypassed ? " · drop set now — no full rest" : (dropDetection13D.detected ? " · drop next detected" : "");
     const openMessage = dropBypass13E.bypassed ? "existing drop set prepared" : (openNext12B.opened ? `next set ${openNext12B.nextSetIndex + 1} opened` : (moveNext12C.moved ? `moved to ${moveNext12C.nextExerciseName}` : "no next exercise yet"));
@@ -48383,6 +48638,11 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     snapshot.phase49AActiveSetProgressPersistenceBuilt = true;
     snapshot.phase49AActiveSetProgressPersistedAt = snapshot.phase49AActiveSetProgressPersistedAt || nowIso();
     sessionDropSetRegistry13A(snapshot);
+    const profile = typeof activeRouteProgressProfile50Bugfix === "function" ? activeRouteProgressProfile50Bugfix(snapshot) : null;
+    snapshot.phase50BugfixFullRouteProgressFingerprint = profile && profile.fingerprint || null;
+    snapshot.phase50BugfixFullRouteCompletedMainCount = profile && profile.completedMainCount || snapshot.completedSetCount;
+    snapshot.phase50BugfixFullRouteCompletedDropCount = profile && profile.completedDropCount || 0;
+    snapshot.phase50BugfixFullRouteDoneExerciseCount = profile && profile.doneExerciseCount || 0;
     return snapshot;
   }
 
@@ -48397,11 +48657,20 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     active.phase49AActiveSetProgressHydratedAfterReload = true;
     active.phase49AActiveSetProgressHydratedAt = nowIso();
     sessionDropSetRegistry13A(active);
+    const profile = typeof activeRouteProgressProfile50Bugfix === "function" ? activeRouteProgressProfile50Bugfix(active) : null;
+    active.phase50BugfixFullRouteProgressFingerprint = profile && profile.fingerprint || null;
+    active.phase50BugfixFullRouteCompletedMainCount = profile && profile.completedMainCount || active.completedSetCount;
+    active.phase50BugfixFullRouteCompletedDropCount = profile && profile.completedDropCount || 0;
+    active.phase50BugfixFullRouteDoneExerciseCount = profile && profile.doneExerciseCount || 0;
     state.audit = Object.assign({}, state.audit || {}, {
       phase49AActiveSetProgressPersistenceAfterReloadBuilt: true,
       phase49AActiveSetProgressHydratedAfterReload: true,
       phase49AActiveSetProgressCompletedCount: active.completedSetCount,
-      phase49AActiveSetProgressSelectedExerciseIndex: active.selectedExerciseIndex
+      phase49AActiveSetProgressSelectedExerciseIndex: active.selectedExerciseIndex,
+      phase50BugfixFullRouteProgressFingerprint: profile && profile.fingerprint || null,
+      phase50BugfixFullRouteCompletedMainCount: profile && profile.completedMainCount || active.completedSetCount,
+      phase50BugfixFullRouteCompletedDropCount: profile && profile.completedDropCount || 0,
+      phase50BugfixFullRouteDoneExerciseCount: profile && profile.doneExerciseCount || 0
     });
     return state;
   }
@@ -48410,23 +48679,30 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     const source = activeSessionProgressSnapshot49ABugfix(sourceActive);
     const restored = activeSessionProgressSnapshot49ABugfix(restoredActive);
     if (!source || !restored) return { ok: false, reason: "missing-active-session" };
-    const sourceCompleted = completedSetCount(source);
-    const restoredCompleted = completedSetCount(restored);
+    const sourceProfile = activeRouteProgressProfile50Bugfix(source);
+    const restoredProfile = activeRouteProgressProfile50Bugfix(restored);
     const selectedMatches = Number(source.selectedExerciseIndex) === Number(restored.selectedExerciseIndex);
-    const sourceFirstCompleted = source.exercises && source.exercises[0] && normalizeSessionExerciseSets(source.exercises[0])[0];
-    const restoredFirstCompleted = restored.exercises && restored.exercises[0] && normalizeSessionExerciseSets(restored.exercises[0])[0];
-    const firstSetMatches = !!(sourceFirstCompleted && restoredFirstCompleted &&
-      sourceFirstCompleted.completed === restoredFirstCompleted.completed &&
-      Number(sourceFirstCompleted.weight) === Number(restoredFirstCompleted.weight) &&
-      Number(sourceFirstCompleted.reps) === Number(restoredFirstCompleted.reps));
+    const routeLockMatches = String(source.dayName || "") === String(restored.dayName || "") && String(source.mode || "") === String(restored.mode || "") && String(source.route || "") === String(restored.route || "");
+    const restoredMissingSourceWork = activeRouteProfileHasCompletedWorkMissingFrom50Bugfix(sourceProfile, restoredProfile);
+    const restoredRegressed = activeRouteProgressDominates50Bugfix(sourceProfile, restoredProfile) && !activeRouteProgressDominates50Bugfix(restoredProfile, sourceProfile);
     return {
-      ok: sourceCompleted === restoredCompleted && selectedMatches && firstSetMatches,
-      sourceCompleted,
-      restoredCompleted,
+      ok: !restoredMissingSourceWork && !restoredRegressed && selectedMatches && routeLockMatches && restoredProfile.completedMainCount >= sourceProfile.completedMainCount && restoredProfile.completedDropCount >= sourceProfile.completedDropCount && restoredProfile.doneExerciseCount >= sourceProfile.doneExerciseCount,
+      sourceCompleted: sourceProfile.completedTotal,
+      restoredCompleted: restoredProfile.completedTotal,
+      sourceCompletedMain: sourceProfile.completedMainCount,
+      restoredCompletedMain: restoredProfile.completedMainCount,
+      sourceCompletedDrop: sourceProfile.completedDropCount,
+      restoredCompletedDrop: restoredProfile.completedDropCount,
+      sourceDoneExerciseCount: sourceProfile.doneExerciseCount,
+      restoredDoneExerciseCount: restoredProfile.doneExerciseCount,
       selectedMatches,
-      firstSetMatches,
+      routeLockMatches,
       sourceSelectedExerciseIndex: source.selectedExerciseIndex,
-      restoredSelectedExerciseIndex: restored.selectedExerciseIndex
+      restoredSelectedExerciseIndex: restored.selectedExerciseIndex,
+      sourceFingerprint: sourceProfile.fingerprint,
+      restoredFingerprint: restoredProfile.fingerprint,
+      restoredMissingSourceWork,
+      restoredRegressed
     };
   }
 
@@ -48443,6 +48719,10 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       phase49AActiveSetProgressDirectCommitReason: reason,
       phase49AActiveSetProgressCompletedCount: activeSnapshot.completedSetCount,
       phase49AActiveSetProgressSelectedExerciseIndex: activeSnapshot.selectedExerciseIndex,
+      phase50BugfixFullRouteProgressFingerprint: activeSnapshot.phase50BugfixFullRouteProgressFingerprint || null,
+      phase50BugfixFullRouteCompletedMainCount: activeSnapshot.phase50BugfixFullRouteCompletedMainCount || activeSnapshot.completedSetCount,
+      phase50BugfixFullRouteCompletedDropCount: activeSnapshot.phase50BugfixFullRouteCompletedDropCount || 0,
+      phase50BugfixFullRouteDoneExerciseCount: activeSnapshot.phase50BugfixFullRouteDoneExerciseCount || 0,
       phase49AActiveSetProgressCommittedAt: nowIso()
     });
     const payload = JSON.stringify(persistable);
@@ -48468,6 +48748,31 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     }
     customMediaRenderSyncState48DFix = null;
     return { ok: true, persistedBytes: payload.length, state: reloaded, activeSnapshot, verify, storagePath: STATE_KEY };
+  }
+
+  function commitCriticalActiveSessionProgress50Bugfix(stateInput, reason = "critical-active-session-progress") {
+    const state = migrateState(stateInput || loadState().state, `phase50-bugfix-${reason}`);
+    hydrateActiveSessionProgressAfterReload49ABugfix(state);
+    if (!state.activeSession) return { ok: false, reason: "no-active-session", state };
+    state.activeSession = activeSessionProgressSnapshot49ABugfix(state.activeSession);
+    const fullRouteProfile50Bugfix = activeRouteProgressProfile50Bugfix(state.activeSession);
+    state.audit = Object.assign({}, state.audit || {}, {
+      phase50BugfixDurablePersistenceCommitHydrationLock: true,
+      phase50BugfixCriticalActiveSessionCommit: true,
+      phase50BugfixCriticalCommitReason: reason,
+      phase50BugfixCompletedSetCount: state.activeSession.completedSetCount,
+      phase50BugfixSelectedExerciseIndex: state.activeSession.selectedExerciseIndex,
+      phase50BugfixFullRouteProgressFingerprint: fullRouteProfile50Bugfix.fingerprint,
+      phase50BugfixFullRouteCompletedMainCount: fullRouteProfile50Bugfix.completedMainCount,
+      phase50BugfixFullRouteCompletedDropCount: fullRouteProfile50Bugfix.completedDropCount,
+      phase50BugfixFullRouteDoneExerciseCount: fullRouteProfile50Bugfix.doneExerciseCount,
+      phase50BugfixCommittedAt: nowIso()
+    });
+    const saved = saveState(state, `phase50-bugfix-${reason}-state-commit`);
+    const direct = persistActiveSessionProgressNow49ABugfix((saved && saved.state) || state, `phase50-bugfix-${reason}-direct-verify`);
+    const ok = !!(saved && saved.ok && !saved.storageWriteFailed && direct && direct.ok);
+    if (!ok) recordStorageWarning10E(`Phase 50 persistence warning: ${reason} did not verify as durable before render.`);
+    return { ok, saved, direct, state: direct && direct.state || saved && saved.state || state, reason };
   }
 
   function activeSetProgressPersistenceReport49ABugfix(stateInput) {
@@ -49320,6 +49625,198 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     noVisualRedesign: true,
     noWorkoutProgrammingChange: true,
     androidGithubStatus: "YELLOW — Android/GitHub final regression confirmation required before GREEN"
+  });
+
+
+  const PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK = "Phase 50 BUGFIX — Durable Persistence Commit + Hydration Lock";
+  const PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase50_BUGFIX_Durable_Persistence_Commit_Hydration_Lock_v1.html";
+
+  function runFullActiveRouteSnapshotPersistenceAudit50Bugfix() {
+    const sample = migrateState(createDefaultState(), "phase50-bugfix-full-route-snapshot-audit");
+    sample.activeSession = buildActiveSession(sample, "Monday", sample.settings.mode || "Gym", sample.settings.route || "Full");
+    const curlIndex = sample.activeSession.exercises.findIndex((exercise) => /hammer curl/i.test(String(exercise && exercise.displayName || "")));
+    const exerciseIndex = curlIndex >= 0 ? curlIndex : Math.min(1, Math.max(0, sample.activeSession.exercises.length - 1));
+    sample.activeSession.selectedExerciseIndex = exerciseIndex;
+    const ex = sample.activeSession.exercises[exerciseIndex];
+    const sets = normalizeSessionExerciseSets(ex);
+    [0, 1, 2, 3].forEach((setIndex) => {
+      if (!sets[setIndex]) return;
+      sets[setIndex].weight = 25;
+      sets[setIndex].reps = setIndex >= 2 ? 9 : 8;
+      sets[setIndex].completed = true;
+      sets[setIndex].completedAt = nowIso();
+      collapseCompletedSetAfterComplete12A(sample, ex, setIndex);
+    });
+    sample.activeSession.selectedExerciseIndex = Math.min(exerciseIndex + 1, Math.max(0, sample.activeSession.exercises.length - 1));
+    sample.activeSession.completedSetCount = completedSetCount(sample.activeSession);
+    hydrateActiveSessionProgressAfterReload49ABugfix(sample);
+    const sourceProfile = activeRouteProgressProfile50Bugfix(sample.activeSession);
+    const staleRuntime = migrateState(clone(sample), "phase50-bugfix-stale-runtime-route-snapshot");
+    const staleEx = staleRuntime.activeSession.exercises[exerciseIndex];
+    const staleSets = normalizeSessionExerciseSets(staleEx);
+    [2, 3].forEach((setIndex) => {
+      if (!staleSets[setIndex]) return;
+      staleSets[setIndex].completed = false;
+      staleSets[setIndex].completedAt = null;
+      staleSets[setIndex].weight = defaultWeightForExercise(staleEx);
+      staleSets[setIndex].reps = defaultRepsForExercise(staleEx);
+    });
+    staleRuntime.activeSession.selectedExerciseIndex = exerciseIndex;
+    staleRuntime.activeSession.completedSetCount = completedSetCount(staleRuntime.activeSession);
+    staleRuntime.updatedAt = nowIso();
+    const staleProfile = activeRouteProgressProfile50Bugfix(staleRuntime.activeSession);
+    const durableDominatesStale = activeRouteProgressDominates50Bugfix(sourceProfile, staleProfile) === true;
+    const staleDoesNotDominateDurable = activeRouteProgressDominates50Bugfix(staleProfile, sourceProfile) === false;
+    const persistable = buildPersistableState10E(sample);
+    persistable.activeSession = activeSessionProgressSnapshot49ABugfix(sample.activeSession);
+    const reloaded = migrateState(JSON.parse(JSON.stringify(persistable)), "phase50-bugfix-full-route-reload-simulation");
+    hydrateActiveSessionProgressAfterReload49ABugfix(reloaded);
+    const restoredProfile = activeRouteProgressProfile50Bugfix(reloaded.activeSession);
+    const verify = verifyActiveSessionProgressRoundTrip49ABugfix(sample.activeSession, reloaded.activeSession);
+    const rowStatus = resolveWorkoutListStatusLabel41Bugfix(reloaded, reloaded.activeSession.exercises[exerciseIndex], exerciseIndex, reloaded.activeSession.selectedExerciseIndex);
+    const sourceSet3 = sets[2];
+    const sourceSet4 = sets[3];
+    const restoredSets = normalizeSessionExerciseSets(reloaded.activeSession.exercises[exerciseIndex]);
+    const checks = {
+      fullRouteFingerprintBuilt: !!sourceProfile.fingerprint && /main/.test(sourceProfile.fingerprint),
+      laterSet3Preserved: !!(restoredSets[2] && restoredSets[2].completed === true && Number(restoredSets[2].weight) === Number(sourceSet3 && sourceSet3.weight) && Number(restoredSets[2].reps) === Number(sourceSet3 && sourceSet3.reps)),
+      laterSet4Preserved: !!(restoredSets[3] && restoredSets[3].completed === true && Number(restoredSets[3].weight) === Number(sourceSet4 && sourceSet4.weight) && Number(restoredSets[3].reps) === Number(sourceSet4 && sourceSet4.reps)),
+      selectedExercisePointerPreserved: Number(reloaded.activeSession.selectedExerciseIndex) === Number(sample.activeSession.selectedExerciseIndex),
+      completedCountPreserved: restoredProfile.completedMainCount >= sourceProfile.completedMainCount,
+      doneWorkoutListStatusPreserved: rowStatus && rowStatus.kind === "done" && Number(rowStatus.completedMainCount || 0) >= 4,
+      durableDominatesStale,
+      staleDoesNotDominateDurable,
+      roundTripVerifyFullRoute: verify.ok === true,
+      activeRouteLockPreserved: !!(reloaded.activeSession.dayName && reloaded.activeSession.mode && reloaded.activeSession.route),
+      archiveSourceSeesLaterSets: typeof createCompletedSessionArchive14 === "function" && createCompletedSessionArchive14(reloaded.activeSession).completedSetCount >= sourceProfile.completedMainCount
+    };
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: "Phase 50 BUGFIX — Full Active Route Snapshot Persistence Revision",
+      status,
+      checks,
+      exerciseId: ex && ex.id || null,
+      exerciseName: ex && ex.displayName || null,
+      sourceProfile,
+      staleProfile,
+      restoredProfile,
+      rowStatus,
+      verify,
+      strategy: "Durable STATE_KEY activeSession wins over runtime/memory state whenever it contains more completed work, later completed sets, more done exercise status, drop-set progress, or a later selected exercise pointer."
+    });
+  }
+
+  function runDurablePersistenceCommitHydrationLockAudit50Bugfix() {
+    const fullRouteSnapshotAudit50Bugfix = runFullActiveRouteSnapshotPersistenceAudit50Bugfix();
+    const source = String(document.documentElement && document.documentElement.outerHTML || "");
+    const bugfixStart50 = source.indexOf("const PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK");
+    const bugfixEnd50 = source.indexOf("\n  window.TailoredTrainingComponentMediaStatusCopyCleanup49D = Object.freeze({");
+    const sourceWithoutBugfixAudit50 = bugfixStart50 >= 0 && bugfixEnd50 > bugfixStart50 ? source.slice(0, bugfixStart50) + source.slice(bugfixEnd50) : source;
+    const sample = migrateState(createDefaultState(), "phase50-bugfix-audit-sample");
+    sample.activeSession = buildActiveSession(sample, "Monday", sample.settings.mode || "Gym", sample.settings.route || "Full");
+    const ex = sample.activeSession.exercises[0];
+    const sets = normalizeSessionExerciseSets(ex);
+    sets[0].weight = 25;
+    sets[0].reps = 9;
+    sets[0].completed = true;
+    sets[0].completedAt = nowIso();
+    collapseCompletedSetAfterComplete12A(sample, ex, 0);
+    openNextPlannedSetAfterComplete12B(sample, ex, 0);
+    sample.activeSession.completedSetCount = completedSetCount(sample.activeSession);
+    const activePersistable = buildPersistableState10E(sample);
+    activePersistable.activeSession = activeSessionProgressSnapshot49ABugfix(sample.activeSession);
+    const activeReload = migrateState(JSON.parse(JSON.stringify(activePersistable)), "phase50-bugfix-active-reload-sim");
+    hydrateActiveSessionProgressAfterReload49ABugfix(activeReload);
+    const activeReloadSets = activeReload.activeSession && activeReload.activeSession.exercises && activeReload.activeSession.exercises[0] ? normalizeSessionExerciseSets(activeReload.activeSession.exercises[0]) : [];
+
+    const multi = migrateState(sample, "phase50-bugfix-multiple-set-sim");
+    const multiExerciseIndex = multi.activeSession.exercises.findIndex((exercise) => Number(exercise && exercise.prescription && exercise.prescription.sets || 0) >= 4);
+    const multiExercise = multi.activeSession.exercises[multiExerciseIndex >= 0 ? multiExerciseIndex : 0];
+    const multiSets = normalizeSessionExerciseSets(multiExercise);
+    if (multiSets[2]) { multiSets[2].weight = 15; multiSets[2].reps = 8; multiSets[2].completed = true; multiSets[2].completedAt = nowIso(); }
+    if (multiSets[3]) { multiSets[3].weight = 15; multiSets[3].reps = 8; multiSets[3].completed = true; multiSets[3].completedAt = nowIso(); }
+    multi.activeSession.selectedExerciseIndex = multiExerciseIndex >= 0 ? multiExerciseIndex : 0;
+    multi.activeSession.completedSetCount = completedSetCount(multi.activeSession);
+    const multiReload = migrateState(JSON.parse(JSON.stringify(buildPersistableState10E(multi))), "phase50-bugfix-multi-reload-sim");
+    hydrateActiveSessionProgressAfterReload49ABugfix(multiReload);
+    const multiReloadExercise = multiReload.activeSession && multiReload.activeSession.exercises && multiReload.activeSession.exercises[multi.activeSession.selectedExerciseIndex];
+    const multiReloadSets = multiReloadExercise ? normalizeSessionExerciseSets(multiReloadExercise) : [];
+
+    const drop = migrateState(sample, "phase50-bugfix-drop-sim");
+    const registry = sessionDropSetRegistry13A(drop.activeSession);
+    registry.auditDrop50 = normalizeDropSetRecord13C({ id: "auditDrop50", exerciseId: ex.id, parentSetIndex: 0, type: "drop", weight: 10, reps: 10, completed: true, completedAt: nowIso() }, ex.id, 0);
+    const dropReload = migrateState(JSON.parse(JSON.stringify(buildPersistableState10E(drop))), "phase50-bugfix-drop-reload-sim");
+    hydrateActiveSessionProgressAfterReload49ABugfix(dropReload);
+    const dropRegistryReload = sessionDropSetRegistry13A(dropReload.activeSession);
+
+    const mediaState = migrateState(createDefaultState(), "phase50-bugfix-media-sim");
+    const gifPayload = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
+    const parentRecord = { exerciseId: "scap-circles", customMediaExactTargetKey48D: "scap-circles", exactExerciseIdLocked: true, overridesExactTargetOnly48D: true, family: "image", type: "image/gif", name: "scap-circles.gif", dataUrl: gifPayload, durablePayloadSaved48D: true, durablePayloadStore48D: "audit", savedAt: nowIso() };
+    const componentRecord = { exerciseId: "combo-parent--component-scap-circles", customMediaExactTargetKey48D: "combo-parent--component-scap-circles", exactExerciseIdLocked: true, overridesExactTargetOnly48D: true, family: "image", type: "image/gif", name: "component.gif", dataUrl: gifPayload, durablePayloadSaved48D: true, durablePayloadStore48D: "audit", savedAt: nowIso() };
+    mediaState.media.custom = { "scap-circles": parentRecord, "combo-parent--component-scap-circles": componentRecord };
+    const metadataState = customMediaMetadataStateForCommit50Bugfix(mediaState);
+    const runtimeState = mergeRenderableCustomMediaIntoRuntimeState50Bugfix(metadataState, mediaState);
+    const completedClear = markFinishedWorkoutStateClear32CBugfix(migrateState(Object.assign({}, runtimeState, { activeSession: sample.activeSession }), "phase50-bugfix-finish-media-sim"), { id: "audit-archive", dateKey: "2026-06-29" });
+
+    const checks = {
+      completeSetUsesCriticalCommit: /commitCriticalActiveSessionProgress50Bugfix\(next, "complete-normal-set-active-progress"\)/.test(String(completeSet || "")),
+      completeDropSetUsesCriticalCommit: /commitCriticalActiveSessionProgress50Bugfix\(next, isDropSetPhase13EOrLater\(\)/.test(String(completeDropSet13C || "")),
+      activeReloadKeepsCompletedRow: !!(activeReloadSets[0] && activeReloadSets[0].completed === true && Number(activeReloadSets[0].weight) === 25 && Number(activeReloadSets[0].reps) === 9),
+      activeReloadKeepsNextPointer: !!(activeReload.activeSession && activeReload.activeSession.phase12BNextSetIndex === 1),
+      multipleSetsReload: !!(multiReloadSets[2] && multiReloadSets[2].completed === true && multiReloadSets[3] && multiReloadSets[3].completed === true),
+      dropSetReload: !!(dropRegistryReload && dropRegistryReload.auditDrop50 && dropRegistryReload.auditDrop50.completed === true && Number(dropRegistryReload.auditDrop50.weight) === 10),
+      buildPersistableIncludesActiveSession: !!(activePersistable.activeSession && activePersistable.activeSession.exercises && activePersistable.activeSession.exercises[0]),
+      loadStateRuntimeStaleGuard: /shouldPreferRuntimeStateOverDurableState50Bugfix/.test(String(loadState || "")),
+      payloadSaveWaitsForTransactionComplete: /transaction\.oncomplete/.test(String(persistCustomMediaPayload48D || "")) && /verifiedAfterWrite50/.test(String(persistCustomMediaPayload48D || "")),
+      customMediaMetadataOnlyCommit: !!(metadataState.media.custom["scap-circles"] && !customMediaRenderableSource48D(metadataState.media.custom["scap-circles"]) && metadataState.media.custom["scap-circles"].durablePayloadSaved48D === true),
+      runtimeKeepsRenderableGif: !!(runtimeState.media.custom["scap-circles"] && customMediaRenderableSource48D(runtimeState.media.custom["scap-circles"]) === gifPayload),
+      workoutCompletionPreservesCustomMedia: !!(completedClear.media && completedClear.media.custom && completedClear.media.custom["scap-circles"] && completedClear.media.custom["combo-parent--component-scap-circles"]),
+      parentComponentIsolationPreserved: !!(metadataState.media.custom["scap-circles"] && metadataState.media.custom["combo-parent--component-scap-circles"] && metadataState.media.custom["scap-circles"] !== metadataState.media.custom["combo-parent--component-scap-circles"]),
+      restoreBuiltInExactTargetStillPresent: typeof restoreBuiltInMedia18D === "function" && typeof removeCustomMediaPayload48D === "function",
+      factoryResetOnlyExplicit: typeof factoryResetApp49A === "function" && /Type RESET/.test(String(factoryResetApp49A || "")),
+      noDestructiveBootCleanup: !/localStorage\.clear\s*\(/.test(source),
+      noDuplicateStateSystem: typeof loadState === "function" && typeof saveState === "function" && typeof buildPersistableState10E === "function" && !/ACTIVE_SET_PROGRESS_BACKUP_KEY|activeSessionProgressBackup/i.test([String(loadState || ""), String(saveState || ""), String(buildPersistableState10E || ""), String(commitCriticalActiveSessionProgress50Bugfix || "")].join("\n")),
+      noDuplicateMediaStorage: (source.match(/function\s+persistCustomMediaPayload48D\s*\(/g) || []).length === 1 && !/function\s+persistCustomMediaPayload50\s*\(/.test(sourceWithoutBugfixAudit50),
+      noDuplicateResolver: (source.match(/function\s+resolveMedia\s*\(/g) || []).length === 1,
+      noDuplicateUploadHandler: (source.match(/function\s+saveCustomMediaToExactExercise18C\s*\(/g) || []).length === 1,
+      noDuplicateRouteSessionManager: (source.match(/function\s+buildActiveSession\s*\(/g) || []).length === 1,
+      noWrapperStacking: !/previousCompleteSet50|originalCompleteSet50|wrappedCompleteSet50|Phase50Wrapped/i.test([String(completeSet || ""), String(completeDropSet13C || ""), String(loadState || ""), String(saveState || "")].join("\n"))
+    };
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK,
+      outputFile: PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE,
+      status,
+      checks,
+      rootCauseFound: "Runtime render-sync memory could outrank newer durable STATE_KEY data, and custom-media hydration restored renderable payloads to memory/render without a metadata-only durable commit. IndexedDB payload writes also resolved on request success instead of transaction completion.",
+      activeSessionPersistenceStrategy: "Normal set and drop-set completion now use commitCriticalActiveSessionProgress50Bugfix, which saves through existing saveState/STATE_KEY, writes the Phase 49A direct active-session snapshot, and verifies hydration before rendering success messaging.",
+      customMediaDurableStorageStrategy: "Custom media remains global exact-target metadata in state.media.custom plus durable payloads in IndexedDB/localStorage payload keys. Payload writes wait for transaction completion and verify readback before success.",
+      bootReloadHydrationStrategy: "loadState now refuses stale runtime memory when localStorage is newer, then hydrates active-session progress before Today renders. Boot custom-media hydration commits metadata-only state while retaining renderable payloads in runtime memory.",
+      workoutCompletionCleanupStrategy: "Finish/auto-save clears active workout/rest state only after archive creation and saves a metadata-only custom-media state, while runtime renderable custom media is merged into memory so media does not vanish after completion.",
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit50BugfixDurablePersistence(options = {}) {
+    const previous = typeof runFullAppAudit50 === "function" ? runFullAppAudit50(options) : { status: "YELLOW" };
+    const durable = runDurablePersistenceCommitHydrationLockAudit50Bugfix();
+    const status = durable.status === "GREEN" && previous && previous.status !== "RED" ? "YELLOW" : "YELLOW";
+    return Object.freeze({ phase: PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK, outputFile: PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE, status, previous, durable, androidGithubGate: true });
+  }
+
+  window.runDurablePersistenceCommitHydrationLockAudit50Bugfix = runDurablePersistenceCommitHydrationLockAudit50Bugfix;
+  window.runFullAppAudit50BugfixDurablePersistence = runFullAppAudit50BugfixDurablePersistence;
+  window.runFullAppAudit = runFullAppAudit50BugfixDurablePersistence;
+  window.TailoredTrainingDurablePersistenceCommitHydrationLock50Bugfix = Object.freeze({
+    phase: PHASE50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK,
+    outputFile: PHASE50_BUGFIX_DURABLE_PERSISTENCE_OUTPUT_FILE,
+    commitCriticalActiveSessionProgress50Bugfix,
+    commitHydratedCustomMediaMetadata50Bugfix,
+    shouldPreferRuntimeStateOverDurableState50Bugfix,
+    runDurablePersistenceCommitHydrationLockAudit50Bugfix,
+    runFullActiveRouteSnapshotPersistenceAudit50Bugfix,
+    runFullAppAudit50BugfixDurablePersistence,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
   window.TailoredTrainingComponentMediaStatusCopyCleanup49D = Object.freeze({
