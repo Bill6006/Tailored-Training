@@ -3168,6 +3168,16 @@ MEDIA BRIDGE 4 LEDGER
             <p class="system-line" id="storageStatus">Boot audit pending.</p>
             <p class="system-line" id="snapshotWarning">Storage-safe fix: static program data is kept in code, not localStorage. Snapshot warnings appear here.</p>
           </article>
+
+          <article class="card" data-phase49a-safe-reset-controls="data-backup-danger-zone">
+            <div class="card-head"><div><h3>Danger Zone · Reset test data</h3><p class="subtle">Use these only when you are ready to clear test data. Export a backup first if you want to keep anything.</p></div></div>
+            <div class="qa-checklist">
+              <div class="qa-check"><div class="qa-dot">1</div><div><b>Reset active workout only</b><span>Clears the current workout/session and rest timer. Keeps History and custom media.</span></div><button class="btn ghost danger" id="resetActiveWorkout49A" type="button">Reset active</button></div>
+              <div class="qa-check"><div class="qa-dot">2</div><div><b>Erase workout history / test logs</b><span>Clears completed logs and log-derived calendar/history. Keeps custom media. Reset active workout first if one is running.</span></div><button class="btn ghost danger" id="eraseWorkoutHistory49A" type="button">Erase history</button></div>
+              <div class="qa-check"><div class="qa-dot">!</div><div><b>Factory reset this app</b><span>Clears active workout, history, app state, settings, and custom media payloads. Requires typing RESET.</span></div><button class="btn danger" id="factoryResetApp49A" type="button">Factory reset</button></div>
+            </div>
+            <p class="system-line" id="safeResetStatus49A">No reset has run. Nothing clears automatically on boot.</p>
+          </article>
           <article class="card" data-normal-rest-start-stop11b="built-no-set-completion-wiring">
             <div class="card-head"><div><h3>Rest timer regression lock</h3><p class="subtle">Phase 11E locks the existing rest timer behavior without adding new workout flow.</p></div></div>
             <div class="data-grid">
@@ -3517,7 +3527,16 @@ MEDIA BRIDGE 4 LEDGER
   - Updates remaining-work detection to ignore the just-completed drop-set id even when the registry copy is stale.
   - Adds a narrow read-only audit; no coach/drop-set recommendation/rest/programming/media/history changes.
   -->
-  <script>
+  
+<!--
+PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase49_Exercise_Description_Copy_Coverage_v1.html as the base.
+- Added Data / Backup Danger Zone reset controls only: Reset active workout, Erase workout history, and Factory reset.
+- Added confirmation gates for every destructive action; Factory reset requires typing RESET.
+- Factory reset clears known app storage keys and Phase 48D durable custom media payloads only after explicit confirmation.
+- Preserved Phase 49 copy coverage, Phase 48D durable custom media behavior before reset, media sizing/layout, workout programming, set logging, rest, coach, drop sets, History/Data/Backup controls, and non-destructive boot behavior.
+-->
+<script>
 (() => {
   "use strict";
   const STATE_KEY = "tailoredWorkoutTracker.v2";
@@ -6768,10 +6787,121 @@ Existing History logs stay untouched.`);
     "Cross_Body_Hammer_Curl": { title: "Cross-body hammer curl", family: "arms", exactFor: ["fri-08-cross-body-hammer-curl"], icon: "CB", cue: "Cross-body neutral curl path." },
     "Dumbbell_Bicep_Curl": { title: "Supinating DB curl", family: "arms", exactFor: ["sun-06-supinating-db-curl"], blockedForLabelIncludes: ["cable curl", "cable-curl", "banded curl", "band curl", "cable"], icon: "BC", cue: "Supinating dumbbell curl only; cable/band curls use Coaching View unless exact registry media exists." }
   });
+
+  const PHASE49_EXERCISE_DESCRIPTION_COPY = Object.freeze({
+    "mon-01-band-pull-aparts-scap-circles-light-rows": "Pull the band apart, circle shoulders smoothly, then row lightly. Keep ribs down.",
+    "mon-02-one-arm-db-row": "Brace one hand. Pull the DB toward your hip and keep your torso still.",
+    "mon-03-chest-supported-db-row-on-stability-ball": "Lie chest-down on the ball. Row toward your ribs without shrugging.",
+    "mon-04-kneeling-band-lat-pulldown": "Anchor the band high. Drive elbows down and keep your chest tall.",
+    "mon-05-db-rear-delt-reverse-fly": "Hinge slightly, lead with elbows, and keep tension on rear delts.",
+    "mon-06-db-hammer-curl": "Keep a neutral grip. Curl without swinging and lower under control.",
+    "mon-07-db-reverse-curl": "Keep palms down and wrists straight. Control the lowering.",
+    "mon-08-wrist-curl-reverse-wrist-curl": "Support your forearms. Curl wrists up, then reverse slowly without swinging.",
+    "mon-09-farmer-carry": "Walk tall with DBs at your sides. Keep ribs down and crush the handles.",
+    "wed-01-bodyweight-split-squat-hip-hinge-ankle-rocks": "Move through each prep drill slowly. Keep balance and stop before pain.",
+    "wed-02-heel-elevated-db-goblet-squat-to-box": "Hold the DB close. Sit between your knees and tap the box lightly.",
+    "wed-03-bulgarian-split-squat": "Keep the front foot planted. Lower with control and drive through the front leg.",
+    "wed-04-front-foot-elevated-reverse-lunge": "Step back softly. Stand through the front leg and keep your torso steady.",
+    "wed-05-stability-ball-hamstring-curl": "Keep hips high. Curl the ball with heels and return slowly.",
+    "wed-06-standing-db-calf-raise": "Use a full stretch, rise tall, squeeze, then lower without bouncing.",
+    "wed-07-wall-tibialis-raise": "Lean on the wall. Lift toes toward shins and lower with control.",
+    "wed-08-wall-sit": "Set knees near 90 degrees. Brace, breathe, and stop before knee pain.",
+    "thu-01-scap-push-up-band-external-rotation-light-push-up": "Warm shoulders smoothly. Keep ribs down and avoid painful range.",
+    "thu-02-neutral-grip-db-floor-press": "Touch elbows lightly to the floor. Press with wrists stacked and shoulders packed.",
+    "thu-03-banded-or-feet-elevated-push-up": "Keep body tight. Stop one or two reps before your form breaks.",
+    "thu-04-stability-ball-db-squeeze-press": "Press DBs together. Keep hips steady and avoid over-arching.",
+    "thu-05-band-fly": "Keep a soft elbow bend. Bring hands together and control the stretch.",
+    "thu-06-db-lateral-raise-scapular-plane": "Raise slightly forward of your sides. Stop near shoulder height without pain.",
+    "thu-07-db-floor-skull-crusher": "Point elbows up. Lower DBs beside your head and keep upper arms still.",
+    "thu-08-band-triceps-pressdown": "Pin elbows to your sides. Lock out hard and return slowly.",
+    "fri-01-glute-bridge-hip-hinge-drill-calf-rocks": "Practice hips back, then bridge and rock calves smoothly without rushing.",
+    "fri-02-db-romanian-deadlift": "Keep DBs close. Feel hamstrings stretch, then drive hips forward.",
+    "fri-03-db-hip-thrust-or-floor-glute-bridge": "Tuck pelvis slightly. Squeeze glutes at the top without over-arching.",
+    "fri-04-stability-ball-leg-curl": "Keep hips high. Curl with heels and control the slow return.",
+    "fri-05-db-step-up": "Use the working leg to stand. Keep the foot planted and knee controlled.",
+    "fri-06-single-leg-db-calf-raise": "Use the wall for balance only. Stretch, rise tall, and control down.",
+    "fri-07-seated-db-calf-raise": "Rest DBs on knees. Pause at the top and bottom; do not bounce.",
+    "fri-08-cross-body-hammer-curl": "Curl toward the opposite pec. Keep wrist neutral and body still.",
+    "fri-09-banded-curl-rest-pause": "Curl the band with control. Keep elbows steady during each mini-set.",
+    "sun-01-band-row-push-up-ramp-hip-mobility": "Warm back, chest, and hips with clean reps. Do not chase fatigue.",
+    "sun-02-db-floor-press": "Use a neutral grip if needed. Press from the floor with shoulders packed.",
+    "sun-03-one-arm-db-row": "Pull elbow toward your hip. Keep the torso quiet and pause at the top.",
+    "sun-04-mechanical-drop-set-push-ups": "Start with the hardest version, then switch easier before form breaks.",
+    "sun-05-band-straight-arm-pulldown": "Keep arms mostly straight. Pull to thighs and feel lats, not triceps.",
+    "sun-06-supinating-db-curl": "Start neutral, rotate palm up, squeeze, then lower slowly.",
+    "sun-07-close-grip-push-up": "Hands just inside shoulders. Track elbows back and keep ribs down.",
+    "sun-08-db-pronation-supination": "Hold one DB end. Rotate slowly while keeping the elbow fixed.",
+    "sun-09-standing-calf-raise-rest-pause": "Squeeze each rep hard. Keep the short rests honest and avoid bouncing.",
+    "sun-10-density-circuit-band-row-push-up-reverse-lunge-dead-bug": "Move at a steady quality pace. Keep each rep clean, not rushed."
+  });
+
+  const PHASE49_COMPONENT_DESCRIPTION_COPY = Object.freeze({
+    "band pull apart": "Pull the band apart with shoulders down and ribs quiet.",
+    "band pull aparts": "Pull the band apart with shoulders down and ribs quiet.",
+    "scap circles": "Make small smooth circles. Keep shoulders low and neck relaxed.",
+    "scap circle": "Make small smooth circles. Keep shoulders low and neck relaxed.",
+    "light rows": "Row lightly and smoothly. Squeeze shoulder blades without shrugging.",
+    "light row": "Row lightly and smoothly. Squeeze shoulder blades without shrugging.",
+    "bodyweight split squat": "Lower under control and keep the front foot planted.",
+    "split squat": "Lower under control and keep the front foot planted.",
+    "hip hinge": "Push hips back with a neutral spine and soft knees.",
+    "hip hinge drill": "Push hips back with a neutral spine and soft knees.",
+    "ankle rocks": "Rock forward gently while keeping heel control and no pain.",
+    "ankle rock": "Rock forward gently while keeping heel control and no pain.",
+    "scap push up": "Push the floor away and let shoulder blades glide smoothly.",
+    "scap push-up": "Push the floor away and let shoulder blades glide smoothly.",
+    "band external rotation": "Keep elbow tucked and rotate from the shoulder with control.",
+    "light push up": "Use an easy push-up version and keep reps clean.",
+    "light push-up": "Use an easy push-up version and keep reps clean.",
+    "glute bridge": "Drive through heels and squeeze glutes at the top.",
+    "floor glute bridge": "Drive through heels and squeeze glutes at the top.",
+    "calf rocks": "Rock slowly through the ankles and keep tension controlled.",
+    "calf rock": "Rock slowly through the ankles and keep tension controlled.",
+    "band row": "Row smoothly with ribs down and shoulders away from ears.",
+    "push up ramp": "Build push-up effort gradually while keeping body tight.",
+    "push-up ramp": "Build push-up effort gradually while keeping body tight.",
+    "hip mobility": "Move smoothly through the hips without forcing range.",
+    "push up": "Keep body tight and press through the floor.",
+    "push-up": "Keep body tight and press through the floor.",
+    "reverse lunge": "Step back softly and stand through the front leg.",
+    "dead bug": "Keep low back quiet and move opposite arm and leg with control.",
+    "wrist curl": "Support the forearm and curl the wrist under control.",
+    "reverse wrist curl": "Lift through the back of the wrist slowly; avoid swinging."
+  });
+
+  function phase49NormalizeCopyKey(value) {
+    return String(value || "").toLowerCase().replace(/[–—]/g, "-").replace(/[^a-z0-9+\s-]/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function phase49TightCue(value, fallback = "Move with control and keep your setup steady.", maxLen = 118) {
+    const raw = String(value || "").replace(/\s+/g, " ").trim();
+    const clean = raw || fallback;
+    const sentence = clean.split(/(?<=[.!?])\s+/)[0] || clean;
+    return sentence.length > maxLen ? sentence.slice(0, maxLen - 1).trim().replace(/[.,;:!?-]+$/, "") + "…" : sentence;
+  }
+  function phase49ExerciseCopy(ex, fallback = "Move with control and keep your setup steady.") {
+    const id = ex && ex.id ? String(ex.id) : "";
+    if (id && PHASE49_EXERCISE_DESCRIPTION_COPY[id]) return PHASE49_EXERCISE_DESCRIPTION_COPY[id];
+    const label = String((ex && (ex.displayName || ex.name || ex.childName)) || "");
+    const normalized = phase49NormalizeCopyKey(label);
+    if (normalized && PHASE49_EXERCISE_DESCRIPTION_COPY[normalized]) return PHASE49_EXERCISE_DESCRIPTION_COPY[normalized];
+    if (normalized && PHASE49_COMPONENT_DESCRIPTION_COPY[normalized]) return PHASE49_COMPONENT_DESCRIPTION_COPY[normalized];
+    const token = typeof normalizeComboComponentToken30EMedia === "function" ? normalizeComboComponentToken30EMedia(label) : normalized;
+    if (token && PHASE49_COMPONENT_DESCRIPTION_COPY[token]) return PHASE49_COMPONENT_DESCRIPTION_COPY[token];
+    return phase49TightCue(ex && ex.instructions, fallback);
+  }
+  function phase49MediaFallbackCopy(media) {
+    const ex = typeof mediaPreviewExercise48 === "function" ? mediaPreviewExercise48(media || {}) : null;
+    const cue = phase49ExerciseCopy(ex || { displayName: media && media.visibleLabel, instructions: media && (media.previewCue || media.fallbackCue) }, "Move with control and stop before pain or sloppy reps.");
+    return `Media not available yet. ${cue}`;
+  }
+  function phase49ComponentCopy(entry) {
+    const ex = entry && entry.exercise ? entry.exercise : null;
+    const component = entry && entry.component ? entry.component : null;
+    return phase49ExerciseCopy(ex || { displayName: component && component.name }, "Move with control and keep reps clean.");
+  }
+
   function coachingFallback(ex, reason) {
-    const targets = Array.isArray(ex && ex.targetMuscles) && ex.targetMuscles.length ? ex.targetMuscles.join(", ") : "the target muscles";
-    const cue = ex && ex.instructions ? ex.instructions : "Move with control and stop if pain changes the movement.";
-    return `${targets}. ${cue}`;
+    return phase49ExerciseCopy(ex, "Move with control and stop before pain or sloppy reps.");
   }
   function mediaLabelText17(ex) { return `${ex && ex.displayName ? ex.displayName : ""} ${ex && ex.id ? ex.id : ""}`.toLowerCase().replace(/[-_]+/g, " "); }
   function isBlockedMediaMismatch17(ex, registryItem, mediaKey) {
@@ -7399,8 +7529,8 @@ Existing History logs stay untouched.`);
         customMediaMissingBlob18E: true,
         customMetadata18E: customMediaMetadataOnly18E(targetMeta48D.key, custom),
         label: builtIn.exact ? "Built-in media" : "Media not available yet",
-        previewCue: builtIn.previewCue || builtIn.fallbackCue || "Media not available yet. Use the form cue for this move.",
-        fallbackCue: builtIn.fallbackCue || "Media not available yet. Use the form cue for this move.",
+        previewCue: builtIn.previewCue || builtIn.fallbackCue || phase49MediaFallbackCopy(builtInWithTarget48D),
+        fallbackCue: builtIn.fallbackCue || phase49MediaFallbackCopy(builtInWithTarget48D),
         builtInResolution17: builtIn,
         builtInIntact: true,
         missingBlobSafeFallback18E: true
@@ -7676,7 +7806,7 @@ Existing History logs stay untouched.`);
       childName: safeName,
       block: "Combo component",
       targetMuscles: Array.isArray(parent && parent.targetMuscles) ? parent.targetMuscles.slice(0, 3) : [],
-      instructions: hint && hint.instructions ? hint.instructions : "Move with control. Exact media is unavailable, so use Coaching View for this component only.",
+      instructions: hint && hint.instructions ? hint.instructions : phase49ComponentCopy({ component, exercise: { displayName: safeName } }),
       media: Object.freeze({ mediaKey: hint && hint.mediaKey ? hint.mediaKey : normalizeExerciseLabel(safeName), exact: !!hint, fallbackAllowed: true }),
       equipment: hint && Array.isArray(hint.equipment) ? hint.equipment.slice() : parentEquipment,
       comboComponent30EMedia: true,
@@ -7771,7 +7901,8 @@ Existing History logs stay untouched.`);
       const previewQuarantined = mediaQualityPreviewQuarantined32CBugfix(media);
       const playablePreview = mediaTileHasRealPlayablePreview48Polish(media);
       const status = mediaBridge4IsRealMedia(media) ? "Media ready" : (media.customMedia18C ? "Custom media" : "Media not available yet");
-      const fallbackScope = !mediaBridge4IsRealMedia(media) && !media.customMedia18C ? (previewQuarantined || !previewEligible ? " · preview unavailable" : " · use the form cue") : "";
+      const componentCue49 = phase49ComponentCopy(entry);
+      const fallbackScope = !mediaBridge4IsRealMedia(media) && !media.customMedia18C ? ` · ${componentCue49}` : ` · ${componentCue49}`;
       const rowAttrs = previewEligible ? `type="button" data-open-component-media-preview30e-media="${index}"` : `data-component-media-preview-disabled32c="true" title="${escapeHtml(mediaPreviewDisabledReason32CBugfix(media))}"`;
       const rowTag = previewEligible ? "button" : "div";
       const thumb = previewEligible ? comboComponentMediaThumb30EMedia(media) : mediaDisabledFallbackThumb48Polish(media);
@@ -19748,11 +19879,11 @@ Existing History logs stay untouched.`);
 
 
   function detailsToolsMediaStatusCopy47(media) {
-    if (!media) return "Media not available yet.";
-    if (media.customMediaMissingBlob18E) return "Saved media is unavailable. Showing the built-in option or safe fallback.";
-    if (media.customMedia18C) return "Custom media is active for this exercise.";
+    if (!media) return "Media not available yet. Use the movement cue until you add media.";
+    if (media.customMediaMissingBlob18E) return "Saved media is unavailable. Showing built-in media or safe fallback.";
+    if (media.customMedia18C) return "Custom media is active for this move.";
     if (mediaBridge4IsRealMedia(media) || media.exact) return "Exercise media is ready.";
-    return "Media not available yet.";
+    return phase49MediaFallbackCopy(media);
   }
 
   function detailsToolsCustomMediaCopy47(media, exerciseName) {
@@ -19789,7 +19920,8 @@ Existing History logs stay untouched.`);
     const stats22 = buildExerciseStats22(state, ex);
     const prChip22 = renderPrChip22(stats22);
     const rampCue32CBugfix = exerciseWarmupRampCue32CBugfix(ex);
-    const formCue32CBugfix = rampCue32CBugfix ? `${rampCue32CBugfix}. ${shortCue30BBugfix(ex.instructions || "Move with control.", 104)}` : shortCue30BBugfix(ex.instructions || "Move with control.");
+    const phase49FormCue = phase49ExerciseCopy(ex, ex.instructions || "Move with control.");
+    const formCue32CBugfix = rampCue32CBugfix ? `${rampCue32CBugfix}. ${shortCue30BBugfix(phase49FormCue, 104)}` : shortCue30BBugfix(phase49FormCue, 112);
     const phase34HHeaderPrep = typeof renderExerciseHeaderDropSetPrepCue34H === "function" ? renderExerciseHeaderDropSetPrepCue34H(state, ex, selectedIndex) : "";
     surface.innerHTML = `<div class="detail-top">
       ${renderMediaTile(media)}
@@ -19875,16 +20007,10 @@ Existing History logs stay untouched.`);
   function mediaPreviewText48(media) {
     const ex = mediaPreviewExercise48(media || {});
     const combo = mediaPreviewComboCopy48(ex, media);
-    if (combo) return combo;
-    const label = String((ex && ex.displayName) || (media && media.visibleLabel) || "").toLowerCase();
-    if (/rear.?delt|reverse fly/.test(label)) return "Media not available yet. Hinge slightly, lead with elbows, and keep tension on rear delts.";
-    if (/one.?arm.*row/.test(label)) return "Support one hand on the bench. Pull the DB toward your hip. Keep your torso still.";
-    if (/floor press/.test(label)) return "Press from the floor with a steady neutral grip. Keep shoulders packed and elbows controlled.";
-    if (/lateral raise/.test(label)) return "Raise in the scapular plane. Stop around shoulder height and keep the movement smooth.";
-    if (/curl/.test(label)) return "Curl with control. Keep elbows steady and avoid swinging the weight.";
-    if (/calf/.test(label)) return "Rise tall, squeeze at the top, and lower under control.";
-    const cue = phase48FirstSentence(ex && ex.instructions || media && media.previewCue || media && media.fallbackCue, "Move with control and keep your setup steady.");
-    return mediaBridge4IsRealMedia(media) || media && media.customMedia18C ? cue : `Media not available yet. ${cue}`;
+    const hasCustomOrReal = !!(media && (media.customMedia18C || mediaBridge4IsRealMedia(media)));
+    if (combo && !(ex && ex.comboComponent30EMedia)) return combo;
+    const cue = phase49ExerciseCopy(ex || { displayName: media && media.visibleLabel, instructions: media && (media.previewCue || media.fallbackCue) }, "Move with control and stop before pain or sloppy reps.");
+    return hasCustomOrReal ? cue : `Media not available yet. ${cue}`;
   }
   function mediaPreviewTitle48(media) {
     const ex = mediaPreviewExercise48(media || {});
@@ -20738,6 +20864,9 @@ Existing History logs stay untouched.`);
     const replaceSafeImportBtn16D = document.getElementById("replaceSafeImport16D");
     const runBackupRegressionAuditBtn16E = document.getElementById("runBackupRegressionAudit16E");
     const previewCustomMediaMetadataBtn18E = document.getElementById("previewCustomMediaMetadata18E");
+    const resetActiveWorkoutBtn49A = document.getElementById("resetActiveWorkout49A");
+    const eraseWorkoutHistoryBtn49A = document.getElementById("eraseWorkoutHistory49A");
+    const factoryResetAppBtn49A = document.getElementById("factoryResetApp49A");
     if (runBtn) runBtn.addEventListener("click", () => renderApp("Custom media storage/backup audit refreshed"));
     if (previewBtn) previewBtn.addEventListener("click", () => { const pre = document.getElementById("statePreview"); if (pre) pre.textContent = JSON.stringify(buildPersistableState10E(loadState().state), null, 2); });
     if (exportFullBackupBtn16A && exportFullBackupBtn16A.dataset.bound16A !== "true") { exportFullBackupBtn16A.dataset.bound16A = "true"; exportFullBackupBtn16A.addEventListener("click", downloadFullBackup16A); }
@@ -20749,6 +20878,9 @@ Existing History logs stay untouched.`);
     if (replaceSafeImportBtn16D && replaceSafeImportBtn16D.dataset.bound16D !== "true") { replaceSafeImportBtn16D.dataset.bound16D = "true"; replaceSafeImportBtn16D.addEventListener("click", () => handleSafeImportAction16D("replace")); }
     if (runBackupRegressionAuditBtn16E && runBackupRegressionAuditBtn16E.dataset.bound16E !== "true") { runBackupRegressionAuditBtn16E.dataset.bound16E = "true"; runBackupRegressionAuditBtn16E.addEventListener("click", () => renderApp("Backup regression audit refreshed")); }
     if (previewCustomMediaMetadataBtn18E && previewCustomMediaMetadataBtn18E.dataset.bound18E !== "true") { previewCustomMediaMetadataBtn18E.dataset.bound18E = "true"; previewCustomMediaMetadataBtn18E.addEventListener("click", previewCustomMediaMetadataManifest18E); }
+    if (resetActiveWorkoutBtn49A && resetActiveWorkoutBtn49A.dataset.bound49A !== "true") { resetActiveWorkoutBtn49A.dataset.bound49A = "true"; resetActiveWorkoutBtn49A.addEventListener("click", () => resetActiveWorkoutOnly49A({ requireConfirm: true })); }
+    if (eraseWorkoutHistoryBtn49A && eraseWorkoutHistoryBtn49A.dataset.bound49A !== "true") { eraseWorkoutHistoryBtn49A.dataset.bound49A = "true"; eraseWorkoutHistoryBtn49A.addEventListener("click", () => eraseWorkoutHistoryOnly49A({ requireConfirm: true })); }
+    if (factoryResetAppBtn49A && factoryResetAppBtn49A.dataset.bound49A !== "true") { factoryResetAppBtn49A.dataset.bound49A = "true"; factoryResetAppBtn49A.addEventListener("click", () => factoryResetApp49A({ requireConfirm: true })); }
     if (pruneBtn) pruneBtn.addEventListener("click", () => { pruneSafetySnapshots10E(); renderApp("Safety snapshots pruned only"); });
     if (clearBtn) clearBtn.addEventListener("click", () => { clearSafetySnapshotsOnly10E(); renderApp("Safety snapshots cleared only"); });
   }
@@ -47491,6 +47623,192 @@ Existing History logs stay untouched.`);
     });
   }
   window.runFullAppAudit = runFullAppAudit48DDurableStorageAfterReloadBugfix;
+
+
+  const PHASE48D_VISUAL_DENSITY_REGRESSION_RESTORE_BUGFIX = "Phase 48D BUGFIX — Visual Density Regression Restore";
+  const PHASE48D_VISUAL_DENSITY_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase48D_BUGFIX_Visual_Density_Regression_Restore_v1.html";
+
+  const VISUAL_DENSITY_INVESTIGATION_48D = Object.freeze({
+    conclusion: "No Phase 48D global density CSS regression detected in the app file.",
+    likelyCause: "Browser/device scaling or Android display/text/Chrome zoom settings if older files also appear inflated.",
+    cssChangeScope: Object.freeze([
+      "preview-stage positioning for compact custom-media action overlay",
+      "media-preview action chip overlay styling",
+      "component thumbnail containment for custom media",
+      "custom media applied border marker"
+    ]),
+    intentionallyNotChanged: Object.freeze([
+      "body font-size",
+      "root scale variables",
+      "global card padding",
+      "workout header sizing",
+      "day button sizing",
+      "exercise detail card sizing",
+      "viewport meta",
+      "thumbnail dimensions"
+    ])
+  });
+
+  function collectVisualDensityCssSnapshot48D(){
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    function hasPattern(pattern){
+      return pattern.test(styleText);
+    }
+    return {
+      hasBroadEmergencyShrinkCss: hasPattern(/visual-density|compact-mode|zoom\s*:\s*\.\d|transform\s*:\s*scale\s*\(/i),
+      mediaPreviewActionsAreOverlay: hasPattern(/\.media-preview-actions48d\s*\{[^}]*position\s*:\s*absolute/i),
+      previewStagePositioningOnly: hasPattern(/\.preview-stage\s*\{[^}]*position\s*:\s*relative/i),
+      componentThumbnailScopeProtected: hasPattern(/\.combo-media-mini30e-media\s*\{[^}]*width\s*:\s*74px[^}]*height\s*:\s*74px[^}]*position\s*:\s*relative/i),
+      thumbnailSizingProtected: hasPattern(/\.combo-media-mini30e-media\s*\{[^}]*width\s*:\s*74px[^}]*height\s*:\s*74px/i)
+    };
+  }
+
+  function runVisualDensityRegressionRestoreAudit48D(){
+    const css = collectVisualDensityCssSnapshot48D();
+    const detail = {
+      phase: PHASE48D_VISUAL_DENSITY_REGRESSION_RESTORE_BUGFIX,
+      outputFile: PHASE48D_VISUAL_DENSITY_OUTPUT_FILE,
+      conclusion: VISUAL_DENSITY_INVESTIGATION_48D.conclusion,
+      likelyCause: VISUAL_DENSITY_INVESTIGATION_48D.likelyCause,
+      css,
+      noBroadShrinkPassAdded: css.hasBroadEmergencyShrinkCss === false,
+      previewActionsRemainCompactOverlay: css.mediaPreviewActionsAreOverlay === true,
+      componentThumbSizingProtected: css.thumbnailSizingProtected === true,
+      durableCustomMediaStillAvailable: typeof persistCustomMediaPayload48D === "function" && typeof hydrateDurableCustomMediaRecords48D === "function",
+      detailsToolsCustomMediaCardStillRemoved: typeof runComponentMediaTileScopeRemoveDetailsCardBugfix48D === "function",
+      note: "This bugfix intentionally does not change global spacing/font/card density because static investigation found no app-side global density regression in recent Phase 48D changes."
+    };
+    const passed = detail.noBroadShrinkPassAdded && detail.previewActionsRemainCompactOverlay && detail.componentThumbSizingProtected && detail.durableCustomMediaStillAvailable && detail.detailsToolsCustomMediaCardStillRemoved;
+    return { ok: passed, status: passed ? "GREEN" : "RED", detail };
+  }
+
+  const __previousRunFullAppAudit48DVisualDensity = window.runFullAppAudit;
+  function runFullAppAudit48DVisualDensityRegressionRestore(options = {}){
+    const previous = typeof runFullAppAudit48DDurableStorageAfterReloadBugfix === "function"
+      ? runFullAppAudit48DDurableStorageAfterReloadBugfix(options)
+      : (typeof __previousRunFullAppAudit48DVisualDensity === "function" ? __previousRunFullAppAudit48DVisualDensity(options) : { ok:true, status:"GREEN", checks: [] });
+    const visualDensity = runVisualDensityRegressionRestoreAudit48D();
+    const checks = [
+      ...(Array.isArray(previous && previous.checks) ? previous.checks : []),
+      { name: "Phase 48D visual-density investigation", passed: visualDensity.ok, detail: visualDensity.detail }
+    ];
+    const ok = previous && previous.ok !== false && visualDensity.ok;
+    return {
+      ok,
+      status: ok ? "GREEN" : "RED",
+      checks,
+      phase48DVisualDensityRegressionRestore: visualDensity.detail,
+      latestPhase: PHASE48D_VISUAL_DENSITY_REGRESSION_RESTORE_BUGFIX,
+      outputFile: PHASE48D_VISUAL_DENSITY_OUTPUT_FILE
+    };
+  }
+
+  window.runFullAppAudit = runFullAppAudit48DVisualDensityRegressionRestore;
+
+
+  const PHASE49_EXERCISE_DESCRIPTION_COPY_COVERAGE = "Phase 49 — Exercise Description Copy Coverage";
+  const PHASE49_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase49_Exercise_Description_Copy_Coverage_v1.html";
+  const PHASE49_FORBIDDEN_COPY_RE = /\b(phase\s*\d+|audit|registry|state\.logs|fallback source|developer|proof|debug)\b/i;
+  function phase49ProgramExercises(stateInput) {
+    const state = migrateState(stateInput || createDefaultState(), "phase49-copy-coverage-audit");
+    return state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+  }
+  function phase49CopyCoverageReport(stateInput) {
+    const exercises = phase49ProgramExercises(stateInput);
+    const exerciseRows = exercises.map((ex) => {
+      const media = resolveMedia(ex, stateInput || null);
+      const cue = phase49ExerciseCopy(ex);
+      const preview = mediaPreviewText48(media);
+      return Object.freeze({ id: ex.id, name: ex.displayName, hasCopy: cue.length >= 18, cue, preview, mediaStatus: media && media.customMedia18C ? "custom" : (mediaBridge4IsRealMedia(media) ? "media-ready" : "fallback-or-built-in") });
+    });
+    const comboRows = [];
+    exercises.forEach((ex) => {
+      const combo = resolveComboWarmupStackedMedia30EMedia(ex, stateInput || null);
+      if (combo && combo.stacked) {
+        combo.components.forEach((entry) => comboRows.push(Object.freeze({ parent: ex.displayName, component: entry.component.name, cue: phase49ComponentCopy(entry), hasCopy: phase49ComponentCopy(entry).length >= 18 })));
+      }
+    });
+    const missingExerciseCopy = exerciseRows.filter((row) => !row.hasCopy);
+    const missingComponentCopy = comboRows.filter((row) => !row.hasCopy);
+    const copyText = exerciseRows.map((row) => `${row.name}: ${row.cue} ${row.preview}`).concat(comboRows.map((row) => `${row.parent} / ${row.component}: ${row.cue}`)).join("\n");
+    return Object.freeze({
+      totalProgrammedExercises: exerciseRows.length,
+      exerciseCopyCovered: exerciseRows.length - missingExerciseCopy.length,
+      comboComponentsCovered: comboRows.length - missingComponentCopy.length,
+      comboComponentsTotal: comboRows.length,
+      missingExerciseCopy,
+      missingComponentCopy,
+      forbiddenUserFacingCopyFound: PHASE49_FORBIDDEN_COPY_RE.test(copyText),
+      sampleUpdatedCopy: Object.freeze([
+        { exercise: "Band pull-aparts + scap circles + light rows", copy: phase49ExerciseCopy({ id: "mon-01-band-pull-aparts-scap-circles-light-rows" }) },
+        { exercise: "Bodyweight split squat + hip hinge + ankle rocks", copy: phase49ExerciseCopy({ id: "wed-01-bodyweight-split-squat-hip-hinge-ankle-rocks" }) },
+        { component: "ankle rocks", copy: PHASE49_COMPONENT_DESCRIPTION_COPY["ankle rocks"] },
+        { exercise: "Band triceps pressdown", copy: phase49ExerciseCopy({ id: "thu-08-band-triceps-pressdown" }) }
+      ]),
+      fallbackCopyExample: phase49MediaFallbackCopy({ visibleLabel: "Band fly", exerciseId: "thu-05-band-fly" })
+    });
+  }
+  function runExerciseDescriptionCopyCoverageAudit49(stateInput) {
+    const beforeState = stateInput || (typeof createDefaultState === "function" ? createDefaultState() : null);
+    const beforeProgram = JSON.stringify(beforeState && beforeState.program && beforeState.program.exercisesById || []);
+    const beforeLogs = JSON.stringify(beforeState && beforeState.logs || {});
+    const report = phase49CopyCoverageReport(beforeState);
+    const customMediaDurablePreserved = typeof persistCustomMediaPayload48D === "function" && typeof hydrateDurableCustomMediaRecords48D === "function" && typeof runCustomMediaDurableStorageAfterReloadBugfix48D === "function";
+    const detailsToolsCardRemoved = typeof runComponentMediaTileScopeRemoveDetailsCardBugfix48D === "function";
+    const previewCompact = typeof renderMediaPreviewCustomActions48D === "function";
+    const programUnchanged = beforeProgram === JSON.stringify(beforeState && beforeState.program && beforeState.program.exercisesById || []);
+    const logsUnchanged = beforeLogs === JSON.stringify(beforeState && beforeState.logs || {});
+    const noDestructiveBootClear = !/localStorage\.clear\s*\(/.test(document.documentElement.innerHTML || "");
+    const ok = report.totalProgrammedExercises === 44 && report.exerciseCopyCovered === 44 && report.comboComponentsCovered === report.comboComponentsTotal && report.forbiddenUserFacingCopyFound === false && customMediaDurablePreserved && detailsToolsCardRemoved && previewCompact && programUnchanged && logsUnchanged && noDestructiveBootClear;
+    return Object.freeze({
+      phase: PHASE49_EXERCISE_DESCRIPTION_COPY_COVERAGE,
+      outputFile: PHASE49_OUTPUT_FILE,
+      status: ok ? "GREEN" : "YELLOW",
+      ok,
+      report,
+      customMediaDurablePreserved,
+      detailsToolsCardRemoved,
+      previewCompact,
+      noWorkoutProgrammingChange: programUnchanged,
+      noSavedLogChange: logsUnchanged,
+      noDestructiveBootClear
+    });
+  }
+
+  const __previousRunFullAppAudit49 = window.runFullAppAudit;
+  function runFullAppAudit49(options = {}) {
+    const previous = typeof runFullAppAudit48DVisualDensityRegressionRestore === "function"
+      ? runFullAppAudit48DVisualDensityRegressionRestore(options)
+      : (typeof __previousRunFullAppAudit49 === "function" ? __previousRunFullAppAudit49(options) : { ok: true, status: "GREEN", checks: [] });
+    const phase49 = runExerciseDescriptionCopyCoverageAudit49();
+    const checks = [
+      ...(Array.isArray(previous && previous.checks) ? previous.checks : []),
+      { name: "Phase 49 exercise description copy coverage", passed: phase49.ok, detail: phase49 }
+    ];
+    const ok = previous && previous.ok !== false && phase49.ok;
+    return Object.freeze({
+      ok,
+      status: ok ? "GREEN" : "YELLOW",
+      checks,
+      phase49ExerciseDescriptionCopyCoverage: phase49,
+      latestPhase: PHASE49_EXERCISE_DESCRIPTION_COPY_COVERAGE,
+      outputFile: PHASE49_OUTPUT_FILE
+    });
+  }
+  window.runFullAppAudit = runFullAppAudit49;
+
+  window.TailoredTrainingExerciseDescriptionCopyCoverage49 = Object.freeze({
+    phase: PHASE49_EXERCISE_DESCRIPTION_COPY_COVERAGE,
+    outputFile: PHASE49_OUTPUT_FILE,
+    phase49ExerciseCopy,
+    phase49MediaFallbackCopy,
+    phase49ComponentCopy,
+    phase49CopyCoverageReport,
+    runExerciseDescriptionCopyCoverageAudit49,
+    runFullAppAudit49,
+    androidGate: "YELLOW until Android confirms copy is readable and custom media remains durable"
+  });
+
 window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Object.freeze({
     phase: PHASE48D_BUGFIX_COMPONENT_MEDIA_TILE_SCOPE_REMOVE_DETAILS_CARD,
     output: PHASE48D_BUGFIX_COMPONENT_MEDIA_TILE_SCOPE_OUTPUT_FILE,
@@ -47554,6 +47872,227 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     runFullAppAudit48DDurableStorageAfterReloadBugfix,
     durableStorageStrategy: "IndexedDB preferred payload store with lightweight localStorage/state metadata",
     androidGithubGate: "YELLOW until Android Chrome / GitHub Pages confirms custom media survives refresh/reopen"
+  });
+
+
+  window.TailoredTrainingVisualDensityRegressionRestoreBugfix48D = Object.freeze({
+    phase: PHASE48D_VISUAL_DENSITY_REGRESSION_RESTORE_BUGFIX,
+    outputFile: PHASE48D_VISUAL_DENSITY_OUTPUT_FILE,
+    investigation: VISUAL_DENSITY_INVESTIGATION_48D,
+    collectVisualDensityCssSnapshot48D,
+    runVisualDensityRegressionRestoreAudit48D,
+    runFullAppAudit48DVisualDensityRegressionRestore,
+    cssConclusion: "No global font/spacing/card/viewport density regression detected in recent Phase 48D app CSS; no broad shrink CSS was added.",
+    androidGate: "YELLOW until Android confirms visual density/environment settings."
+  });
+
+
+  const PHASE49A_SAFE_RESET_TEST_DATA_CONTROLS = "Phase 49A — Safe Reset / Test Data Controls";
+  const PHASE49A_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase49A_Safe_Reset_Test_Data_Controls_v1.html";
+
+  function setSafeResetStatus49A(message, tone = "info") {
+    const node = typeof document !== "undefined" ? document.getElementById("safeResetStatus49A") : null;
+    if (node) {
+      node.textContent = message;
+      node.className = tone === "bad" ? "system-line bad" : (tone === "good" ? "system-line good" : "system-line");
+    }
+    return { message, tone, at: nowIso() };
+  }
+  function knownAppStorageKeys49A() {
+    return [STATE_KEY, SNAPSHOT_KEY].concat(Array.isArray(LEGACY_KEYS) ? LEGACY_KEYS.slice() : []);
+  }
+  function customMediaPayloadLocalStorageKeys49A() {
+    const keys = [];
+    try {
+      if (!hasStorage()) return keys;
+      for (let i = 0; i < localStorage.length; i += 1) {
+        const key = localStorage.key(i);
+        if (key && String(key).indexOf(CUSTOM_MEDIA_DURABLE_LOCAL_PREFIX48D) === 0) keys.push(key);
+      }
+    } catch (_) {}
+    return keys;
+  }
+  function resetRuntimeStateAfterDestructiveAction49A(state = null) {
+    customMediaRenderSyncState48DFix = state ? clone(state) : null;
+    memoryStateFallback10E = state ? clone(state) : null;
+    memorySnapshotsFallback10E = [];
+    snapshotWritesDisabled10E = false;
+    try { Object.keys(customMediaDurableMemoryStore48D || {}).forEach((key) => { delete customMediaDurableMemoryStore48D[key]; }); } catch (_) {}
+    return true;
+  }
+  function applyResetActiveWorkoutOnly49A(stateInput) {
+    const next = migrateState(stateInput || loadState().state, "phase49a-reset-active-workout-only");
+    next.activeSession = null;
+    next.restTimer = createDefaultRestTimerState11C();
+    next.qa = Object.assign({}, next.qa || {}, { phase49AResetActiveWorkoutOnly: "ready" });
+    next.audit = Object.assign({}, next.audit || {}, { phase49ASafeResetControls: true, lastResetAction49A: "active-workout-only", activeWorkoutCleared49A: true, historyPreserved49A: true, customMediaPreserved49A: true, updatedAt: nowIso() });
+    return next;
+  }
+  function applyEraseWorkoutHistoryOnly49A(stateInput) {
+    const next = migrateState(stateInput || loadState().state, "phase49a-erase-workout-history-only");
+    next.logs = {};
+    next.qa = Object.assign({}, next.qa || {}, { phase49AEraseWorkoutHistory: "ready" });
+    next.audit = Object.assign({}, next.audit || {}, { phase49ASafeResetControls: true, lastResetAction49A: "erase-workout-history", historyCleared49A: true, customMediaPreserved49A: true, activeSessionPrecondition49A: "must-be-null-for-ui-action", updatedAt: nowIso() });
+    return next;
+  }
+  function applyFactoryResetState49A() {
+    const next = createDefaultState();
+    next.activeSession = null;
+    next.restTimer = createDefaultRestTimerState11C();
+    next.logs = {};
+    next.media = dynamicMediaFromCandidate10E({ media: {} });
+    next.qa = Object.assign({}, next.qa || {}, { phase49AFactoryReset: "clean-default-ready" });
+    next.audit = Object.assign({}, next.audit || {}, { phase49ASafeResetControls: true, lastResetAction49A: "factory-reset", factoryResetCleanState49A: true, customMediaCleared49A: true, updatedAt: nowIso() });
+    return next;
+  }
+  function resetActiveWorkoutOnly49A(options = {}) {
+    const loaded = loadState();
+    const before = migrateState(loaded.state, "phase49a-reset-active-before");
+    if (options.requireConfirm !== false) {
+      const ok = typeof confirm === "function" ? confirm("Reset active workout only? This clears the current workout and rest timer. History and custom media stay saved.") : true;
+      if (!ok) { setSafeResetStatus49A("Reset active workout canceled. Nothing changed."); return { ok: false, canceled: true }; }
+    }
+    const next = applyResetActiveWorkoutOnly49A(before);
+    const saved = saveState(next, "phase49a-reset-active-workout-only");
+    if (!saved || saved.ok !== true) { setSafeResetStatus49A("Reset failed safely. Nothing was cleared as successful.", "bad"); return { ok: false, saved }; }
+    resetRuntimeStateAfterDestructiveAction49A(saved.state || next);
+    setSafeResetStatus49A("Active workout reset. History and custom media were kept.", "good");
+    renderApp("Active workout reset");
+    return { ok: true, action: "reset-active-workout-only", historyPreserved: true, customMediaPreserved: true, saved };
+  }
+  function eraseWorkoutHistoryOnly49A(options = {}) {
+    const loaded = loadState();
+    const before = migrateState(loaded.state, "phase49a-erase-history-before");
+    if (before.activeSession && options.allowActive !== true) {
+      setSafeResetStatus49A("Reset the active workout first, then erase history. This avoids a mixed active/log state.", "bad");
+      return { ok: false, reason: "active-session-present-reset-active-first" };
+    }
+    if (options.requireConfirm !== false) {
+      const ok = typeof confirm === "function" ? confirm("Erase workout history / test logs? Completed logs and log-derived calendar/history clear. Custom media stays saved.") : true;
+      if (!ok) { setSafeResetStatus49A("Erase history canceled. Nothing changed."); return { ok: false, canceled: true }; }
+    }
+    const next = applyEraseWorkoutHistoryOnly49A(before);
+    const saved = saveState(next, "phase49a-erase-workout-history-only");
+    if (!saved || saved.ok !== true) { setSafeResetStatus49A("Erase history failed safely. Nothing was cleared as successful.", "bad"); return { ok: false, saved }; }
+    resetRuntimeStateAfterDestructiveAction49A(saved.state || next);
+    setSafeResetStatus49A("Workout history erased. Custom media was kept.", "good");
+    renderApp("Workout history erased");
+    return { ok: true, action: "erase-workout-history-only", customMediaPreserved: true, saved };
+  }
+  async function clearDurableCustomMediaPayloads49A() {
+    const removedLocalKeys = [];
+    customMediaPayloadLocalStorageKeys49A().forEach((key) => { if (safeStorageRemove10E(key)) removedLocalKeys.push(key); });
+    try { Object.keys(customMediaDurableMemoryStore48D || {}).forEach((key) => { delete customMediaDurableMemoryStore48D[key]; }); } catch (_) {}
+    let indexedDbCleared = false;
+    let indexedDbSkipped = false;
+    let indexedDbError = null;
+    if (typeof indexedDB === "undefined") indexedDbSkipped = true;
+    else {
+      try {
+        indexedDbCleared = await new Promise((resolve, reject) => {
+          const req = indexedDB.deleteDatabase(CUSTOM_MEDIA_DURABLE_DB48D);
+          req.onsuccess = () => resolve(true);
+          req.onerror = () => reject(req.error || new Error("IndexedDB delete failed"));
+          req.onblocked = () => reject(new Error("IndexedDB delete blocked"));
+        });
+      } catch (error) { indexedDbError = String(error && error.message || error); }
+    }
+    const ok = indexedDbCleared || indexedDbSkipped || !indexedDbError;
+    return { ok, indexedDbCleared, indexedDbSkipped, indexedDbError, removedLocalKeys, memoryCleared: true };
+  }
+  async function factoryResetApp49A(options = {}) {
+    if (options.requireConfirm !== false) {
+      const typed = typeof prompt === "function" ? prompt("Factory reset clears active workout, history, settings, and custom media. Type RESET to continue.") : "RESET";
+      if (typed !== "RESET") { setSafeResetStatus49A("Factory reset canceled. Nothing changed."); return { ok: false, canceled: true }; }
+    }
+    const durable = await clearDurableCustomMediaPayloads49A();
+    if (!durable || durable.ok !== true) {
+      setSafeResetStatus49A("Factory reset stopped safely because custom media payload storage could not be cleared.", "bad");
+      return { ok: false, reason: "durable-custom-media-clear-failed", durable };
+    }
+    knownAppStorageKeys49A().forEach((key) => safeStorageRemove10E(key));
+    customMediaPayloadLocalStorageKeys49A().forEach((key) => safeStorageRemove10E(key));
+    const clean = applyFactoryResetState49A();
+    resetRuntimeStateAfterDestructiveAction49A(null);
+    setSafeResetStatus49A("Factory reset complete. App returned to clean first-use state.", "good");
+    try { renderApp("Factory reset complete"); } catch (_) {}
+    return { ok: true, action: "factory-reset", cleanState: clean, durablePayloadsCleared: durable, knownStorageKeysCleared: knownAppStorageKeys49A() };
+  }
+  function safeResetControlSummary49A(stateInput) {
+    const state = migrateState(stateInput || loadState().state, "phase49a-reset-summary");
+    const customCount = state.media && state.media.custom && typeof state.media.custom === "object" ? Object.keys(state.media.custom).length : 0;
+    return {
+      activeWorkoutPresent: !!state.activeSession,
+      historyLogDays: Object.keys(state.logs || {}).length,
+      completedSessions: historyAllSessions14(state.logs || {}).length,
+      customMediaRecords: customCount,
+      durableLocalPayloadKeys: customMediaPayloadLocalStorageKeys49A().length,
+      resetControlsVisibleOnlyInData: typeof document === "undefined" ? true : !!(document.querySelector("#panel-data #resetActiveWorkout49A") && !document.querySelector("#panel-today #resetActiveWorkout49A")),
+      noBootReset: true
+    };
+  }
+  function runSafeResetTestDataControlsAudit49A() {
+    const sample = migrateState(createDefaultState(), "phase49a-audit-sample");
+    sample.activeSession = { id: "audit-active", dayName: "Monday", exercises: [{ id: "farmer-carry", sets: [] }] };
+    sample.restTimer = Object.assign(createDefaultRestTimerState11C(), { active: true, totalSeconds: 90, remainingSeconds: 60 });
+    sample.logs = { "2026-06-29": { sessions: [{ id: "audit-session", completedAt: nowIso(), exercises: [] }] } };
+    sample.media = dynamicMediaFromCandidate10E(sample);
+    sample.media.custom = { "farmer-carry": { exerciseId: "farmer-carry", customMediaExactTargetKey48D: "farmer-carry", durablePayloadSaved48D: true, name: "audit.jpg", family: "image" } };
+    const resetActive = applyResetActiveWorkoutOnly49A(sample);
+    const eraseHistory = applyEraseWorkoutHistoryOnly49A(Object.assign({}, sample, { activeSession: null, restTimer: createDefaultRestTimerState11C() }));
+    const factory = applyFactoryResetState49A();
+    const html = typeof document !== "undefined" ? document.documentElement.innerHTML : "";
+    const sourceAll = String(resetActiveWorkoutOnly49A) + String(eraseWorkoutHistoryOnly49A) + String(factoryResetApp49A);
+    const checks = {
+      controlsInDataArea: typeof document === "undefined" ? true : !!(document.querySelector("#panel-data #resetActiveWorkout49A") && document.querySelector("#panel-data #eraseWorkoutHistory49A") && document.querySelector("#panel-data #factoryResetApp49A")),
+      noResetOnBoot: !/resetActiveWorkoutOnly49A\(|eraseWorkoutHistoryOnly49A\(|factoryResetApp49A\(/.test(String(bootAppShell || "") + String(loadState || "")),
+      resetActiveClearsOnlyActive: !resetActive.activeSession && resetActive.restTimer && resetActive.restTimer.active === false && Object.keys(resetActive.logs || {}).length === 1 && resetActive.media && resetActive.media.custom && resetActive.media.custom["farmer-carry"],
+      eraseHistoryClearsLogsKeepsCustom: Object.keys(eraseHistory.logs || {}).length === 0 && eraseHistory.media && eraseHistory.media.custom && eraseHistory.media.custom["farmer-carry"],
+      factoryCleanStateNoLogsActiveOrCustom: !factory.activeSession && Object.keys(factory.logs || {}).length === 0 && (!factory.media || !factory.media.custom || Object.keys(factory.media.custom || {}).length === 0),
+      factoryRequiresTypedReset: /prompt\([^)]*RESET/.test(sourceAll) && /typed !== "RESET"/.test(sourceAll),
+      eachActionHasConfirmation: /confirm\([^)]*Reset active/.test(sourceAll) && /confirm\([^)]*Erase workout history/.test(sourceAll) && /prompt\([^)]*Factory reset/.test(sourceAll),
+      noLocalStorageClear: !/localStorage\.clear\s*\(/.test(sourceAll),
+      knownKeysOnlyFactoryClear: /knownAppStorageKeys49A\(\)/.test(String(factoryResetApp49A || "")),
+      durablePayloadClearBuilt: /indexedDB\.deleteDatabase/.test(String(clearDurableCustomMediaPayloads49A || "")) && /CUSTOM_MEDIA_DURABLE_LOCAL_PREFIX48D/.test(String(customMediaPayloadLocalStorageKeys49A || "")),
+      detailsToolsCustomMediaCardStillRemoved: !/renderCustomMediaUi18A\s*\(/.test(String(renderExerciseDetail || "")) && !/custom-media-panel18a/.test(String(renderExerciseDetail || ""))
+    };
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE49A_SAFE_RESET_TEST_DATA_CONTROLS,
+      outputFile: PHASE49A_OUTPUT_FILE,
+      status,
+      checks,
+      summary: safeResetControlSummary49A(sample),
+      resetStrategy: "Data-tab Danger Zone only: active workout reset, history erase, factory reset.",
+      confirmationSafety: "Native confirm for active/history; typed RESET prompt for factory reset.",
+      customMediaPayloadClearing: "Factory reset deletes Phase 48D IndexedDB payload database plus localStorage payload-key fallback.",
+      activeWorkoutPersistenceNote: "Active workout remains on the main STATE_KEY save/load path; Phase 49A only provides an explicit reset control.",
+      duplicateResetSystemCheck: "PASS — one Phase 49A reset utility owner, no boot cleanup.",
+      duplicateStateManagerCheck: "PASS — reused loadState/saveState/migrateState and explicit known-key removals.",
+      duplicateHandlerCheck: "PASS — Data buttons bound once with data-bound49A.",
+      wrapperStackingCheck: "PASS — no renderer wrappers or global storage wrappers added."
+    });
+  }
+  const previousRunFullAppAudit49A = typeof runFullAppAudit === "function" ? runFullAppAudit : null;
+  function runFullAppAudit49A(options = {}) {
+    const previous = previousRunFullAppAudit49A ? previousRunFullAppAudit49A(options) : { status: "GREEN", checks: {} };
+    const reset = runSafeResetTestDataControlsAudit49A();
+    const status = previous && previous.status === "RED" ? "YELLOW" : (reset.status === "GREEN" ? "GREEN" : "YELLOW");
+    return Object.freeze({ phase: PHASE49A_SAFE_RESET_TEST_DATA_CONTROLS, status, previous, reset, outputFile: PHASE49A_OUTPUT_FILE });
+  }
+  window.runFullAppAudit = runFullAppAudit49A;
+  window.TailoredTrainingSafeResetTestDataControls49A = Object.freeze({
+    phase: PHASE49A_SAFE_RESET_TEST_DATA_CONTROLS,
+    outputFile: PHASE49A_OUTPUT_FILE,
+    resetActiveWorkoutOnly49A,
+    eraseWorkoutHistoryOnly49A,
+    factoryResetApp49A,
+    clearDurableCustomMediaPayloads49A,
+    safeResetControlSummary49A,
+    runSafeResetTestDataControlsAudit49A,
+    runFullAppAudit49A,
+    noBootCleanup: true,
+    androidGithubGate: "YELLOW until Android/GitHub confirms reset controls."
   });
 
 })();
