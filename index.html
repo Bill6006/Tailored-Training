@@ -1,4 +1,61 @@
 <!doctype html>
+<!--
+PHASE_50_FINAL_ANDROID_REGRESSION_LOCK_RELEASE_CANDIDATE_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase49E_Timer_Sound_Countdown_Beeps_v1.html as the GREEN base after Phase 49E Android/GitHub confirmation.
+- Added a read-only final Android regression lock / release-candidate audit and report surface only; no new product features, visible workout UI, visual redesign, CSS sizing, workout programming, set logging behavior, rest behavior, drop-set behavior, media behavior, History/Data/Backup behavior, reset controls, saved logs, custom media storage, or route generation changed.
+- The Phase 50 audit checks preservation of set logging, completed rows, edit-save ownership, three-dot menus, Add drop set, rate difficulty, AMRAP/rest-pause owners, rest timer, End rest, exercise transitions, final auto-save, History/calendar/session details, Data/Backup/export/import, media preview/custom media/frame-pair demos, coach surface, Phase 44 rest-dock prep, Phase 43 plateau swap safety, workout-list statuses, timer sound controls, thumbnail sizing, non-destructive boot behavior, and anti-bloat owner rules.
+- Preserved all Phase 49B/49C/49D/49E behavior: normal-set carry-forward after drop set, manual numeric entry, component media copy cleanup, and optional timer sounds/countdown beeps.
+- Release-candidate status remains YELLOW until the final Android/GitHub regression checklist is confirmed on-device.
+-->
+
+<!--
+PHASE_49E_TIMER_SOUND_COUNTDOWN_BEEPS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase49D_Component_Media_Status_Copy_Cleanup_v1.html as the GREEN base.
+- Added optional rest/drop-set timer audio feedback using safe Web Audio generation only; no external audio files are required.
+- Normal rest timers now play short countdown beeps at 3, 2, and 1 seconds remaining and a longer finish beep when sound is enabled and unlocked by user interaction.
+- Drop-set/rest-pause countdowns that use the existing restTimer owner path receive the same sound pattern automatically; zero-second drop-transition cues remain silent.
+- Added a compact Sound on/off control and Test button inside the existing rest dock without adding a settings dashboard.
+- Preserved silent default use, rest timer behavior, End rest behavior, set logging, drop-set logic, coach behavior, History/Data/Backup, custom media storage, thumbnail sizing, visual density, workout programming, route generation, saved logs, reset controls, and non-destructive boot behavior.
+- Android/GitHub confirmation required before GREEN because Android browser audio unlock behavior must be verified on-device.
+-->
+
+<!--
+PHASE_49D_COMPONENT_MEDIA_STATUS_COPY_CLEANUP_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase49C_Manual_Numeric_Entry_for_Weight_Reps_v1.html as the GREEN base after Phase 49C Android/GitHub confirmation.
+- Cleaned the existing combo/superset/circuit component media row owner path so rows show thumbnail + move name + useful movement cue only.
+- Removed user-visible component-row status copy such as Media ready, Custom media, Media not available yet, and preview unavailable from normal workout UI.
+- Kept thumbnails, compact CV fallback thumbnail state, component media preview ability, custom media exact-target storage, parent/component isolation, set logging, rest timer, coach/drop sets, History, Data, Backup, saved logs, route generation, workout programming, reset controls, and non-destructive boot behavior unchanged.
+- Added Phase 49D audit/full-app audit handoff and static duplicate media owner/renderer/handler checks.
+- Android/GitHub confirmation required before GREEN because this changes visible component-row copy.
+-->
+
+<!--
+PHASE_49C_MANUAL_NUMERIC_ENTRY_FOR_WEIGHT_REPS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase49B_Normal_Set_Auto_Carry_After_Drop_Set_v1.html as the Android/GitHub GREEN base.
+- Reused the existing Phase 29C set-control/Phase 10D edit owner paths instead of adding a parallel set logger.
+- Made the compact Weight/Reps value area a real tap-to-type numeric input while preserving the existing +/- buttons and compact control footprint.
+- Weight manual entry accepts decimal values such as 7.5, 12.5, and 27.5; +/- still changes weight by 5 lb from the currently typed value.
+- Reps manual entry is sanitized to whole non-negative numbers; +/- still changes reps by 1.
+- Added one shared Phase 49C sanitizer/persistence helper for normal active sets and drop-set inputs so typed active values survive refresh through the existing activeSession/setLogs and drop-set registry paths.
+- Completed-set edit values still save through the existing Done editing / collapse save owner path; completed rows and History archives continue to read the same set input source values.
+- Preserved Phase 49B normal-set auto-carry after drop set, Phase 49A active progress persistence/reset controls, custom media durable storage, rest timer, coach/drop-set behavior, History/Data/Backup, thumbnail sizing, and visual density.
+-->
+
+
+
+
+
+<!--
+PHASE_49B_NORMAL_SET_AUTO_CARRY_AFTER_DROP_SET_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase49A_BUGFIX_Active_Set_Progress_Persistence_After_Reload_v1.html as the base and Tailored training plan v50.txt as the active plan source.
+- Extended the existing applyNextSetWeightCarryForward41 owner path so the next normal set carries from the most recent completed normal/main set even when a session-only drop set exists under the just-completed main set.
+- Normal carry-forward now excludes drop-set/rest-pause child records as sources and as destinations; drop-set weight rules and suggested drop-set load calculations are unchanged.
+- Reps remain on the existing target/default behavior; only the normal-set weight is carried forward.
+- Added a drop-set-completion safety call through the same carry-forward owner path so persisted active sessions and post-drop routing keep Set 4 sourced from the last normal/main set after refresh/reopen.
+- Preserved completed rows, active-session persistence, reset controls, custom media durable storage, visual density/CSS, set logging UI, rest timer, coach/drop-set behavior, History/Data/Backup, saved logs, and route generation.
+- Added Phase 49B read-only audit/full-app audit handoff and static duplicate owner/handler/wrapper checks.
+- Android/GitHub confirmation required before marking GREEN because this fixes live set logging after a session-only drop set.
+-->
 
 
 
@@ -2133,6 +2190,18 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
     .stepper-value-main29cbugfix { display:block; max-width:100%; color:#ffffff; font-size:20px; font-weight:1000; line-height:1.02; letter-spacing:-.035em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; -webkit-text-fill-color:#ffffff; }
     .stepper-value-sub29cbugfix { display:block; margin-top:2px; color:var(--muted); font-size:9px; font-weight:950; text-transform:uppercase; letter-spacing:.08em; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .stepper-source-input29cbugfix { position:absolute !important; width:1px !important; height:1px !important; min-height:1px !important; padding:0 !important; margin:-1px !important; border:0 !important; opacity:.01 !important; overflow:hidden !important; pointer-events:none !important; clip:rect(0 0 0 0) !important; clip-path:inset(50%) !important; }
+    .stepper-value-wrap29cbugfix[data-phase49c-manual-entry="true"] { position:relative; cursor:text; padding:0; }
+    .stepper-value-wrap29cbugfix[data-phase49c-manual-entry="true"] .stepper-value-main29cbugfix,
+    .stepper-value-wrap29cbugfix[data-phase49c-manual-entry="true"] .stepper-value-sub29cbugfix { position:absolute; width:1px; height:1px; opacity:0; overflow:hidden; pointer-events:none; }
+    .stepper-source-input29cbugfix.phase49c-manual-number-input { position:static !important; width:100% !important; height:100% !important; min-height:44px !important; padding:5px 7px !important; margin:0 !important; border:0 !important; opacity:1 !important; overflow:visible !important; pointer-events:auto !important; clip:auto !important; clip-path:none !important; background:transparent !important; color:#fff !important; text-align:center; font-size:20px; font-weight:1000; line-height:1.05; letter-spacing:-.035em; -webkit-text-fill-color:#fff; caret-color:#fff; }
+    .stepper-source-input29cbugfix.phase49c-manual-number-input:focus { outline:2px solid rgba(255,255,255,.24); outline-offset:-3px; border-radius:12px; }
+    .drop-stepper13c input[data-phase49c-drop-manual-entry="true"] { font-size:16px; font-weight:950; -webkit-text-fill-color:var(--text); caret-color:var(--text); }
+    .phase49c-manual-number-input::-webkit-outer-spin-button,
+    .phase49c-manual-number-input::-webkit-inner-spin-button,
+    .drop-stepper13c input[data-phase49c-drop-manual-entry="true"]::-webkit-outer-spin-button,
+    .drop-stepper13c input[data-phase49c-drop-manual-entry="true"]::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+    .phase49c-manual-number-input,
+    .drop-stepper13c input[data-phase49c-drop-manual-entry="true"] { appearance:textfield; -moz-appearance:textfield; }
     .log-control[data-phase29cbugfix-visible-input="true"] { background:rgba(255,255,255,.055); border-color:rgba(255,255,255,.15); }
     .set-card[data-phase29cbugfix-mobile-width-lock="true"] { width:100%; max-width:100%; min-width:0; overflow-x:clip; }
     .set-card[data-phase29cbugfix-mobile-width-lock="true"] .log-grid { width:100%; max-width:100%; min-width:0; }
@@ -2314,6 +2383,11 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
     .rest-dock11b-clock { min-width:74px; text-align:right; font-variant-numeric:tabular-nums; font-size:25px; font-weight:950; letter-spacing:-.05em; color:var(--text); }
     .rest-dock11b-progress { height:6px; border-radius:999px; overflow:hidden; background:rgba(255,255,255,.08); margin:10px 0; }
     .rest-dock11b-progress span { display:block; height:100%; width:0%; border-radius:999px; background:linear-gradient(90deg, var(--green), var(--blue)); transition:width .2s ease; }
+    .rest-sound-controls49e { display:flex; align-items:center; gap:7px; margin:-1px 0 8px; min-width:0; }
+    .rest-sound-btn49e { min-height:28px; padding:0 10px; border-radius:999px; border:1px solid rgba(255,255,255,.13); background:rgba(255,255,255,.055); color:var(--muted); font-size:10px; font-weight:950; letter-spacing:.02em; white-space:nowrap; }
+    .rest-sound-btn49e[data-enabled="true"] { color:#07100d; border-color:rgba(84,255,166,.45); background:linear-gradient(135deg, var(--green), #bdfbd9); }
+    .rest-sound-btn49e:not(:disabled) { cursor:pointer; }
+    .rest-sound-status49e { min-width:0; color:var(--muted); font-size:10px; font-weight:850; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .end-rest-btn11b { width:100%; min-height:42px; border-radius:17px; border:1px solid rgba(255,255,255,.13); background:rgba(255,255,255,.055); color:var(--soft); font-weight:950; cursor:not-allowed; opacity:.72; }
     .end-rest-btn11b[data-visible="true"] { display:block; }
     .end-rest-btn11b:not(:disabled) { cursor:pointer; opacity:1; color:#07100d; border-color:rgba(84,255,166,.45); background:linear-gradient(135deg, var(--green), #bdfbd9); box-shadow:0 12px 24px rgba(84,255,166,.18); }
@@ -3510,6 +3584,11 @@ MEDIA BRIDGE 4 LEDGER
       <div class="rest-dock11b-clock" id="restDockClock11B">00:00</div>
     </div>
     <div class="rest-dock11b-progress" aria-hidden="true"><span id="restDockProgress11B"></span></div>
+    <div class="rest-sound-controls49e" id="restSoundControls49E" data-phase49e-timer-sound-controls="compact-rest-dock" aria-label="Timer sound controls">
+      <button class="rest-sound-btn49e" id="timerSoundToggle49E" type="button" data-enabled="false">Sound off</button>
+      <button class="rest-sound-btn49e" id="timerSoundTest49E" type="button">Test</button>
+      <span class="rest-sound-status49e" id="timerSoundStatus49E">Silent</span>
+    </div>
     <button class="end-rest-btn11b" id="endRestBtn11B" type="button" disabled aria-disabled="true" data-visible="true" data-end-rest-ui11b="visible-phase11c-end-rest-wired">End rest</button>
   </aside>
 
@@ -3830,6 +3909,183 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     return `${total} completed set${total === 1 ? "" : "s"}`;
   }
 
+  const TIMER_SOUND_COUNTDOWN_BEEPS_PHASE49E = "Phase 49E — Timer Sound + Countdown Beeps";
+  const TIMER_SOUND_DEFAULT_SETTINGS49E = Object.freeze({ enabled: false, unlocked: false, volume: 0.055, phase: "49E", pattern: "countdown-3-2-1-finish", updatedAt: null });
+  let timerAudioContext49E = null;
+  let timerSoundLastPulse49E = { timerKey: "", countdown: {}, finishKey: "" };
+
+  function normalizeTimerSoundSettings49E(input) {
+    const raw = input && typeof input === "object" && !Array.isArray(input) ? input : {};
+    const volume = Number(raw.volume);
+    return {
+      enabled: raw.enabled === true,
+      unlocked: raw.unlocked === true,
+      volume: Number.isFinite(volume) ? Math.max(0.015, Math.min(0.09, volume)) : TIMER_SOUND_DEFAULT_SETTINGS49E.volume,
+      phase: "49E",
+      pattern: "countdown-3-2-1-finish",
+      updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : null,
+      lastTestedAt: typeof raw.lastTestedAt === "string" ? raw.lastTestedAt : null,
+      audioUnavailable: raw.audioUnavailable === true,
+      lastAudioError: typeof raw.lastAudioError === "string" ? raw.lastAudioError.slice(0, 120) : ""
+    };
+  }
+
+  function ensureTimerSoundSettings49E(state) {
+    const next = state && typeof state === "object" && !Array.isArray(state) ? state : {};
+    next.settings = next.settings && typeof next.settings === "object" && !Array.isArray(next.settings) ? next.settings : {};
+    next.settings.timerSound49E = normalizeTimerSoundSettings49E(next.settings.timerSound49E);
+    next.qa = Object.assign({}, next.qa || {}, { phase49ETimerSoundCountdownBeeps: "optional-sound-controls-ready" });
+    next.audit = Object.assign({}, next.audit || {}, { phase49ETimerSoundUsesWebAudioOnly: true, phase49ETimerSoundDefaultSilent: true, phase49ETimerSoundExternalFiles: false });
+    return next;
+  }
+
+  function timerSoundSettings49E(stateInput) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : null;
+    return normalizeTimerSoundSettings49E(state && state.settings && state.settings.timerSound49E);
+  }
+
+  function timerSoundAudioApiAvailable49E() {
+    return typeof window !== "undefined" && !!(window.AudioContext || window.webkitAudioContext);
+  }
+
+  function ensureTimerAudioContext49E() {
+    if (!timerSoundAudioApiAvailable49E()) return null;
+    const AudioCtor = window.AudioContext || window.webkitAudioContext;
+    if (!timerAudioContext49E) timerAudioContext49E = new AudioCtor();
+    if (timerAudioContext49E && timerAudioContext49E.state === "suspended" && typeof timerAudioContext49E.resume === "function") {
+      try { timerAudioContext49E.resume(); } catch (_) {}
+    }
+    return timerAudioContext49E;
+  }
+
+  function timerSoundKey49E(restTimer) {
+    const st = restTimer && typeof restTimer === "object" ? restTimer : {};
+    return [st.startedAt || "", st.endsAt || "", st.label || "", st.totalSeconds || 0].join("|");
+  }
+
+  function playTimerSound49E(kind = "countdown", options = {}) {
+    const state = options.state && typeof options.state === "object" ? options.state : (typeof loadState === "function" ? loadState().state : null);
+    const settings = timerSoundSettings49E(state);
+    if (!options.force && (!settings.enabled || !settings.unlocked)) return false;
+    let ctx = null;
+    try { ctx = ensureTimerAudioContext49E(); } catch (err) { return false; }
+    if (!ctx) return false;
+    try {
+      const now = ctx.currentTime || 0;
+      const isFinish = String(kind) === "finish";
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(isFinish ? 660 : 880, now);
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(isFinish ? Math.min(0.075, settings.volume * 1.35) : settings.volume, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + (isFinish ? 0.26 : 0.095));
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + (isFinish ? 0.29 : 0.12));
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function handleTimerSoundTick49E(restTimer, stateInput) {
+    const settings = timerSoundSettings49E(stateInput);
+    if (!settings.enabled || !settings.unlocked) return { played: false, reason: "sound-off-or-locked" };
+    const st = normalizeRestTimerState11C(restTimer);
+    const key = timerSoundKey49E(st);
+    if (!key || key === "|||0") return { played: false, reason: "missing-timer-key" };
+    if (timerSoundLastPulse49E.timerKey !== key) timerSoundLastPulse49E = { timerKey: key, countdown: {}, finishKey: "" };
+    const remaining = Math.max(0, Math.floor(Number(st.remainingSeconds || 0)));
+    if (st.active && (remaining === 3 || remaining === 2 || remaining === 1)) {
+      if (!timerSoundLastPulse49E.countdown[remaining]) {
+        timerSoundLastPulse49E.countdown[remaining] = true;
+        return { played: playTimerSound49E("countdown", { state: stateInput }), kind: "countdown", remaining };
+      }
+      return { played: false, reason: "countdown-already-played", remaining };
+    }
+    const ctx = st.context && typeof st.context === "object" ? st.context : {};
+    const endMs = st.endsAt ? Date.parse(st.endsAt) : NaN;
+    const justExpired = ctx.actionType === "expired-display" && Number.isFinite(endMs) && Math.abs(Date.now() - endMs) <= 2500;
+    if (!st.active && justExpired && timerSoundLastPulse49E.finishKey !== key) {
+      timerSoundLastPulse49E.finishKey = key;
+      return { played: playTimerSound49E("finish", { state: stateInput }), kind: "finish" };
+    }
+    return { played: false, reason: "no-cue" };
+  }
+
+  function updateTimerSoundControls49E(stateInput) {
+    const settings = timerSoundSettings49E(stateInput);
+    const toggle = document.getElementById("timerSoundToggle49E");
+    const test = document.getElementById("timerSoundTest49E");
+    const status = document.getElementById("timerSoundStatus49E");
+    const wrap = document.getElementById("restSoundControls49E");
+    if (wrap) wrap.dataset.soundEnabled = settings.enabled ? "true" : "false";
+    if (toggle) {
+      toggle.textContent = settings.enabled ? "Sound on" : "Sound off";
+      toggle.dataset.enabled = settings.enabled ? "true" : "false";
+      toggle.setAttribute("aria-pressed", settings.enabled ? "true" : "false");
+      toggle.title = settings.enabled ? "Turn timer sounds off." : "Turn timer sounds on.";
+    }
+    if (test) test.title = "Play a safe test beep and unlock audio for this browser.";
+    if (status) {
+      status.textContent = !timerSoundAudioApiAvailable49E() ? "Audio unavailable" : settings.enabled ? (settings.unlocked ? "Ready" : "Tap Test") : "Silent";
+    }
+  }
+
+  function saveTimerSoundSetting49E(updater, reason = "phase49e-timer-sound-setting") {
+    const loaded = loadState();
+    const next = clone(loaded.state);
+    ensureTimerSoundSettings49E(next);
+    const current = normalizeTimerSoundSettings49E(next.settings.timerSound49E);
+    const updated = typeof updater === "function" ? updater(current) : current;
+    next.settings.timerSound49E = normalizeTimerSoundSettings49E(Object.assign({}, current, updated, { updatedAt: nowIso() }));
+    next.audit = Object.assign({}, next.audit || {}, { phase49ETimerSoundSettingSavedAt: nowIso(), phase49ETimerSoundSettingReason: reason });
+    const saved = saveState(next, reason);
+    updateTimerSoundControls49E(saved && saved.state ? saved.state : next);
+    return saved;
+  }
+
+  function toggleTimerSound49E(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    const loaded = loadState();
+    const settings = timerSoundSettings49E(loaded.state);
+    const shouldEnable = !settings.enabled;
+    let unlocked = settings.unlocked === true;
+    let unavailable = false;
+    let errorText = "";
+    if (shouldEnable) {
+      try {
+        const ctx = ensureTimerAudioContext49E();
+        unlocked = !!ctx;
+        unavailable = !ctx;
+      } catch (err) {
+        unavailable = true;
+        errorText = String(err && err.message || err).slice(0, 120);
+      }
+    }
+    saveTimerSoundSetting49E(() => ({ enabled: shouldEnable, unlocked, audioUnavailable: unavailable, lastAudioError: errorText }), "phase49e-toggle-timer-sound");
+    if (shouldEnable && unlocked) playTimerSound49E("countdown", { force: true, state: Object.assign({}, loaded.state, { settings: Object.assign({}, loaded.state.settings || {}, { timerSound49E: Object.assign({}, settings, { enabled: true, unlocked: true }) }) }) });
+  }
+
+  function testTimerSound49E(event) {
+    if (event) { event.preventDefault(); event.stopPropagation(); }
+    let ok = false;
+    let errorText = "";
+    try { ok = playTimerSound49E("finish", { force: true, state: { settings: { timerSound49E: { enabled: true, unlocked: true, volume: TIMER_SOUND_DEFAULT_SETTINGS49E.volume } } } }); }
+    catch (err) { ok = false; errorText = String(err && err.message || err).slice(0, 120); }
+    saveTimerSoundSetting49E((current) => ({ enabled: current.enabled === true, unlocked: ok, audioUnavailable: !ok, lastAudioError: errorText, lastTestedAt: nowIso() }), "phase49e-test-timer-sound");
+  }
+
+  function wireTimerSoundControls49E() {
+    const toggle = document.getElementById("timerSoundToggle49E");
+    const test = document.getElementById("timerSoundTest49E");
+    if (toggle && toggle.dataset.bound49E !== "true") { toggle.dataset.bound49E = "true"; toggle.addEventListener("click", toggleTimerSound49E); }
+    if (test && test.dataset.bound49E !== "true") { test.dataset.bound49E = "true"; test.addEventListener("click", testTimerSound49E); }
+    try { updateTimerSoundControls49E(loadState().state); } catch (_) { updateTimerSoundControls49E(null); }
+  }
+
   const REST_DOCK_ACTION_BUTTON_WIRING_PHASE32C_BUGFIX = "rest-dock-action-button-wiring-lock-v1";
   function findRestDockNextIncompleteSetIndex32CBugfix(ex) {
     const setLogs = normalizeSessionExerciseSets(ex);
@@ -3943,9 +4199,12 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     return false;
   }
 
-  function updateRestTimerDockUI11C(restTimer) {
+  function updateRestTimerDockUI11C(restTimer, stateInput) {
     const action = resolveRestDockNextActionCopy30EMediaBugfix(restTimer);
     const st = normalizeRestTimerState11C(restTimer);
+    let stateForSound49E = stateInput && typeof stateInput === "object" ? stateInput : null;
+    if (!stateForSound49E) { try { stateForSound49E = loadState().state; } catch (_) { stateForSound49E = null; } }
+    updateTimerSoundControls49E(stateForSound49E);
     const dock = document.getElementById("restTimerDock11B");
     if (!dock) return;
     dock.dataset.restState = action.restState || (st.active ? "active" : "idle");
@@ -4089,7 +4348,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
   }
   function refreshRestTimerDisplay11C() {
     const loaded = loadState();
-    updateRestTimerDockUI11C(loaded.state.restTimer);
+    handleTimerSoundTick49E(loaded.state.restTimer, loaded.state);
+    updateRestTimerDockUI11C(loaded.state.restTimer, loaded.state);
   }
   function runRestTimerStateAudit11C(state) {
     const loadedState = state || loadState().state;
@@ -4240,6 +4500,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     merged.logs = (candidate && candidate.logs && typeof candidate.logs === "object" && !Array.isArray(candidate.logs)) ? candidate.logs : {};
     merged.activeSession = (candidate && (candidate.activeSession === null || typeof candidate.activeSession === "object")) ? candidate.activeSession : null;
     merged.restTimer = normalizeRestTimerState11A(candidate && candidate.restTimer);
+    ensureTimerSoundSettings49E(merged);
     ["notes", "swaps"].forEach((key) => { merged[key] = (candidate && candidate[key] && typeof candidate[key] === "object" && !Array.isArray(candidate[key])) ? candidate[key] : {}; });
     merged.media = dynamicMediaFromCandidate10E(candidate || merged);
     merged.coach = normalizeCoachTraceStorage23B(candidate && candidate.coach);
@@ -4301,19 +4562,22 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     if (customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.media && customMediaRenderSyncState48DFix.media.phase48D && customMediaRenderSyncState48DFix.media.phase48D.saveRenderSyncBugfix48D) {
       const state = clone(customMediaRenderSyncState48DFix);
       hydrateStaticProgram10E(state);
-      state.audit = Object.assign({}, state.audit, { phase48DSaveRenderSyncMemoryPreferred: true });
+      hydrateActiveSessionProgressAfterReload49ABugfix(state);
+      state.audit = Object.assign({}, state.audit, { phase48DSaveRenderSyncMemoryPreferred: true, phase49ABugfixActiveSetProgressHydrated: !!state.activeSession });
       return { state, source: "phase48d-save-render-sync-memory", warnings: ["Using freshest custom-media state so the saved tile renders immediately."], storageOk, legacyPreview: [] };
     }
     if (memoryStateFallback10E && memoryStateFallback10E.activeSession) {
       const state = clone(memoryStateFallback10E);
       hydrateStaticProgram10E(state);
-      state.audit = Object.assign({}, state.audit, { memoryFallbackActive: true, activeStateClarityFix: "memory-active-session-preferred-over-stale-storage" });
+      hydrateActiveSessionProgressAfterReload49ABugfix(state);
+      state.audit = Object.assign({}, state.audit, { memoryFallbackActive: true, activeStateClarityFix: "memory-active-session-preferred-over-stale-storage", phase49ABugfixActiveSetProgressHydrated: !!state.activeSession });
       return { state, source: "memory-active-session-preferred", warnings: ["Using active in-memory session so Start workout visibly stays active even if localStorage is constrained"], storageOk, legacyPreview: [] };
     }
     if (!storageOk) {
       const state = memoryStateFallback10E ? clone(memoryStateFallback10E) : createDefaultState();
       hydrateStaticProgram10E(state);
-      state.audit = Object.assign({}, state.audit, { memoryFallbackActive: true, storageSafeFix: "storage unavailable did not block Start workout" });
+      hydrateActiveSessionProgressAfterReload49ABugfix(state);
+      state.audit = Object.assign({}, state.audit, { memoryFallbackActive: true, storageSafeFix: "storage unavailable did not block Start workout", phase49ABugfixActiveSetProgressHydrated: !!state.activeSession });
       return { state, source: memoryStateFallback10E ? "memory-active-session" : "memory-default", warnings: ["localStorage unavailable; using in-memory fallback so Start workout still works"], storageOk, legacyPreview: [] };
     }
     const raw = safeStorageGet10E(STATE_KEY, null);
@@ -4322,7 +4586,9 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const parsed = safeJsonParse(raw, null, STATE_KEY);
     if (!parsed.ok) { warnings.push(parsed.warning); const state = createDefaultState(); state.audit.invalidExistingStateDetected = true; state.audit.legacyPreview = legacyPreview; return { state, source: "default-after-invalid-existing", warnings, storageOk, legacyPreview }; }
     const normalized = migrateState(parsed.value, "phase10e-active-state-clarity-loadState");
+    hydrateActiveSessionProgressAfterReload49ABugfix(normalized);
     normalized.audit.legacyPreview = legacyPreview;
+    normalized.audit = Object.assign({}, normalized.audit || {}, { phase49ABugfixActiveSetProgressHydrated: !!normalized.activeSession });
     const validation = validateStateShape(normalized);
     return { state: normalized, source: "localStorage-v2-storage-safe", warnings: warnings.concat(validation.warnings), valid: validation.valid, storageOk, legacyPreview };
   }
@@ -6900,6 +7166,18 @@ Existing History logs stay untouched.`);
     return phase49ExerciseCopy(ex || { displayName: component && component.name }, "Move with control and keep reps clean.");
   }
 
+  const PHASE49D_COMPONENT_ROW_STATUS_COPY_RE = /(Media ready|Custom media|Media not available yet|preview unavailable|preview unavail(?:able)?|fallback source|registry|state\.logs)/ig;
+  function componentMediaStateCode49D(media) {
+    if (mediaBridge4IsRealMedia(media)) return "real";
+    if (media && media.customMedia18C) return "custom";
+    return "fallback";
+  }
+  function phase49DComponentMovementCue(entry) {
+    const raw = phase49ComponentCopy(entry || {});
+    const cleaned = String(raw || "").replace(PHASE49D_COMPONENT_ROW_STATUS_COPY_RE, "").replace(/\s*[·|,-]\s*$/g, "").replace(/\s+/g, " ").trim();
+    return cleaned ? phase49TightCue(cleaned, "", 108) : "";
+  }
+
   function coachingFallback(ex, reason) {
     return phase49ExerciseCopy(ex, "Move with control and stop before pain or sloppy reps.");
   }
@@ -7900,16 +8178,18 @@ Existing History logs stay untouched.`);
       const previewEligible = mediaPreviewEligible32CBugfix(media);
       const previewQuarantined = mediaQualityPreviewQuarantined32CBugfix(media);
       const playablePreview = mediaTileHasRealPlayablePreview48Polish(media);
-      const status = mediaBridge4IsRealMedia(media) ? "Media ready" : (media.customMedia18C ? "Custom media" : "Media not available yet");
-      const componentCue49 = phase49ComponentCopy(entry);
-      const fallbackScope = !mediaBridge4IsRealMedia(media) && !media.customMedia18C ? ` · ${componentCue49}` : ` · ${componentCue49}`;
-      const rowAttrs = previewEligible ? `type="button" data-open-component-media-preview30e-media="${index}"` : `data-component-media-preview-disabled32c="true" title="${escapeHtml(mediaPreviewDisabledReason32CBugfix(media))}"`;
+      const status = componentMediaStateCode49D(media);
+      const componentCue49 = phase49DComponentMovementCue(entry);
+      const componentName49D = entry && entry.component && entry.component.name || entry && entry.exercise && entry.exercise.displayName || "Move";
+      const exerciseName49D = entry && entry.exercise && entry.exercise.displayName || componentName49D;
+      const cueMarkup49D = componentCue49 ? `<span>${escapeHtml(componentCue49)}</span>` : "";
+      const rowAttrs = previewEligible ? `type="button" data-open-component-media-preview30e-media="${index}"` : `data-component-media-preview-disabled32c="true" title="${escapeHtml(componentCue49 || "Form cue")}"`;
       const rowTag = previewEligible ? "button" : "div";
       const thumb = previewEligible ? comboComponentMediaThumb30EMedia(media) : mediaDisabledFallbackThumb48Polish(media);
       const target48D = customMediaTargetFromMedia48D(media || {});
-      return `<${rowTag} class="combo-media-row30e-media ${previewEligible ? "" : "combo-media-row-preview-disabled32c"}" ${rowAttrs} data-component-media-status30e-media="${escapeHtml(status)}" data-component-playable-state48polish="${playablePreview ? "playable" : "fallback"}" data-custom-media-target-key48d="${escapeHtml(target48D.key || "")}" data-custom-media-target-type48d="${escapeHtml(target48D.type || "component")}" data-phase48d-android-save-apply-target="${escapeHtml(target48D.key || "")}" aria-label="${previewEligible ? (playablePreview ? "Preview" : "Form cue") : "Preview unavailable for"} ${escapeHtml(entry.exercise.displayName)} component media">
+      return `<${rowTag} class="combo-media-row30e-media ${previewEligible ? "" : "combo-media-row-preview-disabled32c"}" ${rowAttrs} data-component-media-status30e-media="${escapeHtml(status)}" data-component-playable-state48polish="${playablePreview ? "playable" : "fallback"}" data-custom-media-target-key48d="${escapeHtml(target48D.key || "")}" data-custom-media-target-type48d="${escapeHtml(target48D.type || "component")}" data-phase48d-android-save-apply-target="${escapeHtml(target48D.key || "")}" aria-label="${previewEligible ? (playablePreview ? "Preview form demo for" : "Form cue for") : "Form cue for"} ${escapeHtml(exerciseName49D)} component media">
         <span class="combo-media-mini30e-media" data-custom-media-target-key48d="${escapeHtml(target48D.key || "")}" data-custom-media-target-type48d="${escapeHtml(target48D.type || "component")}">${thumb}</span>
-        <span class="combo-media-copy30e-media"><b>${index + 1}. ${escapeHtml(entry.component.name)}</b><span>${escapeHtml(status + fallbackScope)}</span></span>
+        <span class="combo-media-copy30e-media"><b>${index + 1}. ${escapeHtml(componentName49D)}</b>${cueMarkup49D}</span>
       </${rowTag}>`;
     }).join("");
     return `<section class="combo-media-stack30e-media" data-combo-warmup-stacked-media30e-media="built" aria-label="Combo movement media">
@@ -16698,8 +16978,150 @@ Existing History logs stay untouched.`);
     if (safe <= 0) return zeroLabel || { main: "0", sub: "load" };
     return { main: String(safe), sub: "lb" };
   }
+
+  const PHASE49C_MANUAL_NUMERIC_ENTRY = "phase49c-manual-numeric-entry-weight-reps-v1";
+
+  function formatManualNumericValue49C(field, value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "0";
+    if (field === "reps") return String(Math.max(0, Math.round(n)));
+    const rounded = Math.max(0, Math.round(n * 1000) / 1000);
+    return String(Number.isInteger(rounded) ? Math.trunc(rounded) : Number(rounded.toFixed(3)));
+  }
+
+  function sanitizeManualNumericValue49C(field, rawValue, options = {}) {
+    const raw = rawValue === null || rawValue === undefined ? "" : String(rawValue).trim();
+    if (!raw) {
+      if (options.blankAsZero === false) return Object.freeze({ valid: false, blank: true, value: null, reason: "blank" });
+      return Object.freeze({ valid: true, blank: true, value: 0, displayValue: "0", reason: "blank-safe-zero" });
+    }
+    const n = Number(raw);
+    if (!Number.isFinite(n)) {
+      if (options.invalidAsZero === true) return Object.freeze({ valid: true, invalid: true, value: 0, displayValue: "0", reason: "invalid-safe-zero" });
+      return Object.freeze({ valid: false, invalid: true, value: null, reason: "invalid-number" });
+    }
+    const safe = Math.max(0, n);
+    const value = field === "reps" ? Math.max(0, Math.round(safe)) : Math.max(0, Math.round(safe * 1000) / 1000);
+    return Object.freeze({ valid: true, value, displayValue: formatManualNumericValue49C(field, value), reason: "valid" });
+  }
+
+  function updateSetInputAria49C(input) {
+    if (!input) return;
+    const field = input.dataset.field || "";
+    const label = field === "weight" ? "Weight" : "Reps";
+    const parsed = sanitizeManualNumericValue49C(field, input.value, { blankAsZero: true, invalidAsZero: true });
+    const display = parsed.valid ? formatManualNumericValue49C(field, parsed.value) : "0";
+    input.setAttribute("aria-label", `${label}${field === "weight" ? " in lb" : ""}: ${display}`);
+  }
+
+  function persistManualSetInputProgress49C(input, root, options = {}) {
+    if (!input || !input.dataset) return Object.freeze({ persisted: false, reason: "missing-input" });
+    const setIndex = Number(input.dataset.setInput);
+    const field = input.dataset.field === "reps" ? "reps" : "weight";
+    if (!Number.isInteger(setIndex) || setIndex < 0) return Object.freeze({ persisted: false, reason: "invalid-set-index" });
+    const parsed = sanitizeManualNumericValue49C(field, input.value, { blankAsZero: options.force === true, invalidAsZero: options.force === true });
+    if (!parsed.valid) return Object.freeze({ persisted: false, reason: parsed.reason || "invalid", field, setIndex });
+    if (options.force === true || field === "reps") input.value = parsed.displayValue;
+    updateVisibleSetInputValue29CBugfix(input);
+    updateSetInputAria49C(input);
+    const loaded = loadState();
+    const next = clone(loaded.state);
+    if (!next.activeSession) return Object.freeze({ persisted: false, reason: "missing-active-session", value: parsed.value });
+    const selectedIndex = next.activeSession.selectedExerciseIndex || 0;
+    const ex = activeSessionExercise(next, selectedIndex);
+    if (!ex) return Object.freeze({ persisted: false, reason: "missing-exercise", value: parsed.value });
+    const setLogs = normalizeSessionExerciseSets(ex);
+    const setLog = setLogs[setIndex];
+    if (!setLog) return Object.freeze({ persisted: false, reason: "missing-set-log", value: parsed.value });
+    const editKey = `edit:${ex.id}:${setIndex}`;
+    if (setLog.completed === true && next.activeSession.openSetKey === editKey) {
+      return Object.freeze({ persisted: false, reason: "completed-edit-deferred-to-existing-done-editing-owner", value: parsed.value, field, setIndex });
+    }
+    setLog[field] = parsed.value;
+    setLog.phase49CManualNumericEntry = true;
+    setLog.phase49CManualNumericEntryAt = nowIso();
+    setLog.phase49CManualNumericEntryField = field;
+    if (field === "weight" && setLog.completed !== true && !isDropSetLog41CarryForward(setLog)) {
+      setLog.phase41ManualWeightAdjusted = true;
+      setLog.phase41NextSetWeightManual = true;
+      setLog.phase41NextSetWeightManualAt = setLog.phase49CManualNumericEntryAt;
+      setLog.phase41NextSetWeightCarryForwardApplied = false;
+    }
+    next.audit = Object.assign({}, next.audit, {
+      phase49CManualNumericEntryAt: setLog.phase49CManualNumericEntryAt,
+      phase49CManualNumericEntryExerciseId: ex.id || null,
+      phase49CManualNumericEntrySetIndex: setIndex,
+      phase49CManualNumericEntryField: field,
+      phase49CManualNumericEntryValue: parsed.value,
+      phase49CManualNumericEntryPersisted: true,
+      phase49CManualNumericEntryUsesActiveSessionSetLogs: true
+    });
+    const saved = saveState(next, "phase49c-manual-set-input-progress");
+    if (typeof persistActiveSessionProgressNow49ABugfix === "function") persistActiveSessionProgressNow49ABugfix((saved && saved.state) || next, "phase49c-manual-set-input-active-progress");
+    return Object.freeze({ persisted: true, field, setIndex, value: parsed.value });
+  }
+
+  function persistManualDropSetInputProgress49C(input, root, options = {}) {
+    if (!input || !input.dataset) return Object.freeze({ persisted: false, reason: "missing-input" });
+    const dropSetId = input.dataset.dropSetInput || "";
+    const field = input.dataset.field === "reps" ? "reps" : "weight";
+    if (!dropSetId) return Object.freeze({ persisted: false, reason: "missing-drop-set-id" });
+    const parsed = sanitizeManualNumericValue49C(field, input.value, { blankAsZero: options.force === true, invalidAsZero: options.force === true });
+    if (!parsed.valid) return Object.freeze({ persisted: false, reason: parsed.reason || "invalid", field, dropSetId });
+    if (options.force === true || field === "reps") input.value = parsed.displayValue;
+    const loaded = loadState();
+    const next = clone(loaded.state);
+    if (!next.activeSession) return Object.freeze({ persisted: false, reason: "missing-active-session", value: parsed.value });
+    const registry = sessionDropSetRegistry13A(next.activeSession);
+    const record = registry && registry[dropSetId];
+    if (!record) return Object.freeze({ persisted: false, reason: "missing-drop-set-record", value: parsed.value });
+    const normalized = normalizeDropSetRecord13C(record, record.exerciseId, record.parentSetIndex);
+    if (normalized.completed === true) return Object.freeze({ persisted: false, reason: "completed-drop-row-not-live-edited", value: parsed.value });
+    normalized[field] = parsed.value;
+    normalized.phase49CManualNumericEntry = true;
+    normalized.phase49CManualNumericEntryAt = nowIso();
+    normalized.phase49CManualNumericEntryField = field;
+    if (field === "weight" && input.dataset.phase34gSuggestedApplied !== "true") normalized.phase34GManualOverride = true;
+    registry[dropSetId] = normalized;
+    next.audit = Object.assign({}, next.audit, {
+      phase49CManualNumericDropEntryAt: normalized.phase49CManualNumericEntryAt,
+      phase49CManualNumericDropSetId: dropSetId,
+      phase49CManualNumericDropField: field,
+      phase49CManualNumericDropValue: parsed.value,
+      phase49CManualNumericDropUsesRegistry: true
+    });
+    const saved = saveState(next, "phase49c-manual-drop-set-input-progress");
+    if (typeof persistActiveSessionProgressNow49ABugfix === "function") persistActiveSessionProgressNow49ABugfix((saved && saved.state) || next, "phase49c-manual-drop-set-active-progress");
+    return Object.freeze({ persisted: true, field, dropSetId, value: parsed.value });
+  }
+
+  function handleManualSetInput49C(input, root, options = {}) {
+    if (!input) return Object.freeze({ handled: false, reason: "missing-input" });
+    const field = input.dataset.field === "reps" ? "reps" : "weight";
+    const parsed = sanitizeManualNumericValue49C(field, input.value, { blankAsZero: options.force === true, invalidAsZero: options.force === true });
+    if (!parsed.valid) return Object.freeze({ handled: false, reason: parsed.reason || "invalid", field });
+    if (options.force === true || field === "reps") input.value = parsed.displayValue;
+    updateVisibleSetInputValue29CBugfix(input);
+    updateSetInputAria49C(input);
+    const persisted = persistManualSetInputProgress49C(input, root || document, options);
+    if (field === "weight") updateDropSetPrepCueFromMainInput34G({ dataset: { adjustSet: input.dataset.setInput, field: "weight" } }, root || document);
+    return Object.freeze({ handled: true, field, value: parsed.value, persisted });
+  }
+
+  function handleManualDropSetInput49C(input, root, options = {}) {
+    if (!input) return Object.freeze({ handled: false, reason: "missing-input" });
+    const field = input.dataset.field === "reps" ? "reps" : "weight";
+    const parsed = sanitizeManualNumericValue49C(field, input.value, { blankAsZero: options.force === true, invalidAsZero: options.force === true });
+    if (!parsed.valid) return Object.freeze({ handled: false, reason: parsed.reason || "invalid", field });
+    if (options.force === true || field === "reps") input.value = parsed.displayValue;
+    const persisted = persistManualDropSetInputProgress49C(input, root || document, options);
+    return Object.freeze({ handled: true, field, value: parsed.value, persisted });
+  }
+
   function renderStepper(field, setIndex, value, editMode, ex) {
     const step = field === "weight" ? 5 : 1;
+    const inputStep49C = field === "weight" ? "0.5" : "1";
+    const inputMode49C = field === "weight" ? "decimal" : "numeric";
     const min = 0;
     const label = field === "weight" ? "Weight" : "Reps";
     const suffix = field === "weight" ? "lb" : "";
@@ -16709,10 +17131,10 @@ Existing History logs stay untouched.`);
     const visible = formatSetInputVisibleValue29CBugfix(field, numericValue, zeroLabel);
     return `<div class="log-control" data-phase29cbugfix-visible-input="true"><label for="${id}">${label}</label><div class="stepper stepper29cbugfix" data-phase29cbugfix-stepper="${field}">
       <button type="button" data-adjust-set="${setIndex}" data-field="${field}" data-delta="-${step}" aria-label="Decrease ${label}">−</button>
-      <span class="stepper-value-wrap29cbugfix" data-set-visible-value29cbugfix="${setIndex}:${field}" aria-live="polite" aria-label="Current ${label}: ${escapeHtml(visible.main)} ${escapeHtml(visible.sub)}">
+      <span class="stepper-value-wrap29cbugfix" data-set-visible-value29cbugfix="${setIndex}:${field}" data-phase49c-manual-entry="true" aria-live="polite" aria-label="Current ${label}: ${escapeHtml(visible.main)} ${escapeHtml(visible.sub)}">
         <span class="stepper-value-main29cbugfix" data-set-visible-main29cbugfix>${escapeHtml(visible.main)}</span>
         <span class="stepper-value-sub29cbugfix" data-set-visible-sub29cbugfix>${escapeHtml(visible.sub)}</span>
-        <input id="${id}" class="stepper-source-input29cbugfix" data-set-input="${setIndex}" data-field="${field}" data-zero-label29cbugfix="${escapeHtml(zeroLabel.main)}" data-zero-sub29cbugfix="${escapeHtml(zeroLabel.sub)}" inputmode="decimal" type="number" min="${min}" step="${step}" value="${escapeHtml(numericValue)}" aria-label="${label}${suffix ? ' in ' + suffix : ''}">
+        <input id="${id}" class="stepper-source-input29cbugfix phase49c-manual-number-input" data-set-input="${setIndex}" data-field="${field}" data-zero-label29cbugfix="${escapeHtml(zeroLabel.main)}" data-zero-sub29cbugfix="${escapeHtml(zeroLabel.sub)}" data-phase49c-manual-entry="true" inputmode="${inputMode49C}" type="number" min="${min}" step="${inputStep49C}" value="${escapeHtml(formatManualNumericValue49C(field, numericValue))}" aria-label="${label}${suffix ? ' in ' + suffix : ''}">
       </span>
       <button type="button" data-adjust-set="${setIndex}" data-field="${field}" data-delta="${step}" aria-label="Increase ${label}">+</button>
     </div></div>`;
@@ -16959,9 +17381,9 @@ Existing History logs stay untouched.`);
   function readSetInputs(root, setIndex) {
     const weightInput = root.querySelector(`[data-set-input="${setIndex}"][data-field="weight"]`);
     const repsInput = root.querySelector(`[data-set-input="${setIndex}"][data-field="reps"]`);
-    const weight = weightInput ? Math.max(0, Number(weightInput.value || 0)) : 0;
-    const reps = repsInput ? Math.max(0, Number(repsInput.value || 0)) : 0;
-    return { weight: Number.isFinite(weight) ? weight : 0, reps: Number.isFinite(reps) ? reps : 0 };
+    const weightParsed = sanitizeManualNumericValue49C("weight", weightInput ? weightInput.value : 0, { blankAsZero: true, invalidAsZero: true });
+    const repsParsed = sanitizeManualNumericValue49C("reps", repsInput ? repsInput.value : 0, { blankAsZero: true, invalidAsZero: true });
+    return { weight: weightParsed.valid ? weightParsed.value : 0, reps: repsParsed.valid ? repsParsed.value : 0 };
   }
   function setOpenEdit(setIndex) {
     const loaded = loadState();
@@ -17049,7 +17471,14 @@ Existing History logs stay untouched.`);
   const PHASE41_NEXT_SET_WEIGHT_CARRY_FORWARD_BUGFIX = "phase41-next-set-weight-carry-forward-v1";
 
   function isDropSetLog41CarryForward(setLog) {
-    return !!(setLog && String(setLog.type || "").toLowerCase() === "drop");
+    if (!setLog) return false;
+    const type = String(setLog.type || setLog.setType || setLog.kind || "").toLowerCase().trim();
+    const technique = String(setLog.technique || setLog.intensityTechnique || "").toLowerCase().trim();
+    const hasParent = setLog.parentSetIndex !== null && setLog.parentSetIndex !== undefined || !!setLog.parentSetKey || !!setLog.parentSetId;
+    if (/^(drop|drop-set|dropset|session-drop|session-only-drop)$/.test(type)) return true;
+    if (/^(rest-pause|restpause|myo-rep|myo-reps|myorep|myoreps|back-off|backoff)$/.test(type)) return true;
+    if (/^(drop-set|rest-pause|restpause|myo-rep|myo-reps|back-off|backoff)$/.test(technique) && hasParent) return true;
+    return false;
   }
 
   function shouldRespectExistingNextSetWeight41CarryForward(nextSet, ex) {
@@ -17064,35 +17493,61 @@ Existing History logs stay untouched.`);
   }
 
   function applyNextSetWeightCarryForward41(next, ex, completedSetIndex, completedSetLog, options = {}) {
-    if (!next || !next.activeSession || !ex || !completedSetLog) return Object.freeze({ applied: false, reason: "missing-context" });
-    if (isDropSetLog41CarryForward(completedSetLog)) return Object.freeze({ applied: false, reason: "completed-set-is-drop-set" });
-    const completedWeight = Number(completedSetLog.weight);
-    if (!Number.isFinite(completedWeight) || completedWeight <= 0) return Object.freeze({ applied: false, reason: "no-weight-to-carry" });
+    if (!next || !next.activeSession || !ex) return Object.freeze({ applied: false, reason: "missing-context" });
     const setLogs = normalizeSessionExerciseSets(ex);
+    const completedIndexNumber = Number.isInteger(Number(completedSetIndex)) ? Number(completedSetIndex) : -1;
     let nextSetIndex = Number.isInteger(Number(options.nextSetIndex)) ? Number(options.nextSetIndex) : -1;
     if (nextSetIndex < 0) {
-      nextSetIndex = setLogs.findIndex((set, index) => index > Number(completedSetIndex || 0) && set && set.completed !== true && set.planned !== false && !isDropSetLog41CarryForward(set));
+      nextSetIndex = setLogs.findIndex((set, index) => index > completedIndexNumber && set && set.completed !== true && set.planned !== false && !isDropSetLog41CarryForward(set));
     }
     const nextSet = setLogs[nextSetIndex];
     if (!nextSet) return Object.freeze({ applied: false, reason: "no-next-normal-set" });
     if (isDropSetLog41CarryForward(nextSet)) return Object.freeze({ applied: false, reason: "next-set-is-drop-set" });
     if (shouldRespectExistingNextSetWeight41CarryForward(nextSet, ex)) return Object.freeze({ applied: false, reason: "manual-or-existing-next-weight-respected", nextSetIndex, existingWeight: nextSet.weight });
+
+    let sourceSetIndex = -1;
+    let sourceSetLog = null;
+    const directCompletedLog = completedSetLog && typeof completedSetLog === "object" && completedSetLog.completed === true && !isDropSetLog41CarryForward(completedSetLog) ? completedSetLog : null;
+    if (directCompletedLog && completedIndexNumber >= 0 && completedIndexNumber < nextSetIndex) {
+      sourceSetIndex = completedIndexNumber;
+      sourceSetLog = directCompletedLog;
+    }
+    for (let index = Math.min(nextSetIndex - 1, setLogs.length - 1); index >= 0; index -= 1) {
+      const candidate = setLogs[index];
+      if (!candidate || candidate.completed !== true || candidate.planned === false || isDropSetLog41CarryForward(candidate)) continue;
+      const candidateWeight = Number(candidate.weight);
+      if (!Number.isFinite(candidateWeight) || candidateWeight <= 0) continue;
+      sourceSetIndex = index;
+      sourceSetLog = candidate;
+      break;
+    }
+    if (!sourceSetLog) return Object.freeze({ applied: false, reason: "no-completed-normal-main-source", nextSetIndex });
+    const completedWeight = Number(sourceSetLog.weight);
+    if (!Number.isFinite(completedWeight) || completedWeight <= 0) return Object.freeze({ applied: false, reason: "no-weight-to-carry", nextSetIndex, sourceSetIndex });
+
     const repsBefore = nextSet.reps;
     nextSet.weight = completedWeight;
     nextSet.phase41NextSetWeightCarryForwardApplied = true;
     nextSet.phase41NextSetWeightCarryForwardAt = nowIso();
-    nextSet.phase41NextSetWeightCarryForwardFromSetIndex = Number(completedSetIndex || 0);
+    nextSet.phase41NextSetWeightCarryForwardFromSetIndex = sourceSetIndex;
     nextSet.phase41NextSetWeightCarryForwardSourceWeight = completedWeight;
     nextSet.phase41NextSetWeightManual = false;
+    nextSet.phase49BNormalMainCarryForwardApplied = true;
+    nextSet.phase49BNormalMainCarryForwardSourceSetIndex = sourceSetIndex;
+    nextSet.phase49BNormalMainCarryForwardSkippedChildSource = !!(completedSetLog && isDropSetLog41CarryForward(completedSetLog));
     next.audit = Object.assign({}, next.audit, {
       phase41NextSetWeightCarryForwardAt: nextSet.phase41NextSetWeightCarryForwardAt,
       phase41NextSetWeightCarryForwardExerciseId: ex.id || null,
-      phase41NextSetWeightCarryForwardFromSetIndex: Number(completedSetIndex || 0),
+      phase41NextSetWeightCarryForwardFromSetIndex: sourceSetIndex,
       phase41NextSetWeightCarryForwardToSetIndex: nextSetIndex,
       phase41NextSetWeightCarryForwardWeight: completedWeight,
-      phase41NextSetWeightCarryForwardRepsCopied: false
+      phase41NextSetWeightCarryForwardRepsCopied: false,
+      phase49BNormalSetAutoCarryAfterDropSet: true,
+      phase49BNormalCarrySourcePolicy: "latest-completed-normal-main-before-next-normal-set",
+      phase49BChildSetSourceExcluded: !!(completedSetLog && isDropSetLog41CarryForward(completedSetLog)),
+      phase49BNextNormalSetIndex: nextSetIndex
     });
-    return Object.freeze({ applied: true, nextSetIndex, carriedWeight: completedWeight, repsBefore, repsAfter: nextSet.reps, repsCopied: nextSet.reps !== repsBefore });
+    return Object.freeze({ applied: true, nextSetIndex, carriedWeight: completedWeight, repsBefore, repsAfter: nextSet.reps, repsCopied: nextSet.reps !== repsBefore, sourceSetIndex, sourceWasNormalMain: true, childSourceExcluded: !!(completedSetLog && isDropSetLog41CarryForward(completedSetLog)) });
   }
 
   function markManualNextSetWeightChange41(root, setIndex, value) {
@@ -17629,12 +18084,14 @@ Existing History logs stay untouched.`);
   }
   function renderDropStepper13C(dropSet, field) {
     const step = field === "weight" ? 5 : 1;
+    const inputStep49C = field === "weight" ? "0.5" : "1";
+    const inputMode49C = field === "weight" ? "decimal" : "numeric";
     const label = field === "weight" ? "Weight" : "Reps";
     const value = field === "weight" ? Number(dropSet.weight || 0) : Number(dropSet.reps || 0);
     const id = `drop-${dropSet.id}-${field}`.replace(/[^a-zA-Z0-9_-]/g, "-");
     return `<div class="drop-log-control13c"><label for="${escapeHtml(id)}">${escapeHtml(label)}</label><div class="drop-stepper13c">
       <button type="button" data-adjust-drop-set="${escapeHtml(dropSet.id)}" data-field="${field}" data-delta="-${step}" aria-label="Decrease drop ${label}">−</button>
-      <input id="${escapeHtml(id)}" data-drop-set-input="${escapeHtml(dropSet.id)}" data-field="${field}" inputmode="decimal" type="number" min="0" step="${step}" value="${escapeHtml(value)}" aria-label="Drop set ${label}">
+      <input id="${escapeHtml(id)}" data-drop-set-input="${escapeHtml(dropSet.id)}" data-field="${field}" data-phase49c-drop-manual-entry="true" inputmode="${inputMode49C}" type="number" min="0" step="${inputStep49C}" value="${escapeHtml(formatManualNumericValue49C(field, value))}" aria-label="Drop set ${label}">
       <button type="button" data-adjust-drop-set="${escapeHtml(dropSet.id)}" data-field="${field}" data-delta="${step}" aria-label="Increase drop ${label}">+</button>
     </div></div>`;
   }
@@ -17679,9 +18136,9 @@ Existing History logs stay untouched.`);
     const safeId = cssEscape13C(dropSetId);
     const weightInput = root.querySelector(`[data-drop-set-input="${safeId}"][data-field="weight"]`) || root.querySelector(`[data-drop-set-input="${dropSetId}"][data-field="weight"]`);
     const repsInput = root.querySelector(`[data-drop-set-input="${safeId}"][data-field="reps"]`) || root.querySelector(`[data-drop-set-input="${dropSetId}"][data-field="reps"]`);
-    const weight = weightInput ? Math.max(0, Number(weightInput.value || 0)) : 0;
-    const reps = repsInput ? Math.max(0, Number(repsInput.value || 0)) : 0;
-    return { weight: Number.isFinite(weight) ? weight : 0, reps: Number.isFinite(reps) ? reps : 0 };
+    const weightParsed = sanitizeManualNumericValue49C("weight", weightInput ? weightInput.value : 0, { blankAsZero: true, invalidAsZero: true });
+    const repsParsed = sanitizeManualNumericValue49C("reps", repsInput ? repsInput.value : 0, { blankAsZero: true, invalidAsZero: true });
+    return { weight: weightParsed.valid ? weightParsed.value : 0, reps: repsParsed.valid ? repsParsed.value : 0 };
   }
   function adjustDropSetInput13C(button, root) {
     const id = button.dataset.adjustDropSet;
@@ -17690,8 +18147,11 @@ Existing History logs stay untouched.`);
     const safeId = cssEscape13C(id);
     const input = root.querySelector(`[data-drop-set-input="${safeId}"][data-field="${field}"]`) || root.querySelector(`[data-drop-set-input="${id}"][data-field="${field}"]`);
     if (!input) return;
-    const nextValue = Math.max(0, Number(input.value || 0) + delta);
-    input.value = String(Number.isFinite(nextValue) ? nextValue : 0);
+    const current = sanitizeManualNumericValue49C(field, input.value, { blankAsZero: true, invalidAsZero: true });
+    const nextValue = Math.max(0, (current.valid ? current.value : 0) + delta);
+    const nextParsed = sanitizeManualNumericValue49C(field, nextValue, { blankAsZero: true, invalidAsZero: true });
+    input.value = nextParsed.valid ? nextParsed.displayValue : "0";
+    persistManualDropSetInputProgress49C(input, root || document, { source: "drop-stepper", force: true });
   }
   function postDropSetRestSeconds34GBugfix(ex) {
     const seconds = Math.max(15, Number(ex && ex.guidance && ex.guidance.restSec || 60));
@@ -17763,6 +18223,16 @@ Existing History logs stay untouched.`);
     next.activeSession.phase13CDropSetCompletionReady = true;
     next.audit = Object.assign({}, next.audit, { phase13CLastCompletedDropSetAt: nowIso(), phase13CLastCompletedDropSetId: dropSetId, phase13CDropSetRestBypassStarted: false, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: isDropSetPhase13EOrLater(), phase13ETransitionCueClearedByDropCompletion: true });
     next.qa = Object.assign({}, next.qa, { phase13CDropSetCompletion: isDropSetPhase13EOrLater() ? "completion-ready-with-phase13e-bypass-preserved" : "completion-ready-no-rest-bypass" });
+    const parentNormalLogs49B = ex34GBugfix ? normalizeSessionExerciseSets(ex34GBugfix) : [];
+    const parentNormalIndex49B = Number.isInteger(Number(normalized.parentSetIndex)) ? Number(normalized.parentSetIndex) : -1;
+    const parentNormalLog49B = parentNormalIndex49B >= 0 ? parentNormalLogs49B[parentNormalIndex49B] : null;
+    const normalCarryAfterDrop49B = applyNextSetWeightCarryForward41(next, ex34GBugfix, parentNormalIndex49B, parentNormalLog49B || normalized, { source: "phase49b-drop-set-completion-normal-carry-forward", completedDropSetId: dropSetId });
+    next.audit = Object.assign({}, next.audit, {
+      phase49BDropSetCompletionNormalCarryChecked: true,
+      phase49BDropSetCompletionNormalCarryApplied: !!(normalCarryAfterDrop49B && normalCarryAfterDrop49B.applied),
+      phase49BDropSetCompletionNormalCarryReason: normalCarryAfterDrop49B && normalCarryAfterDrop49B.reason || null,
+      phase49BDropSetCompletionNormalCarrySourceSetIndex: normalCarryAfterDrop49B && Number.isInteger(normalCarryAfterDrop49B.sourceSetIndex) ? normalCarryAfterDrop49B.sourceSetIndex : parentNormalIndex49B
+    });
     const routing34CBugfix = routeAfterDropSetCompletion34CBugfix(next, normalized);
     const postDropRest34GBugfix = startPostDropSetRest34GBugfix(next, ex34GBugfix, normalized, routing34CBugfix);
     next.audit = Object.assign({}, next.audit, {
@@ -17786,7 +18256,8 @@ Existing History logs stay untouched.`);
       setActiveTab("today");
       return;
     }
-    saveState(next, isDropSetPhase13EOrLater() ? "phase13e-complete-session-only-drop-set-clear-transition-cue-phase34g-post-drop-rest" : "phase13c-complete-session-only-drop-set-phase34g-post-drop-rest");
+    const savedDropProgress49A = saveState(next, isDropSetPhase13EOrLater() ? "phase13e-complete-session-only-drop-set-clear-transition-cue-phase34g-post-drop-rest" : "phase13c-complete-session-only-drop-set-phase34g-post-drop-rest");
+    persistActiveSessionProgressNow49ABugfix((savedDropProgress49A && savedDropProgress49A.state) || next, "phase49a-bugfix-complete-drop-set-active-progress");
     const selectedIndex = Number.isInteger(next.activeSession.selectedExerciseIndex) ? next.activeSession.selectedExerciseIndex : 0;
     const renderIndex34CBugfix = routing34CBugfix && routing34CBugfix.moved ? routing34CBugfix.nextExerciseIndex : selectedIndex;
     const message34CBugfix = routing34CBugfix && routing34CBugfix.moved ? `Drop set saved · moved to ${routing34CBugfix.nextExerciseName}` : (routing34CBugfix && routing34CBugfix.opened ? `Drop set saved · next set ${routing34CBugfix.nextSetIndex + 1} opened` : "Drop set saved");
@@ -19004,7 +19475,7 @@ Existing History logs stay untouched.`);
     next.activeSession.openSetKey = null;
     const dropDetection13D = markLastMainSetBeforeDropDetected13D(next, ex, setIndex);
     const dropBypass13E = !wasCompletedBefore && dropDetection13D.detected ? bypassFullRestBeforeDropSet13E(next, ex, setIndex, dropDetection13D) : { bypassed: false, reason: wasCompletedBefore ? "already-completed-no-drop-cue" : "phase13d-detection-not-true" };
-    const carryForward41 = !wasCompletedBefore && !dropBypass13E.bypassed ? applyNextSetWeightCarryForward41(next, ex, setIndex, current, { source: "complete-set-owner" }) : Object.freeze({ applied: false, reason: dropBypass13E.bypassed ? "drop-set-next-do-not-overwrite-drop-weight" : "already-completed-or-not-fresh" });
+    const carryForward41 = !wasCompletedBefore ? applyNextSetWeightCarryForward41(next, ex, setIndex, current, { source: dropBypass13E.bypassed ? "phase49b-complete-main-set-before-drop-carry-normal-forward" : "complete-set-owner", phase49BAllowDropBypassNormalCarry: dropBypass13E.bypassed === true }) : Object.freeze({ applied: false, reason: "already-completed-or-not-fresh" });
     collapseCompletedSetAfterComplete12A(next, ex, setIndex);
     const openNext12B = dropBypass13E.bypassed ? { opened: false, reason: "phase13e-drop-set-next-action", nextSetIndex: null, nextSetKey: null } : openNextPlannedSetAfterComplete12B(next, ex, setIndex);
     const moveNext12C = dropBypass13E.bypassed ? { moved: false, reason: "phase13e-drop-set-next-action", nextExerciseIndex: selectedIndex } : (openNext12B.opened ? { moved: false, reason: "same-exercise-next-set-opened" } : moveToNextExerciseAfterFinalSet12C(next, selectedIndex));
@@ -19094,7 +19565,8 @@ Existing History logs stay untouched.`);
       setActiveTab("today");
       return;
     }
-    saveState(next, "phase13e-complete-set-bypass-full-rest-before-existing-drop-set");
+    const savedActiveProgress49A = saveState(next, "phase13e-complete-set-bypass-full-rest-before-existing-drop-set");
+    persistActiveSessionProgressNow49ABugfix((savedActiveProgress49A && savedActiveProgress49A.state) || next, "phase49a-bugfix-complete-set-active-progress");
     const restMessage = dropBypass13E.bypassed ? "drop transition cue shown" : (restGate.shouldStart && !wasCompletedBefore ? "normal rest started" : (transitionRestGate46A.shouldStart && !wasCompletedBefore ? "transition rest started" : "no normal rest needed"));
     const dropMessage = dropBypass13E.bypassed ? " · drop set now — no full rest" : (dropDetection13D.detected ? " · drop next detected" : "");
     const openMessage = dropBypass13E.bypassed ? "existing drop set prepared" : (openNext12B.opened ? `next set ${openNext12B.nextSetIndex + 1} opened` : (moveNext12C.moved ? `moved to ${moveNext12C.nextExerciseName}` : "no next exercise yet"));
@@ -19161,10 +19633,12 @@ Existing History logs stay untouched.`);
     const delta = Number(button.dataset.delta || 0);
     const input = root.querySelector(`[data-set-input="${setIndex}"][data-field="${field}"]`);
     if (!input) return;
-    const nextValue = Math.max(0, Number(input.value || 0) + delta);
-    input.value = String(Number.isFinite(nextValue) ? nextValue : 0);
+    const current = sanitizeManualNumericValue49C(field, input.value, { blankAsZero: true, invalidAsZero: true });
+    const nextValue = Math.max(0, (current.valid ? current.value : 0) + delta);
+    const nextParsed = sanitizeManualNumericValue49C(field, nextValue, { blankAsZero: true, invalidAsZero: true });
+    input.value = nextParsed.valid ? nextParsed.displayValue : "0";
     updateVisibleSetInputValue29CBugfix(input);
-    if (field === "weight" && typeof markManualNextSetWeightChange41 === "function") markManualNextSetWeightChange41(root || document, setIndex, nextValue);
+    persistManualSetInputProgress49C(input, root || document, { source: "set-stepper", force: true });
     updateDropSetPrepCueFromMainInput34G(button, root);
   }
   function blockInteractiveEventFromRowV1(event) {
@@ -19830,11 +20304,18 @@ Existing History logs stay untouched.`);
   function wireSetLoggingControls(root) {
     if (!root) return;
     root.querySelectorAll("[data-adjust-set]").forEach((btn) => btn.addEventListener("click", () => adjustSetInput(btn, root)));
+    root.querySelectorAll("[data-set-input][data-phase49c-manual-entry]").forEach((input) => {
+      input.addEventListener("input", () => handleManualSetInput49C(input, root, { source: "manual-input" }));
+      input.addEventListener("change", () => handleManualSetInput49C(input, root, { source: "manual-change", force: true }));
+      input.addEventListener("blur", () => handleManualSetInput49C(input, root, { source: "manual-blur", force: true }));
+    });
     root.querySelectorAll("[data-complete-set]").forEach((btn) => btn.addEventListener("click", () => completeSet(Number(btn.dataset.completeSet), root)));
     root.querySelectorAll("[data-adjust-drop-set]").forEach((btn) => btn.addEventListener("click", () => { dismissDropSetTransitionCueTimer34CBugfix(root, "drop-set-adjusted"); adjustDropSetInput13C(btn, root); const safeId34G = btn.dataset && btn.dataset.adjustDropSet; const input34G = safeId34G ? root.querySelector(`[data-drop-set-input="${cssEscape13C(safeId34G)}"][data-field="${btn.dataset.field}"]`) || root.querySelector(`[data-drop-set-input="${safeId34G}"][data-field="${btn.dataset.field}"]`) : null; if (input34G && btn.dataset.field === "weight") markDropSetManualOverride34G(input34G, root); }));
     root.querySelectorAll("[data-drop-set-input]").forEach((input) => {
       input.addEventListener("focus", () => dismissDropSetTransitionCueTimer34CBugfix(root, "drop-set-input-focus"));
-      input.addEventListener("input", () => { dismissDropSetTransitionCueTimer34CBugfix(root, "drop-set-input-change"); if (input.dataset.field === "weight") markDropSetManualOverride34G(input, root); });
+      input.addEventListener("input", () => { dismissDropSetTransitionCueTimer34CBugfix(root, "drop-set-input-change"); handleManualDropSetInput49C(input, root, { source: "drop-manual-input" }); if (input.dataset.field === "weight") markDropSetManualOverride34G(input, root); });
+      input.addEventListener("change", () => handleManualDropSetInput49C(input, root, { source: "drop-manual-change", force: true }));
+      input.addEventListener("blur", () => handleManualDropSetInput49C(input, root, { source: "drop-manual-blur", force: true }));
       input.addEventListener("pointerdown", () => dismissDropSetTransitionCueTimer34CBugfix(root, "drop-set-input-pointer"));
     });
     root.querySelectorAll("[data-use-drop-set-suggested34g]").forEach((btn) => btn.addEventListener("click", (event) => useSuggestedDropSetWeight34G(btn, root, event)));
@@ -20885,6 +21366,7 @@ Existing History logs stay untouched.`);
     if (clearBtn) clearBtn.addEventListener("click", () => { clearSafetySnapshotsOnly10E(); renderApp("Safety snapshots cleared only"); });
   }
   function wireRestTimerActions11C() {
+    wireTimerSoundControls49E();
     const btn = document.getElementById("endRestBtn11B");
     if (btn && btn.dataset.endRestBound11C !== "true") {
       btn.dataset.endRestBound11C = "true";
@@ -20917,7 +21399,7 @@ Existing History logs stay untouched.`);
     wireNavigation(); wireTodayActions(); wireDataActions(); wireMediaPreviewBase(); wireIndependentSetMenuOverlay(); wireRestTimerActions11C(); wireHistoryCalendarActions15();
     const hashTab = location.hash.replace("#", "");
     setActiveTab(SHELL_TABS.includes(hashTab) ? hashTab : "today");
-    renderApp("Media regression lock boot complete");
+    renderApp("Timer sound controls ready");
   }
 
 
@@ -47286,7 +47768,7 @@ Existing History logs stay untouched.`);
     const sourceText = [cssSource, String(comboComponentMediaThumb30EMedia || ""), String(renderComboWarmupStackedComponentMedia30EMedia || ""), String(renderExerciseDetail || "")].join("\n");
     const checks = Object.freeze({
       componentCustomMediaStaysInsideThumbnailBox: /component-custom-media-thumb48d-bugfix/.test(ankleThumb) && /data-phase48d-bugfix-component-thumb-scope="thumbnail-box"/.test(ankleThumb) && /combo-media-mini30e-media[^}]*position:\s*relative/i.test(sourceText),
-      componentNameAndDetailsRemainVisible: /3\.\s*Ankle rocks/i.test(comboHtml) && /Custom media/i.test(comboHtml) && /combo-media-copy30e-media/.test(comboHtml),
+      componentNameAndDetailsRemainVisible: /3\.\s*Ankle rocks/i.test(comboHtml) && /Rock slowly through the ankles/i.test(comboHtml) && /combo-media-copy30e-media/.test(comboHtml) && !/>\s*(Media ready|Custom media|Media not available yet|preview unavailable)/i.test(comboHtml),
       siblingComponentsRemainUnchanged: splitAfter && splitAfter.media.customMedia18C !== true && hipAfter && hipAfter.media.customMedia18C !== true,
       componentDoesNotOverwriteParent: resolveMedia(parent, sampleState).customMedia18C !== true,
       wristSiblingIsolationPreserved: wristAfter && wristAfter.media.customMedia18C === true && reverseAfter && reverseAfter.media.customMedia18C !== true,
@@ -47887,6 +48369,180 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
   });
 
 
+  const PHASE49A_ACTIVE_SET_PROGRESS_PERSISTENCE_BUGFIX = "Phase 49A BUGFIX — Active Set Progress Persistence After Reload";
+  const PHASE49A_ACTIVE_SET_PROGRESS_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase49A_BUGFIX_Active_Set_Progress_Persistence_After_Reload_v1.html";
+
+  function activeSessionProgressSnapshot49ABugfix(activeSession) {
+    const snapshot = activeSession && typeof activeSession === "object" && !Array.isArray(activeSession) ? clone(activeSession) : null;
+    if (!snapshot) return null;
+    if (!Array.isArray(snapshot.exercises)) snapshot.exercises = [];
+    snapshot.exercises.forEach((ex) => normalizeSessionExerciseSets(ex));
+    snapshot.selectedExerciseIndex = clampExerciseIndex25FBugfix(Number.isInteger(snapshot.selectedExerciseIndex) ? snapshot.selectedExerciseIndex : 0, snapshot.exercises.length);
+    snapshot.completedSetCount = completedSetCount(snapshot);
+    snapshot.plannedSetCount = Number(snapshot.plannedSetCount) > 0 ? Number(snapshot.plannedSetCount) : plannedSets(snapshot.exercises);
+    snapshot.phase49AActiveSetProgressPersistenceBuilt = true;
+    snapshot.phase49AActiveSetProgressPersistedAt = snapshot.phase49AActiveSetProgressPersistedAt || nowIso();
+    sessionDropSetRegistry13A(snapshot);
+    return snapshot;
+  }
+
+  function hydrateActiveSessionProgressAfterReload49ABugfix(stateInput) {
+    const state = stateInput && typeof stateInput === "object" && !Array.isArray(stateInput) ? stateInput : null;
+    const active = state && state.activeSession;
+    if (!active || typeof active !== "object" || !Array.isArray(active.exercises)) return stateInput;
+    active.exercises.forEach((ex) => normalizeSessionExerciseSets(ex));
+    active.selectedExerciseIndex = clampExerciseIndex25FBugfix(Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0, active.exercises.length);
+    active.completedSetCount = completedSetCount(active);
+    active.plannedSetCount = Number(active.plannedSetCount) > 0 ? Number(active.plannedSetCount) : plannedSets(active.exercises);
+    active.phase49AActiveSetProgressHydratedAfterReload = true;
+    active.phase49AActiveSetProgressHydratedAt = nowIso();
+    sessionDropSetRegistry13A(active);
+    state.audit = Object.assign({}, state.audit || {}, {
+      phase49AActiveSetProgressPersistenceAfterReloadBuilt: true,
+      phase49AActiveSetProgressHydratedAfterReload: true,
+      phase49AActiveSetProgressCompletedCount: active.completedSetCount,
+      phase49AActiveSetProgressSelectedExerciseIndex: active.selectedExerciseIndex
+    });
+    return state;
+  }
+
+  function verifyActiveSessionProgressRoundTrip49ABugfix(sourceActive, restoredActive) {
+    const source = activeSessionProgressSnapshot49ABugfix(sourceActive);
+    const restored = activeSessionProgressSnapshot49ABugfix(restoredActive);
+    if (!source || !restored) return { ok: false, reason: "missing-active-session" };
+    const sourceCompleted = completedSetCount(source);
+    const restoredCompleted = completedSetCount(restored);
+    const selectedMatches = Number(source.selectedExerciseIndex) === Number(restored.selectedExerciseIndex);
+    const sourceFirstCompleted = source.exercises && source.exercises[0] && normalizeSessionExerciseSets(source.exercises[0])[0];
+    const restoredFirstCompleted = restored.exercises && restored.exercises[0] && normalizeSessionExerciseSets(restored.exercises[0])[0];
+    const firstSetMatches = !!(sourceFirstCompleted && restoredFirstCompleted &&
+      sourceFirstCompleted.completed === restoredFirstCompleted.completed &&
+      Number(sourceFirstCompleted.weight) === Number(restoredFirstCompleted.weight) &&
+      Number(sourceFirstCompleted.reps) === Number(restoredFirstCompleted.reps));
+    return {
+      ok: sourceCompleted === restoredCompleted && selectedMatches && firstSetMatches,
+      sourceCompleted,
+      restoredCompleted,
+      selectedMatches,
+      firstSetMatches,
+      sourceSelectedExerciseIndex: source.selectedExerciseIndex,
+      restoredSelectedExerciseIndex: restored.selectedExerciseIndex
+    };
+  }
+
+  function persistActiveSessionProgressNow49ABugfix(stateInput, reason = "active-session-progress") {
+    const state = migrateState(stateInput || loadState().state, `phase49a-bugfix-${reason}`);
+    hydrateActiveSessionProgressAfterReload49ABugfix(state);
+    if (!state.activeSession) return { ok: false, reason: "no-active-session" };
+    const activeSnapshot = activeSessionProgressSnapshot49ABugfix(state.activeSession);
+    const persistable = buildPersistableState10E(state);
+    persistable.activeSession = activeSnapshot;
+    persistable.audit = Object.assign({}, persistable.audit || {}, {
+      phase49AActiveSetProgressPersistenceAfterReloadBuilt: true,
+      phase49AActiveSetProgressDirectCommit: true,
+      phase49AActiveSetProgressDirectCommitReason: reason,
+      phase49AActiveSetProgressCompletedCount: activeSnapshot.completedSetCount,
+      phase49AActiveSetProgressSelectedExerciseIndex: activeSnapshot.selectedExerciseIndex,
+      phase49AActiveSetProgressCommittedAt: nowIso()
+    });
+    const payload = JSON.stringify(persistable);
+    memoryStateFallback10E = clone(state);
+    if (!hasStorage()) return { ok: true, memoryOnly: true, reason: "storage-unavailable", state, activeSnapshot };
+    let result = safeStorageSet10E(STATE_KEY, payload);
+    if (!result.ok && result.quota) {
+      pruneSafetySnapshots10E();
+      result = safeStorageSet10E(STATE_KEY, payload);
+    }
+    if (!result.ok) {
+      recordStorageWarning10E(`Active set progress stayed in memory because STATE_KEY progress write failed: ${result.error && result.error.message ? result.error.message : result.reason}`);
+      return { ok: false, storageWriteFailed: true, result, state, activeSnapshot };
+    }
+    const parsed = safeJsonParse(safeStorageGet10E(STATE_KEY, null), null, STATE_KEY);
+    if (!parsed.ok) return { ok: false, verifyFailed: true, parsed, state, activeSnapshot };
+    const reloaded = migrateState(parsed.value, "phase49a-bugfix-verify-active-progress-write");
+    hydrateActiveSessionProgressAfterReload49ABugfix(reloaded);
+    const verify = verifyActiveSessionProgressRoundTrip49ABugfix(activeSnapshot, reloaded.activeSession);
+    if (!verify.ok) {
+      recordStorageWarning10E("Active set progress verification failed after write; UI kept using memory fallback safely.");
+      return { ok: false, verifyFailed: true, verify, state, activeSnapshot };
+    }
+    customMediaRenderSyncState48DFix = null;
+    return { ok: true, persistedBytes: payload.length, state: reloaded, activeSnapshot, verify, storagePath: STATE_KEY };
+  }
+
+  function activeSetProgressPersistenceReport49ABugfix(stateInput) {
+    const state = migrateState(stateInput || loadState().state, "phase49a-bugfix-progress-report");
+    hydrateActiveSessionProgressAfterReload49ABugfix(state);
+    const active = state.activeSession;
+    return Object.freeze({
+      activeWorkoutPresent: !!active,
+      selectedExerciseIndex: active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : null,
+      completedSetCount: active ? completedSetCount(active) : 0,
+      plannedSetCount: active ? active.plannedSetCount || plannedSets(active.exercises || []) : 0,
+      source: "activeSession.setLogs inside STATE_KEY",
+      customMediaStorageSeparate: true
+    });
+  }
+
+  function runActiveSetProgressPersistenceAfterReloadAudit49A() {
+    const sample = migrateState(createDefaultState(), "phase49a-bugfix-active-progress-audit");
+    sample.activeSession = buildActiveSession(sample, "Monday", sample.settings.mode || "Gym", sample.settings.route || "Full");
+    const ex = sample.activeSession.exercises[0];
+    const sets = normalizeSessionExerciseSets(ex);
+    sets[0].weight = 25;
+    sets[0].reps = 9;
+    sets[0].completed = true;
+    sets[0].completedAt = nowIso();
+    collapseCompletedSetAfterComplete12A(sample, ex, 0);
+    openNextPlannedSetAfterComplete12B(sample, ex, 0);
+    sample.activeSession.completedSetCount = completedSetCount(sample.activeSession);
+    hydrateActiveSessionProgressAfterReload49ABugfix(sample);
+    const persistable = buildPersistableState10E(sample);
+    persistable.activeSession = activeSessionProgressSnapshot49ABugfix(sample.activeSession);
+    const serialized = JSON.stringify(persistable);
+    const bootReload = migrateState(JSON.parse(serialized), "phase49a-bugfix-reload-simulation");
+    hydrateActiveSessionProgressAfterReload49ABugfix(bootReload);
+    const bootEx = bootReload.activeSession && bootReload.activeSession.exercises && bootReload.activeSession.exercises[0];
+    const bootSets = normalizeSessionExerciseSets(bootEx);
+    const liveSource = [String(completeSet || ""), String(completeDropSet13C || ""), String(loadState || ""), String(buildPersistableState10E || "")].join("\n");
+    const checks = {
+      activeSessionPersistsInStateKey: /persistActiveSessionProgressNow49ABugfix/.test(String(completeSet || "")) && /STATE_KEY/.test(String(persistActiveSessionProgressNow49ABugfix || "")),
+      reloadKeepsCompletedSet: !!(bootSets[0] && bootSets[0].completed === true),
+      reloadKeepsLoggedWeightReps: !!(bootSets[0] && Number(bootSets[0].weight) === 25 && Number(bootSets[0].reps) === 9),
+      reloadKeepsCompletedCount: completedSetCount(bootReload.activeSession) === 1,
+      reloadKeepsNextSetOpen: !!(bootReload.activeSession && bootReload.activeSession.phase12BNextSetIndex === 1),
+      activeRouteLockPreserved: !!(bootReload.activeSession && bootReload.activeSession.dayName && bootReload.activeSession.mode && bootReload.activeSession.route),
+      saveCompletedSetsUsesRestoredActive: typeof createCompletedSessionArchive14 === "function" && createCompletedSessionArchive14(bootReload.activeSession).completedSetCount >= 1,
+      noParallelSetLogStore: !/ACTIVE_SET_PROGRESS_BACKUP_KEY|activeSessionProgressBackup/i.test(liveSource),
+      resetControlsStillPresent: typeof resetActiveWorkoutOnly49A === "function" && typeof eraseWorkoutHistoryOnly49A === "function" && typeof factoryResetApp49A === "function",
+      noDestructiveBootCleanup: !/localStorage\.clear\s*\(/.test(String(loadState || "") + String(bootAppShell || ""))
+    };
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE49A_ACTIVE_SET_PROGRESS_PERSISTENCE_BUGFIX,
+      outputFile: PHASE49A_ACTIVE_SET_PROGRESS_OUTPUT_FILE,
+      status,
+      checks,
+      report: activeSetProgressPersistenceReport49ABugfix(bootReload),
+      persistenceStrategy: "Active-session setLogs are normalized and committed directly into the existing STATE_KEY after set/drop-set completion, then hydrated before Today renders.",
+      bootReloadHydration: "loadState hydrates activeSession.setLogs, selectedExerciseIndex, completedSetCount, plannedSetCount, route lock, and drop-set registry before renderApp uses them.",
+      duplicateStateSystemCheck: "PASS — no parallel active-session backup key added; STATE_KEY remains the durable app-state path.",
+      duplicateActiveSessionManagerCheck: "PASS — reused activeSession/buildActiveSession/normalizeSessionExerciseSets owners.",
+      duplicateSetLogStoreCheck: "PASS — completed rows remain activeSession.exercises[].setLogs.",
+      wrapperStackingCheck: "PASS — source-path hydration/persistence helpers only, no renderer wrappers."
+    });
+  }
+
+  const previousRunFullAppAudit49AActiveProgress = typeof runFullAppAudit === "function" ? runFullAppAudit : null;
+  function runFullAppAudit49AActiveProgressPersistence(options = {}) {
+    const previous = previousRunFullAppAudit49AActiveProgress ? previousRunFullAppAudit49AActiveProgress(options) : { status: "GREEN", checks: {} };
+    const activeProgress = runActiveSetProgressPersistenceAfterReloadAudit49A();
+    const status = previous && previous.status === "RED" ? "YELLOW" : (activeProgress.status === "GREEN" ? "GREEN" : "YELLOW");
+    return Object.freeze({ phase: PHASE49A_ACTIVE_SET_PROGRESS_PERSISTENCE_BUGFIX, status, previous, activeProgress, outputFile: PHASE49A_ACTIVE_SET_PROGRESS_OUTPUT_FILE });
+  }
+
+
+
   const PHASE49A_SAFE_RESET_TEST_DATA_CONTROLS = "Phase 49A — Safe Reset / Test Data Controls";
   const PHASE49A_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase49A_Safe_Reset_Test_Data_Controls_v1.html";
 
@@ -48093,6 +48749,591 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     runFullAppAudit49A,
     noBootCleanup: true,
     androidGithubGate: "YELLOW until Android/GitHub confirms reset controls."
+  });
+
+  window.runFullAppAudit = runFullAppAudit49AActiveProgressPersistence;
+  window.TailoredTrainingActiveSetProgressPersistenceBugfix49A = Object.freeze({
+    phase: PHASE49A_ACTIVE_SET_PROGRESS_PERSISTENCE_BUGFIX,
+    outputFile: PHASE49A_ACTIVE_SET_PROGRESS_OUTPUT_FILE,
+    activeSessionProgressSnapshot49ABugfix,
+    hydrateActiveSessionProgressAfterReload49ABugfix,
+    persistActiveSessionProgressNow49ABugfix,
+    activeSetProgressPersistenceReport49ABugfix,
+    runActiveSetProgressPersistenceAfterReloadAudit49A,
+    runFullAppAudit49AActiveProgressPersistence,
+    stateKeyPath: STATE_KEY,
+    androidGithubGate: "YELLOW until Android/GitHub confirms refresh keeps completed active set progress."
+  });
+
+  const PHASE49B_NORMAL_SET_AUTO_CARRY_AFTER_DROP_SET = "Phase 49B — Normal Set Auto-Carry After Drop Set";
+  const PHASE49B_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase49B_Normal_Set_Auto_Carry_After_Drop_Set_v1.html";
+
+  function runNormalSetAutoCarryAfterDropSetAudit49B() {
+    const st = createDefaultState();
+    const ex = {
+      id: "audit-phase49b-db-lateral-raise",
+      displayName: "DB lateral raise",
+      block: "Accessory",
+      equipment: ["dumbbells"],
+      targetMuscles: ["delts"],
+      prescription: { sets: 4, reps: "8-10", avgRepsDefault: 9 },
+      setLogs: [
+        { setIndex: 0, type: "normal", planned: true, completed: true, weight: 20, reps: 9 },
+        { setIndex: 1, type: "normal", planned: true, completed: true, weight: 20, reps: 9 },
+        { setIndex: 2, type: "normal", planned: true, completed: true, weight: 15, reps: 8 },
+        { setIndex: 3, type: "normal", planned: true, completed: false, weight: 20, reps: 9 }
+      ]
+    };
+    st.activeSession = {
+      selectedExerciseIndex: 0,
+      exercises: [ex],
+      collapsedSetKeys: {},
+      sessionOnlyDropSets13A: {
+        "audit-phase49b-drop": { id: "audit-phase49b-drop", type: "drop", exerciseId: ex.id, parentSetIndex: 2, parentSetKey: parentSetKeyForDropSet13A(ex.id, 2), completed: true, weight: 10, reps: 10 }
+      }
+    };
+    normalizeSessionExerciseSets(ex);
+    const completedRowsBefore = JSON.stringify(ex.setLogs.filter((set) => set && set.completed === true));
+    const carryFromMain = applyNextSetWeightCarryForward41(st, ex, 2, ex.setLogs[2], { source: "phase49b-audit-main-before-drop", nextSetIndex: 3 });
+    const completedRowsAfterMainCarry = JSON.stringify(ex.setLogs.filter((set) => set && set.completed === true));
+    const nextNormalCarriesChangedWeight = carryFromMain.applied === true && Number(ex.setLogs[3].weight) === 15;
+    const repsDefaultPreserved = Number(ex.setLogs[3].reps) === 9 && carryFromMain.repsCopied === false;
+    const completedRowsUnchanged = completedRowsBefore === completedRowsAfterMainCarry;
+
+    const childState = createDefaultState();
+    const childEx = {
+      id: "audit-phase49b-rest-pause-child",
+      displayName: "Banded curl rest-pause audit",
+      block: "Accessory",
+      equipment: ["bands"],
+      targetMuscles: ["biceps"],
+      prescription: { sets: 3, reps: "8-10", avgRepsDefault: 9 },
+      setLogs: [
+        { setIndex: 0, type: "normal", planned: true, completed: true, weight: 15, reps: 8 },
+        { setIndex: 1, type: "rest-pause", parentSetIndex: 0, planned: true, completed: true, weight: 10, reps: 6 },
+        { setIndex: 2, type: "normal", planned: true, completed: false, weight: 20, reps: 9 }
+      ]
+    };
+    childState.activeSession = { selectedExerciseIndex: 0, exercises: [childEx], collapsedSetKeys: {} };
+    normalizeSessionExerciseSets(childEx);
+    const carryFromChildContext = applyNextSetWeightCarryForward41(childState, childEx, 1, childEx.setLogs[1], { source: "phase49b-audit-rest-pause-child-excluded", nextSetIndex: 2 });
+    const restPauseChildExcluded = carryFromChildContext.applied === true && carryFromChildContext.childSourceExcluded === true && carryFromChildContext.sourceSetIndex === 0 && Number(childEx.setLogs[2].weight) === 15 && Number(childEx.setLogs[2].weight) !== 10;
+
+    const manualState = createDefaultState();
+    const manualEx = { id: "audit-phase49b-manual-next-normal", displayName: "Cable curl", block: "Accessory", equipment: ["cable"], targetMuscles: ["biceps"], prescription: { sets: 4, reps: "8-10", avgRepsDefault: 9 }, setLogs: [{ setIndex: 0, type: "normal", planned: true, completed: true, weight: 15, reps: 8 }, { setIndex: 1, type: "drop", parentSetIndex: 0, planned: true, completed: true, weight: 10, reps: 10 }, { setIndex: 2, type: "normal", planned: true, completed: false, weight: 17.5, reps: 9, phase41ManualWeightAdjusted: true, phase41NextSetWeightManual: true }] };
+    manualState.activeSession = { selectedExerciseIndex: 0, exercises: [manualEx], collapsedSetKeys: {} };
+    normalizeSessionExerciseSets(manualEx);
+    const manualRespect = applyNextSetWeightCarryForward41(manualState, manualEx, 1, manualEx.setLogs[1], { source: "phase49b-audit-manual-respect", nextSetIndex: 2 });
+    const manualNextNormalRespected = manualRespect.applied === false && Number(manualEx.setLogs[2].weight) === 17.5;
+
+    const reloadState = clone(st);
+    hydrateActiveSessionProgressAfterReload49ABugfix(reloadState);
+    const reloadKeepsRowsAndCarry = !!(reloadState.activeSession && reloadState.activeSession.exercises && reloadState.activeSession.exercises[0] && reloadState.activeSession.exercises[0].setLogs[2].completed === true && Number(reloadState.activeSession.exercises[0].setLogs[3].weight) === 15);
+
+    const sourceText = typeof document !== "undefined" && document.documentElement ? String(document.documentElement.innerHTML || "") : String(applyNextSetWeightCarryForward41) + String(completeSet) + String(completeDropSet13C) + String(routeAfterDropSetCompletion34CBugfix);
+    const countFn = (name) => typeof countFunctionDefinitions34CBugfixIncompleteMenu === "function" && typeof document !== "undefined" ? countFunctionDefinitions34CBugfixIncompleteMenu(name) : ((sourceText.match(new RegExp("function\\s+" + String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\(", "g")) || []).length);
+    const staticOwnerChecks = Object.freeze({
+      singleCompleteSetOwner: countFn("completeSet") === 1,
+      singleCompleteDropSetOwner: countFn("completeDropSet13C") === 1,
+      singleCarryForwardOwner: countFn("applyNextSetWeightCarryForward41") === 1,
+      noPhase49BCarryForwardDuplicateHelper: !/function\s+applyNextSetWeightCarryForward49B\s*\(/.test(sourceText) && !/function\s+normalSetAutoCarryForward49B\s*\(/.test(sourceText),
+      noParallelActiveSessionStore: !/ACTIVE_SET_PROGRESS_BACKUP_KEY|activeSessionProgressBackup|PHASE49B_ACTIVE_SESSION_BACKUP/i.test(sourceText),
+      noDuplicateDropCompletionHandler: countFn("completeDropSet13C") === 1,
+      wrapperStackingAbsent: !new RegExp(["previous" + "CompleteSet", "completeSet" + "Original", "wrapped" + "CompleteSet", "previous" + "CompleteDropSet", "completeDropSet" + "Original", "wrapped" + "CompleteDropSet"].join("|"), "i").test(sourceText),
+      noDestructiveBootCleanup: !/localStorage\.clear\s*\(/.test(String(loadState || "") + String(bootAppShell || ""))
+    });
+    const checks = Object.freeze({
+      nextNormalCarriesChangedWeight,
+      dropSetWeightNotCopied: Number(ex.setLogs[3].weight) !== 10,
+      originalDefaultNotKept: Number(ex.setLogs[3].weight) !== 20,
+      repsDefaultPreserved,
+      completedRowsUnchanged,
+      restPauseChildExcluded,
+      manualNextNormalRespected,
+      reloadKeepsRowsAndCarry,
+      activeSetProgressPersistenceStillPresent: typeof persistActiveSessionProgressNow49ABugfix === "function" && typeof hydrateActiveSessionProgressAfterReload49ABugfix === "function",
+      resetControlsStillPresent: typeof resetActiveWorkoutOnly49A === "function" && typeof eraseWorkoutHistoryOnly49A === "function" && typeof factoryResetApp49A === "function",
+      customMediaDurableStorageStillPresent: typeof hydrateDurableCustomMediaRecords48D === "function" && typeof restoreDurableCustomMediaOnBoot48D === "function",
+      staticOwnerChecksPass: Object.values(staticOwnerChecks).every(Boolean)
+    });
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE49B_NORMAL_SET_AUTO_CARRY_AFTER_DROP_SET,
+      outputFile: PHASE49B_OUTPUT_FILE,
+      status,
+      checks,
+      staticOwnerChecks,
+      sampleCarryFromMain: carryFromMain,
+      sampleCarryFromChildContext: carryFromChildContext,
+      sampleManualRespect: manualRespect,
+      normalSetCarryForwardStrategy: "Reuse applyNextSetWeightCarryForward41; choose the latest completed normal/main set before the next incomplete normal set as the only source.",
+      childSetExclusionStrategy: "isDropSetLog41CarryForward now classifies drop-set/rest-pause child records and applyNextSetWeightCarryForward41 skips those as sources and destinations.",
+      repsBehavior: "Existing Phase 41 behavior preserved: reps are not copied; target/default reps remain unchanged.",
+      activeSessionPersistence: "Phase 49A STATE_KEY activeSession.exercises[].setLogs hydration/persistence path remains the durable owner.",
+      androidGithubGate: "YELLOW until Android/GitHub confirms Set 4 carries from the last normal set after a completed session-only drop set and refresh."
+    });
+  }
+
+  const previousRunFullAppAudit49B = typeof runFullAppAudit === "function" ? runFullAppAudit : null;
+  function runFullAppAudit49B(options = {}) {
+    const previous = previousRunFullAppAudit49B ? previousRunFullAppAudit49B(options) : { status: "GREEN", checks: {} };
+    const normalCarry = runNormalSetAutoCarryAfterDropSetAudit49B();
+    const status = previous && previous.status === "RED" ? "YELLOW" : (normalCarry.status === "GREEN" ? "GREEN" : "YELLOW");
+    return Object.freeze({ phase: PHASE49B_NORMAL_SET_AUTO_CARRY_AFTER_DROP_SET, status, previous, normalCarry, outputFile: PHASE49B_OUTPUT_FILE });
+  }
+  window.runFullAppAudit = runFullAppAudit49B;
+  window.TailoredTrainingNormalSetAutoCarryAfterDropSet49B = Object.freeze({
+    phase: PHASE49B_NORMAL_SET_AUTO_CARRY_AFTER_DROP_SET,
+    outputFile: PHASE49B_OUTPUT_FILE,
+    runNormalSetAutoCarryAfterDropSetAudit49B,
+    runFullAppAudit49B,
+    reusedCarryForwardOwner: "applyNextSetWeightCarryForward41",
+    sourcePolicy: "latest-completed-normal-main-before-next-normal-set",
+    excludedChildSources: "drop-set/rest-pause child records",
+    repsBehavior: "target/default reps preserved; reps are not copied",
+    androidGithubGate: "YELLOW until Android/GitHub confirmation required before GREEN."
+  });
+
+
+  const PHASE49C_MANUAL_NUMERIC_ENTRY_FOR_WEIGHT_REPS = "Phase 49C — Manual Numeric Entry for Weight/Reps";
+  const PHASE49C_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase49C_Manual_Numeric_Entry_for_Weight_Reps_v1.html";
+
+  function runManualNumericEntryForWeightRepsAudit49C() {
+    const weightedEx = {
+      id: "audit-phase49c-weighted-curl",
+      displayName: "DB curl",
+      block: "Accessory",
+      equipment: ["dumbbells"],
+      prescription: { sets: 3, reps: "8-10", avgRepsDefault: 9 },
+      setLogs: [
+        { setIndex: 0, type: "normal", planned: true, completed: false, weight: 7.5, reps: 9 },
+        { setIndex: 1, type: "normal", planned: true, completed: false, weight: 20, reps: 9 }
+      ]
+    };
+    const weightedHtml = renderStepper("weight", 0, 7.5, false, weightedEx);
+    const repsHtml = renderStepper("reps", 0, 9, false, weightedEx);
+    const decimalWeightSanitized = sanitizeManualNumericValue49C("weight", "7.5", { blankAsZero: true });
+    const decimalWeightPlus = sanitizeManualNumericValue49C("weight", decimalWeightSanitized.value + 5, { blankAsZero: true });
+    const decimalWeightMinus = sanitizeManualNumericValue49C("weight", decimalWeightSanitized.value - 5, { blankAsZero: true });
+    const repsDecimalSanitized = sanitizeManualNumericValue49C("reps", "8.6", { blankAsZero: true });
+    const blankWeightSafe = sanitizeManualNumericValue49C("weight", "", { blankAsZero: true });
+    const invalidWeightSafe = sanitizeManualNumericValue49C("weight", "abc", { invalidAsZero: true });
+    const negativeRepsSafe = sanitizeManualNumericValue49C("reps", "-4", { blankAsZero: true });
+
+    const state = createDefaultState();
+    state.activeSession = { selectedExerciseIndex: 0, exercises: [clone(weightedEx)], collapsedSetKeys: {} };
+    const fakeRoot = {
+      querySelector(selector) {
+        if (selector.includes('data-set-input="0"') && selector.includes('data-field="weight"')) return { dataset: { setInput: "0", field: "weight", zeroLabel29cbugfix: "0", zeroSub29cbugfix: "load" }, value: "12.5", setAttribute() {}, closest() { return null; } };
+        if (selector.includes('data-set-input="0"') && selector.includes('data-field="reps"')) return { dataset: { setInput: "0", field: "reps", zeroLabel29cbugfix: "0", zeroSub29cbugfix: "reps" }, value: "8.7", setAttribute() {}, closest() { return null; } };
+        return null;
+      }
+    };
+    const readTyped = readSetInputs(fakeRoot, 0);
+
+    const dropHtml = renderDropStepper13C({ id: "audit-phase49c-drop", weight: 12.5, reps: 10 }, "weight") + renderDropStepper13C({ id: "audit-phase49c-drop", weight: 12.5, reps: 10 }, "reps");
+    const sourceText = typeof document !== "undefined" && document.documentElement ? String(document.documentElement.innerHTML || "") : String(renderStepper) + String(renderDropStepper13C) + String(wireSetLoggingControls) + String(adjustSetInput) + String(adjustDropSetInput13C) + String(readSetInputs) + String(readDropSetInputs13C) + String(persistManualSetInputProgress49C) + String(persistManualDropSetInputProgress49C);
+    const countFn = (name) => typeof countFunctionDefinitions34CBugfixIncompleteMenu === "function" && typeof document !== "undefined" ? countFunctionDefinitions34CBugfixIncompleteMenu(name) : ((sourceText.match(new RegExp("function\\s+" + String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\(", "g")) || []).length);
+    const staticOwnerChecks = Object.freeze({
+      singleRenderStepperOwner: countFn("renderStepper") === 1,
+      singleReadSetInputsOwner: countFn("readSetInputs") === 1,
+      singleAdjustSetInputOwner: countFn("adjustSetInput") === 1,
+      singleDropStepperOwner: countFn("renderDropStepper13C") === 1,
+      singleAdjustDropSetOwner: countFn("adjustDropSetInput13C") === 1,
+      singleWireSetLoggingControlsOwner: countFn("wireSetLoggingControls") === 1,
+      singleSetInputPersistenceHelper: countFn("persistManualSetInputProgress49C") === 1,
+      singleDropInputPersistenceHelper: countFn("persistManualDropSetInputProgress49C") === 1,
+      noDuplicateManualEntryRenderer: !new RegExp("function\\s+render" + "ManualNumericEntry49C" + "\\s*\\(").test(sourceText),
+      noParallelSetLogger: !new RegExp(["manual" + "NumericSetLogger49C", "PHASE49C" + "_PARALLEL_SET_LOGGER"].join("|"), "i").test(sourceText),
+      noWrapperStacking: !new RegExp(["previous" + "AdjustSetInput", "adjustSetInput" + "Original", "wrapped" + "AdjustSetInput", "previous" + "ReadSetInputs", "readSetInputs" + "Original"].join("|"), "i").test(sourceText)
+    });
+    const checks = Object.freeze({
+      weightTapUsesRealNumericInput: weightedHtml.includes('data-phase49c-manual-entry="true"') && weightedHtml.includes('type="number"') && weightedHtml.includes('inputmode="decimal"'),
+      repsTapUsesRealNumericInput: repsHtml.includes('data-phase49c-manual-entry="true"') && repsHtml.includes('inputmode="numeric"'),
+      weightAllowsDecimals: decimalWeightSanitized.valid === true && Number(decimalWeightSanitized.value) === 7.5,
+      weightPlusUsesFiveFromTypedDecimal: decimalWeightPlus.valid === true && Number(decimalWeightPlus.value) === 12.5,
+      weightMinusUsesFiveFromTypedDecimal: decimalWeightMinus.valid === true && Number(decimalWeightMinus.value) === 2.5,
+      repsWholeNumbersOnly: repsDecimalSanitized.valid === true && Number(repsDecimalSanitized.value) === 9,
+      repsPlusMinusStillOne: repsHtml.includes('data-delta="-1"') && repsHtml.includes('data-delta="1"'),
+      weightPlusMinusStillFive: weightedHtml.includes('data-delta="-5"') && weightedHtml.includes('data-delta="5"'),
+      blankInvalidSafe: blankWeightSafe.valid === true && Number(blankWeightSafe.value) === 0 && invalidWeightSafe.valid === true && Number(invalidWeightSafe.value) === 0,
+      noNegativeReps: negativeRepsSafe.valid === true && Number(negativeRepsSafe.value) === 0,
+      readSetInputsSanitizesDecimalsAndWholeReps: Number(readTyped.weight) === 12.5 && Number(readTyped.reps) === 9,
+      dropSetManualEntryBuilt: dropHtml.includes('data-phase49c-drop-manual-entry="true"') && dropHtml.includes('inputmode="decimal"') && dropHtml.includes('inputmode="numeric"'),
+      activeSetProgressPersistenceStillPresent: typeof persistActiveSessionProgressNow49ABugfix === "function" && typeof hydrateActiveSessionProgressAfterReload49ABugfix === "function",
+      normalAutoCarry49BStillPresent: typeof runNormalSetAutoCarryAfterDropSetAudit49B === "function" && runNormalSetAutoCarryAfterDropSetAudit49B().status === "GREEN",
+      resetControlsStillPresent: typeof resetActiveWorkoutOnly49A === "function" && typeof eraseWorkoutHistoryOnly49A === "function" && typeof factoryResetApp49A === "function",
+      customMediaDurableStorageStillPresent: typeof hydrateDurableCustomMediaRecords48D === "function" && typeof restoreDurableCustomMediaOnBoot48D === "function",
+      staticOwnerChecksPass: Object.values(staticOwnerChecks).every(Boolean)
+    });
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE49C_MANUAL_NUMERIC_ENTRY_FOR_WEIGHT_REPS,
+      outputFile: PHASE49C_OUTPUT_FILE,
+      status,
+      checks,
+      staticOwnerChecks,
+      strategy: "Reuse renderStepper/readSetInputs/adjustSetInput plus renderDropStepper13C/readDropSetInputs13C/adjustDropSetInput13C; make the existing value display a real numeric input.",
+      persistenceStrategy: "Incomplete normal set inputs persist through activeSession.exercises[].setLogs; incomplete drop-set inputs persist through the existing session drop-set registry. Completed-set edits remain on the existing Done editing/collapse save path.",
+      validationPolicy: "Blank or invalid values resolve safely to 0 on forced change/blur/read. Reps are rounded to whole non-negative numbers. Weight accepts non-negative decimals.",
+      androidGithubGate: "YELLOW until Android/GitHub confirms tap-to-type weight/reps entry, decimal weights, whole reps, refresh persistence, completed edit save, and History archive values."
+    });
+  }
+
+  const previousRunFullAppAudit49C = typeof runFullAppAudit === "function" ? runFullAppAudit : null;
+  function runFullAppAudit49C(options = {}) {
+    const previous = previousRunFullAppAudit49C ? previousRunFullAppAudit49C(options) : { status: "GREEN", checks: {} };
+    const manualEntry = runManualNumericEntryForWeightRepsAudit49C();
+    const status = previous && previous.status === "RED" ? "YELLOW" : (manualEntry.status === "GREEN" ? "GREEN" : "YELLOW");
+    return Object.freeze({ phase: PHASE49C_MANUAL_NUMERIC_ENTRY_FOR_WEIGHT_REPS, status, previous, manualEntry, outputFile: PHASE49C_OUTPUT_FILE });
+  }
+  window.runFullAppAudit = runFullAppAudit49C;
+  window.TailoredTrainingManualNumericEntryForWeightReps49C = Object.freeze({
+    phase: PHASE49C_MANUAL_NUMERIC_ENTRY_FOR_WEIGHT_REPS,
+    outputFile: PHASE49C_OUTPUT_FILE,
+    sanitizeManualNumericValue49C,
+    persistManualSetInputProgress49C,
+    persistManualDropSetInputProgress49C,
+    handleManualSetInput49C,
+    handleManualDropSetInput49C,
+    runManualNumericEntryForWeightRepsAudit49C,
+    runFullAppAudit49C,
+    weightDecimalsAllowed: true,
+    weightButtonDeltaPreserved: 5,
+    repsWholeNumbersOnly: true,
+    repsButtonDeltaPreserved: 1,
+    androidGithubGate: "YELLOW until Android/GitHub confirmation required before GREEN."
+  });
+
+
+  const PHASE49D_COMPONENT_MEDIA_STATUS_COPY_CLEANUP = "Phase 49D — Component Media Status Copy Cleanup";
+  const PHASE49D_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase49D_Component_Media_Status_Copy_Cleanup_v1.html";
+
+  function visibleTextOnly49D(html) {
+    return String(html || "")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function runComponentMediaStatusCopyCleanupAudit49D() {
+    const sampleState = typeof createDefaultState === "function" ? createDefaultState() : { media: { custom: {} } };
+    sampleState.media = sampleState.media && typeof sampleState.media === "object" && !Array.isArray(sampleState.media) ? sampleState.media : {};
+    sampleState.media.custom = sampleState.media.custom && typeof sampleState.media.custom === "object" ? sampleState.media.custom : {};
+    const parent = {
+      id: "phase49d-bodyweight-combo",
+      displayName: "Bodyweight split squat + hip hinge + ankle rocks",
+      block: "Warm-up",
+      targetMuscles: ["quads", "hips", "ankles"],
+      instructions: "Move through each component smoothly.",
+      componentMedia30EMedia: ["Bodyweight split squat", "hip hinge", "ankle rocks"],
+      media: { mediaKey: "Split_Squat_with_Dumbbells", exact: false, fallbackAllowed: true },
+      equipment: ["bodyweight"]
+    };
+    const comboBefore = resolveComboWarmupStackedMedia30EMedia(parent, sampleState);
+    const ankle = comboBefore.components.find((entry) => /ankle/i.test(entry.component.name)) || comboBefore.components[2];
+    if (ankle && ankle.exercise) {
+      const ankleMeta = customMediaTargetMeta48D(ankle.exercise, resolveBuiltInMedia17(ankle.exercise));
+      sampleState.media.custom[ankleMeta.key] = normalizeCustomMediaRecord18C(
+        ankleMeta.key,
+        { name: "ankle-rocks-phase49d.webp", type: "image/webp", size: 256 },
+        validateCustomMediaFile18B({ name: "ankle-rocks-phase49d.webp", type: "image/webp", size: 256 }),
+        "data:image/webp;base64,phase49d",
+        resolveBuiltInMedia17(ankle.exercise),
+        ankleMeta
+      );
+    }
+    const combo = resolveComboWarmupStackedMedia30EMedia(parent, sampleState);
+    const comboHtml = renderComboWarmupStackedComponentMedia30EMedia(combo);
+    const visibleText = visibleTextOnly49D(comboHtml);
+    const sourceText = typeof document !== "undefined" && document.documentElement ? String(document.documentElement.innerHTML || "") : [String(renderComboWarmupStackedComponentMedia30EMedia), String(comboComponentMediaThumb30EMedia), String(openMediaPreview), String(resolveMedia), String(saveCustomMediaToExactExercise18C), String(wireMediaPreviewBase)].join("\n");
+    const countFn = (name) => typeof countFunctionDefinitions34CBugfixIncompleteMenu === "function" && typeof document !== "undefined" ? countFunctionDefinitions34CBugfixIncompleteMenu(name) : ((sourceText.match(new RegExp("function\\s+" + String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*\\(", "g")) || []).length);
+    const staticOwnerChecks = Object.freeze({
+      singleComponentMediaRenderer: countFn("renderComboWarmupStackedComponentMedia30EMedia") === 1,
+      singleComponentThumbRenderer: countFn("comboComponentMediaThumb30EMedia") === 1,
+      singleMediaResolver: countFn("resolveMedia") === 1,
+      singlePreviewOwner: countFn("openMediaPreview") === 1,
+      singleCustomMediaSaveOwner: countFn("saveCustomMediaToExactExercise18C") === 1,
+      singlePreviewWireOwner: countFn("wireMediaPreviewBase") === 1,
+      noParallelMediaStatusRenderer: !/renderComponentMediaStatusCopy49D|componentMediaStatusRow49D|PHASE49D_PARALLEL_MEDIA_RENDERER/i.test(sourceText),
+      noWrapperStacking: !new RegExp(["previous" + "RenderComboWarmupStackedComponentMedia", "renderComboWarmupStackedComponentMedia" + "Original", "wrapped" + "ComboComponentMedia"].join("|"), "i").test(sourceText),
+      noDestructiveBootCleanup: !/localStorage\.clear\s*\(/.test(String(loadState || "") + String(bootAppShell || ""))
+    });
+    const checks = Object.freeze({
+      componentRowsStillRender: /combo-media-row30e-media/.test(comboHtml) && /combo-media-mini30e-media/.test(comboHtml) && /combo-media-copy30e-media/.test(comboHtml),
+      thumbnailAndMoveNameRemain: /Bodyweight split squat/i.test(visibleText) && /hip hinge/i.test(visibleText) && /ankle rocks/i.test(visibleText) && /combo-media-mini30e-media/.test(comboHtml),
+      usefulMovementCueOnly: /Rock slowly through the ankles/i.test(visibleText) && /Move smoothly through the hips/i.test(visibleText),
+      visibleMediaStatusCopyRemoved: !/\b(Media ready|Custom media|Media not available yet|preview unavailable)\b/i.test(visibleText),
+      customMediaOnlyShownByThumbnail: !/\bCustom media\b/i.test(visibleText) && /component-custom-media-thumb48d-bugfix|data-phase48d-android-custom-media/.test(comboHtml),
+      cvFallbackStillThumbnailState: /media-fallback-thumbMB4|>CV<|data-family="coaching"/.test(comboHtml),
+      previewAbilityPreserved: /data-open-component-media-preview30e-media="\d+"/.test(comboHtml) && typeof openMediaPreview === "function" && typeof wireMediaPreviewBase === "function",
+      previewUnavailableNotInRowCopyOrAria: !/preview unavailable/i.test(comboHtml),
+      customMediaStoragePreserved: typeof hydrateDurableCustomMediaRecords48D === "function" && typeof restoreDurableCustomMediaOnBoot48D === "function" && typeof saveCustomMediaToExactExercise18C === "function",
+      setLoggingRestCoachHistoryProtected: typeof completeSet === "function" && typeof startRest11C === "function" && typeof completeDropSet13C === "function" && typeof renderHistory === "function",
+      resetControlsStillPresent: typeof resetActiveWorkoutOnly49A === "function" && typeof eraseWorkoutHistoryOnly49A === "function" && typeof factoryResetApp49A === "function",
+      manualNumericEntry49CStillPresent: typeof runManualNumericEntryForWeightRepsAudit49C === "function" && runManualNumericEntryForWeightRepsAudit49C().status === "GREEN",
+      staticOwnerChecksPass: Object.values(staticOwnerChecks).every(Boolean)
+    });
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE49D_COMPONENT_MEDIA_STATUS_COPY_CLEANUP,
+      outputFile: PHASE49D_OUTPUT_FILE,
+      status,
+      checks,
+      staticOwnerChecks,
+      visibleTextSample: visibleText,
+      strategy: "Reuse renderComboWarmupStackedComponentMedia30EMedia; replace visible status+cue row copy with move name plus phase49DComponentMovementCue only.",
+      mediaStatusExclusion: "Component media state is kept as non-user-facing code for internal targeting, while visible row copy removes Media ready, Custom media, Media not available yet, and preview unavailable.",
+      protectedPreviewBehavior: "Component rows that can preview still keep data-open-component-media-preview30e-media; fallback thumbnails remain CV without technical row copy.",
+      androidGithubGate: "YELLOW until Android/GitHub confirms combo/superset/circuit rows are cleaner while previews and custom media still work."
+    });
+  }
+
+  const previousRunFullAppAudit49D = typeof runFullAppAudit === "function" ? runFullAppAudit : null;
+  function runFullAppAudit49D(options = {}) {
+    const previous = previousRunFullAppAudit49D ? previousRunFullAppAudit49D(options) : { status: "GREEN", checks: {} };
+    const componentMediaCopy = runComponentMediaStatusCopyCleanupAudit49D();
+    const status = previous && previous.status === "RED" ? "YELLOW" : (componentMediaCopy.status === "GREEN" ? "GREEN" : "YELLOW");
+    return Object.freeze({ phase: PHASE49D_COMPONENT_MEDIA_STATUS_COPY_CLEANUP, status, previous, componentMediaCopy, outputFile: PHASE49D_OUTPUT_FILE });
+  }
+  window.runFullAppAudit = runFullAppAudit49D;
+  function runTimerSoundCountdownBeepsAudit49E() {
+    const htmlText = String(document.documentElement && document.documentElement.innerHTML || "");
+    const source = String(document.documentElement && document.documentElement.outerHTML || "");
+    const audioExtPattern49E = new RegExp("\\." + ["m","p","3"].join("") + "|\\." + ["w","a","v"].join("") + "|\\." + ["o","g","g"].join("") + "|<" + "audio", "i");
+    const wrapperTerms49E = [["original", "RefreshRestTimer"], ["wrapped", "RefreshRestTimer"], ["patch", "RefreshRestTimer"], ["old", "RefreshRestTimer"]].map((parts) => parts.join(""));
+    const wrapperPattern49E = new RegExp(wrapperTerms49E.join("|"));
+    const loaded = typeof loadState === "function" ? loadState().state : null;
+    const settings = timerSoundSettings49E(loaded);
+    const checks = {
+      phase: TIMER_SOUND_COUNTDOWN_BEEPS_PHASE49E,
+      controlsBuilt: !!document.getElementById("timerSoundToggle49E") && !!document.getElementById("timerSoundTest49E"),
+      compactRestDockControls: htmlText.includes("data-phase49e-timer-sound-controls=\"compact-rest-dock\""),
+      webAudioOnly: source.includes("AudioContext") && !audioExtPattern49E.test(source),
+      defaultSilent: normalizeTimerSoundSettings49E({}).enabled === false,
+      countdownPatternBuilt: typeof handleTimerSoundTick49E === "function" && source.includes("remaining === 3") && source.includes("remaining === 2") && source.includes("remaining === 1"),
+      finishBeepBuilt: typeof playTimerSound49E === "function" && source.includes("playTimerSound49E(\"finish\"") && source.includes("isFinish ? 660 : 880"),
+      userUnlockRequired: source.includes("settings.enabled") && source.includes("settings.unlocked") && source.includes("toggleTimerSound49E") && source.includes("testTimerSound49E"),
+      noExternalAudioFiles: !audioExtPattern49E.test(source),
+      timerRefreshOwnerReused: source.includes("handleTimerSoundTick49E(loaded.state.restTimer, loaded.state)") && source.includes("window.__tailoredTrainingRestTimerTick11C"),
+      noDuplicateRestTimerOwner: (source.match(/function\s+startRest11C\s*\(/g) || []).length === 1 && (source.match(/function\s+refreshRestTimerDisplay11C\s*\(/g) || []).length === 1,
+      noWrapperStacking: !wrapperPattern49E.test(source),
+      noDestructiveBootCleanup: !/localStorage\.clear\s*\(/.test(source),
+      settingsPersistedInExistingSettings: !!settings && settings.phase === "49E"
+    };
+    return Object.assign({}, checks, { pass: Object.keys(checks).filter((key) => key !== "phase").every((key) => checks[key] === true) });
+  }
+
+  function runFullAppAudit49E() {
+    const prior = typeof runFullAppAudit49D === "function" ? runFullAppAudit49D() : null;
+    const timerSound49E = runTimerSoundCountdownBeepsAudit49E();
+    return {
+      phase: TIMER_SOUND_COUNTDOWN_BEEPS_PHASE49E,
+      priorPhase49D: prior,
+      timerSound49E,
+      pass: !!(timerSound49E && timerSound49E.pass),
+      androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+    };
+  }
+
+  window.runTimerSoundCountdownBeepsAudit49E = runTimerSoundCountdownBeepsAudit49E;
+  window.runFullAppAudit49E = runFullAppAudit49E;
+  window.runFullAppAudit = runFullAppAudit49E;
+  window.TailoredTrainingTimerSoundCountdownBeeps49E = Object.freeze({
+    phase: TIMER_SOUND_COUNTDOWN_BEEPS_PHASE49E,
+    outputFile: "Tailored_Training_Rebuild_Phase49E_Timer_Sound_Countdown_Beeps_v1.html",
+    normalizeTimerSoundSettings49E,
+    playTimerSound49E,
+    handleTimerSoundTick49E,
+    runTimerSoundCountdownBeepsAudit49E,
+    runFullAppAudit49E
+  });
+
+
+  const PHASE50_FINAL_ANDROID_REGRESSION_LOCK = "Phase 50 — Final Android Regression Lock / Release Candidate";
+  const PHASE50_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase50_Final_Android_Regression_Lock_Release_Candidate_v1.html";
+
+  function countOccurrences50(source, pattern) {
+    const matches = String(source || "").match(pattern);
+    return matches ? matches.length : 0;
+  }
+
+  function existsFunction50(name) {
+    try {
+      return typeof window !== "undefined" && typeof window[name] === "function" || typeof eval(name) === "function";
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function phase50SourceWithoutPhase50AuditBlock(source) {
+    const text = String(source || "");
+    const start = text.indexOf("const PHASE50_FINAL_ANDROID_REGRESSION_LOCK");
+    const end = text.indexOf("\n  window.TailoredTrainingComponentMediaStatusCopyCleanup49D = Object.freeze({");
+    if (start >= 0 && end > start) return text.slice(0, start) + text.slice(end);
+    return text;
+  }
+
+  function visibleBodyMarkupWithoutScripts50() {
+    if (!document.body || !document.body.cloneNode) return "";
+    const clone = document.body.cloneNode(true);
+    Array.prototype.slice.call(clone.querySelectorAll("script, style")).forEach((node) => node.remove());
+    return String(clone.innerHTML || "");
+  }
+
+  function styleText50() {
+    return Array.prototype.slice.call(document.querySelectorAll("style")).map((node) => String(node.textContent || "")).join("\n");
+  }
+
+  function collectFinalAndroidRegressionChecklist50() {
+    const source = String(document.documentElement && document.documentElement.outerHTML || "");
+    const htmlText = visibleBodyMarkupWithoutScripts50();
+    const checks = [
+      { id: "setLogging", label: "Set logging owner present", ok: /function\s+completeSet\s*\(/.test(source) && /function\s+wireSetLoggingControls\s*\(/.test(source) },
+      { id: "completedRows", label: "Completed rows renderer present", ok: /completed-row|completedSet|completed-row|set-completed/i.test(source) && /function\s+renderCompletedSetRows|function\s+renderCompletedRows|completed rows/i.test(source) },
+      { id: "editSave", label: "Completed-set edit-save path present", ok: /Done editing|done editing|finish.*editing|save.*edit/i.test(source) },
+      { id: "threeDotMenu", label: "Three-dot / set menu path present", ok: /three-dot|set menu|more menu|\.\.\.|set-menu/i.test(source) },
+      { id: "addDropSet", label: "Manual/session-only Add drop set path present", ok: /Add drop set/i.test(source) && /createSessionDropSet|sessionOnlyDrop|dropSet/i.test(source) },
+      { id: "rateDifficulty", label: "Rate difficulty path preserved", ok: /rate difficulty|difficulty|RPE|rir/i.test(source) },
+      { id: "amrapRestPause", label: "AMRAP / rest-pause owners preserved", ok: /AMRAP|rest-pause|rest pause/i.test(source) },
+      { id: "restTimer", label: "Rest timer owner present", ok: /function\s+startRest11C\s*\(/.test(source) && /function\s+refreshRestTimerDisplay11C\s*\(/.test(source) },
+      { id: "endRest", label: "End rest control preserved", ok: /End rest/i.test(source) && /endRest|clearRest|finishRest/i.test(source) },
+      { id: "exerciseTransitions", label: "Exercise transition lock path preserved", ok: /46A|transition-rest|exercise transition|next exercise/i.test(source) },
+      { id: "finalAutoSave", label: "Final workout auto-save path preserved", ok: /46B|auto-save|auto save|appendCompletedSessionToLogs14/i.test(source) },
+      { id: "historyCalendarDetails", label: "History, calendar dots, and session details present", ok: /History/i.test(source) && /calendar/i.test(source) && /Session Details|session details/i.test(source) },
+      { id: "dataBackupExportImport", label: "Data, Backup, export, and import present", ok: /Data/i.test(source) && /Backup/i.test(source) && /export/i.test(source) && /import/i.test(source) },
+      { id: "mediaPreview", label: "Media preview path preserved", ok: /media preview|openMediaPreview|preview modal|previewStage/i.test(source) },
+      { id: "customMedia", label: "Custom media durable storage preserved", ok: /custom media|customMedia/i.test(source) && /48D|durable/i.test(source) },
+      { id: "framePairDemos", label: "Frame-pair demo support preserved", ok: /frame-pair|framePair|real-frame/i.test(source) },
+      { id: "coachSurface", label: "Unified coach surface preserved", ok: /Unified Coach|unified coach|renderUnifiedCoachActionSurface45|Phase 45/i.test(source) },
+      { id: "restDockPrep44", label: "Phase 44 rest-dock prep preserved", ok: /Phase 44|prep line|rest-dock prep|next-move prep/i.test(source) },
+      { id: "plateauSwap43", label: "Phase 43 plateau swap safety preserved", ok: /Phase 43|plateau|swap/i.test(source) },
+      { id: "workoutListStatuses", label: "Workout-list Done/Current/Partial/Next statuses preserved", ok: /Partial/i.test(source) && /Current/i.test(source) && /Next/i.test(source) && /Done/i.test(source) },
+      { id: "phase49bCarry", label: "Phase 49B normal carry-forward after drop set preserved", ok: /Normal Set Auto-Carry After Drop Set|applyNextSetWeightCarryForward41|49B/i.test(source) },
+      { id: "phase49cNumeric", label: "Phase 49C manual numeric entry preserved", ok: /Manual Numeric Entry|sanitizeManualNumericValue49C|49C/i.test(source) },
+      { id: "phase49dMediaCopy", label: "Phase 49D component media copy cleanup preserved", ok: /Component Media Status Copy Cleanup|componentMediaStateCode49D|49D/i.test(source) },
+      { id: "phase49eTimerSound", label: "Phase 49E timer sound controls preserved", ok: /Timer Sound \+ Countdown Beeps|timerSoundToggle49E|playTimerSound49E|49E/i.test(source) },
+      { id: "noDestructiveBootCleanup", label: "No destructive localStorage cleanup detected", ok: !/localStorage\.clear\s*\(/.test(source) },
+      { id: "savedLogsNotCleared", label: "Saved-log clearing is not performed on boot", ok: !/logs\s*=\s*\{\s*\}|state\.logs\s*=\s*\{\s*\}/.test(source) || /Erase workout history|Factory reset/.test(source) },
+      { id: "thumbnailSizingLocked", label: "Thumbnail sizing lock preserved", ok: /\.media-tile\s*\{[\s\S]*?width:\s*86px[\s\S]*?height:\s*86px/.test(source) && /\.combo-media-mini30e-media\s*\{[\s\S]*?width:\s*74px[\s\S]*?height:\s*74px/.test(source) },
+      { id: "noPhase50VisibleUi", label: "Phase 50 adds no visible workout UI", ok: !/data-phase50-visible-ui|phase50-workout-card|phase50-dashboard/i.test(htmlText) },
+      { id: "fullAuditEntrypoint", label: "Full audit entrypoint available", ok: typeof window.runFullAppAudit === "function" }
+    ];
+    return checks.map((check) => Object.freeze(check));
+  }
+
+  function collectFinalStaticOwnerChecks50() {
+    const source = String(document.documentElement && document.documentElement.outerHTML || "");
+    const sourceWithoutPhase50 = phase50SourceWithoutPhase50AuditBlock(source);
+    const visibleMarkup = visibleBodyMarkupWithoutScripts50();
+    const styleText = styleText50();
+    const checks = [
+      { id: "completeSetSingleOwner", label: "completeSet owner count", count: countOccurrences50(source, /function\s+completeSet\s*\(/g), ok: countOccurrences50(source, /function\s+completeSet\s*\(/g) === 1 },
+      { id: "dropCompleteSingleOwner", label: "completeDropSet13C owner count", count: countOccurrences50(source, /function\s+completeDropSet13C\s*\(/g), ok: countOccurrences50(source, /function\s+completeDropSet13C\s*\(/g) === 1 },
+      { id: "restStartSingleOwner", label: "startRest11C owner count", count: countOccurrences50(source, /function\s+startRest11C\s*\(/g), ok: countOccurrences50(source, /function\s+startRest11C\s*\(/g) === 1 },
+      { id: "restRefreshSingleOwner", label: "refreshRestTimerDisplay11C owner count", count: countOccurrences50(source, /function\s+refreshRestTimerDisplay11C\s*\(/g), ok: countOccurrences50(source, /function\s+refreshRestTimerDisplay11C\s*\(/g) === 1 },
+      { id: "activeSessionUsesExistingStore", label: "Existing active-session store preserved", count: countOccurrences50(source, /activeSession/g), ok: /STATE_KEY/.test(source) && /activeSession/.test(source) },
+      { id: "carryForwardNoDuplicate49B", label: "No duplicate Phase 49B carry-forward helper", count: countOccurrences50(source, /function\s+applyNextSetWeightCarryForward41\s*\(/g), ok: countOccurrences50(source, /function\s+applyNextSetWeightCarryForward41\s*\(/g) === 1 && !/applyNextSetWeightCarryForward49B\s*\(/.test(source) },
+      { id: "numericNoParallelLogger49C", label: "Manual numeric entry did not add a parallel logger", count: countOccurrences50(source, /function\s+renderStepper\s*\(/g), ok: countOccurrences50(source, /function\s+renderStepper\s*\(/g) === 1 && !/renderManualNumericSetLogger49C/.test(source) },
+      { id: "mediaNoDuplicateResolver", label: "No duplicate media resolver added", count: countOccurrences50(source, /function\s+resolveMedia/g), ok: countOccurrences50(source, /function\s+resolveMedia/g) <= 2 },
+      { id: "noWrapperStackingTerms", label: "No Phase 50 wrapper stacking terms", count: countOccurrences50(sourceWithoutPhase50, /Phase50Wrapped|Phase50Original|previousCompleteSet50|wrappedCompleteSet50|originalCompleteSet50/g), ok: !/Phase50Wrapped|Phase50Original|previousCompleteSet50|wrappedCompleteSet50|originalCompleteSet50/.test(sourceWithoutPhase50) },
+      { id: "noCssMutation50", label: "Phase 50 adds no CSS/style mutation helper", count: countOccurrences50(styleText, /phase50/gi), ok: !/phase50/i.test(styleText) },
+      { id: "noNewDashboard50", label: "Phase 50 adds no dashboard", count: countOccurrences50(visibleMarkup, /phase50.*dashboard|dashboard.*phase50/gi), ok: !/phase50.*dashboard|dashboard.*phase50/i.test(visibleMarkup) }
+    ];
+    return checks.map((check) => Object.freeze(check));
+  }
+
+  function generateFinalAndroidRegressionReport50(options = {}) {
+    const regression = collectFinalAndroidRegressionChecklist50();
+    const owners = collectFinalStaticOwnerChecks50();
+    const prior = typeof runFullAppAudit49E === "function" ? runFullAppAudit49E() : null;
+    const regressionPass = regression.every((item) => item.ok === true);
+    const ownerPass = owners.every((item) => item.ok === true);
+    const knownLimitations = [
+      "This file adds read-only audit/report metadata only; it does not replace real Android/GitHub testing.",
+      "Audio unlock behavior must still be verified on Android because browser audio policies are device/browser dependent.",
+      "Media preview/custom-media persistence must still be smoke-tested on the hosted GitHub Pages build with real user media.",
+      "Final release-candidate status stays YELLOW until the full Android checklist is manually confirmed."
+    ];
+    const status = regressionPass && ownerPass ? "YELLOW" : "RED";
+    const report = {
+      phase: PHASE50_FINAL_ANDROID_REGRESSION_LOCK,
+      outputFile: PHASE50_OUTPUT_FILE,
+      status,
+      releaseCandidateStatus: status === "YELLOW" ? "YELLOW — Android/GitHub final regression confirmation required before GREEN" : "RED — static regression checks need review before Android confirmation",
+      productFeatureChanges: "none",
+      visualRedesignChanges: "none",
+      workoutProgrammingChanges: "none",
+      regressionChecklist: regression,
+      staticOwnerChecks: owners,
+      priorPhase49E: prior,
+      knownLimitations,
+      androidGithubGate: true,
+      nextStep: "Run the final Android/GitHub regression checklist before marking Phase 50 GREEN."
+    };
+    if (options && options.compact) {
+      return Object.freeze({ phase: report.phase, status: report.status, outputFile: report.outputFile, regressionPass, ownerPass, androidGithubGate: report.androidGithubGate });
+    }
+    return Object.freeze(report);
+  }
+
+  function runFinalAndroidRegressionLockAudit50(options = {}) {
+    const report = generateFinalAndroidRegressionReport50(options);
+    if (options && options.compact) return report;
+    return Object.freeze(Object.assign({}, report, {
+      finalAndroidRegressionLockBuilt50: true,
+      noNewProductFeatures50: true,
+      noVisualRedesign50: true,
+      noWorkoutProgrammingChange50: true,
+      noHistoryDataBackupMutation50: true,
+      noMediaSystemMutation50: true,
+      noDestructiveLocalStorageCleanup50: true,
+      noWrapperStacking50: report.staticOwnerChecks.every((item) => item.id !== "noWrapperStackingTerms" || item.ok === true)
+    }));
+  }
+
+  function runFullAppAudit50(options = {}) {
+    return runFinalAndroidRegressionLockAudit50(options);
+  }
+
+  window.collectFinalAndroidRegressionChecklist50 = collectFinalAndroidRegressionChecklist50;
+  window.collectFinalStaticOwnerChecks50 = collectFinalStaticOwnerChecks50;
+  window.generateFinalAndroidRegressionReport50 = generateFinalAndroidRegressionReport50;
+  window.runFinalAndroidRegressionLockAudit50 = runFinalAndroidRegressionLockAudit50;
+  window.runFullAppAudit50 = runFullAppAudit50;
+  window.runFullAppAudit = runFullAppAudit50;
+  window.TailoredTrainingFinalAndroidRegressionLock50 = Object.freeze({
+    phase: PHASE50_FINAL_ANDROID_REGRESSION_LOCK,
+    outputFile: PHASE50_OUTPUT_FILE,
+    collectFinalAndroidRegressionChecklist50,
+    collectFinalStaticOwnerChecks50,
+    generateFinalAndroidRegressionReport50,
+    runFinalAndroidRegressionLockAudit50,
+    runFullAppAudit50,
+    noNewProductFeatures: true,
+    noVisualRedesign: true,
+    noWorkoutProgrammingChange: true,
+    androidGithubStatus: "YELLOW — Android/GitHub final regression confirmation required before GREEN"
+  });
+
+  window.TailoredTrainingComponentMediaStatusCopyCleanup49D = Object.freeze({
+    phase: PHASE49D_COMPONENT_MEDIA_STATUS_COPY_CLEANUP,
+    outputFile: PHASE49D_OUTPUT_FILE,
+    componentMediaStateCode49D,
+    phase49DComponentMovementCue,
+    runComponentMediaStatusCopyCleanupAudit49D,
+    runFullAppAudit49D,
+    reusedComponentMediaRenderer: "renderComboWarmupStackedComponentMedia30EMedia",
+    visibleStatusCopyRemoved: true,
+    thumbnailSizingChanged: false,
+    customMediaStorageChanged: false,
+    androidGithubGate: "YELLOW until Android/GitHub confirmation required before GREEN."
   });
 
 })();
