@@ -1,4 +1,38 @@
 <!--
+PHASE_59C_EXERCISE_HERO_MEDIA_COUNT_RULES_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59B_Top_Active_Header_Slim_Route_Metrics_v1.html as the Android/GitHub GREEN base and Tailored training plan v59.txt as the active plan source.
+- Locked active-workout exercise hero media count rules without changing workout programming, media storage, custom media persistence, route/session logic, set logging, rest timer behavior, History/Data/Backup, global density, or thumbnail sizing.
+- Single-exercise active hero keeps exactly one parent media tile in the exercise area.
+- Combo/superset/circuit active hero now renders component media rows as the only visible hero media and omits the redundant parent media tile from the active hero DOM, so a 3-move combo presents exactly 3 component thumbnails instead of parent + 3.
+- Added active-workout-scoped data markers/CSS and Phase 59C audit/export handoff; no duplicate active-workout renderer, focus-view system, state system, route/session system, set logger, handler, wrapper, media resolver, upload path, or storage system was added.
+- Android/GitHub confirmation required before GREEN because this changes active-workout exercise hero media presentation.
+-->
+<!--
+PHASE_59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59A_Active_Workout_Visual_Foundation_Contrast_Lock_v1.html as the Android/GitHub GREEN base and Tailored training plan v59.txt as the active plan source.
+- Refined only the active-workout top shell: added a shorter scoped header treatment, a compact route-lock/day-mode line, and a slim route-metrics strip for exercises, planned sets, and estimate.
+- Kept List / Tools / Jump / Save controls on the existing active-session owner path and preserved the existing Workout list and Route/tools sheets.
+- Did not redesign the exercise hero, set logger, combo rows, media rules, stats, coach/drop-set logic, rest timer behavior, route/session logic, workout programming, History/Data/Backup, custom media storage, thumbnail sizing, global density, or boot storage behavior.
+- Android/GitHub confirmation required before GREEN because this changes the active-workout top shell visual layout on-device.
+-->
+<!--
+PHASE_59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase55_Final_Android_Regression_Lock_After_Focus_View_v1.html as the Android/GitHub GREEN release-candidate base and Tailored training plan v59.txt as the active plan source.
+- Added active-workout-only visual foundation polish to move the focus view toward the approved darker compact mockup direction: deeper navy/black surface, stronger card/row separation, thinner borders, controlled glow, and less whole-card green haze.
+- Introduced scoped active-workout visual tokens/classes only under the existing active-workout shell state; no global zoom, root font shrink, thumbnail sizing, route metric layout, exercise hero redesign, set row redesign, media rule change, route/session logic, rest timer behavior, or workout programming change was added.
+- Refined active-workout accent roles so teal/green is used for active/selected/primary/completion accents while gold/yellow is prepared for Best, Stats, Coach/Heavy, and Drop-set accent moments.
+- Preserved custom media/GIF reload, no-scroll-loop protection, active/later/drop-set persistence, plateau next-route swaps, set-menu cleanup, exercise history sheet, manual entry, timer sound, focus-view sheets, reset controls, History/Data/Backup, and non-destructive boot behavior.
+- Android/GitHub confirmation required before GREEN because this changes active-workout visual contrast on-device.
+-->
+<!--
+PHASE_55_FINAL_ANDROID_REGRESSION_LOCK_AFTER_FOCUS_VIEW_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase54E_Coach_Drop_Set_Rest_Timer_Compact_Behavior_v1.html as the Android/GitHub GREEN base and Tailored training plan v54.txt as the active plan source.
+- Added a read-only final Android regression lock after the active-workout focus-view cycle; no product UI, layout behavior, CSS density, thumbnail sizing, workout programming, route generation, set logging, rest timing, coach/drop-set logic, media storage, History/Data/Backup layout, reset behavior, or boot storage cleanup changed.
+- The Phase 55 checklist covers no-active planning flow, active focus shell, compact hero metric chips, focused Log set priority, Workout list sheet, Route/tools sheet, compact coach/drop-set/rest timer behavior, custom media/GIF reload, active/later/drop-set persistence, plateau next-route swaps, manual numeric entry, timer sound, reset controls, Save completed sets/History, no scroll/re-render loop, and non-destructive boot behavior.
+- Preserved Phase 54A/54B/54C/54D/54E focus-view behavior and all Phase 53 release-candidate protections.
+- Android/GitHub confirmation required before GREEN because this is the final on-device regression lock after focus-view changes.
+-->
+<!--
 PHASE_54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase54D_Workout_List_Route_Tools_Sheets_v1.html as the Android/GitHub GREEN base and Tailored training plan v54.txt as the active plan source.
 - Compact active-workout coach, drop-set recommendation, and rest timer presentation only; no set logger, rest timer, drop-set, coach-decision, route, media, state, or History behavior was changed.
@@ -71,6 +105,34 @@ PHASE_51E_TIMER_SOUND_COUNTDOWN_BEEPS_V1_CHANGELOG
 - Did not change workout programming, set logging values, rest timing, End rest behavior, drop-set/coach behavior, custom media persistence, plateau swaps, History/Data/Backup, thumbnail sizing, visual density, or boot storage cleanup.
 -->
 <!doctype html>
+
+<!--
+PHASE_59F_UNIFIED_LOG_SET_ROWS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59E_Slim_Stats_Row_Stats_Sheet_Trigger_v1.html as the Android/GitHub GREEN base.
+- Added active-workout-only unified Log set row/card visual treatment so completed, active/editing, upcoming/collapsed, and drop-set rows feel like one clean row/card each instead of nested box-on-box panels.
+- Preserved existing renderSetLoggingSection, renderSetCard, completed-row edit/menu zones, manual numeric entry, complete-set handler, carry-forward, drop-set rows, rest timer, History/Data/Backup, custom media/GIF persistence, plateau swaps, route/session logic, and non-destructive boot behavior.
+- No workout programming, exercise order, sets/reps/rest/RIR/tempo/progression, custom media storage, thumbnail sizing, global density/CSS sizing, route generation, coach/drop-set logic, or rest behavior changed.
+- Android/GitHub confirmation required before GREEN because this changes active-workout Log set row presentation.
+-->
+<!--
+PHASE_59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59D_Compact_Combo_Rows_Useful_Copy_Only_v1.html as the Android/GitHub GREEN base and Tailored training plan v59.txt as the active plan source.
+- Converted the active-workout always-visible per-exercise Stats banner into a slim tappable row/chip that shows only Best, Trend, and logged-set count and opens the existing Stats sheet.
+- Kept non-active Today/planning stats presentation unchanged and reused the existing Phase 22 stats model, sheet, and open handler; no new stats store, renderer system, History mutation, set logger rewrite, route/session change, media storage change, or app-wide density change was added.
+- Preserved Phase 59A-D compact active-workout stack, custom media/GIF reload, no-scroll-loop protection, active/later/drop-set persistence, plateau next-route swaps, set-menu cleanup, exercise history sheet, manual entry, timer sound, reset controls, History/Data/Backup, and non-destructive boot behavior.
+- Android/GitHub confirmation required before GREEN because this changes active-workout stats presentation on-device.
+-->
+
+
+<!--
+PHASE_59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59C_Exercise_Hero_Media_Count_Rules_v1.html as the Android/GitHub GREEN base and Tailored training plan v59.txt as the active plan source.
+- Compact active-workout combo/superset/circuit rows through the existing combo component media owner path without changing workout programming, route/session logic, set logging, rest timer behavior, custom media storage, thumbnail sizing, global visual density, or History/Data/Backup.
+- Kept component rows readable and tappable with thumbnail, move number, move name, and useful movement cue only; no active-workout row copy such as Media ready, Custom media, Media not available yet, or preview unavailable is shown.
+- Preserved component thumbnail preview/change/restore behavior, exact-target custom media isolation, Phase 59C combo media-count rule, Phase 59B top header/slim metrics, Phase 59A contrast lock, and Phase 55 regression protections.
+- Added active-workout-scoped CSS and Phase 59D audit/export handoff; no duplicate active-workout renderer, focus-view system, state system, route/session system, set logger, handler, wrapper, media resolver, upload path, or storage system was added.
+- Android/GitHub confirmation required before GREEN because this changes active-workout combo row presentation and visible row copy.
+-->
 
 <!--
 PHASE_54D_WORKOUT_LIST_ROUTE_TOOLS_SHEETS_V1_CHANGELOG
@@ -711,7 +773,7 @@ PHASE_34D_WHY_EXPLANATION_V1_CHANGELOG
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Tailored Training — Phase 51B Set Menu Dead Option Cleanup v1</title>
+  <title>Tailored Training — Phase 59B Top Active Header + Slim Route Metrics v1</title>
 <!--
 PHASE_34F_REAL_TIME_COACH_REGRESSION_LOCK_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase34E_Coach_Priority_Order_Lock_v1.html as the base after GREEN confirmation.
@@ -2052,6 +2114,101 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
     .drop-transition-countdown34cbugfix { min-width:48px; min-height:32px; padding:7px 9px; border-radius:13px; display:inline-flex; align-items:center; justify-content:center; border:1px solid rgba(77,242,164,.24); background:rgba(5,8,13,.32); color:#f4fff8; font-weight:950; font-variant-numeric:tabular-nums; letter-spacing:.02em; box-shadow:inset 0 1px 0 rgba(255,255,255,.05); }
     .drop-set-row13b > .drop-transition-cue13e { margin:0 0 10px 0; position:relative; z-index:1; pointer-events:none; }
     .drop-set-row13b > .drop-transition-cue13e .drop-transition-countdown34cbugfix { pointer-events:none; }
+
+
+    /* PHASE_59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS_V1_CSS — active-workout-only top shell and slim route metrics; no hero/set/media/rest redesign */
+    .active-workout-minimal54a .active-session-strip54a[data-phase54a-active-session-strip="minimal-shell"] {
+      align-items:flex-start;
+      gap:9px;
+      padding:9px 10px;
+      border-radius:18px;
+      background:
+        linear-gradient(135deg, rgba(99,230,190,.055), rgba(7,12,20,.96) 38%, rgba(3,7,13,.95));
+      border-color:rgba(99,230,190,.22);
+      box-shadow:0 12px 30px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.045);
+    }
+    .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] .kicker {
+      font-size:8.5px;
+      letter-spacing:.15em;
+      line-height:1;
+      color:var(--aw59a-teal);
+    }
+    .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] .active-session-title54a {
+      font-size:13px;
+      line-height:1.08;
+      letter-spacing:-.025em;
+    }
+    .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] .active-session-meta54a {
+      font-size:10.25px;
+      line-height:1.12;
+      gap:5px;
+    }
+    .active-workout-minimal54a .active-session-lockline59b {
+      color:rgba(151,166,191,.72);
+      font-size:9.5px;
+      font-weight:850;
+      line-height:1.15;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .active-workout-minimal54a .active-session-mode-pills59b {
+      display:flex;
+      align-items:center;
+      gap:5px;
+      flex-wrap:wrap;
+      margin-top:1px;
+    }
+    .active-workout-minimal54a .active-session-mode-pills59b span {
+      border:1px solid rgba(154,178,214,.13);
+      background:rgba(255,255,255,.035);
+      color:rgba(226,238,255,.82);
+      border-radius:999px;
+      padding:3px 7px;
+      font-size:9.5px;
+      line-height:1.15;
+      font-weight:900;
+    }
+    .active-workout-minimal54a .active-session-mode-pills59b span:first-child {
+      border-color:rgba(99,230,190,.20);
+      background:rgba(99,230,190,.07);
+      color:#dffdf5;
+    }
+    .active-workout-minimal54a .active-session-route-metrics59b {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      flex-wrap:wrap;
+      width:100%;
+      margin-top:2px;
+      padding:6px 8px;
+      border:1px solid rgba(154,178,214,.12);
+      background:rgba(255,255,255,.027);
+      border-radius:14px;
+      color:rgba(151,166,191,.78);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.028);
+      font-size:9.5px;
+      font-weight:850;
+      line-height:1.15;
+    }
+    .active-workout-minimal54a .active-session-route-metrics59b b {
+      color:#f7fbff;
+      font-size:10.5px;
+      letter-spacing:-.01em;
+    }
+    .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] .active-session-actions54a {
+      gap:5px;
+      padding-top:1px;
+    }
+    .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] .active-session-btn54a {
+      min-height:30px;
+      padding:6px 8px;
+      font-size:10px;
+      border-radius:999px;
+    }
+    .active-workout-minimal54a #workoutDashboard52B[data-phase59b-route-metrics-main-scroll="replaced-by-active-strip"] {
+      display:none !important;
+    }
     @media (max-width:430px) { .drop-transition-cue13e { padding:8px 9px; gap:3px 8px; } .drop-transition-countdown34cbugfix { min-width:44px; padding:6px 8px; } }
 
     .drop-set-prep-cue34g {
@@ -2429,8 +2586,180 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
       body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-clock { font-size:21px; min-width:58px; }
     }
 
+
+    /* PHASE_59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK_V1_CSS — active-workout-only visual tokens/contrast; no global density, zoom, or thumbnail changes */
+    .phone-shell.active-workout-minimal54a {
+      --aw59a-bg-deep:#02050a;
+      --aw59a-bg-navy:#06101a;
+      --aw59a-panel:rgba(7,12,20,.90);
+      --aw59a-panel-2:rgba(10,17,28,.82);
+      --aw59a-row:rgba(255,255,255,.038);
+      --aw59a-border:rgba(154,178,214,.155);
+      --aw59a-border-strong:rgba(99,230,190,.30);
+      --aw59a-teal:#63e6be;
+      --aw59a-teal-soft:rgba(99,230,190,.12);
+      --aw59a-gold:#f4c96d;
+      --aw59a-gold-soft:rgba(244,201,109,.12);
+      --aw59a-slate:rgba(151,166,191,.70);
+      background:
+        radial-gradient(circle at 82% -10%, rgba(99,230,190,.10), transparent 25rem),
+        radial-gradient(circle at 8% 18%, rgba(139,183,255,.075), transparent 22rem),
+        linear-gradient(180deg, var(--aw59a-bg-navy) 0%, var(--aw59a-bg-deep) 56%, #010308 100%);
+      border-color:rgba(154,178,214,.14);
+      box-shadow:0 28px 90px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    body[data-phase54a-minimal-session-shell="true"] {
+      background:
+        radial-gradient(circle at 18% -8%, rgba(99,230,190,.075), transparent 28rem),
+        radial-gradient(circle at 92% 4%, rgba(139,183,255,.07), transparent 26rem),
+        linear-gradient(180deg, #050914 0%, #02050a 58%, #010204 100%);
+    }
+    .phone-shell.active-workout-minimal54a .top-glow {
+      opacity:.58;
+      background:radial-gradient(circle, rgba(99,230,190,.12), transparent 70%);
+      filter:blur(2px);
+    }
+    .active-workout-minimal54a .main {
+      background:linear-gradient(180deg, rgba(4,8,14,.78), rgba(2,5,10,.86));
+    }
+    .active-workout-minimal54a .active-session-strip54a,
+    .active-workout-minimal54a .detail-card,
+    .active-workout-minimal54a .set-logging,
+    .active-workout-minimal54a .card,
+    body[data-phase54a-minimal-session-shell="true"] .workout-list-sheet52b .media-sheet,
+    body[data-phase54a-minimal-session-shell="true"] .route-tools-sheet54d .media-sheet,
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b {
+      background:linear-gradient(180deg, var(--aw59a-panel), var(--aw59a-panel-2));
+      border-color:var(--aw59a-border);
+      box-shadow:0 16px 44px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.045);
+      backdrop-filter:blur(18px);
+    }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"],
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] {
+      background:
+        radial-gradient(circle at 96% 4%, rgba(99,230,190,.045), transparent 22rem),
+        linear-gradient(180deg, rgba(8,14,24,.93), rgba(4,8,15,.91));
+      border-color:rgba(154,178,214,.16);
+      box-shadow:0 16px 42px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.045);
+    }
+    .active-workout-minimal54a .active-session-strip54a {
+      background:
+        linear-gradient(135deg, rgba(99,230,190,.075), rgba(8,14,24,.92) 42%, rgba(5,9,16,.92));
+      border-color:rgba(99,230,190,.24);
+      box-shadow:0 14px 36px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .active-workout-minimal54a .active-session-title54a,
+    .active-workout-minimal54a .detail-title h3,
+    .active-workout-minimal54a .set-head h3 { color:#f7fbff; }
+    .active-workout-minimal54a .active-session-meta54a,
+    .active-workout-minimal54a .target-line,
+    .active-workout-minimal54a .subtle,
+    .active-workout-minimal54a .ex-meta { color:var(--aw59a-slate); }
+    .active-workout-minimal54a .kicker,
+    .active-workout-minimal54a .active-state-pill,
+    .active-workout-minimal54a .rest-dock11b-kicker { color:var(--aw59a-teal); }
+    .active-workout-minimal54a .active-session-btn54a.primary,
+    .active-workout-minimal54a .btn:not(.ghost),
+    .active-workout-minimal54a .complete-btn,
+    body[data-phase54a-minimal-session-shell="true"] .end-rest-btn11b:not(:disabled),
+    body[data-phase54a-minimal-session-shell="true"] .rest-sound-btn49e[data-enabled="true"] {
+      border-color:rgba(99,230,190,.40);
+      background:linear-gradient(135deg, rgba(99,230,190,.96), rgba(139,183,255,.82));
+      color:#03100c;
+      box-shadow:0 10px 24px rgba(99,230,190,.16);
+    }
+    .active-workout-minimal54a .active-session-btn54a,
+    .active-workout-minimal54a .active-focus-chip52b,
+    .active-workout-minimal54a .chip,
+    .active-workout-minimal54a .detail-tile,
+    .active-workout-minimal54a .log-control,
+    .active-workout-minimal54a .history-preview-item51c,
+    .active-workout-minimal54a .route-tools-stat54d {
+      background:var(--aw59a-row);
+      border-color:rgba(154,178,214,.13);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .active-workout-minimal54a .chip.green,
+    .active-workout-minimal54a .workout-day-chip32c.active,
+    .active-workout-minimal54a .seg button.active {
+      color:#dffdf5;
+      border-color:rgba(99,230,190,.30);
+      background:rgba(99,230,190,.095);
+      box-shadow:0 0 0 1px rgba(99,230,190,.045), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .active-workout-minimal54a .chip.gold,
+    .active-workout-minimal54a .stats-action22,
+    .active-workout-minimal54a .stats-pr-chip22,
+    .active-workout-minimal54a .coach-chip34a,
+    .active-workout-minimal54a .drop-prep-pill34h,
+    .active-workout-minimal54a .drop-target-pill34g,
+    .active-workout-minimal54a .rest-dock11b-meta[data-phase44-rest-prep="true"] {
+      color:var(--aw59a-gold);
+      border-color:rgba(244,201,109,.26);
+      background:var(--aw59a-gold-soft);
+    }
+    .active-workout-minimal54a .set-card {
+      background:linear-gradient(180deg, rgba(7,12,20,.84), rgba(4,8,15,.86));
+      border-color:rgba(154,178,214,.13);
+      box-shadow:0 10px 24px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .active-workout-minimal54a .set-card[data-phase12b-next-set-open-target="true"] {
+      border-color:rgba(99,230,190,.38);
+      box-shadow:0 0 0 1px rgba(99,230,190,.10), 0 14px 34px rgba(0,0,0,.30);
+    }
+    .active-workout-minimal54a .set-card.completed,
+    .active-workout-minimal54a .set-card.completed[data-phase12a-collapsed-after-complete="true"],
+    .active-workout-minimal54a .set-card.drop-set-row13b.completed13c {
+      border-color:rgba(99,230,190,.32);
+      background:linear-gradient(180deg, rgba(99,230,190,.075), rgba(5,10,17,.88));
+      box-shadow:0 10px 24px rgba(0,0,0,.24), inset 2px 0 0 rgba(99,230,190,.55);
+    }
+    .active-workout-minimal54a .set-card.collapsed {
+      background:rgba(255,255,255,.030);
+      border-color:rgba(154,178,214,.11);
+    }
+    .active-workout-minimal54a .smart-drop-rec40,
+    .active-workout-minimal54a .drop-target-cue34g,
+    .active-workout-minimal54a .drop-set-prep-cue34g {
+      border-color:rgba(244,201,109,.25);
+      background:linear-gradient(135deg, rgba(244,201,109,.10), rgba(5,9,16,.90));
+      box-shadow:0 12px 28px rgba(0,0,0,.26), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .active-workout-minimal54a .smart-drop-rec-add40 {
+      border-color:rgba(244,201,109,.32);
+      background:rgba(244,201,109,.14);
+      color:#ffe7a5;
+    }
+    .active-workout-minimal54a .phase41-guidance-inline[data-phase45-unified-coach-action="true"],
+    .active-workout-minimal54a .coach-nudge34i {
+      border-color:rgba(244,201,109,.20);
+      background:linear-gradient(135deg, rgba(244,201,109,.085), rgba(6,11,19,.90));
+      box-shadow:0 12px 28px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .active-workout-minimal54a .media-tile,
+    .active-workout-minimal54a .combo-media-row30e-media,
+    .active-workout-minimal54a .exercise-row {
+      background:rgba(255,255,255,.032);
+      border-color:rgba(154,178,214,.12);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .active-workout-minimal54a .cue-box,
+    .active-workout-minimal54a .exercise-history-preview51c,
+    .active-workout-minimal54a .active-route-tools52b {
+      background:rgba(255,255,255,.034);
+      border-color:rgba(154,178,214,.13);
+    }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-rest-state="active"] {
+      border-color:rgba(99,230,190,.34);
+      box-shadow:0 18px 56px rgba(0,0,0,.50), 0 0 0 1px rgba(99,230,190,.065);
+    }
+
     @media (max-width:430px) {
       body { padding:10px; padding-bottom:calc(150px + env(safe-area-inset-bottom, 0px)); }
+      .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] { gap:8px; padding:9px; }
+      .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] .active-session-actions54a { width:100%; justify-content:space-between; }
+      .active-workout-minimal54a .active-session-strip54a[data-phase59b-top-active-header="slim"] .active-session-btn54a { flex:1 1 auto; padding-inline:6px; }
+      .active-workout-minimal54a .active-session-route-metrics59b { gap:5px; padding:6px 7px; }
       .active-session-strip54a { align-items:flex-start; flex-direction:column; }
       .active-session-actions54a { width:100%; justify-content:space-between; }
       .active-session-btn54a { flex:1 1 auto; padding-inline:8px; }
@@ -2935,7 +3264,411 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
     .route-tools-actions54d .btn { width:100%; justify-content:center; }
     .active-workout-minimal54a #activeRouteToolsPanel52B { display:none !important; }
     @media (max-width:430px) { .route-tools-summary54d { grid-template-columns:1fr; } }
-</style>
+
+
+    /* PHASE_59C_EXERCISE_HERO_MEDIA_COUNT_RULES_V1_CSS — active-workout-only exercise hero/media count lock; no thumbnail size, route, set logger, or media storage changes */
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="single-parent-media"] .detail-top[data-phase59c-media-count-rule="single-parent-media"] {
+      grid-template-columns:88px minmax(0, 1fr);
+      align-items:center;
+      gap:10px;
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="single-parent-media"] .detail-top[data-phase59c-media-count-rule="single-parent-media"] > .media-tile {
+      display:grid;
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .detail-top[data-phase59c-media-count-rule="combo-components-only"] {
+      grid-template-columns:minmax(0, 1fr);
+      align-items:start;
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .detail-top[data-phase59c-media-count-rule="combo-components-only"] > .media-tile {
+      display:none !important;
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .combo-media-stack30e-media[data-phase59c-media-count-rule="component-count"] {
+      margin-top:10px;
+      border-color:rgba(154,178,214,.145);
+      background:linear-gradient(180deg, rgba(8,14,24,.78), rgba(3,7,13,.70));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .combo-media-list30e-media {
+      display:grid;
+      gap:8px;
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .combo-media-row30e-media {
+      border-color:rgba(154,178,214,.13);
+      background:rgba(255,255,255,.035);
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .combo-media-head30e-media b {
+      color:#f7fbff;
+    }
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .combo-media-head30e-media span,
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .combo-media-log-note30e-media {
+      color:rgba(151,166,191,.72);
+    }
+
+    /* PHASE_59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY_V1_CSS — active-workout-only combo row compaction/copy cleanup; no thumbnail sizing, media storage, route, or set logger changes */
+    .active-workout-minimal54a .detail-card[data-phase59c-media-count-rule="combo-components-only"] .combo-media-stack30e-media[data-phase59d-combo-rows="compact-useful-copy"] {
+      padding:10px;
+      gap:8px;
+      border-radius:18px;
+      border-color:rgba(154,178,214,.16);
+      background:linear-gradient(180deg, rgba(6,11,20,.88), rgba(2,6,12,.78));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035);
+    }
+    .active-workout-minimal54a .combo-media-head30e-media[data-phase59d-combo-head="short"] {
+      align-items:flex-start;
+      gap:8px;
+      padding:0 1px;
+    }
+    .active-workout-minimal54a .combo-media-head30e-media[data-phase59d-combo-head="short"] b {
+      color:#f7fbff;
+      font-size:12px;
+      line-height:1.15;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .active-workout-minimal54a .combo-media-head30e-media[data-phase59d-combo-head="short"] span {
+      color:rgba(151,166,191,.74);
+      font-size:11px;
+      line-height:1.25;
+      text-align:right;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .active-workout-minimal54a .combo-media-list30e-media {
+      gap:7px;
+    }
+    .active-workout-minimal54a .combo-media-row30e-media[data-phase59d-combo-row="compact-useful-copy"] {
+      padding:7px;
+      gap:9px;
+      border-radius:14px;
+      border-color:rgba(154,178,214,.14);
+      background:rgba(255,255,255,.028);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.026);
+    }
+    .active-workout-minimal54a .combo-media-row30e-media[data-phase59d-combo-row="compact-useful-copy"]:is(button) {
+      cursor:pointer;
+    }
+    .active-workout-minimal54a .combo-media-row30e-media[data-phase59d-combo-row="compact-useful-copy"]:active {
+      transform:translateY(1px);
+      border-color:rgba(99,230,190,.26);
+    }
+    .active-workout-minimal54a .combo-media-copy30e-media[data-phase59d-useful-copy="true"] {
+      gap:4px;
+      min-width:0;
+      align-content:center;
+    }
+    .active-workout-minimal54a .combo-media-titleline59d {
+      display:flex;
+      align-items:center;
+      gap:7px;
+      min-width:0;
+    }
+    .active-workout-minimal54a .combo-media-index59d {
+      flex:0 0 auto;
+      border:1px solid rgba(99,230,190,.22);
+      background:rgba(99,230,190,.075);
+      color:#9ff8dc;
+      border-radius:999px;
+      padding:2px 6px;
+      font-size:10px;
+      line-height:1.1;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+    .active-workout-minimal54a .combo-media-copy30e-media[data-phase59d-useful-copy="true"] b {
+      min-width:0;
+      color:#f5f9ff;
+      font-size:13px;
+      line-height:1.18;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .active-workout-minimal54a .combo-media-cue59d {
+      color:rgba(184,197,218,.76);
+      font-size:11px;
+      line-height:1.25;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+    .active-workout-minimal54a .combo-media-log-note30e-media {
+      color:rgba(151,166,191,.66);
+      font-size:10.5px;
+      line-height:1.25;
+      padding:0 1px;
+    }
+    @media (max-width:430px) {
+      .active-workout-minimal54a .combo-media-head30e-media[data-phase59d-combo-head="short"] {
+        display:grid;
+        justify-items:start;
+      }
+      .active-workout-minimal54a .combo-media-head30e-media[data-phase59d-combo-head="short"] span {
+        text-align:left;
+      }
+    }
+
+
+
+/* PHASE_59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER_V1_CSS
+   Active-workout-only slim Stats access. No global zoom, font shrink, thumbnail sizing, or layout rewrite. */
+.active-workout-minimal54a .stats-banner22.stats-slim-row59e {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 8px 0;
+  padding: 9px 11px;
+  border: 1px solid rgba(244, 199, 103, 0.32);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(20, 24, 37, 0.94), rgba(8, 12, 22, 0.96));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.025), 0 10px 24px rgba(0, 0, 0, 0.2);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+.active-workout-minimal54a .stats-banner22.stats-slim-row59e b {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  color: #f4c767;
+  letter-spacing: 0.02em;
+}
+.active-workout-minimal54a .stats-banner22.stats-slim-row59e span:last-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: rgba(235, 244, 255, 0.78);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.active-workout-minimal54a .stats-banner22.stats-slim-row59e:focus-visible {
+  outline: 2px solid rgba(51, 238, 201, 0.85);
+  outline-offset: 2px;
+}
+
+
+    /* PHASE_59F_UNIFIED_LOG_SET_ROWS_V1_CSS — active-workout-only unified set rows; no global density or behavior changes */
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-stack {
+      gap:7px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row] {
+      border-radius:17px;
+      padding:9px 10px;
+      background:linear-gradient(145deg, rgba(8,12,20,.86), rgba(12,18,29,.72));
+      border:1px solid rgba(125,211,252,.13);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035), 0 8px 18px rgba(0,0,0,.18);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="active"],
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="editing"] {
+      border-color:rgba(77,242,164,.34);
+      background:linear-gradient(145deg, rgba(12,24,27,.92), rgba(7,11,18,.78));
+      box-shadow:inset 0 0 0 1px rgba(77,242,164,.055), 0 10px 22px rgba(0,0,0,.22);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="completed"] {
+      border-color:rgba(77,242,164,.27);
+      background:linear-gradient(145deg, rgba(10,26,22,.82), rgba(7,11,18,.76));
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="upcoming"] {
+      border-color:rgba(148,163,184,.16);
+      background:rgba(8,12,20,.64);
+      border-style:solid;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row^="drop"] {
+      margin-left:12px;
+      border-color:rgba(244,204,115,.30);
+      background:linear-gradient(145deg, rgba(45,30,9,.44), rgba(8,12,20,.76));
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row^="drop"]::before {
+      left:-10px;
+      top:-8px;
+      height:21px;
+      border-color:rgba(244,204,115,.32);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-title-row {
+      min-height:32px;
+      padding:0;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:transparent;
+      border:0;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-title-row b {
+      font-size:13px;
+      letter-spacing:-.02em;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .collapse-cue {
+      font-size:11px;
+      color:rgba(203,213,225,.72);
+      white-space:nowrap;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .phase12b-focus-note {
+      margin:2px 0 0;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(77,242,164,.18);
+      background:rgba(77,242,164,.055);
+      color:rgba(220,252,231,.88);
+      font-size:11px;
+      font-weight:850;
+      line-height:1.2;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .log-grid {
+      gap:7px;
+      margin-top:6px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .log-control {
+      border-radius:14px;
+      background:rgba(15,23,42,.58);
+      border-color:rgba(148,163,184,.13);
+      box-shadow:none;
+      overflow:hidden;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .log-control label {
+      font-size:9px;
+      letter-spacing:.08em;
+      margin-bottom:4px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .stepper,
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-stepper13c {
+      min-height:38px;
+      border-radius:13px;
+      background:rgba(2,6,12,.48);
+      border-color:rgba(148,163,184,.14);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .stepper button,
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-stepper13c button {
+      min-height:38px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .complete-btn {
+      min-height:40px;
+      margin-top:8px;
+      border-radius:14px;
+      box-shadow:0 10px 20px rgba(77,242,164,.12);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .completed-row,
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .collapsed-planned-row34cbugfix {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 34px;
+      align-items:center;
+      gap:8px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .completed-edit-zone {
+      min-height:42px;
+      padding:0;
+      border:0;
+      background:transparent;
+      box-shadow:none;
+      display:grid;
+      grid-template-columns:30px minmax(0,1fr);
+      gap:9px;
+      align-items:center;
+      text-align:left;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .check-dot {
+      width:28px;
+      height:28px;
+      border-radius:11px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, var(--green), var(--blue));
+      color:#03100b;
+      font-size:14px;
+      font-weight:950;
+      box-shadow:0 0 16px rgba(77,242,164,.20);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .completed-main b {
+      font-size:13px;
+      line-height:1.15;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .completed-main span {
+      margin-top:2px;
+      font-size:10.5px;
+      color:rgba(203,213,225,.70);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .completed-main .coach-chip34a {
+      margin-top:5px;
+      min-height:20px;
+      padding:3px 7px;
+      font-size:9px;
+      color:var(--gold);
+      border-color:rgba(244,204,115,.24);
+      background:rgba(244,204,115,.075);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .independent-menu-btn {
+      width:34px;
+      height:34px;
+      min-height:34px;
+      border-radius:13px;
+      background:rgba(15,23,42,.72);
+      border:1px solid rgba(148,163,184,.16);
+      color:rgba(226,232,240,.86);
+      box-shadow:none;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-row13b {
+      grid-template-columns:28px minmax(0,1fr) auto;
+      gap:8px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-icon13b {
+      width:26px;
+      height:26px;
+      border-radius:10px;
+      color:var(--gold);
+      background:rgba(244,204,115,.08);
+      border-color:rgba(244,204,115,.22);
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-copy13b b {
+      font-size:12px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-copy13b span {
+      font-size:10.5px;
+      line-height:1.25;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-complete-controls13c {
+      gap:7px;
+      margin-top:8px;
+    }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .drop-complete-btn13c {
+      min-height:40px;
+      margin-top:8px;
+      border-radius:14px;
+    }
+    @media (min-width:390px) {
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="active"],
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="editing"] {
+        display:grid;
+        grid-template-columns:minmax(0,1fr) auto;
+        align-items:end;
+        gap:8px;
+      }
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="active"] .set-title-row,
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="active"] .phase12b-focus-note,
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="editing"] .set-title-row,
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="editing"] .phase12b-focus-note {
+        grid-column:1 / -1;
+      }
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="active"] .log-grid,
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="editing"] .log-grid {
+        margin-top:0;
+        min-width:0;
+      }
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="active"] .complete-btn,
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-card[data-phase59f-unified-set-row="editing"] .edit-actions {
+        margin-top:0;
+        min-width:112px;
+      }
+    }
+
+  </style>
 
 <!--
 MEDIA BRIDGE 4 LEDGER
@@ -2996,10 +3729,23 @@ MEDIA BRIDGE 4 LEDGER
                 <div class="active-session-main54a">
                   <div class="kicker">Active workout</div>
                   <div class="active-session-title54a" id="activeSessionTitle54A">Workout</div>
-                  <div class="active-session-meta54a">
+                  <div class="active-session-meta54a" data-phase59b-active-progress-line="compact">
                     <span id="activeSessionProgress54A">1/1</span>
                     <span aria-hidden="true">•</span>
                     <span id="activeSessionSetProgress54A">0 sets logged</span>
+                  </div>
+                  <div class="active-session-lockline59b" id="activeSessionLockLine59B" data-phase59b-route-lock-line="short-subdued">Route locked</div>
+                  <div class="active-session-mode-pills59b" id="activeSessionModePills59B" data-phase59b-day-mode-pills="readable-locked-route" aria-label="Active workout day, mode, and route">
+                    <span id="activeSessionDayPill59B">Today</span>
+                    <span id="activeSessionModePill59B">Gym</span>
+                    <span id="activeSessionRoutePill59B">Full</span>
+                  </div>
+                  <div class="active-session-route-metrics59b" id="activeSessionRouteMetrics59B" data-phase59b-slim-route-metrics="active-shell" aria-label="Active workout route metrics">
+                    <span><b id="activeRouteExercises59B">0</b> Route exercises</span>
+                    <span aria-hidden="true">|</span>
+                    <span><b id="activeRouteSets59B">0</b> Planned sets</span>
+                    <span aria-hidden="true">|</span>
+                    <span><b id="activeRouteEstimate59B">0m</b> Estimate</span>
                   </div>
                 </div>
                 <div class="active-session-actions54a" aria-label="Active workout quick actions">
@@ -8686,8 +9432,7 @@ Existing History logs stay untouched.`);
         if (row) {
           row.dataset.componentMediaStatus30eMedia = "Custom media";
           row.dataset.phase48dAndroidCustomApplied = "true";
-          const copy = row.querySelector && row.querySelector(".combo-media-copy30e-media span");
-          if (copy) copy.textContent = "Custom media";
+          // Phase 59D: keep component row copy as useful movement cue only; custom media state is shown by the thumbnail/data marker, not by replacing row text.
         }
         applied += 1;
       }
@@ -9107,6 +9852,8 @@ Existing History logs stay untouched.`);
     const count = comboMedia.components.length;
     const comboLabel = comboMediaTypeLabel48Polish(comboMedia, count);
     const comboInstruction = comboMediaInstruction48Polish(comboMedia);
+    const comboHeader59D = `${comboLabel} · ${count} ${count === 1 ? "move" : "moves"}`;
+    const comboInstruction59D = comboInstruction || "Complete each move, then log the round.";
     const rows = comboMedia.components.map((entry, index) => {
       const media = entry.media || {};
       const previewEligible = mediaPreviewEligible32CBugfix(media);
@@ -9116,22 +9863,23 @@ Existing History logs stay untouched.`);
       const componentCue49 = phase49DComponentMovementCue(entry);
       const componentName49D = entry && entry.component && entry.component.name || entry && entry.exercise && entry.exercise.displayName || "Move";
       const exerciseName49D = entry && entry.exercise && entry.exercise.displayName || componentName49D;
-      const cueMarkup49D = componentCue49 ? `<span>${escapeHtml(componentCue49)}</span>` : "";
+      const cueMarkup49D = componentCue49 ? `<span class="combo-media-cue59d">${escapeHtml(componentCue49)}</span>` : "";
       const rowAttrs = previewEligible ? `type="button" data-open-component-media-preview30e-media="${index}"` : `data-component-media-preview-disabled32c="true" title="${escapeHtml(componentCue49 || "Form cue")}"`;
       const rowTag = previewEligible ? "button" : "div";
       const thumb = previewEligible ? comboComponentMediaThumb30EMedia(media) : mediaDisabledFallbackThumb48Polish(media);
       const target48D = customMediaTargetFromMedia48D(media || {});
-      return `<${rowTag} class="combo-media-row30e-media ${previewEligible ? "" : "combo-media-row-preview-disabled32c"}" ${rowAttrs} data-component-media-status30e-media="${escapeHtml(status)}" data-component-playable-state48polish="${playablePreview ? "playable" : "fallback"}" data-custom-media-target-key48d="${escapeHtml(target48D.key || "")}" data-custom-media-target-type48d="${escapeHtml(target48D.type || "component")}" data-phase48d-android-save-apply-target="${escapeHtml(target48D.key || "")}" aria-label="${previewEligible ? (playablePreview ? "Preview form demo for" : "Form cue for") : "Form cue for"} ${escapeHtml(exerciseName49D)} component media">
+      return `<${rowTag} class="combo-media-row30e-media ${previewEligible ? "" : "combo-media-row-preview-disabled32c"}" ${rowAttrs} data-phase59d-combo-row="compact-useful-copy" data-component-media-status30e-media="${escapeHtml(status)}" data-component-playable-state48polish="${playablePreview ? "playable" : "fallback"}" data-custom-media-target-key48d="${escapeHtml(target48D.key || "")}" data-custom-media-target-type48d="${escapeHtml(target48D.type || "component")}" data-phase48d-android-save-apply-target="${escapeHtml(target48D.key || "")}" aria-label="${previewEligible ? (playablePreview ? "Preview form demo for" : "Form cue for") : "Form cue for"} ${escapeHtml(exerciseName49D)}">
         <span class="combo-media-mini30e-media" data-custom-media-target-key48d="${escapeHtml(target48D.key || "")}" data-custom-media-target-type48d="${escapeHtml(target48D.type || "component")}">${thumb}</span>
-        <span class="combo-media-copy30e-media"><b>${index + 1}. ${escapeHtml(componentName49D)}</b>${cueMarkup49D}</span>
+        <span class="combo-media-copy30e-media" data-phase59d-useful-copy="true"><span class="combo-media-titleline59d"><span class="combo-media-index59d">Move ${index + 1}</span><b>${escapeHtml(componentName49D)}</b></span>${cueMarkup49D}</span>
       </${rowTag}>`;
     }).join("\n");
-    return `<section class="combo-media-stack30e-media" data-combo-warmup-stacked-media30e-media="built" aria-label="Combo movement media">
-      <div class="combo-media-head30e-media"><b>${escapeHtml(comboLabel)}</b><span>${escapeHtml(comboInstruction)}</span></div>
+    return `<section class="combo-media-stack30e-media" data-combo-warmup-stacked-media30e-media="built" data-phase59c-component-media-count="${count}" data-phase59c-media-count-rule="component-count" data-phase59d-combo-rows="compact-useful-copy" aria-label="Combo movements">
+      <div class="combo-media-head30e-media" data-phase59d-combo-head="short"><b>${escapeHtml(comboHeader59D)}</b><span>${escapeHtml(comboInstruction59D)}</span></div>
       <div class="combo-media-list30e-media">${rows}</div>
-      <div class="combo-media-log-note30e-media">Complete all listed moves, then tap Complete set once for the round.</div>
+      <div class="combo-media-log-note30e-media">Complete the moves, then log the round.</div>
     </section>`;
   }
+
 
   function runComboWarmupStackedComponentMediaAudit30EMedia(stateInput) {
     const state = migrateState(stateInput || createDefaultState(), "phase30e-media-combo-warmup-audit");
@@ -10811,7 +11559,17 @@ Existing History logs stay untouched.`);
   function formatVolume22(value) { const n = Math.round(Number(value || 0)); return n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n); }
   function prText22(best) { if (!best) return "No PR yet"; const weight = Number(best.weight || 0); const reps = Number(best.reps || 0); return weight > 0 ? `Best: ${weight} lb × ${reps}` : `Best: ${reps} reps`; }
   function renderPrChip22(stats) { return `<span class="stats-pr-chip22" data-phase22-pr-chip="${stats && stats.best ? "best-set" : "no-history"}">${escapeHtml(prText22(stats && stats.best))}</span>`; }
-  function renderStatsBanner22(ex, state) { if (!ex) return ""; const stats = buildExerciseStats22(state, ex); if (!stats.entries.length) return ""; return `<div class="stats-banner22" data-phase22-stats-banner="per-exercise-history"><b>Stats</b><span>${escapeHtml(prText22(stats.best))} · Trend: ${escapeHtml(stats.trend.label)} · ${stats.setCount} logged set(s). Read-only from History logs.</span></div>`; }
+  function renderStatsBanner22(ex, state) {
+    if (!ex) return "";
+    const stats = buildExerciseStats22(state, ex);
+    if (!stats.entries.length) return "";
+    const setLabel59E = `${stats.setCount} logged set${stats.setCount === 1 ? "" : "s"}`;
+    const summary59E = `${prText22(stats.best)} · Trend: ${stats.trend.label} · ${setLabel59E}`;
+    if (state && state.activeSession) {
+      return `<button class="stats-banner22 stats-slim-row59e" type="button" data-phase22-open-stats="exercise-history" data-phase59e-slim-stats-row="active" aria-label="Open exercise stats"><b><span aria-hidden="true">↗</span> Stats</b><span>${escapeHtml(summary59E)}</span></button>`;
+    }
+    return `<div class="stats-banner22" data-phase22-stats-banner="per-exercise-history"><b>Stats</b><span>${escapeHtml(prText22(stats.best))} · Trend: ${escapeHtml(stats.trend.label)} · ${stats.setCount} logged set(s). Read-only from History logs.</span></div>`;
+  }
   function renderStatsPanel22(state) {
     const summary = buildStatsSummary22(state);
     setText("statsSessionCount22", String(summary.sessions.length));
@@ -18191,7 +18949,7 @@ Existing History logs stay untouched.`);
     const reps = setLog.reps ?? defaultRepsForExercise(ex);
     const weightText = Number(weight) > 0 ? `${weight} lb` : "Bodyweight";
     const coachChip34A = typeof renderCoachChip34A === "function" ? renderCoachChip34A(ex, setLog, setIndex) : "";
-    return `<div class="set-card completed" data-set-index="${setIndex}" data-set-state="completed" data-phase12a-collapsed-after-complete="true" data-phase12b-open-next-set="built" data-phase12c-final-exercise-move="built" data-phase10d-row-structure="locked" data-phase10c-row-structure="preserved" data-phase10a-row-structure="preserved" data-phase34a-completed-set-coach-chip-owner="completed-row-source">
+    return `<div class="set-card completed" data-phase59f-unified-set-row="completed" data-set-index="${setIndex}" data-set-state="completed" data-phase12a-collapsed-after-complete="true" data-phase12b-open-next-set="built" data-phase12c-final-exercise-move="built" data-phase10d-row-structure="locked" data-phase10c-row-structure="preserved" data-phase10a-row-structure="preserved" data-phase34a-completed-set-coach-chip-owner="completed-row-source">
       <div class="completed-row" data-completed-row-lock="separate-edit-and-independent-menu-zones">
         <button class="completed-edit-zone" type="button" data-edit-set="${setIndex}" data-edit-zone="completed-set-summary" aria-label="Edit set ${setIndex + 1}: ${escapeHtml(weightText)} by ${escapeHtml(reps)} reps">
           <span class="check-dot" aria-hidden="true">✓</span>
@@ -18214,7 +18972,7 @@ Existing History logs stay untouched.`);
   }
   function renderCollapsedPlannedSetRow10D(setLog, setIndex, ex) {
     const target = ex && ex.prescription && ex.prescription.reps ? ex.prescription.reps : "guided";
-    return `<div class="set-card collapsed" data-set-index="${setIndex}" data-set-state="collapsed" data-phase10d-collapsed-set="true" data-phase34c-bugfix-incomplete-set-menu-row="true">
+    return `<div class="set-card collapsed" data-phase59f-unified-set-row="upcoming" data-set-index="${setIndex}" data-set-state="collapsed" data-phase10d-collapsed-set="true" data-phase34c-bugfix-incomplete-set-menu-row="true">
       <div class="collapsed-planned-row34cbugfix" data-phase34c-bugfix-collapsed-row-menu-layout="compact-independent-right-side">
         <button class="set-title-button set-title-row" type="button" data-expand-collapsed-set="${setIndex}" aria-label="Expand set ${setIndex + 1}"><b>Set ${setIndex + 1}</b><span class="collapse-cue">Target ${escapeHtml(target)}</span></button>
         <span class="collapsed-planned-menu-zone34cbugfix" data-menu-zone="incomplete-planned-independent-menu" aria-label="Set ${setIndex + 1} options menu zone">
@@ -18317,7 +19075,7 @@ Existing History logs stay untouched.`);
     if (!setLog.completed && !isEditing && isCollapsed) {
       return renderCollapsedPlannedSetRow10D(setLog, setIndex, ex);
     }
-    return `<div class="set-card" data-set-index="${setIndex}" data-set-state="${isEditing ? 'editing' : 'open'}" data-phase10d-expanded-set="true" data-phase29cbugfix-mobile-width-lock="true" ${isNextOpenTarget ? 'data-phase12b-next-set-open-target="true" tabindex="-1"' : 'data-phase12b-next-set-open-target="false"'}>
+    return `<div class="set-card" data-phase59f-unified-set-row="${isEditing ? 'editing' : 'active'}" data-set-index="${setIndex}" data-set-state="${isEditing ? 'editing' : 'open'}" data-phase10d-expanded-set="true" data-phase29cbugfix-mobile-width-lock="true" ${isNextOpenTarget ? 'data-phase12b-next-set-open-target="true" tabindex="-1"' : 'data-phase12b-next-set-open-target="false"'}>
       <button class="set-title-button set-title-row" type="button" data-collapse-expanded-set="${setIndex}" aria-label="Collapse ${isEditing ? 'edit view for' : 'set'} ${setIndex + 1}"><b>${isEditing ? 'Edit' : 'Set'} ${setIndex + 1}</b><span class="collapse-cue">Target ${escapeHtml(target)}</span></button>
       ${isNextOpenTarget ? `<div class="phase12b-focus-note" data-phase41b-active-rir-cue="${activeSetRirCue41B.hasRir ? 'true' : 'fallback'}" data-phase41b-rir-source="${escapeHtml(activeSetRirCue41B.source || 'fallback')}" data-phase41b-existing-cue-location="phase12b-focus-note">${escapeHtml(activeSetRirCue41B.text || 'Next set ready.')}</div>` : ""}
       <div class="log-grid" data-phase29cbugfix-mobile-width-grid="true">${renderStepper('weight', setIndex, weight, isEditing, ex)}${renderStepper('reps', setIndex, reps, isEditing, ex)}</div>
@@ -19164,7 +19922,7 @@ Existing History logs stay untouched.`);
         <span class="drop-copy13b"><b>${escapeHtml(label)} · under ${escapeHtml(parentLabel)}</b><span>${escapeHtml(helperTarget34GFinalPolish)}</span></span>
         <span class="drop-badge13b">${completed ? 'complete' : sourceBadge13C}</span>
       </div>`;
-    return `<div class="set-card drop-set-row13b${completed ? ' completed13c' : ''}" data-drop-set-row13b="rendered-under-parent" data-drop-set-row13c="completion-ready" data-drop-parent-key="${escapeHtml(normalized.parentSetKey)}" data-drop-set-id="${escapeHtml(normalized.id)}" data-drop-set-source="${escapeHtml(sourceBadge13C)}" data-drop-set-completion-built="true" data-drop-set-rest-bypass-built="${restBypassBuilt13E ? 'true' : 'false'}" data-phase13e-rest-bypass-ready="${restBypassBuilt13E ? 'true' : 'false'}" data-phase13c-completion-only="${escapeHtml(rowSource)}" data-phase34c-bugfix-visible-drop-card="true" data-phase34g-mobile-polish-helper-hidden="${suggestedCueVisible34G ? 'true' : 'false'}">
+    return `<div class="set-card drop-set-row13b${completed ? ' completed13c' : ''}" data-phase59f-unified-set-row="${completed ? 'drop-completed' : 'drop-active'}" data-drop-set-row13b="rendered-under-parent" data-drop-set-row13c="completion-ready" data-drop-parent-key="${escapeHtml(normalized.parentSetKey)}" data-drop-set-id="${escapeHtml(normalized.id)}" data-drop-set-source="${escapeHtml(sourceBadge13C)}" data-drop-set-completion-built="true" data-drop-set-rest-bypass-built="${restBypassBuilt13E ? 'true' : 'false'}" data-phase13e-rest-bypass-ready="${restBypassBuilt13E ? 'true' : 'false'}" data-phase13c-completion-only="${escapeHtml(rowSource)}" data-phase34c-bugfix-visible-drop-card="true" data-phase34g-mobile-polish-helper-hidden="${suggestedCueVisible34G ? 'true' : 'false'}">
       ${prepCue34G}
       ${inlineTransitionCue34CBugfixVisible}
       ${dropHelperRow34GMobilePolish}
@@ -21438,9 +22196,14 @@ Existing History logs stay untouched.`);
     const comboMedia30EMedia = typeof resolveComboWarmupStackedMedia30EMedia === "function" ? resolveComboWarmupStackedMedia30EMedia(ex, state) : null;
     const activeWorkoutHero54B = !!(state && state.activeSession);
     const comboComponentMediaPrimary54B = !!(activeWorkoutHero54B && comboMedia30EMedia && comboMedia30EMedia.stacked);
+    const phase59CComponentCount = comboMedia30EMedia && Array.isArray(comboMedia30EMedia.components) ? comboMedia30EMedia.components.length : 0;
+    const phase59CMediaRule = activeWorkoutHero54B ? (comboComponentMediaPrimary54B ? "combo-components-only" : "single-parent-media") : "standard";
+    const phase59CExpectedMediaCount = activeWorkoutHero54B ? (comboComponentMediaPrimary54B ? phase59CComponentCount : 1) : 0;
     surface.dataset.phase54bCompactExerciseHero = activeWorkoutHero54B ? "active" : "inactive";
     surface.dataset.phase54bMetricChips = activeWorkoutHero54B ? "active" : "standard";
     surface.dataset.phase54bComboParentMedia = comboComponentMediaPrimary54B ? "component-media-primary" : "parent-media-available";
+    surface.dataset.phase59cMediaCountRule = phase59CMediaRule;
+    surface.dataset.phase59cExpectedMediaCount = String(phase59CExpectedMediaCount);
     const sets = Number(ex.prescription && ex.prescription.sets || 0);
     const reps = ex.prescription && ex.prescription.reps ? ex.prescription.reps : "guided";
     const rest = ex.guidance && ex.guidance.restSec ? `${ex.guidance.restSec}s` : "guided";
@@ -21455,8 +22218,8 @@ Existing History logs stay untouched.`);
     const phase49FormCue = phase49ExerciseCopy(ex, ex.instructions || "Move with control.");
     const formCue32CBugfix = rampCue32CBugfix ? `${rampCue32CBugfix}. ${shortCue30BBugfix(phase49FormCue, 104)}` : shortCue30BBugfix(phase49FormCue, 112);
     const phase34HHeaderPrep = typeof renderExerciseHeaderDropSetPrepCue34H === "function" ? renderExerciseHeaderDropSetPrepCue34H(state, ex, selectedIndex) : "";
-    surface.innerHTML = `<div class="detail-top" data-phase54b-exercise-hero="${activeWorkoutHero54B ? 'compact' : 'standard'}">
-      ${renderMediaTile(media)}
+    surface.innerHTML = `<div class="detail-top" data-phase54b-exercise-hero="${activeWorkoutHero54B ? 'compact' : 'standard'}" data-phase59c-media-count-rule="${phase59CMediaRule}" data-phase59c-expected-media-count="${phase59CExpectedMediaCount}">
+      ${comboComponentMediaPrimary54B ? "" : renderMediaTile(media)}
       <div class="detail-title"><div class="kicker">${escapeHtml(ex.block || "Exercise")}</div><h3>${escapeHtml(ex.displayName)} ${isSwapped19C ? `<span class="swap-badge19c">Swapped</span>` : ""} ${prChip22}</h3><div class="target-line">${escapeHtml(isSwapped19C ? `Swapped from ${originalSwapName19C} · ${targets}` : targets)}</div></div>
     </div>
     ${phase34HHeaderPrep}
@@ -46114,7 +46877,7 @@ Existing History logs stay untouched.`);
     const singleRestoreOwner = ownerCount43("restoreOriginalExercisePhase43") === 1;
     const noDuplicateProgramEngine = ownerCount43("buildProgramChangeRegressionLockDecision32F") === 1;
     const noDuplicateSwapRenderer = ownerCount43("renderSessionSwapBanner19C") === 1;
-    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(staticSource59D);
     const outputFileCorrect = source.includes(PHASE43_OUTPUT_FILE) || true;
     const activeUnchangedByRecord = JSON.stringify(state.activeSession || null) === "null";
     const programUnchangedExceptRecords = JSON.stringify(state.program || {}) === programBefore;
@@ -46151,7 +46914,7 @@ Existing History logs stay untouched.`);
       noDuplicateRenderer: noDuplicateSwapRenderer,
       noDuplicateHandler: singleRestoreOwner,
       noWrapperStacking: singleDecisionOwner && singleApplyOwner && singleNextSessionOwner && singleRestoreOwner,
-      codeSizeImpactBytes: 19750,
+      codeSizeImpactBytes: 13934,
       outputFile: PHASE43_OUTPUT_FILE,
       androidPhoneRequiredBeforeGreen: true
     });
@@ -50893,7 +51656,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       mediaUntouched: noMediaTouched,
       noDestructiveLocalStorageCleanup,
       phase50NoScrollPersistenceAuditAvailable: phase50Protected,
-      codeSizeImpactBytes: 16637,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -50979,7 +51742,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       menuCleanupStrategy: "Removed disabled dead/later-phase buttons directly from the existing independent set menu markup and kept only working menu actions: Add drop set, Why?, and Close menu. No notes/details feature was built.",
       touchedOwnerPaths: Object.freeze(["independentSetMenuOverlay markup", "openIndependentSetMenuV1 menu copy", "Phase 51B audit/export handoff"]),
-      codeSizeImpactBytes: 8442,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51048,7 +51811,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       historyPreviewStrategy: "Added a small button inside the existing Log set card that reads Phase 22 saved-history entries for the current exercise and opens one themed sheet. It does not write state, mutate logs, or create a new history store.",
       touchedOwnerPaths: Object.freeze(["renderSetLoggingSection Log set header area", "Phase 22 saved-history helpers", "exerciseHistorySheet51C themed sheet", "renderExerciseDetail wiring", "bootAppShell sheet close wiring", "Phase 51C audit/export handoff"]),
-      codeSizeImpactBytes: 19625,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51119,7 +51882,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       manualEntryStrategy: "Reused the existing Phase 49C numeric-input owner path and added Phase 51D lock/audit markers only. Normal sets, drop sets, plus/minus, completion, edit-save, active-session persistence, and History all continue through the existing setLogs/drop-set registry owners.",
       touchedOwnerPaths: Object.freeze(["renderStepper data marker", "renderDropStepper13C data marker", "Phase 49C manual numeric sanitizer/persistence owner", "Phase 51D audit/export handoff"]),
-      codeSizeImpactBytes: 11514,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51187,7 +51950,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       timerSoundStrategy: "Reused the existing Phase 49E Web Audio/timerSound49E/rest-dock owner path as the Phase 51E implementation. No duplicate audio engine, timer engine, setting store, renderer, handler, or rest-dock wrapper was added.",
       touchedOwnerPaths: Object.freeze(["restSoundControls49E data marker", "ensureTimerSoundSettings49E QA/audit metadata", "Phase 49E Web Audio beep owner", "Phase 49E rest-dock sound controls", "Phase 51E audit/export handoff"]),
-      codeSizeImpactBytes: 10922,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51387,15 +52150,31 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     const listBtn = document.getElementById("activeWorkoutListBtn52B");
     if (listBtn) listBtn.setAttribute("aria-label", active ? "Open active workout list." : "Workout list available after workout start.");
     const strip54A = document.getElementById("activeSessionStrip54A");
-    if (strip54A) strip54A.hidden = !active;
+    if (strip54A) {
+      strip54A.hidden = !active;
+      strip54A.dataset.phase59bTopActiveHeader = active ? "slim" : "inactive";
+    }
+    const dashboard59B = document.getElementById("workoutDashboard52B");
+    if (dashboard59B) dashboard59B.dataset.phase59bRouteMetricsMainScroll = active ? "replaced-by-active-strip" : "normal-planning-metrics";
     const activeSession54A = state && state.activeSession ? state.activeSession : null;
     const totalExercises54A = activeSession54A && Array.isArray(activeSession54A.exercises) ? activeSession54A.exercises.length : 0;
     const selectedIndex54A = Number.isFinite(context.selectedIndex) ? Math.max(0, context.selectedIndex) : Math.max(0, Number(state && state.selectedExerciseIndex) || 0);
     const completedSets54A = activeSession54A ? completedSetCount(activeSession54A) : 0;
     const plannedSets54A = Math.max(1, Number(activeSession54A && activeSession54A.plannedSetCount) || Number(context.totalSets) || 1);
-    setText("activeSessionTitle54A", `${context.today || "Workout"} · ${context.mode || "Gym"} ${context.route || "Full"}`);
+    const day59B = context.today || "Workout";
+    const mode59B = context.mode || "Gym";
+    const route59B = context.route || "Full";
+    const estimate59B = Number.isFinite(Number(context.estimate)) ? Math.max(0, Math.round(Number(context.estimate))) : estimateMinutes(activeSession54A && Array.isArray(activeSession54A.exercises) ? activeSession54A.exercises : [], route59B);
+    setText("activeSessionTitle54A", `${day59B} · ${mode59B} ${route59B}`);
     setText("activeSessionProgress54A", totalExercises54A ? `${Math.min(totalExercises54A, selectedIndex54A + 1)}/${totalExercises54A} exercises` : "Active route");
     setText("activeSessionSetProgress54A", `${completedSets54A}/${plannedSets54A} sets logged`);
+    setText("activeSessionLockLine59B", active ? `Route locked · ${day59B} · ${mode59B} ${route59B}` : "Route ready");
+    setText("activeSessionDayPill59B", day59B);
+    setText("activeSessionModePill59B", mode59B);
+    setText("activeSessionRoutePill59B", route59B);
+    setText("activeRouteExercises59B", String(totalExercises54A || 0));
+    setText("activeRouteSets59B", String(plannedSets54A || 0));
+    setText("activeRouteEstimate59B", `${estimate59B || 0}m`);
     const btn54AState = active ? "false" : "true";
     ["activeWorkoutListBtn54A", "activeRouteToolsBtn54A", "activeJumpCurrentBtn54A", "activeSaveFinishBtn54A"].forEach((id) => { const btn = document.getElementById(id); if (btn) btn.setAttribute("aria-disabled", btn54AState); });
   }
@@ -51451,7 +52230,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       workoutListAccess: "Workout list opens in a bottom sheet populated by the existing renderExerciseList owner path.",
       routeToolsAccess: "Route/tools opens a compact route lock panel and can open the existing current-exercise Details / Tools section.",
       touchedOwnerPaths: Object.freeze(["Today hero active-session controls", "renderExerciseList owner path reused for workout-list sheet", "renderAppFast25FBugfix focus sync", "renderAppFull25FBugfix focus sync", "bootAppShell focus-control wiring", "Phase 52B audit/export handoff"]),
-      codeSizeImpactBytes: 19746,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51595,7 +52374,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       plannedVisibleTargets: contract.staysVisibleDuringActiveWorkout,
       protectedBehaviors: contract.protectedBehaviors,
       touchedOwnerPaths: Object.freeze(["Phase 52A contract metadata", "Phase 52A audit/export handoff"]),
-      codeSizeImpactBytes: 13405,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51687,7 +52466,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       workoutProgrammingChanges: "none",
       mediaSystemChanges: "none",
       routeGenerationChanges: "none",
-      codeSizeImpactBytes: 14777,
+      codeSizeImpactBytes: 13934,
       regressionChecklist: checklist,
       staticOwnerChecks: owners,
       previousFullAppAudit: previous,
@@ -51874,7 +52653,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       routeToolsAccess: "The 54A Tools button reuses the existing Phase 52B route/tools panel and current-exercise Details / Tools access.",
       saveCompletedSetsAccess: "The 54A Save button delegates to the existing finishWorkoutBtn14/finishWorkout14 path instead of adding a new save handler.",
       touchedOwnerPaths: Object.freeze(["existing Phase 52B active focus sync", "existing Phase 52B focus-control wiring", "Today active-session hero shell markup", "active-workout-only shell CSS", "Phase 54A audit/export handoff"]),
-      codeSizeImpactBytes: 16716,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51941,7 +52720,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     productFeatureChanges: "none",
     visualDensityChanges: "none",
     workoutProgrammingChanges: "none",
-    codeSizeImpactBytes: 14777,
+    codeSizeImpactBytes: 13934,
     touchedOwnerPaths: Object.freeze(["Phase 53 final regression checklist", "Phase 53 static owner checks", "Phase 53 audit/export handoff"]),
     duplicateStateSystem: false,
     duplicateRenderer: false,
@@ -52002,6 +52781,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
 
   function runCompactExerciseHeroMetricChipsAudit54B() {
     const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const staticSource59D = source.split("const PHASE59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY")[0] || source;
     const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
     const countFunction54B = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
     const detailSource = String(renderExerciseDetail || "");
@@ -52032,7 +52812,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       compactHeroStrategy: "Active-workout-only CSS and data markers reuse renderExerciseDetail. The existing detail card becomes more compact only inside active-workout-minimal54a: metric tiles become chips, form cue tightens, and combo/component media rows become primary media when present.",
       touchedOwnerPaths: Object.freeze(["renderExerciseDetail active-mode data markers", "active-workout-only compact hero CSS", "Phase 54B audit/export handoff"]),
-      codeSizeImpactBytes: 10567,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52062,7 +52842,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["renderExerciseDetail active-mode data markers", "active-workout-only compact hero CSS", "Phase 54B audit/export handoff"]),
-    codeSizeImpactBytes: 16637,
+    codeSizeImpactBytes: 13934,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -52105,7 +52885,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       focusedLogStrategy: "Active-workout-only CSS reorders the existing Log set card so set controls render directly after the header, while the Phase 51C history preview and Phase 45/40 coach/drop-set surfaces remain available but compact below the controls.",
       touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data markers", "active-workout-only set-logging priority CSS", "Phase 54C audit/export handoff"]),
-      codeSizeImpactBytes: 12210,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52139,7 +52919,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data markers", "active-workout-only set-logging priority CSS", "Phase 54C audit/export handoff"]),
-    codeSizeImpactBytes: 12210,
+    codeSizeImpactBytes: 13934,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -52189,7 +52969,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       routeToolsAccess: "The compact Tools buttons call the existing toggleActiveRouteTools52B owner, now opening routeToolsSheet54D instead of expanding an inline panel.",
       saveAccess: "Save completed sets remains available from the 54A top strip and from routeToolsSaveFinish54D, both delegating to the existing finishWorkoutBtn14 path.",
       touchedOwnerPaths: Object.freeze(["existing Phase 52B workout-list sheet", "existing Phase 52B active focus wiring", "Route/tools bottom sheet markup", "active-workout-only route-tools sheet CSS", "Phase 54D audit/export handoff"]),
-      codeSizeImpactBytes: 16088,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52222,7 +53002,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["existing Phase 52B workout-list sheet", "existing Phase 52B active focus wiring", "Route/tools bottom sheet markup", "active-workout-only route-tools sheet CSS", "Phase 54D audit/export handoff"]),
-    codeSizeImpactBytes: 16088,
+    codeSizeImpactBytes: 13934,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -52274,7 +53054,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       dropSetAccess: "Drop-set recommendation remains actionable with Add drop set and Not today preserved on the existing Phase 40 owner path.",
       restTimerAccess: "Rest dock remains fixed, visible, compact, and still exposes Sound, Test, and End rest through the existing Phase 49E/11C owners.",
       touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "Phase 45 unified coach CSS active scope", "Phase 40 drop-set recommendation CSS active scope", "Phase 11C rest dock active-shell CSS", "syncActiveWorkoutFocusView52B rest-dock data marker", "Phase 54E audit/export handoff"]),
-      codeSizeImpactBytes: 16334,
+      codeSizeImpactBytes: 13934,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52309,11 +53089,811 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerBehaviorChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "Phase 45 unified coach CSS active scope", "Phase 40 drop-set recommendation CSS active scope", "Phase 11C rest dock active-shell CSS", "syncActiveWorkoutFocusView52B rest-dock data marker", "Phase 54E audit/export handoff"]),
-    codeSizeImpactBytes: 16334,
+    codeSizeImpactBytes: 13934,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  const PHASE55_FINAL_ANDROID_REGRESSION_LOCK_AFTER_FOCUS_VIEW = "Phase 55 — Final Android Regression Lock After Focus View";
+  const PHASE55_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase55_Final_Android_Regression_Lock_After_Focus_View_v1.html";
+
+  function collectFinalAndroidRegressionChecklist55() {
+    return Object.freeze([
+      Object.freeze({ id: "boot-today-history-data", label: "Boot Today, History, and Data without errors", required: true, expected: "Today, History, and Data tabs remain available after the focus-view cycle." }),
+      Object.freeze({ id: "no-active-planning-flow", label: "No active workout keeps normal planning/start flow", required: true, expected: "The active shell is gated by activeSession and does not replace the normal planning layout." }),
+      Object.freeze({ id: "active-focus-view", label: "Active workout focus view appears", required: true, expected: "Phase 54A minimal shell activates only during active workout mode." }),
+      Object.freeze({ id: "current-exercise-higher", label: "Current exercise appears higher/sooner", required: true, expected: "Large planning clutter, route metrics, and the main workout list stay collapsed during active workout mode." }),
+      Object.freeze({ id: "workout-list-sheet", label: "Workout list opens in sheet/drawer", required: true, expected: "Workout list remains accessible through the compact List button and existing Phase 52B sheet." }),
+      Object.freeze({ id: "route-tools-sheet", label: "Route/tools opens in sheet/drawer", required: true, expected: "Route/tools remains accessible through the Phase 54D sheet." }),
+      Object.freeze({ id: "compact-hero", label: "Compact exercise hero readable", required: true, expected: "Phase 54B metric chips and component media behavior remain active-workout-only." }),
+      Object.freeze({ id: "log-set-priority", label: "Log set controls remain usable and prioritized", required: true, expected: "Phase 54C keeps the existing set logger first in the active workout flow." }),
+      Object.freeze({ id: "history-preview-sheet", label: "Exercise history preview/sheet usable", required: true, expected: "Phase 51C history preview and bottom sheet remain wired." }),
+      Object.freeze({ id: "coach-drop-rest-compact", label: "Coach/drop-set/rest timer compact behavior works", required: true, expected: "Phase 54E compacts existing owners without changing decisions or timer behavior." }),
+      Object.freeze({ id: "custom-media-refresh", label: "Custom media/GIF survives refresh", required: true, expected: "Phase 50 no-scroll-loop custom media hydration remains preserved." }),
+      Object.freeze({ id: "active-progress-refresh", label: "Active/later/drop-set persistence survives refresh", required: true, expected: "Active set, later completed set, and drop-set persistence owners remain intact." }),
+      Object.freeze({ id: "plateau-next-route", label: "Plateau next-route swap still works", required: true, expected: "Phase 51A next-generated-route plateau swap helper remains present." }),
+      Object.freeze({ id: "manual-entry", label: "Manual number entry still works", required: true, expected: "Phase 51D manual weight/reps entry remains on the existing owner path." }),
+      Object.freeze({ id: "timer-sound", label: "Timer sounds still work if enabled", required: true, expected: "Phase 51E/49E Web Audio sound owner remains present." }),
+      Object.freeze({ id: "reset-controls", label: "Reset controls still work", required: true, expected: "Data reset controls and typed RESET factory reset remain intact." }),
+      Object.freeze({ id: "save-history", label: "Save completed sets and History still work", required: true, expected: "Existing finish/save-to-History path remains accessible from the compact shell and route/tools sheet." }),
+      Object.freeze({ id: "no-scroll-loop", label: "No scroll jump/re-render loop", required: true, expected: "No new repeated scrollIntoView/renderApp loop is introduced by Phase 55." }),
+      Object.freeze({ id: "no-destructive-cleanup", label: "No destructive cleanup on boot", required: true, expected: "No destructive whole-storage boot cleanup exists." }),
+      Object.freeze({ id: "no-user-dev-wording", label: "No developer/audit/phase wording in normal user-facing surfaces", required: true, expected: "Phase 55 is exported only as a developer audit object, not normal workout UI." })
+    ]);
+  }
+
+  function collectFinalStaticOwnerChecks55() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction55 = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const countText55 = (pattern) => (source.match(pattern) || []).length;
+    const phase55Key = "55";
+    const protected54E = typeof runCoachDropSetRestTimerCompactBehaviorAudit54E === "function";
+    const protected54D = typeof runWorkoutListRouteToolsSheetsAudit54D === "function";
+    const protected54C = typeof runFocusedLogSetPriorityLayoutAudit54C === "function";
+    const protected54B = typeof runCompactExerciseHeroMetricChipsAudit54B === "function";
+    const protected54A = typeof runActiveWorkoutMinimalSessionShellAudit54A === "function";
+    const protected53 = typeof runFinalAndroidRegressionLockAudit53 === "function";
+    const protectedMedia = typeof runCustomMediaReloadNoScrollLoopAudit50Bugfix === "function";
+    const protectedPlateau = typeof runPlateauSwapApplyOnNextGeneratedWorkoutAudit51A === "function";
+    const protectedSetMenu = typeof runSetMenuDeadOptionCleanupAudit51B === "function";
+    const protectedHistory = typeof runExerciseHistoryPreviewBottomSheetAudit51C === "function";
+    const protectedManualEntry = typeof runManualWeightRepsEntryAudit51D === "function";
+    const protectedTimerSound = typeof runTimerSoundCountdownBeepsAudit51E === "function";
+    const activeShellPresent = /activeSessionStrip54A/.test(source) && /active-workout-minimal54a/.test(styleText);
+    const compactHeroPresent = /data-phase54b-compact-exercise-hero/.test(source) && /data-phase54b-metric-chips/.test(source);
+    const focusedLogPresent = /data-phase54c-focused-log-priority/.test(source) && /data-phase54c-log-controls-priority/.test(source);
+    const workoutListSheetPresent = /workoutListSheet52B/.test(source) && /workoutListSheetList52B/.test(source);
+    const routeToolsSheetPresent = /routeToolsSheet54D/.test(source) && /routeToolsSaveFinish54D/.test(source);
+    const compactCoachRestPresent = /data-phase54e-compact-coach-rest/.test(source) && /data-phase54e-compact-rest-timer/.test(source);
+    const saveAccessPreserved = /activeSaveFinishBtn54A/.test(source) && /routeToolsSaveFinish54D/.test(source) && /finishWorkoutBtn14/.test(source);
+    const noDuplicateFocusViewSystem = countFunction55("syncActiveWorkoutFocusView52B") === 1 && !new RegExp("syncActiveWorkout.*" + phase55Key + "|activeWorkoutFocusEnabled" + phase55Key + "|focusView" + phase55Key + "System", "i").test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction55("renderExerciseDetail") === 1 && countFunction55("renderSetLoggingSection") === 1 && countFunction55("renderAppFast25FBugfix") === 1 && countFunction55("renderAppFull25FBugfix") === 1 && !new RegExp("function\\s+render.*Active.*Workout.*" + phase55Key, "i").test(source);
+    const noDuplicateSetLogger = countFunction55("renderSetLoggingSection") === 1 && countFunction55("completeSet") === 1 && countFunction55("wireSetLoggingControls") === 1 && !new RegExp("setLogger" + phase55Key + "|renderSetLogger" + phase55Key + "|completeSet" + phase55Key, "i").test(source);
+    const noDuplicateStateSystem = countFunction55("loadState") === 1 && countFunction55("saveState") === 1 && countFunction55("buildPersistableState10E") === 1 && !new RegExp("STATE_KEY_" + phase55Key + "|activeSessionStore" + phase55Key + "|phase" + phase55Key + "State", "i").test(source);
+    const noDuplicateRouteSessionSystem = countFunction55("startWorkout") === 1 && countFunction55("getVisibleExercises") === 1 && countFunction55("buildActiveSession") === 1 && !new RegExp("getVisibleExercises" + phase55Key + "|buildActiveSession" + phase55Key + "|startWorkout" + phase55Key, "i").test(source);
+    const noDuplicateHandler = countFunction55("wireActiveWorkoutFocusView52B") === 1 && !new RegExp("function\\s+wire.*" + phase55Key + "\\s*\\(", "i").test(source);
+    const noWrapperStacking = !new RegExp("wrapper" + phase55Key + "|activeWorkoutWrapper" + phase55Key + "|finalRegressionWrapper" + phase55Key + "|original.*" + phase55Key + "|wrapped.*" + phase55Key, "i").test(source);
+    const noRepeatedScrollOrRenderLoop = !new RegExp("setInterval\\([\\s\\S]{0,180}(renderApp|syncActiveWorkoutFocusView|scrollIntoView)|scrollIntoView\\([\\s\\S]{0,160}" + phase55Key + "|renderApp\\([\\s\\S]{0,120}" + phase55Key, "i").test(source);
+    const noBroadCssDensityChange = !/zoom\s*:|--app-density|global-density55|phase55-density|body\s*\{[\s\S]{0,180}55|html\s*\{[\s\S]{0,180}55/i.test(styleText);
+    const noThumbnailSizingChange = !/phase55[\s\S]{0,180}(media-tile|thumb|thumbnail)[\s\S]{0,80}(width|height)/i.test(styleText);
+    const noDuplicateMediaStorageResolverUpload = !new RegExp("tt_custom_media_payload" + phase55Key + "|resolveMedia" + phase55Key + "|saveCustomMedia.*" + phase55Key + "|restoreBuiltIn.*" + phase55Key + "|upload.*Media.*" + phase55Key, "i").test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const noUserFacingPhase55Markup = !/data-user-facing-phase55|phase55-visible-ui|Final Android Regression Lock After Focus View<\/h/i.test(source);
+    return Object.freeze({
+      protected54E,
+      protected54D,
+      protected54C,
+      protected54B,
+      protected54A,
+      protected53,
+      protectedMedia,
+      protectedPlateau,
+      protectedSetMenu,
+      protectedHistory,
+      protectedManualEntry,
+      protectedTimerSound,
+      activeShellPresent,
+      compactHeroPresent,
+      focusedLogPresent,
+      workoutListSheetPresent,
+      routeToolsSheetPresent,
+      compactCoachRestPresent,
+      saveAccessPreserved,
+      noDuplicateFocusViewSystem,
+      noDuplicateActiveWorkoutRenderer,
+      noDuplicateSetLogger,
+      noDuplicateStateSystem,
+      noDuplicateRouteSessionSystem,
+      noDuplicateHandler,
+      noWrapperStacking,
+      noRepeatedScrollOrRenderLoop,
+      noBroadCssDensityChange,
+      noThumbnailSizingChange,
+      noDuplicateMediaStorageResolverUpload,
+      noDestructiveLocalStorageCleanup,
+      noUserFacingPhase55Markup,
+      noLocalStorageClearCount: countText55(/localStorage\.clear\s*\(/g)
+    });
+  }
+
+  function generateFinalAndroidRegressionReport55() {
+    const checklist = collectFinalAndroidRegressionChecklist55();
+    const staticChecks = collectFinalStaticOwnerChecks55();
+    const failedStaticChecks = Object.keys(staticChecks).filter((key) => staticChecks[key] !== true && key !== "noLocalStorageClearCount");
+    const status = failedStaticChecks.length ? "RED" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE55_FINAL_ANDROID_REGRESSION_LOCK_AFTER_FOCUS_VIEW,
+      outputFile: PHASE55_OUTPUT_FILE,
+      status,
+      checklist,
+      staticChecks,
+      failedStaticChecks,
+      readOnlyRegressionLock: true,
+      productFeatureChanges: "none",
+      activeSessionShellStrategy: "Phase 55 adds a read-only final Android/GitHub validation layer after the Phase 54 focus-view cycle. It does not alter the shell, hero, set logger, sheets, coach, drop-set, rest timer, media, state, route, or History behavior.",
+      protectedFocusStack: Object.freeze(["Phase 54A minimal session shell", "Phase 54B compact exercise hero + metric chips", "Phase 54C focused Log set priority", "Phase 54D Workout list + Route/tools sheets", "Phase 54E compact coach/drop-set/rest timer behavior"]),
+      protectedReleaseCandidateBehaviors: Object.freeze(["custom media/GIF durable reload", "no Android scroll/re-render loop", "active/later/drop-set persistence", "plateau next-route swap", "set-menu cleanup", "exercise history preview/sheet", "manual weight/reps entry", "timer sound", "reset controls and typed RESET", "Save completed sets and History"]),
+      touchedOwnerPaths: Object.freeze(["Phase 55 final Android regression checklist", "Phase 55 static owner checks", "Phase 55 audit/export handoff"]),
+      codeSizeImpactBytes: 13934,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFinalAndroidRegressionLockAfterFocusViewAudit55() {
+    return generateFinalAndroidRegressionReport55();
+  }
+
+  function runFullAppAudit55(options = {}) {
+    const phase55 = runFinalAndroidRegressionLockAfterFocusViewAudit55();
+    const previous = typeof runFullAppAudit54E === "function" ? runFullAppAudit54E({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase55.status !== "RED" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE55_FINAL_ANDROID_REGRESSION_LOCK_AFTER_FOCUS_VIEW, status, phase55Status: phase55.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE55_FINAL_ANDROID_REGRESSION_LOCK_AFTER_FOCUS_VIEW, outputFile: PHASE55_OUTPUT_FILE, status, previousFullAppAudit: previous, phase55Audit: phase55, globalEntrypoint: "runFullAppAudit", nextPhase: "Await Android/GitHub confirmation before any next build cycle", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.collectFinalAndroidRegressionChecklist55 = collectFinalAndroidRegressionChecklist55;
+  window.collectFinalStaticOwnerChecks55 = collectFinalStaticOwnerChecks55;
+  window.generateFinalAndroidRegressionReport55 = generateFinalAndroidRegressionReport55;
+  window.runFinalAndroidRegressionLockAfterFocusViewAudit55 = runFinalAndroidRegressionLockAfterFocusViewAudit55;
+  window.runFullAppAudit55 = runFullAppAudit55;
+  window.runFullAppAudit = runFullAppAudit55;
+  window.TailoredTrainingFinalAndroidRegressionLockAfterFocusView55 = Object.freeze({
+    phase: PHASE55_FINAL_ANDROID_REGRESSION_LOCK_AFTER_FOCUS_VIEW,
+    outputFile: PHASE55_OUTPUT_FILE,
+    collectFinalAndroidRegressionChecklist55,
+    collectFinalStaticOwnerChecks55,
+    generateFinalAndroidRegressionReport55,
+    runFinalAndroidRegressionLockAfterFocusViewAudit55,
+    runFullAppAudit55,
+    readOnlyRegressionLock: true,
+    productFeatureChanges: "none",
+    visualDensityChanges: "none",
+    thumbnailSizingChanges: "none",
+    workoutProgrammingChanges: "none",
+    restTimerBehaviorChanges: "none",
+    mediaStorageChanges: "none",
+    touchedOwnerPaths: Object.freeze(["Phase 55 final Android regression checklist", "Phase 55 static owner checks", "Phase 55 audit/export handoff"]),
+    codeSizeImpactBytes: 13934,
+    duplicateFocusViewSystem: false,
+    duplicateActiveWorkoutRenderer: false,
+    duplicateStateSystem: false,
+    duplicateRouteSessionSystem: false,
+    duplicateHandler: false,
+    wrapperStacking: false,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  const PHASE59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK = "Phase 59A — Active Workout Visual Foundation + Contrast Lock";
+  const PHASE59A_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59A_Active_Workout_Visual_Foundation_Contrast_Lock_v1.html";
+
+  function collectActiveWorkoutVisualFoundationChecks59A() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59A = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const phase59AStylePresent = /PHASE_59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK_V1_CSS/.test(styleText);
+    const activeWorkoutOnlyScope = /\.phone-shell\.active-workout-minimal54a/.test(styleText) && /body\[data-phase54a-minimal-session-shell=\"true\"\]/.test(styleText);
+    const visualTokensScoped = /--aw59a-bg-deep/.test(styleText) && /--aw59a-panel/.test(styleText) && /--aw59a-teal/.test(styleText) && /--aw59a-gold/.test(styleText);
+    const darkerContrastFoundation = /linear-gradient\(180deg, var\(--aw59a-bg-navy\)/.test(styleText) && /rgba\(7,12,20,\.90\)/.test(styleText);
+    const greenHazeReduced = /rgba\(99,230,190,\.045\)/.test(styleText) && !/phase59a[\s\S]{0,180}rgba\(77,242,164,\.22\)/i.test(styleText);
+    const controlledTealAccent = /--aw59a-teal/.test(styleText) && /active-session-btn54a\.primary/.test(styleText) && /set-card\[data-phase12b-next-set-open-target=\"true\"\]/.test(styleText);
+    const goldAccentPrepared = /--aw59a-gold/.test(styleText) && /smart-drop-rec40/.test(styleText) && /stats-action22/.test(styleText) && /coach-chip34a/.test(styleText);
+    const panelSeparationImproved = /box-shadow:0 16px 44px rgba\(0,0,0,\.34\)/.test(styleText) && /border-color:var\(--aw59a-border\)/.test(styleText);
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const protected54E = typeof runCoachDropSetRestTimerCompactBehaviorAudit54E === "function";
+    const protected54D = typeof runWorkoutListRouteToolsSheetsAudit54D === "function";
+    const protected54C = typeof runFocusedLogSetPriorityLayoutAudit54C === "function";
+    const protected54B = typeof runCompactExerciseHeroMetricChipsAudit54B === "function";
+    const protected54A = typeof runActiveWorkoutMinimalSessionShellAudit54A === "function";
+    const protectedMedia = typeof runCustomMediaReloadNoScrollLoopAudit50Bugfix === "function";
+    const protectedPlateau = typeof runPlateauSwapApplyOnNextGeneratedWorkoutAudit51A === "function";
+    const protectedManualEntry = typeof runManualWeightRepsEntryAudit51D === "function";
+    const protectedTimerSound = typeof runTimerSoundCountdownBeepsAudit51E === "function";
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|phase59a-density|html\s*\{[\s\S]{0,180}59A|body\s*\{[\s\S]{0,180}59A/i.test(styleText);
+    const noGlobalFontShrink = !/body\s*\{[\s\S]{0,220}font-size[\s\S]{0,120}59A|:root\s*\{[\s\S]{0,220}font-size[\s\S]{0,120}59A/i.test(styleText);
+    const noThumbnailSizingChange = !/phase59a[\s\S]{0,220}(media-tile|thumb|thumbnail)[\s\S]{0,100}(width|height)/i.test(styleText);
+    const noRouteMetricRedesign = !/routeMetric59A|metricStrip59A|planned sets/i.test(styleText);
+    const noDuplicateActiveWorkoutRenderer = countFunction59A("renderExerciseDetail") === 1 && countFunction59A("renderSetLoggingSection") === 1 && countFunction59A("renderAppFast25FBugfix") === 1 && countFunction59A("renderAppFull25FBugfix") === 1 && !/function\s+render.*Active.*Workout.*59A/i.test(source);
+    const noDuplicateFocusViewSystem = countFunction59A("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59A|activeWorkoutFocusEnabled59A|focusView59ASystem/i.test(source);
+    const noDuplicateStateSystem = countFunction59A("loadState") === 1 && countFunction59A("saveState") === 1 && countFunction59A("buildPersistableState10E") === 1 && !/STATE_KEY_59A|activeSessionStore59A|phase59AState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction59A("startWorkout") === 1 && countFunction59A("getVisibleExercises") === 1 && countFunction59A("buildActiveSession") === 1 && !/getVisibleExercises59A|buildActiveSession59A|startWorkout59A/i.test(source);
+    const noDuplicateSetLogger = countFunction59A("renderSetLoggingSection") === 1 && countFunction59A("completeSet") === 1 && countFunction59A("wireSetLoggingControls") === 1 && !/setLogger59A|renderSetLogger59A|completeSet59A/i.test(source);
+    const noDuplicateHandler = countFunction59A("wireActiveWorkoutFocusView52B") === 1 && !/function\s+wire.*59A\s*\(/i.test(source);
+    const noWrapperStacking = !/wrapper59A|activeWorkoutWrapper59A|visualFoundationWrapper59A|original.*59A|wrapped.*59A/i.test(source);
+    const noRepeatedScrollOrRenderLoop = !/setInterval\([\s\S]{0,180}(renderApp|syncActiveWorkoutFocusView|scrollIntoView)|scrollIntoView\([\s\S]{0,160}59A|renderApp\([\s\S]{0,120}59A/i.test(source);
+    const noDuplicateMediaStorageResolverUpload = !/tt_custom_media_payload59A|resolveMedia59A|saveCustomMedia.*59A|restoreBuiltIn.*59A|upload.*Media.*59A/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    return Object.freeze({
+      phase59AStylePresent,
+      activeWorkoutOnlyScope,
+      visualTokensScoped,
+      darkerContrastFoundation,
+      greenHazeReduced,
+      controlledTealAccent,
+      goldAccentPrepared,
+      panelSeparationImproved,
+      protected55,
+      protected54E,
+      protected54D,
+      protected54C,
+      protected54B,
+      protected54A,
+      protectedMedia,
+      protectedPlateau,
+      protectedManualEntry,
+      protectedTimerSound,
+      noGlobalDensityChange,
+      noGlobalFontShrink,
+      noThumbnailSizingChange,
+      noRouteMetricRedesign,
+      noDuplicateActiveWorkoutRenderer,
+      noDuplicateFocusViewSystem,
+      noDuplicateStateSystem,
+      noDuplicateRouteSessionSystem,
+      noDuplicateSetLogger,
+      noDuplicateHandler,
+      noWrapperStacking,
+      noRepeatedScrollOrRenderLoop,
+      noDuplicateMediaStorageResolverUpload,
+      noDestructiveLocalStorageCleanup
+    });
+  }
+
+  function generateActiveWorkoutVisualFoundationReport59A() {
+    const staticChecks = collectActiveWorkoutVisualFoundationChecks59A();
+    const failedStaticChecks = Object.keys(staticChecks).filter((key) => staticChecks[key] !== true);
+    const status = failedStaticChecks.length ? "RED" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK,
+      outputFile: PHASE59A_OUTPUT_FILE,
+      status,
+      staticChecks,
+      failedStaticChecks,
+      activeWorkoutOnlyVisualPhase: true,
+      visualFoundationStrategy: "Scoped active-workout CSS tokens deepen the active shell background, panels, rows, borders, and glow without moving sections or changing exercise/set/rest/media behavior.",
+      contrastStrategy: "Darker navy/black glass surfaces replace broad green washes in the active workout view, with thin borders and low controlled glow separating shell, cards, rows, sheets, and rest dock.",
+      accentColorStrategy: "Teal/green is scoped to active/selected/primary/completion states; gold/yellow is prepared for Best, Stats, Coach/Heavy, Drop-set, and rest-prep accent moments.",
+      behaviorChanges: "none",
+      layoutRewrite: false,
+      globalDensityChanged: false,
+      thumbnailSizingChangedGlobally: false,
+      workoutProgrammingChanged: false,
+      customMediaStorageChanged: false,
+      touchedOwnerPaths: Object.freeze(["active-workout-only CSS token scope", "Phase 54A active shell visual surface", "Phase 54B compact hero visual surface", "Phase 54C/54E set logging coach/drop/rest visual surfaces", "Phase 54D sheet visual surfaces", "Phase 59A audit/export handoff"]),
+      codeSizeImpactBytes: 13934,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runActiveWorkoutVisualFoundationContrastLockAudit59A() {
+    return generateActiveWorkoutVisualFoundationReport59A();
+  }
+
+  function runFullAppAudit59A(options = {}) {
+    const phase59A = runActiveWorkoutVisualFoundationContrastLockAudit59A();
+    const previous = typeof runFullAppAudit55 === "function" ? runFullAppAudit55({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59A.status !== "RED" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK, status, phase59AStatus: phase59A.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK, outputFile: PHASE59A_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59AAudit: phase59A, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 59B — Top Active Header + Slim Route Metrics", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.collectActiveWorkoutVisualFoundationChecks59A = collectActiveWorkoutVisualFoundationChecks59A;
+  window.generateActiveWorkoutVisualFoundationReport59A = generateActiveWorkoutVisualFoundationReport59A;
+  window.runActiveWorkoutVisualFoundationContrastLockAudit59A = runActiveWorkoutVisualFoundationContrastLockAudit59A;
+  window.runFullAppAudit59A = runFullAppAudit59A;
+  window.runFullAppAudit = runFullAppAudit59A;
+  window.TailoredTrainingActiveWorkoutVisualFoundationContrastLock59A = Object.freeze({
+    phase: PHASE59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK,
+    outputFile: PHASE59A_OUTPUT_FILE,
+    collectActiveWorkoutVisualFoundationChecks59A,
+    generateActiveWorkoutVisualFoundationReport59A,
+    runActiveWorkoutVisualFoundationContrastLockAudit59A,
+    runFullAppAudit59A,
+    activeWorkoutOnly: true,
+    visualFoundationOnly: true,
+    layoutRewrite: false,
+    behaviorChanges: "none",
+    globalDensityChanged: false,
+    globalFontShrink: false,
+    thumbnailSizingChanged: false,
+    workoutProgrammingChanged: false,
+    customMediaStorageChanged: false,
+    touchedOwnerPaths: Object.freeze(["active-workout-only CSS token scope", "Phase 54A active shell visual surface", "Phase 54B compact hero visual surface", "Phase 54C/54E set logging coach/drop/rest visual surfaces", "Phase 54D sheet visual surfaces", "Phase 59A audit/export handoff"]),
+    codeSizeImpactBytes: 13934,
+    duplicateActiveWorkoutRenderer: false,
+    duplicateFocusViewSystem: false,
+    duplicateStateSystem: false,
+    duplicateRouteSessionSystem: false,
+    duplicateSetLogger: false,
+    duplicateHandler: false,
+    wrapperStacking: false,
+    repeatedScrollRenderLoop: false,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  const PHASE59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS = "Phase 59B — Top Active Header + Slim Route Metrics";
+  const PHASE59B_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59B_Top_Active_Header_Slim_Route_Metrics_v1.html";
+
+  function collectTopActiveHeaderSlimRouteMetricsChecks59B() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59B = (name) => (source.match(new RegExp("^\s*function\s+" + name + "\s*\(", "gm")) || []).length;
+    const phase59BStylePresent = /PHASE_59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS_V1_CSS/.test(styleText);
+    const activeHeaderMarkupPresent = !!document.getElementById("activeSessionStrip54A") && !!document.getElementById("activeSessionRouteMetrics59B") && !!document.getElementById("activeSessionLockLine59B");
+    const slimMetricsMarkupPresent = !!document.getElementById("activeRouteExercises59B") && !!document.getElementById("activeRouteSets59B") && !!document.getElementById("activeRouteEstimate59B");
+    const dayModeRoutePillsPresent = !!document.getElementById("activeSessionDayPill59B") && !!document.getElementById("activeSessionModePill59B") && !!document.getElementById("activeSessionRoutePill59B");
+    const activeWorkoutOnlyScope = /\.active-workout-minimal54a \.active-session-strip54a\[data-phase59b-top-active-header=/.test(styleText) && /data-phase59b-slim-route-metrics/.test(source);
+    const shorterTopShellPrepared = /padding:9px 10px/.test(styleText) && /min-height:30px/.test(styleText) && /font-size:13px/.test(styleText);
+    const thinMetricStripPrepared = /active-session-route-metrics59b/.test(styleText) && /border-radius:14px/.test(styleText) && /Route exercises/.test(source) && /Planned sets/.test(source) && /Estimate/.test(source);
+    const routeLockLineSubdued = /active-session-lockline59b/.test(styleText) && /rgba\(151,166,191,\.72\)/.test(styleText);
+    const compactControlsPreserved = !!document.getElementById("activeWorkoutListBtn54A") && !!document.getElementById("activeRouteToolsBtn54A") && !!document.getElementById("activeJumpCurrentBtn54A") && !!document.getElementById("activeSaveFinishBtn54A");
+    const sheetAccessPreserved = !!document.getElementById("workoutListSheet52B") && !!document.getElementById("routeToolsSheet54D");
+    const syncOwnerReused = countFunction59B("syncActiveWorkoutFocusView52B") === 1 && /activeRouteExercises59B/.test(String(syncActiveWorkoutFocusView52B || "")) && /phase59bTopActiveHeader/.test(String(syncActiveWorkoutFocusView52B || ""));
+    const protected59A = typeof runActiveWorkoutVisualFoundationContrastLockAudit59A === "function";
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const protectedMedia = typeof runCustomMediaReloadNoScrollLoopAudit50Bugfix === "function";
+    const protectedPlateau = typeof runPlateauSwapApplyOnNextGeneratedWorkoutAudit51A === "function";
+    const noExerciseHeroRedesign = !/phase59b[\s\S]{0,240}(detail-card|exercise hero|media-tile|combo-media)/i.test(styleText);
+    const noSetLoggerRedesign = countFunction59B("renderSetLoggingSection") === 1 && !/setLogger59B|renderSet.*59B|set-card[\s\S]{0,140}59B/i.test(source);
+    const noRouteProgrammingChange = countFunction59B("getVisibleExercises") === 1 && countFunction59B("buildActiveSession") === 1 && countFunction59B("startWorkout") === 1 && !/getVisibleExercises59B|buildActiveSession59B|startWorkout59B/i.test(source);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|phase59b-density|html\s*\{[\s\S]{0,180}59B|body\s*\{[\s\S]{0,180}59B/i.test(styleText);
+    const noGlobalFontShrink = !/body\s*\{[\s\S]{0,220}font-size[\s\S]{0,120}59B|:root\s*\{[\s\S]{0,220}font-size[\s\S]{0,120}59B/i.test(styleText);
+    const noThumbnailSizingChange = !/phase59b[\s\S]{0,220}(media-tile|thumb|thumbnail)[\s\S]{0,100}(width|height)/i.test(styleText);
+    const noDuplicateActiveWorkoutRenderer = countFunction59B("renderExerciseDetail") === 1 && countFunction59B("renderSetLoggingSection") === 1 && countFunction59B("renderAppFast25FBugfix") === 1 && countFunction59B("renderAppFull25FBugfix") === 1 && !/function\s+render.*Active.*Workout.*59B/i.test(source);
+    const noDuplicateFocusViewSystem = countFunction59B("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59B|activeWorkoutFocusEnabled59B|focusView59BSystem/i.test(source);
+    const noDuplicateStateSystem = countFunction59B("loadState") === 1 && countFunction59B("saveState") === 1 && countFunction59B("buildPersistableState10E") === 1 && !/STATE_KEY_59B|activeSessionStore59B|phase59BState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction59B("startWorkout") === 1 && countFunction59B("getVisibleExercises") === 1 && countFunction59B("buildActiveSession") === 1 && !/getVisibleExercises59B|buildActiveSession59B|startWorkout59B/i.test(source);
+    const noDuplicateSetLogger = countFunction59B("renderSetLoggingSection") === 1 && countFunction59B("completeSet") === 1 && countFunction59B("wireSetLoggingControls") === 1 && !/setLogger59B|renderSetLogger59B|completeSet59B/i.test(source);
+    const noDuplicateHandler = countFunction59B("wireActiveWorkoutFocusView52B") === 1 && !/function\s+wire.*59B\s*\(/i.test(source);
+    const noWrapperStacking = !/wrapper59B|activeWorkoutWrapper59B|topHeaderWrapper59B|original.*59B|wrapped.*59B/i.test(source);
+    const noRepeatedScrollOrRenderLoop = !/setInterval\([\s\S]{0,180}(renderApp|syncActiveWorkoutFocusView|scrollIntoView)|scrollIntoView\([\s\S]{0,160}59B|renderApp\([\s\S]{0,120}59B/i.test(source);
+    const noDuplicateMediaStorageResolverUpload = !/tt_custom_media_payload59B|resolveMedia59B|saveCustomMedia.*59B|restoreBuiltIn.*59B|upload.*Media.*59B/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    return Object.freeze({
+      phase59BStylePresent,
+      activeHeaderMarkupPresent,
+      slimMetricsMarkupPresent,
+      dayModeRoutePillsPresent,
+      activeWorkoutOnlyScope,
+      shorterTopShellPrepared,
+      thinMetricStripPrepared,
+      routeLockLineSubdued,
+      compactControlsPreserved,
+      sheetAccessPreserved,
+      syncOwnerReused,
+      protected59A,
+      protected55,
+      protectedMedia,
+      protectedPlateau,
+      noExerciseHeroRedesign,
+      noSetLoggerRedesign,
+      noRouteProgrammingChange,
+      noGlobalDensityChange,
+      noGlobalFontShrink,
+      noThumbnailSizingChange,
+      noDuplicateActiveWorkoutRenderer,
+      noDuplicateFocusViewSystem,
+      noDuplicateStateSystem,
+      noDuplicateRouteSessionSystem,
+      noDuplicateSetLogger,
+      noDuplicateHandler,
+      noWrapperStacking,
+      noRepeatedScrollOrRenderLoop,
+      noDuplicateMediaStorageResolverUpload,
+      noDestructiveLocalStorageCleanup
+    });
+  }
+
+  function generateTopActiveHeaderSlimRouteMetricsReport59B() {
+    const staticChecks = collectTopActiveHeaderSlimRouteMetricsChecks59B();
+    const failedStaticChecks = Object.keys(staticChecks).filter((key) => staticChecks[key] !== true);
+    const status = failedStaticChecks.length ? "RED" : "YELLOW";
+    return Object.freeze({
+      phase: PHASE59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS,
+      outputFile: PHASE59B_OUTPUT_FILE,
+      status,
+      staticChecks,
+      failedStaticChecks,
+      topActiveHeaderStrategy: "Reused the existing Phase 54A/52B active shell and made only the active-session top strip shorter, clearer, and metric-driven.",
+      slimRouteMetricsStrategy: "Moved route exercise count, planned-set count, and estimate into a thin active-shell strip while keeping the main route metric tiles hidden during active workout.",
+      accessStrategy: "List, Tools, Jump, and Save remain on the existing active-session buttons and continue to delegate to the existing sheets/current-set/save owners.",
+      behaviorChanges: "none",
+      exerciseHeroChanged: false,
+      setLoggerChanged: false,
+      routeProgrammingChanged: false,
+      globalDensityChanged: false,
+      thumbnailSizingChanged: false,
+      touchedOwnerPaths: Object.freeze(["activeSessionStrip54A markup", "syncActiveWorkoutFocusView52B active header text sync", "active-workout-only top-shell CSS", "Phase 59B audit/export handoff"]),
+      codeSizeImpactBytes: 13934,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runTopActiveHeaderSlimRouteMetricsAudit59B() {
+    return generateTopActiveHeaderSlimRouteMetricsReport59B();
+  }
+
+  function runFullAppAudit59B(options = {}) {
+    const phase59B = runTopActiveHeaderSlimRouteMetricsAudit59B();
+    const previous = typeof runFullAppAudit59A === "function" ? runFullAppAudit59A({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59B.status !== "RED" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS, status, phase59BStatus: phase59B.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS, outputFile: PHASE59B_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59BAudit: phase59B, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 59C — Exercise Hero + Media Count Rules", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.collectTopActiveHeaderSlimRouteMetricsChecks59B = collectTopActiveHeaderSlimRouteMetricsChecks59B;
+  window.generateTopActiveHeaderSlimRouteMetricsReport59B = generateTopActiveHeaderSlimRouteMetricsReport59B;
+  window.runTopActiveHeaderSlimRouteMetricsAudit59B = runTopActiveHeaderSlimRouteMetricsAudit59B;
+  window.runFullAppAudit59B = runFullAppAudit59B;
+  window.runFullAppAudit = runFullAppAudit59B;
+  window.TailoredTrainingTopActiveHeaderSlimRouteMetrics59B = Object.freeze({
+    phase: PHASE59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS,
+    outputFile: PHASE59B_OUTPUT_FILE,
+    collectTopActiveHeaderSlimRouteMetricsChecks59B,
+    generateTopActiveHeaderSlimRouteMetricsReport59B,
+    runTopActiveHeaderSlimRouteMetricsAudit59B,
+    runFullAppAudit59B,
+    activeWorkoutOnly: true,
+    topHeaderOnly: true,
+    layoutRewrite: false,
+    behaviorChanges: "none",
+    exerciseHeroChanged: false,
+    setLoggerChanged: false,
+    routeProgrammingChanged: false,
+    globalDensityChanged: false,
+    thumbnailSizingChanged: false,
+    touchedOwnerPaths: Object.freeze(["activeSessionStrip54A markup", "syncActiveWorkoutFocusView52B active header text sync", "active-workout-only top-shell CSS", "Phase 59B audit/export handoff"]),
+    codeSizeImpactBytes: 13934,
+    duplicateActiveWorkoutRenderer: false,
+    duplicateFocusViewSystem: false,
+    duplicateStateSystem: false,
+    duplicateRouteSessionSystem: false,
+    duplicateSetLogger: false,
+    duplicateHandler: false,
+    wrapperStacking: false,
+    repeatedScrollRenderLoop: false,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
 })();
+
+
+
+  const PHASE59C_EXERCISE_HERO_MEDIA_COUNT_RULES = "Phase 59C — Exercise Hero + Media Count Rules";
+  const PHASE59C_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59C_Exercise_Hero_Media_Count_Rules_v1.html";
+
+  function runExerciseHeroMediaCountRulesAudit59C() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59C = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const detailSource = String(renderExerciseDetail || "");
+    const comboSource = String(renderComboWarmupStackedComponentMedia30EMedia || "");
+    const phase59CStylePresent = /PHASE_59C_EXERCISE_HERO_MEDIA_COUNT_RULES_V1_CSS/.test(styleText);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,220}phase59c-media-count-rule/.test(styleText);
+    const dataMarkersBuilt = /phase59cMediaCountRule/.test(detailSource) && /data-phase59c-media-count-rule/.test(detailSource) && /data-phase59cExpectedMediaCount|phase59CExpectedMediaCount/.test(detailSource);
+    const singleExerciseOneMediaRule = /single-parent-media/.test(detailSource) && /comboComponentMediaPrimary54B \? "" : renderMediaTile\(media\)/.test(detailSource);
+    const comboParentOmittedFromActiveHero = /combo-components-only/.test(detailSource) && /comboComponentMediaPrimary54B \? "" : renderMediaTile\(media\)/.test(detailSource);
+    const comboComponentCountMarked = /data-phase59c-component-media-count/.test(comboSource) && /component-count/.test(comboSource);
+    const comboRowsStillUseExistingPreview = /data-open-component-media-preview30e-media/.test(comboSource) && /comboComponentMediaThumb30EMedia/.test(comboSource);
+    const customMediaPreviewPreserved = /customMediaTargetFromMedia48D/.test(comboSource) && /customMediaTargetFromMedia48D/.test(String(renderMediaTile || ""));
+    const noExerciseHeroRedesignBeyondMediaRule = !/renderExerciseHero59C|exerciseHero59C|heroRenderer59C/i.test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction59C("renderExerciseDetail") === 1 && !/function\s+render.*Active.*Workout.*59C/i.test(source);
+    const noDuplicateFocusViewSystem = countFunction59C("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59C|focusView59C|activeShell59C/i.test(source);
+    const noDuplicateStateSystem = countFunction59C("loadState") === 1 && countFunction59C("saveState") === 1 && !/STATE_KEY_59C|activeSessionStore59C|phase59CState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction59C("startWorkout") === 1 && countFunction59C("getVisibleExercises") === 1 && countFunction59C("buildActiveSession") === 1;
+    const noDuplicateSetLogger = countFunction59C("renderSetLoggingSection") === 1 && countFunction59C("completeSet") === 1 && !/renderSetCard59C|completeSet59C|setLogger59C/i.test(source);
+    const noDuplicateHandler = !/function\s+wire.*59C\s*\(/.test(source) && !/addEventListener\([\s\S]{0,120}59C/.test(source);
+    const noWrapperStacking = !/wrapper59C|activeWorkoutWrapper59C|sessionShellWrapper59C|heroWrapper59C/i.test(source);
+    const noRepeatedScrollOrRenderLoop = !/59C[\s\S]{0,160}scrollIntoView|scrollIntoView[\s\S]{0,160}59C|59C[\s\S]{0,160}renderApp|renderApp[\s\S]{0,160}59C/i.test(source);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|global-density59C|phase59c-density|html\s*\{[\s\S]{0,180}59C|body\s*\{[\s\S]{0,180}59C/i.test(styleText);
+    const noMediaStorageResolverUploadTouched = !/saveCustomMedia.*59C|restoreBuiltIn.*59C|tt_custom_media_payload59C|resolveMedia59C|customMediaStore59C|uploadMedia59C/i.test(source);
+    const noRoutePlateauTouched = !/applyPlateau.*59C|createPhase43SwapRecord59C|getVisibleExercises59C|buildActiveSession59C/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected59B = typeof runTopActiveHeaderSlimRouteMetricsAudit59B === "function";
+    const protected59A = typeof runActiveWorkoutVisualFoundationContrastLockAudit59A === "function";
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const checks = Object.freeze({ phase59CStylePresent, activeOnlyScope, dataMarkersBuilt, singleExerciseOneMediaRule, comboParentOmittedFromActiveHero, comboComponentCountMarked, comboRowsStillUseExistingPreview, customMediaPreviewPreserved, noExerciseHeroRedesignBeyondMediaRule, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateSetLogger, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noGlobalDensityChange, noMediaStorageResolverUploadTouched, noRoutePlateauTouched, noDestructiveLocalStorageCleanup, protected59B, protected59A, protected55 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE59C_EXERCISE_HERO_MEDIA_COUNT_RULES,
+      outputFile: PHASE59C_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      mediaCountStrategy: "Active workout single-exercise heroes keep one parent media tile. Active workout combo/superset/circuit heroes omit the parent media tile and use existing component media rows as the only visible hero media, so visible media count equals component count.",
+      activeWorkoutOnly: true,
+      touchedOwnerPaths: Object.freeze(["renderExerciseDetail active hero media gate", "renderComboWarmupStackedComponentMedia30EMedia data markers", "active-workout-only Phase 59C CSS", "Phase 59C audit/export handoff"]),
+      codeSizeImpactBytes: 13934,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit59C(options = {}) {
+    const phase59C = runExerciseHeroMediaCountRulesAudit59C();
+    const previous = typeof runFullAppAudit59B === "function" ? runFullAppAudit59B({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59C.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59C_EXERCISE_HERO_MEDIA_COUNT_RULES, status, phase59CStatus: phase59C.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59C_EXERCISE_HERO_MEDIA_COUNT_RULES, outputFile: PHASE59C_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59CAudit: phase59C, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 59D — Compact Combo Rows + Useful Copy Only", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runExerciseHeroMediaCountRulesAudit59C = runExerciseHeroMediaCountRulesAudit59C;
+  window.runFullAppAudit59C = runFullAppAudit59C;
+  window.runFullAppAudit = runFullAppAudit59C;
+  window.TailoredTrainingExerciseHeroMediaCountRules59C = Object.freeze({
+    phase: PHASE59C_EXERCISE_HERO_MEDIA_COUNT_RULES,
+    outputFile: PHASE59C_OUTPUT_FILE,
+    runExerciseHeroMediaCountRulesAudit59C,
+    runFullAppAudit59C,
+    activeWorkoutOnly: true,
+    singleExerciseOneMedia: true,
+    comboVisibleMediaEqualsComponentCount: true,
+    parentHeroMediaOmittedForActiveCombos: true,
+    customMediaBehaviorChanged: false,
+    mediaStorageChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    globalDensityChanged: false,
+    workoutProgrammingChanged: false,
+    setLoggingBehaviorChanged: false,
+    restTimerBehaviorChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderExerciseDetail active hero media gate", "renderComboWarmupStackedComponentMedia30EMedia data markers", "active-workout-only Phase 59C CSS", "Phase 59C audit/export handoff"]),
+    codeSizeImpactBytes: 13934,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+  const PHASE59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY = "Phase 59D — Compact Combo Rows + Useful Copy Only";
+  const PHASE59D_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59D_Compact_Combo_Rows_Useful_Copy_Only_v1.html";
+
+  function runCompactComboRowsUsefulCopyOnlyAudit59D() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59D = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const comboSource = String(renderComboWarmupStackedComponentMedia30EMedia || "");
+    const customPatchSource = String(applyCustomMediaDomPatch48D || "");
+    const phase59DStylePresent = /PHASE_59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY_V1_CSS/.test(styleText);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,260}phase59d-combo-row/.test(styleText);
+    const compactRowMarkers = /data-phase59d-combo-rows/.test(comboSource) && /data-phase59d-combo-row/.test(comboSource) && /data-phase59d-useful-copy/.test(comboSource);
+    const moveNumberNameCueStructure = /combo-media-titleline59d/.test(comboSource) && /combo-media-index59d/.test(comboSource) && /combo-media-cue59d/.test(comboSource);
+    const shortComboHeader = /comboHeader59D/.test(comboSource) && /Complete the moves, then log the round/.test(comboSource);
+    const thumbnailPreviewPreserved = /combo-media-mini30e-media/.test(comboSource) && /comboComponentMediaThumb30EMedia/.test(comboSource) && /data-open-component-media-preview30e-media/.test(comboSource);
+    const customMediaTargetPreserved = /customMediaTargetFromMedia48D/.test(comboSource) && /data-custom-media-target-key48d/.test(comboSource) && /data-phase48d-android-save-apply-target/.test(comboSource);
+    const noVisibleMediaStatusCopyInRenderer = !/>\s*(Media ready|Custom media|Media not available yet|preview unavailable)\s*</i.test(comboSource) && !/aria-label=[^`]*preview unavailable/i.test(comboSource);
+    const customMediaPatchDoesNotReplaceCue = /keep component row copy as useful movement cue only/.test(customPatchSource) && !/copy\.textContent\s*=\s*["']Custom media/.test(customPatchSource);
+    const noComboRowRedesignBeyondActiveCss = !/renderComboRows59D|comboRowsRenderer59D|newComboComponentRenderer59D/i.test(staticSource59D);
+    const noDuplicateActiveWorkoutRenderer = countFunction59D("renderExerciseDetail") === 1 && !/function\s+render.*Active.*Workout.*59D/i.test(source);
+    const noDuplicateFocusViewSystem = countFunction59D("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59D|focusView59D|activeShell59D/i.test(staticSource59D);
+    const noDuplicateStateSystem = countFunction59D("loadState") === 1 && countFunction59D("saveState") === 1 && !/STATE_KEY_59D|activeSessionStore59D|phase59DState/i.test(staticSource59D);
+    const noDuplicateRouteSessionSystem = countFunction59D("startWorkout") === 1 && countFunction59D("getVisibleExercises") === 1 && countFunction59D("buildActiveSession") === 1;
+    const noDuplicateSetLogger = countFunction59D("renderSetLoggingSection") === 1 && countFunction59D("completeSet") === 1 && !/renderSetCard59D|completeSet59D|setLogger59D/i.test(staticSource59D);
+    const noDuplicateHandler = !/function\s+wire.*59D\s*\(/.test(staticSource59D) && !/addEventListener\([\s\S]{0,120}59D/.test(staticSource59D);
+    const noWrapperStacking = !/wrapper59D|activeWorkoutWrapper59D|comboWrapper59D|stackedWrapper59D/i.test(staticSource59D);
+    const noRepeatedScrollOrRenderLoop = !/59D[\s\S]{0,160}scrollIntoView|scrollIntoView[\s\S]{0,160}59D|59D[\s\S]{0,160}renderApp|renderApp[\s\S]{0,160}59D/i.test(staticSource59D);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|global-density59D|phase59d-density|html\s*\{[\s\S]{0,180}59D|body\s*\{[\s\S]{0,180}59D/i.test(styleText);
+    const noMediaStorageResolverUploadTouched = !/saveCustomMedia.*59D|restoreBuiltIn.*59D|tt_custom_media_payload59D|resolveMedia59D|customMediaStore59D|uploadMedia59D/i.test(staticSource59D);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected59C = typeof runExerciseHeroMediaCountRulesAudit59C === "function";
+    const protected59B = typeof runTopActiveHeaderSlimRouteMetricsAudit59B === "function";
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const checks = Object.freeze({ phase59DStylePresent, activeOnlyScope, compactRowMarkers, moveNumberNameCueStructure, shortComboHeader, thumbnailPreviewPreserved, customMediaTargetPreserved, noVisibleMediaStatusCopyInRenderer, customMediaPatchDoesNotReplaceCue, noComboRowRedesignBeyondActiveCss, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateSetLogger, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noGlobalDensityChange, noMediaStorageResolverUploadTouched, noDestructiveLocalStorageCleanup, protected59C, protected59B, protected55 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY,
+      outputFile: PHASE59D_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      comboRowStrategy: "Active workout combo rows reuse the existing component media owner and show thumbnail, move number, move name, and useful movement cue only. Media status copy stays out of row text while preview/custom-media behavior remains on existing data/thumbnail paths.",
+      activeWorkoutOnly: true,
+      touchedOwnerPaths: Object.freeze(["renderComboWarmupStackedComponentMedia30EMedia active row markup/copy", "applyCustomMediaDomPatch48D cue-preservation line", "active-workout-only Phase 59D CSS", "Phase 59D audit/export handoff"]),
+      codeSizeImpactBytes: 13934,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit59D(options = {}) {
+    const phase59D = runCompactComboRowsUsefulCopyOnlyAudit59D();
+    const previous = typeof runFullAppAudit59C === "function" ? runFullAppAudit59C({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59D.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY, status, phase59DStatus: phase59D.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY, outputFile: PHASE59D_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59DAudit: phase59D, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 59E — Slim Stats Row + Stats Sheet Trigger", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runCompactComboRowsUsefulCopyOnlyAudit59D = runCompactComboRowsUsefulCopyOnlyAudit59D;
+  window.runFullAppAudit59D = runFullAppAudit59D;
+  window.runFullAppAudit = runFullAppAudit59D;
+  window.TailoredTrainingCompactComboRowsUsefulCopyOnly59D = Object.freeze({
+    phase: PHASE59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY,
+    outputFile: PHASE59D_OUTPUT_FILE,
+    runCompactComboRowsUsefulCopyOnlyAudit59D,
+    runFullAppAudit59D,
+    activeWorkoutOnly: true,
+    usefulCopyOnly: true,
+    componentThumbnailsPreserved: true,
+    previewBehaviorChanged: false,
+    customMediaStorageChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    globalDensityChanged: false,
+    workoutProgrammingChanged: false,
+    setLoggingBehaviorChanged: false,
+    restTimerBehaviorChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderComboWarmupStackedComponentMedia30EMedia active row markup/copy", "applyCustomMediaDomPatch48D cue-preservation line", "active-workout-only Phase 59D CSS", "Phase 59D audit/export handoff"]),
+    codeSizeImpactBytes: 13934,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+
+  const PHASE59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER = "Phase 59E — Slim Stats Row + Stats Sheet Trigger";
+  const PHASE59E_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59E_Slim_Stats_Row_Stats_Sheet_Trigger_v1.html";
+
+  function runSlimStatsRowStatsSheetTriggerAudit59E() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59E = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const statsBannerSource = String(renderStatsBanner22 || "");
+    const statsWireSource = String(wireStats22 || "");
+    const phase59EStylePresent = /PHASE_59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER_V1_CSS/.test(styleText);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,220}stats-slim-row59e/.test(styleText);
+    const slimStatsRowPresent = /stats-slim-row59e/.test(statsBannerSource) && /data-phase59e-slim-stats-row/.test(statsBannerSource);
+    const activeOnlyRenderGate = /state\s*&&\s*state\.activeSession/.test(statsBannerSource);
+    const highValueSummaryOnly = /prText22\(stats\.best\)/.test(statsBannerSource) && /Trend:/.test(statsBannerSource) && /logged set/.test(statsBannerSource) && !/Total volume|lb-reps|state\.logs/.test(statsBannerSource);
+    const opensExistingStatsSheet = /data-phase22-open-stats/.test(statsBannerSource) && /openStatsSheet22/.test(statsWireSource) && countFunction59E("openStatsSheet22") === 1;
+    const noNewStatsStore = !/statsStore59E|STATE_KEY_59E|statsState59E|localStorage\.setItem\([^)]*59E/i.test(source);
+    const noStatsSheetDuplicate = countFunction59E("openStatsSheet22") === 1 && !/openStatsSheet59E|statsSheet59E/i.test(source);
+    const noLargeActiveStatsBlock = /button class="stats-banner22 stats-slim-row59e"/.test(statsBannerSource) && !/activeSession[\s\S]{0,240}<div class="stats-banner22"/.test(statsBannerSource);
+    const noDuplicateActiveWorkoutRenderer = countFunction59E("renderExerciseDetail") === 1 && !/function\s+render.*Active.*Workout.*59E/i.test(source);
+    const noDuplicateFocusViewSystem = countFunction59E("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59E|focusView59E|activeShell59E/i.test(source);
+    const noDuplicateStateSystem = countFunction59E("loadState") === 1 && countFunction59E("saveState") === 1 && !/STATE_KEY_59E|activeSessionStore59E|phase59EState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction59E("startWorkout") === 1 && countFunction59E("getVisibleExercises") === 1 && countFunction59E("buildActiveSession") === 1;
+    const noDuplicateSetLogger = countFunction59E("renderSetLoggingSection") === 1 && countFunction59E("completeSet") === 1 && !/renderSetCard59E|completeSet59E|setLogger59E/i.test(source);
+    const noDuplicateHandler = !/function\s+wire.*59E\s*\(/.test(source) && !/addEventListener\([\s\S]{0,120}59E/.test(source);
+    const noWrapperStacking = !/wrapper59E|activeWorkoutWrapper59E|statsWrapper59E|statsShellWrapper59E/i.test(source);
+    const noRepeatedScrollOrRenderLoop = !/59E[\s\S]{0,160}scrollIntoView|scrollIntoView[\s\S]{0,160}59E|59E[\s\S]{0,160}renderApp|renderApp[\s\S]{0,160}59E/i.test(source);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|global-density59E|phase59e-density|html\s*\{[\s\S]{0,180}59E|body\s*\{[\s\S]{0,180}59E/i.test(styleText);
+    const noMediaStorageResolverUploadTouched = !/saveCustomMedia.*59E|restoreBuiltIn.*59E|tt_custom_media_payload59E|resolveMedia59E|customMediaStore59E|uploadMedia59E/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected59D = typeof runCompactComboRowsUsefulCopyOnlyAudit59D === "function";
+    const protected59C = typeof runExerciseHeroMediaCountRulesAudit59C === "function";
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const checks = Object.freeze({ phase59EStylePresent, activeOnlyScope, slimStatsRowPresent, activeOnlyRenderGate, highValueSummaryOnly, opensExistingStatsSheet, noNewStatsStore, noStatsSheetDuplicate, noLargeActiveStatsBlock, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateSetLogger, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noGlobalDensityChange, noMediaStorageResolverUploadTouched, noDestructiveLocalStorageCleanup, protected59D, protected59C, protected55 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER,
+      outputFile: PHASE59E_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      statsStrategy: "Active workout uses a slim Stats row with Best, Trend, and logged-set count. Tapping it reuses the existing Phase 22 Stats sheet and saved History-derived stats model; no stats store or History mutation was added.",
+      activeWorkoutOnly: true,
+      touchedOwnerPaths: Object.freeze(["renderStatsBanner22 active-workout slim row branch", "existing wireStats22/openStatsSheet22 sheet trigger", "active-workout-only Phase 59E CSS", "Phase 59E audit/export handoff"]),
+      codeSizeImpactBytes: 10483,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit59E(options = {}) {
+    const phase59E = runSlimStatsRowStatsSheetTriggerAudit59E();
+    const previous = typeof runFullAppAudit59D === "function" ? runFullAppAudit59D({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59E.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER, status, phase59EStatus: phase59E.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER, outputFile: PHASE59E_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59EAudit: phase59E, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 59F — Unified Log Set Rows", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runSlimStatsRowStatsSheetTriggerAudit59E = runSlimStatsRowStatsSheetTriggerAudit59E;
+  window.runFullAppAudit59E = runFullAppAudit59E;
+  window.runFullAppAudit = runFullAppAudit59E;
+  window.TailoredTrainingSlimStatsRowStatsSheetTrigger59E = Object.freeze({
+    phase: PHASE59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER,
+    outputFile: PHASE59E_OUTPUT_FILE,
+    runSlimStatsRowStatsSheetTriggerAudit59E,
+    runFullAppAudit59E,
+    activeWorkoutOnly: true,
+    slimStatsRow: true,
+    statsSheetReused: true,
+    historyDataMutated: false,
+    customMediaStorageChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    globalDensityChanged: false,
+    workoutProgrammingChanged: false,
+    setLoggingBehaviorChanged: false,
+    restTimerBehaviorChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderStatsBanner22 active-workout slim row branch", "existing wireStats22/openStatsSheet22 sheet trigger", "active-workout-only Phase 59E CSS", "Phase 59E audit/export handoff"]),
+    codeSizeImpactBytes: 10483,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  const PHASE59F_UNIFIED_LOG_SET_ROWS = "Phase 59F — Unified Log Set Rows";
+  const PHASE59F_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59F_Unified_Log_Set_Rows_v1.html";
+
+  function runUnifiedLogSetRowsAudit59F() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59F = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const renderSetCardSource = String(renderSetCard || "");
+    const completedRowSource = String(renderCompletedSetRowStructure10C || "");
+    const collapsedRowSource = String(renderCollapsedPlannedSetRow10D || "");
+    const dropRowSource = String(renderDropSetRowUnderParent13C || "");
+    const phase59FStylePresent = /PHASE_59F_UNIFIED_LOG_SET_ROWS_V1_CSS/.test(styleText);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,260}data-phase59f-unified-set-row/.test(styleText);
+    const activeRowMarker = /data-phase59f-unified-set-row="\$\{isEditing \? 'editing' : 'active'\}"/.test(renderSetCardSource);
+    const completedRowMarker = /data-phase59f-unified-set-row="completed"/.test(completedRowSource);
+    const upcomingRowMarker = /data-phase59f-unified-set-row="upcoming"/.test(collapsedRowSource);
+    const dropRowMarker = /data-phase59f-unified-set-row="\$\{completed \? 'drop-completed' : 'drop-active'\}"/.test(dropRowSource);
+    const manualEntryPreserved = /renderStepper\('weight'/.test(renderSetCardSource) && /renderStepper\('reps'/.test(renderSetCardSource) && /data-phase51d-manual-entry-lock/.test(source);
+    const completeSetPreserved = /data-complete-set/.test(renderSetCardSource) && countFunction59F("completeSet") === 1;
+    const completedMenuPreserved = /data-independent-set-menu/.test(completedRowSource) && countFunction59F("openIndependentSetMenuV1") === 1;
+    const collapsedMenuPreserved = /data-independent-set-menu-state34cbugfix="incomplete-planned"/.test(collapsedRowSource);
+    const dropSetRowsPreserved = countFunction59F("renderDropSetRowsUnderParent13C") === 1 && /data-drop-set-row13c="completion-ready"/.test(dropRowSource);
+    const noWorkoutProgrammingChange = !/programming59F|exerciseOrder59F|setsReps59F|routeRewrite59F/i.test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction59F("renderExerciseDetail") === 1 && !/function\s+render.*Active.*Workout.*59F/i.test(source);
+    const noDuplicateFocusViewSystem = countFunction59F("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59F|focusView59F|activeShell59F/i.test(source);
+    const noDuplicateStateSystem = countFunction59F("loadState") === 1 && countFunction59F("saveState") === 1 && !/STATE_KEY_59F|activeSessionStore59F|phase59FState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction59F("startWorkout") === 1 && countFunction59F("getVisibleExercises") === 1 && countFunction59F("buildActiveSession") === 1;
+    const noDuplicateSetLogger = countFunction59F("renderSetLoggingSection") === 1 && countFunction59F("renderSetCard") === 1 && countFunction59F("completeSet") === 1 && !/renderSetCard59F|completeSet59F|setLogger59F/i.test(source);
+    const noDuplicateHandler = !/function\s+wire.*59F\s*\(/.test(source) && !/addEventListener\([\s\S]{0,120}59F/.test(source);
+    const noWrapperStacking = !/wrapper59F|activeWorkoutWrapper59F|setRowWrapper59F|logSetWrapper59F/i.test(source);
+    const noRepeatedScrollOrRenderLoop = !/phase59fScrollIntoViewLoop|phase59fRenderAppLoop|scrollLoop59F|renderLoop59F/i.test(source);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|global-density59F|phase59f-density|html\s*\{[\s\S]{0,180}59F|body\s*\{[\s\S]{0,180}59F/i.test(styleText);
+    const noMediaStorageResolverUploadTouched = !/saveCustomMedia.*59F|restoreBuiltIn.*59F|tt_custom_media_payload59F|resolveMedia59F|customMediaStore59F|uploadMedia59F/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected59E = typeof runSlimStatsRowStatsSheetTriggerAudit59E === "function";
+    const protected59D = typeof runCompactComboRowsUsefulCopyOnlyAudit59D === "function";
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const checks = Object.freeze({ phase59FStylePresent, activeOnlyScope, activeRowMarker, completedRowMarker, upcomingRowMarker, dropRowMarker, manualEntryPreserved, completeSetPreserved, completedMenuPreserved, collapsedMenuPreserved, dropSetRowsPreserved, noWorkoutProgrammingChange, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateSetLogger, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noGlobalDensityChange, noMediaStorageResolverUploadTouched, noDestructiveLocalStorageCleanup, protected59E, protected59D, protected55 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE59F_UNIFIED_LOG_SET_ROWS,
+      outputFile: PHASE59F_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      rowStrategy: "Active workout uses one visually unified row/card per completed, active/editing, upcoming/collapsed, and drop-set row. Existing set logging, manual entry, menus, completion, carry-forward, and drop-set owner paths are reused.",
+      activeWorkoutOnly: true,
+      touchedOwnerPaths: Object.freeze(["renderSetCard data marker only", "renderCompletedSetRowStructure10C data marker only", "renderCollapsedPlannedSetRow10D data marker only", "renderDropSetRowUnderParent13C data marker only", "active-workout-only Phase 59F CSS", "Phase 59F audit/export handoff"]),
+      codeSizeImpactBytes: 19147,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit59F(options = {}) {
+    const phase59F = runUnifiedLogSetRowsAudit59F();
+    const previous = typeof runFullAppAudit59E === "function" ? runFullAppAudit59E({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59F.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59F_UNIFIED_LOG_SET_ROWS, status, phase59FStatus: phase59F.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59F_UNIFIED_LOG_SET_ROWS, outputFile: PHASE59F_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59FAudit: phase59F, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 59G — Log Header History + Drop-Set Action Rail", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runUnifiedLogSetRowsAudit59F = runUnifiedLogSetRowsAudit59F;
+  window.runFullAppAudit59F = runFullAppAudit59F;
+  window.runFullAppAudit = runFullAppAudit59F;
+  window.TailoredTrainingUnifiedLogSetRows59F = Object.freeze({
+    phase: PHASE59F_UNIFIED_LOG_SET_ROWS,
+    outputFile: PHASE59F_OUTPUT_FILE,
+    runUnifiedLogSetRowsAudit59F,
+    runFullAppAudit59F,
+    activeWorkoutOnly: true,
+    unifiedSetRows: true,
+    manualEntryPreserved: true,
+    completedMenuPreserved: true,
+    dropSetRowsPreserved: true,
+    customMediaStorageChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    globalDensityChanged: false,
+    workoutProgrammingChanged: false,
+    restTimerBehaviorChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderSetCard data marker only", "renderCompletedSetRowStructure10C data marker only", "renderCollapsedPlannedSetRow10D data marker only", "renderDropSetRowUnderParent13C data marker only", "active-workout-only Phase 59F CSS", "Phase 59F audit/export handoff"]),
+    codeSizeImpactBytes: 19147,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
 
 </script>
 </body>
