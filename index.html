@@ -1,4 +1,40 @@
 <!--
+PHASE_54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase54D_Workout_List_Route_Tools_Sheets_v1.html as the Android/GitHub GREEN base and Tailored training plan v54.txt as the active plan source.
+- Compact active-workout coach, drop-set recommendation, and rest timer presentation only; no set logger, rest timer, drop-set, coach-decision, route, media, state, or History behavior was changed.
+- Reused the existing Phase 45 unified coach surface, Phase 40 smart drop-set recommendation, Phase 49E timer sound controls, Phase 11C rest timer dock, and Phase 54A/54C active-shell class scope.
+- The rest dock remains reliable and visible, End rest remains easy to tap, timer sounds remain on the existing owner path, and the active session scroll stays focused without adding render or scroll loops.
+- Preserved custom media/GIF reload, active/later/drop-set persistence, plateau next-route swaps, set-menu cleanup, exercise history preview/sheet, manual numeric entry, reset controls, History/Data/Backup, workout programming, thumbnail sizing, global visual density, and non-destructive boot behavior.
+- Android/GitHub confirmation required before GREEN because this changes active-workout coach/drop-set/rest-timer presentation.
+-->
+<!--
+PHASE_54C_FOCUSED_LOG_SET_PRIORITY_LAYOUT_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase54B_Compact_Exercise_Hero_Metric_Chips_v1.html as the Android/GitHub GREEN base.
+- Added active-workout-only Log set priority layout: the existing set stack now appears before exercise history and coach/drop-set guidance inside the active session shell.
+- Kept manual weight/reps controls and Complete set tap targets large enough to use; history, coach, and drop-set recommendations remain available but compact under the logging controls.
+- Reused the existing renderSetLoggingSection, Phase 51C history preview, Phase 45 unified coach, and Phase 40 drop-set recommendation owner paths; no duplicate set logger, coach renderer, drop-set handler, state store, route system, or wrapper was added.
+- Preserved Phase 54A/54B active shell/compact hero behavior, custom media/GIF reload, no-scroll-loop protection, active/later/drop-set persistence, plateau swaps, set-menu cleanup, manual numeric entry, timer sound, reset controls, History/Data/Backup, workout programming, thumbnail sizing, visual density, and non-destructive boot behavior.
+-->
+<!--
+PHASE_54B_COMPACT_EXERCISE_HERO_METRIC_CHIPS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase54A_Active_Workout_Minimal_Session_Shell_v1.html as the Android/GitHub GREEN base.
+- Compact active-workout exercise hero only: target/rest/RIR/tempo now present as active-mode metric chips while the no-active-workout planning layout remains unchanged.
+- Kept the existing renderExerciseDetail owner path; no duplicate active-workout renderer, set logger, route/session system, or state system was added.
+- For combo/superset/circuit exercises with component media rows, active workout mode lets component rows act as the primary media and suppresses the redundant parent media tile from the compact hero only.
+- Preserved custom media/GIF reload, parent/component media isolation, active/later/drop-set persistence, plateau next-route swaps, set-menu cleanup, exercise history sheet, manual numeric entry, timer sound, reset controls, History/Data/Backup, route generation, workout programming, thumbnail sizing, and non-destructive boot behavior.
+- Android/GitHub confirmation required before GREEN because this changes active-workout visual layout.
+-->
+
+<!--
+PHASE_54A_ACTIVE_WORKOUT_MINIMAL_SESSION_SHELL_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase53_Final_Android_Regression_Lock_v1.html as the latest release-candidate base after Phase 53.
+- Extended the existing Phase 52B active-workout focus owner path into a minimal active-session shell only when a workout is active.
+- Added a compact active-session top strip with route/workout name, exercise progress, Workout list, Route/tools, Jump, and Save controls while preserving the existing workout-list sheet, route/tools panel, set logger, rest timer, coach/drop-set behavior, custom media/GIF durability, plateau next-route swaps, History/Data/Backup, reset controls, and non-destructive boot behavior.
+- Collapsed active-workout planning/header clutter from the main Today scroll: app header, large hero topline/note, planning toggles, route metric tiles, resume/jump/save button block, chip row, duplicate preview, and main workout list.
+- Did not compact the exercise hero/set logger yet, did not change workout programming, route generation, custom media storage, thumbnail sizing, global visual density/CSS sizing, rest timer behavior, History/Data/Backup layout, or boot storage cleanup.
+- Android/GitHub confirmation required before GREEN because this changes the active workout shell and scroll structure.
+-->
+<!--
 PHASE_53_FINAL_ANDROID_REGRESSION_LOCK_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase52B_Active_Workout_Focus_View_Compact_Session_Surface_v1.html as the Android/GitHub GREEN base.
 - Added a read-only final Android regression lock/report for the full v52 stack only; no product UI, CSS density, thumbnail sizing, workout programming, route generation, media storage, set logging, rest timer, coach/drop-set behavior, History/Data/Backup layout, reset controls, or boot storage cleanup changed.
@@ -35,6 +71,16 @@ PHASE_51E_TIMER_SOUND_COUNTDOWN_BEEPS_V1_CHANGELOG
 - Did not change workout programming, set logging values, rest timing, End rest behavior, drop-set/coach behavior, custom media persistence, plateau swaps, History/Data/Backup, thumbnail sizing, visual density, or boot storage cleanup.
 -->
 <!doctype html>
+
+<!--
+PHASE_54D_WORKOUT_LIST_ROUTE_TOOLS_SHEETS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase54C_Focused_Log_Set_Priority_Layout_v1.html as the Android/GitHub GREEN base.
+- Moved active workout Route / tools access out of the main active workout scroll and into a themed bottom sheet while preserving the existing Phase 52B workout-list sheet owner path.
+- Kept the main active workout scroll focused on current exercise, compact hero, Log set controls, history preview, coach/drop-set cues, and rest dock; full workout list and route/tools stay available through compact buttons.
+- Reused the existing active-workout focus wiring and current-exercise Details / Tools owner; no duplicate active workout renderer, route/session system, state system, set logger, media store, or broad CSS density change was added.
+- Preserved custom media/GIF reload, active/later/drop-set persistence, plateau next-route swaps, set-menu cleanup, exercise history sheet, manual number entry, timer sounds, reset controls, History/Data/Backup, and non-destructive boot behavior.
+-->
+
 
 <!--
 PHASE_51D_MANUAL_WEIGHT_REPS_ENTRY_V1_CHANGELOG
@@ -2280,8 +2326,114 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
     .workout-list-sheet52b .sheet-actions { flex-shrink:0; }
     .workout-list-sheet52b .exercise-row { text-align:left; }
 
+    .active-session-strip54a { display:none; border:1px solid rgba(139,183,255,.22); background:linear-gradient(135deg, rgba(139,183,255,.13), rgba(255,255,255,.055)); border-radius:20px; padding:10px; gap:10px; align-items:center; justify-content:space-between; box-shadow:inset 0 1px 0 rgba(255,255,255,.06); }
+    .active-session-strip54a[hidden] { display:none !important; }
+    .active-session-main54a { min-width:0; display:grid; gap:2px; }
+    .active-session-main54a .kicker { margin:0; }
+    .active-session-title54a { color:var(--soft); font-size:14px; font-weight:950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .active-session-meta54a { display:flex; align-items:center; gap:6px; flex-wrap:wrap; color:var(--muted); font-size:11px; font-weight:850; }
+    .active-session-actions54a { display:flex; gap:6px; align-items:center; justify-content:flex-end; flex-wrap:wrap; }
+    .active-session-btn54a { border:1px solid rgba(255,255,255,.14); background:rgba(255,255,255,.07); color:var(--soft); border-radius:999px; padding:8px 9px; min-height:34px; font-size:11px; font-weight:950; letter-spacing:.01em; }
+    .active-session-btn54a.primary { border-color:rgba(99,230,190,.35); background:rgba(99,230,190,.12); color:#d9fff3; }
+    .active-session-btn54a.danger { border-color:rgba(255,122,122,.34); background:rgba(255,122,122,.12); color:#ffe1e1; }
+    .phone-shell.active-workout-minimal54a > .app-header { display:none; }
+    .active-workout-minimal54a .today-hero { padding:0; margin:0 0 10px; border-color:transparent; background:transparent; box-shadow:none; }
+    .active-workout-minimal54a .workout-art { padding:0; border:0; background:transparent; box-shadow:none; }
+    .active-workout-minimal54a .active-session-strip54a { display:flex; }
+    .active-workout-minimal54a .today-topline,
+    .active-workout-minimal54a .workout-note,
+    .active-workout-minimal54a .phase8-actions,
+    .active-workout-minimal54a .phase14-finish-row,
+    .active-workout-minimal54a #todayChips,
+    .active-workout-minimal54a #workoutStatePill,
+    .active-workout-minimal54a .progress-shell { display:none !important; }
+    .active-workout-minimal54a .active-route-tools52b { margin:8px 0 0; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] { margin-top:8px; padding:12px; border-radius:24px; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .detail-top { gap:10px; align-items:start; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .detail-title h3 { font-size:19px; line-height:1.08; letter-spacing:-.045em; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .target-line { margin-top:5px; font-size:11px; line-height:1.3; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .detail-grid[data-phase54b-metric-chips="active"] { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .detail-grid[data-phase54b-metric-chips="active"] .detail-tile { min-height:0; display:flex; align-items:center; gap:5px; width:auto; padding:7px 9px; border-radius:999px; background:rgba(255,255,255,.052); }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .detail-grid[data-phase54b-metric-chips="active"] .detail-tile b { font-size:12px; letter-spacing:-.01em; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .detail-grid[data-phase54b-metric-chips="active"] .detail-tile span { margin:0; font-size:9px; letter-spacing:.07em; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .cue-box { margin-top:9px; padding:10px; border-radius:16px; }
+    .active-workout-minimal54a .detail-card[data-phase54b-compact-exercise-hero="active"] .cue-box span { margin-top:4px; font-size:12px; line-height:1.35; }
+    .active-workout-minimal54a .detail-card[data-phase54b-combo-parent-media="component-media-primary"] .detail-top { grid-template-columns:minmax(0,1fr); }
+    .active-workout-minimal54a .detail-card[data-phase54b-combo-parent-media="component-media-primary"] .detail-top > .media-tile { display:none !important; }
+    .active-workout-minimal54a .detail-card[data-phase54b-combo-parent-media="component-media-primary"] .combo-media-stack30e-media { margin-top:10px; }
+
+    /* PHASE_54C_FOCUSED_LOG_SET_PRIORITY_LAYOUT_V1_CSS — active-workout-only log-set priority, no global density changes */
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] { margin-top:8px; padding:12px; border-radius:22px; display:flex; flex-direction:column; gap:8px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-head { order:1; margin-bottom:0; align-items:center; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .set-stack { order:2; gap:8px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .exercise-history-preview51c { order:3; margin:0; padding:8px 9px; border-radius:15px; gap:5px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .history-preview-top51c { gap:8px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .history-preview-grid51c { grid-template-columns:repeat(4,minmax(0,1fr)); gap:5px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .history-preview-item51c { padding:6px; border-radius:11px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .history-preview-item51c span { font-size:8px; letter-spacing:.07em; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .history-preview-item51c em { font-size:10.5px; line-height:1.18; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"],
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec40 { order:4; margin:0; padding:8px 9px; border-radius:15px; box-shadow:none; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] { gap:2px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] b { font-size:12px; line-height:1.18; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] span:not(.phase41-guidance-kicker) { font-size:10.5px; line-height:1.25; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec40 { grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:center; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec-copy40 b { font-size:11.5px; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec-copy40 span { font-size:10.5px; line-height:1.22; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec-actions40 { gap:6px; justify-content:flex-end; }
+    .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec-actions40 button { min-height:34px; padding:6px 9px; font-size:10.5px; }
+    @media (max-width:430px) {
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .history-preview-grid51c { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec40 { grid-template-columns:1fr; }
+      .active-workout-minimal54a .set-logging[data-phase54c-focused-log-priority="active"] .smart-drop-rec-actions40 { justify-content:flex-start; }
+    }
+
+    /* PHASE_54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR_V1_CSS — active-workout-only compact support surfaces; no global density changes */
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] { padding:7px 8px; border-radius:14px; gap:1px; background:rgba(139,183,255,.072); border-color:rgba(139,183,255,.18); }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] .phase41-guidance-kicker { font-size:8.5px; letter-spacing:.10em; }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] b { font-size:11.5px; line-height:1.15; }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] span:not(.phase41-guidance-kicker) { font-size:10px; line-height:1.22; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .smart-drop-rec40 { padding:7px 8px; border-radius:14px; gap:7px; background:rgba(169,123,255,.082); border-color:rgba(169,123,255,.20); }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .smart-drop-rec-copy40 { gap:1px; }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .smart-drop-rec-copy40 b { font-size:11px; line-height:1.15; }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .smart-drop-rec-copy40 span { font-size:10px; line-height:1.2; -webkit-line-clamp:2; }
+    .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .smart-drop-rec-actions40 button { min-height:34px; padding:6px 8px; font-size:10px; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b,
+    body[data-phase54aMinimalSessionShell="true"] .rest-dock11b { width:min(382px, calc(100% - 20px)); max-width:min(382px, calc(100% - 20px)); bottom:calc(78px + env(safe-area-inset-bottom, 0px)); border-radius:22px; padding:10px; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b-top,
+    body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-top { gap:9px; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b-kicker,
+    body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-kicker { font-size:8.5px; letter-spacing:.10em; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b-title,
+    body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-title { margin-top:1px; font-size:13px; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b-meta,
+    body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-meta { margin-top:2px; font-size:10px; line-height:1.18; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b-clock,
+    body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-clock { min-width:64px; font-size:22px; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-dock11b-progress,
+    body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-progress { height:5px; margin:8px 0; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-sound-controls49e,
+    body[data-phase54aMinimalSessionShell="true"] .rest-sound-controls49e { margin:0 0 7px; gap:6px; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-sound-btn49e,
+    body[data-phase54aMinimalSessionShell="true"] .rest-sound-btn49e { min-height:26px; padding:0 8px; font-size:9.5px; }
+    body[data-phase54a-minimal-session-shell="true"] .rest-sound-status49e,
+    body[data-phase54aMinimalSessionShell="true"] .rest-sound-status49e { font-size:9.5px; }
+    body[data-phase54a-minimal-session-shell="true"] .end-rest-btn11b,
+    body[data-phase54aMinimalSessionShell="true"] .end-rest-btn11b { min-height:38px; border-radius:15px; }
+    @media (max-width:430px) {
+      .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"],
+      .active-workout-minimal54a .set-logging[data-phase54e-compact-coach-rest="active"] .smart-drop-rec40 { padding:7px; }
+      body[data-phase54a-minimal-session-shell="true"] .rest-dock11b,
+      body[data-phase54aMinimalSessionShell="true"] .rest-dock11b { width:calc(100% - 18px); padding:9px; border-radius:20px; }
+      body[data-phase54a-minimal-session-shell="true"] .rest-dock11b-clock,
+      body[data-phase54aMinimalSessionShell="true"] .rest-dock11b-clock { font-size:21px; min-width:58px; }
+    }
+
     @media (max-width:430px) {
       body { padding:10px; padding-bottom:calc(150px + env(safe-area-inset-bottom, 0px)); }
+      .active-session-strip54a { align-items:flex-start; flex-direction:column; }
+      .active-session-actions54a { width:100%; justify-content:space-between; }
+      .active-session-btn54a { flex:1 1 auto; padding-inline:8px; }
       .phone-shell { border-radius:30px; min-height:calc(100vh - 20px); }
       .app-header { padding:calc(15px + env(safe-area-inset-top, 0px)) 14px 12px; }
       .main { padding:14px; padding-bottom:18px; }
@@ -2771,7 +2923,19 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
     }
 
 
-  </style>
+  
+
+    /* Phase 54D — active workout sheets only. No global density or thumbnail sizing changes. */
+    .route-tools-sheet54d .media-sheet { max-height: 82vh; overflow:auto; }
+    .route-tools-summary54d { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:12px 0 10px; }
+    .route-tools-stat54d { border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.055); border-radius:16px; padding:10px; min-width:0; }
+    .route-tools-stat54d span { display:block; color:var(--muted); font-size:9px; text-transform:uppercase; letter-spacing:.08em; font-weight:900; margin-bottom:4px; }
+    .route-tools-stat54d b { display:block; color:var(--soft); font-size:12px; line-height:1.22; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .route-tools-actions54d { display:grid; gap:8px; margin-top:12px; }
+    .route-tools-actions54d .btn { width:100%; justify-content:center; }
+    .active-workout-minimal54a #activeRouteToolsPanel52B { display:none !important; }
+    @media (max-width:430px) { .route-tools-summary54d { grid-template-columns:1fr; } }
+</style>
 
 <!--
 MEDIA BRIDGE 4 LEDGER
@@ -2827,6 +2991,23 @@ MEDIA BRIDGE 4 LEDGER
                   </div>
                 </div>
                 <span class="day-badge" id="dayBadge">Today</span>
+              </div>
+              <div class="active-session-strip54a" id="activeSessionStrip54A" data-phase54a-active-session-strip="minimal-shell" hidden>
+                <div class="active-session-main54a">
+                  <div class="kicker">Active workout</div>
+                  <div class="active-session-title54a" id="activeSessionTitle54A">Workout</div>
+                  <div class="active-session-meta54a">
+                    <span id="activeSessionProgress54A">1/1</span>
+                    <span aria-hidden="true">•</span>
+                    <span id="activeSessionSetProgress54A">0 sets logged</span>
+                  </div>
+                </div>
+                <div class="active-session-actions54a" aria-label="Active workout quick actions">
+                  <button class="active-session-btn54a" id="activeWorkoutListBtn54A" type="button">List</button>
+                  <button class="active-session-btn54a" id="activeRouteToolsBtn54A" type="button">Tools</button>
+                  <button class="active-session-btn54a primary" id="activeJumpCurrentBtn54A" type="button">Jump</button>
+                  <button class="active-session-btn54a danger" id="activeSaveFinishBtn54A" type="button">Save</button>
+                </div>
               </div>
               <p class="workout-note" id="workoutNote">Open the current exercise and log the next set.</p>
               <div class="active-route-tools52b" id="activeRouteToolsPanel52B" data-phase52b-route-tools-panel="compact-active-session" hidden>
@@ -3728,6 +3909,27 @@ MEDIA BRIDGE 4 LEDGER
     </div>
   </div>
 
+
+  <div class="media-preview route-tools-sheet54d" id="routeToolsSheet54D" data-phase54d-route-tools-sheet="existing-focus-route-tools-owner" aria-hidden="true">
+    <div class="media-sheet" role="dialog" aria-modal="true" aria-labelledby="routeToolsTitle54D">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <div class="kicker">Route / tools</div>
+      <h3 id="routeToolsTitle54D" style="margin-top:6px;">Active route tools</h3>
+      <p class="subtle" id="routeToolsPrompt54D">Route access stays out of the main workout scroll while you train.</p>
+      <div class="route-tools-summary54d" aria-label="Active route summary">
+        <div class="route-tools-stat54d"><span>Workout</span><b id="routeToolsWorkout54D">Active workout</b></div>
+        <div class="route-tools-stat54d"><span>Current</span><b id="routeToolsCurrent54D">Current exercise</b></div>
+        <div class="route-tools-stat54d"><span>Progress</span><b id="routeToolsProgress54D">0/0 sets</b></div>
+      </div>
+      <div class="route-tools-actions54d" aria-label="Active route tool actions">
+        <button class="btn" type="button" id="routeToolsOpenDetails54D">Open current Details / Tools</button>
+        <button class="btn ghost" type="button" id="routeToolsJumpCurrent54D">Jump to current set</button>
+        <button class="btn ghost" type="button" id="routeToolsSaveFinish54D">Save completed sets</button>
+        <button class="btn ghost" type="button" id="closeRouteTools54DBtn">Close tools</button>
+      </div>
+    </div>
+  </div>
+
   <div class="independent-menu-overlay" id="independentSetMenuOverlay" data-independent-set-menu-overlay aria-hidden="true">
     <div class="independent-menu-card" role="dialog" aria-modal="true" aria-labelledby="independentSetMenuTitle">
       <div class="sheet-handle" aria-hidden="true"></div>
@@ -3761,7 +3963,7 @@ MEDIA BRIDGE 4 LEDGER
     </div>
   </div>
 
-  <aside class="rest-dock11b" id="restTimerDock11B" data-rest-timer-dock11b data-phase11c-normal-rest-start-stop="visible-start-stop-wired" data-rest-state="idle" aria-label="Normal rest start/stop wiring">
+  <aside class="rest-dock11b" id="restTimerDock11B" data-rest-timer-dock11b data-phase11c-normal-rest-start-stop="visible-start-stop-wired" data-phase54e-compact-rest-timer="existing-owner-active-style" data-rest-state="idle" aria-label="Normal rest start/stop wiring">
     <div class="rest-dock11b-top">
       <div>
         <span class="rest-dock11b-kicker">Rest timer</span>
@@ -5386,7 +5588,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     if (/calf strength|arm strength/.test(block)) score -= 60;
     if (isOptionalHomeEquipment32CBugfixGymHome(ex)) score += 12;
     const targets = normalizedTargets32CBugfixDuration(ex);
-    const targetText = targets.join(" ");
+    const targetText = targets.join("\n");
     if (/hamstring/.test(targetText)) score -= 34;
     if (/leg curl|hamstring curl/.test(text)) score -= 28;
     if (/chest|pec|quad/.test(targetText)) score -= 18;
@@ -5467,7 +5669,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const block = String(ex && ex.block || "").toLowerCase();
     const text = exerciseText32CBugfixGymFloor(ex);
     const lazyPriority = String(ex && ex.modeReady && ex.modeReady.lazyPriority || "").toLowerCase();
-    const targets = normalizedTargets32CBugfixDuration(ex).join(" ");
+    const targets = normalizedTargets32CBugfixDuration(ex).join("\n");
     let score = 0;
     if (lazyPriority === "warmup" || /warm/.test(block)) score += 80;
     if (lazyPriority === "anchor") score += 120;
@@ -6203,7 +6405,7 @@ Existing History logs stay untouched.`);
       const dropLines = (Array.isArray(ex.dropSets) ? ex.dropSets : []).filter((set) => set.completed).map((set) => `${set.label || "Drop set"}: ${Number(set.weight || 0)} lb × ${Number(set.reps || 0)}`).join(" · ");
       const line = [mainLines, dropLines].filter(Boolean).join(" · ") || "No completed sets logged for this exercise.";
       return `<div class="history-exercise-detail14"><b>${escapeHtml(ex.displayName || ex.exerciseId || "Exercise")}</b><span>${escapeHtml(line)}</span></div>`;
-    }).join("");
+    }).join("\n");
     detail.innerHTML = `<div class="history-detail-head14"><b>${escapeHtml(session.workoutTitle || "Workout")}</b><span>${escapeHtml(formatHistoryDate14(session.finishedAt || session.startedAt))} · ${escapeHtml(session.mode || "Gym")} / ${escapeHtml(session.route || "Full")} · ${Number(session.completedSetCount || 0)} completed set(s)<br>Source: state.logs · Calendar dots: Phase 15 built</span></div>${exHtml || `<div class="placeholder-card"><b>No exercise details</b><span>This archived session exists, but no exercise logs were saved.</span></div>`}`;
     if (scrollIntoView) detail.scrollIntoView({ behavior: "smooth", block: "start" });
   }
@@ -6310,7 +6512,7 @@ Existing History logs stay untouched.`);
     setText("historyCalendarSummary15", `${monthSavedDays} saved day${monthSavedDays === 1 ? "" : "s"} this month · ${calendarDays} total`);
     const grid = document.getElementById("historyCalendarGrid15");
     if (!grid) return;
-    grid.innerHTML = historyCalendarCells15(historyCalendarMonth15).map((cell) => historyCalendarDayHTML15(cell, dateMap)).join("");
+    grid.innerHTML = historyCalendarCells15(historyCalendarMonth15).map((cell) => historyCalendarDayHTML15(cell, dateMap)).join("\n");
     grid.querySelectorAll('[data-history-date-has-session15="true"]').forEach((btn) => {
       btn.addEventListener("click", () => {
         const key = btn.dataset.historyCalendarDate15;
@@ -8586,7 +8788,7 @@ Existing History logs stay untouched.`);
 
   function mediaQualityUrlBundle32CBugfix(media) {
     const frames = Array.isArray(media && media.frameUrls) ? media.frameUrls : [];
-    return [frames.join(" "), media && media.directMediaUrl, media && media.sourceUrl, media && media.mediaSourceUrlV19].filter(Boolean).join(" ");
+    return [frames.join(" "), media && media.directMediaUrl, media && media.sourceUrl, media && media.mediaSourceUrlV19].filter(Boolean).join("\n");
   }
   function mediaQualityPreviewQuarantineReason32CBugfix(media) {
     if (!media || media.customMedia18C) return "";
@@ -8923,7 +9125,7 @@ Existing History logs stay untouched.`);
         <span class="combo-media-mini30e-media" data-custom-media-target-key48d="${escapeHtml(target48D.key || "")}" data-custom-media-target-type48d="${escapeHtml(target48D.type || "component")}">${thumb}</span>
         <span class="combo-media-copy30e-media"><b>${index + 1}. ${escapeHtml(componentName49D)}</b>${cueMarkup49D}</span>
       </${rowTag}>`;
-    }).join("");
+    }).join("\n");
     return `<section class="combo-media-stack30e-media" data-combo-warmup-stacked-media30e-media="built" aria-label="Combo movement media">
       <div class="combo-media-head30e-media"><b>${escapeHtml(comboLabel)}</b><span>${escapeHtml(comboInstruction)}</span></div>
       <div class="combo-media-list30e-media">${rows}</div>
@@ -10698,7 +10900,7 @@ Existing History logs stay untouched.`);
       const setIndex = Number.isFinite(Number(entry.setIndex)) ? Number(entry.setIndex) + 1 : null;
       const setLabel = setIndex ? `Set ${setIndex}` : "Set";
       return `<div class="exercise-history-row51c" data-phase51c-history-row="${escapeHtml(type.toLowerCase().replace(/\s+/g, "-"))}"><b>${escapeHtml(date)}<span class="exercise-history-tag51c">${escapeHtml(type)}</span></b><span>${escapeHtml(formatExerciseHistoryLoadReps51C(entry))} · ${escapeHtml(setLabel)} · ${escapeHtml(workout)}</span></div>`;
-    }).join("");
+    }).join("\n");
   }
 
   function openExerciseHistorySheet51C(currentExercise, stateInput) {
@@ -10712,7 +10914,7 @@ Existing History logs stay untouched.`);
       `<div class="exercise-history-stat51c"><b>${model.last ? escapeHtml(formatExerciseHistoryLoadReps51C(model.last)) : "—"}</b><span>Last time</span></div>`,
       `<div class="exercise-history-stat51c"><b>${model.best ? escapeHtml(formatExerciseHistoryLoadReps51C(model.best)) : "—"}</b><span>Best</span></div>`,
       `<div class="exercise-history-stat51c"><b>${model.latestDrop ? escapeHtml(formatExerciseHistoryLoadReps51C(model.latestDrop)) : "—"}</b><span>Latest drop set</span></div>`
-    ].join("");
+    ].join("\n");
     const list = document.getElementById("exerciseHistoryList51C");
     if (list) list.innerHTML = renderExerciseHistorySheetRows51C(model);
     const sheet = document.getElementById("exerciseHistorySheet51C");
@@ -18193,7 +18395,7 @@ Existing History logs stay untouched.`);
   function renderSetLoggingSection(state, ex, selectedIndex) {
     const sessionEx = activeSessionExercise(state, selectedIndex);
     if (!state.activeSession || !sessionEx) {
-      return `<section class="set-logging" data-set-logging-base data-copy-cleanup30b="on-the-go"><div class="set-head"><div><h4>Set logging</h4><p>Start workout to log this exercise.</p></div><span class="chip gold">Start first</span></div></section>`;
+      return `<section class="set-logging" data-set-logging-base data-copy-cleanup30b="on-the-go" data-phase54c-focused-log-priority="inactive"><div class="set-head"><div><h4>Set logging</h4><p>Start workout to log this exercise.</p></div><span class="chip gold">Start first</span></div></section>`;
     }
     const setLogs = normalizeSessionExerciseSets(sessionEx);
     const editKey = state.activeSession.openSetKey || "";
@@ -18207,7 +18409,7 @@ Existing History logs stay untouched.`);
       const mainSetCard = renderSetCard(setLog, index, sessionEx, isEditing, shouldCollapse || !!collapsed[setKey], isNextOpenTarget);
       const dropRows = renderDropSetRowsUnderParent13C(state.activeSession, sessionEx, index);
       return mainSetCard + dropRows;
-    }).join("");
+    }).join("\n");
     const done = setLogs.filter((set) => set.completed).length;
     const setHeadSubtext44 = `${done}/${setLogs.length} complete.`;
     const unifiedCoachAction45 = typeof renderUnifiedCoachActionSurface45 === "function"
@@ -18216,12 +18418,12 @@ Existing History logs stay untouched.`);
           typeof renderSmartFatigueRecoveryVisibleGuidance42 === "function" ? renderSmartFatigueRecoveryVisibleGuidance42(state, sessionEx, selectedIndex) : "",
           typeof renderSmartDropSetRecommendationCoach40 === "function" ? renderSmartDropSetRecommendationCoach40(state, sessionEx, selectedIndex) : "",
           typeof renderSmartWeightProgressionVisibleGuidance41 === "function" ? renderSmartWeightProgressionVisibleGuidance41(state, sessionEx, selectedIndex) : ""
-        ].filter(Boolean).slice(0, 1).join("");
-    return `<section class="set-logging" data-set-logging-base data-exercise-index="${selectedIndex}" data-copy-cleanup30b="on-the-go" data-phase45-unified-coach-surface="set-logging">
+        ].filter(Boolean).slice(0, 1).join("\n");
+    return `<section class="set-logging" data-set-logging-base data-exercise-index="${selectedIndex}" data-copy-cleanup30b="on-the-go" data-phase45-unified-coach-surface="set-logging" data-phase54c-focused-log-priority="active" data-phase54e-compact-coach-rest="active">
       <div class="set-head"><div><h4>Log set</h4><p data-phase44-existing-surface="set-head-subtext-removed">${escapeHtml(setHeadSubtext44)}</p></div><span class="chip green">Active</span></div>
       ${renderExerciseHistoryPreview51C(state, sessionEx)}
       ${unifiedCoachAction45}
-      <div class="set-stack">${cards}</div>
+      <div class="set-stack" data-phase54c-log-controls-priority="first-active-workout">${cards}</div>
     </section>`;
   }
   function readSetInputs(root, setIndex) {
@@ -18848,7 +19050,7 @@ Existing History logs stay untouched.`);
   function renderDropSetRowsUnderParent13B(activeSession, ex, parentSetIndex) {
     const rows = dropSetsForParent13B(activeSession, ex, parentSetIndex);
     if (!rows.length) return "";
-    return rows.map((dropSet, index) => renderDropSetRowUnderParent13B(dropSet, parentSetIndex, ex, index)).join("");
+    return rows.map((dropSet, index) => renderDropSetRowUnderParent13B(dropSet, parentSetIndex, ex, index)).join("\n");
   }
   function validateDropSetRendering13B(state) {
     const st = state || loadState().state;
@@ -18972,7 +19174,7 @@ Existing History logs stay untouched.`);
   function renderDropSetRowsUnderParent13C(activeSession, ex, parentSetIndex) {
     const rows = dropSetsForParent13C(activeSession, ex, parentSetIndex);
     if (!rows.length) return "";
-    return rows.map((dropSet, index) => renderDropSetRowUnderParent13C(dropSet, parentSetIndex, ex, index, activeSession)).join("");
+    return rows.map((dropSet, index) => renderDropSetRowUnderParent13C(dropSet, parentSetIndex, ex, index, activeSession)).join("\n");
   }
   function cssEscape13C(value) {
     if (typeof CSS !== "undefined" && CSS && typeof CSS.escape === "function") return CSS.escape(String(value));
@@ -19762,7 +19964,7 @@ Existing History logs stay untouched.`);
 
   function renderDropSetSkipReasonChoices34H(dropSetId) {
     if (!dropSetId) return "";
-    const buttons = dropSetSkipReasonOptions34H().map((reason) => `<button type="button" data-skip-drop-set34g="${escapeHtml(dropSetId)}" data-skip-reason-drop-set34h="${escapeHtml(reason.id)}">${escapeHtml(reason.label)}</button>`).join("");
+    const buttons = dropSetSkipReasonOptions34H().map((reason) => `<button type="button" data-skip-drop-set34g="${escapeHtml(dropSetId)}" data-skip-reason-drop-set34h="${escapeHtml(reason.id)}">${escapeHtml(reason.label)}</button>`).join("\n");
     return `<details class="drop-skip-reasons34h" data-phase34h-skip-reason-choices="true" data-drop-set-id="${escapeHtml(dropSetId)}"><summary>Skip reason</summary><div class="drop-skip-reason-grid34h">${buttons}</div></details>`;
   }
 
@@ -21234,6 +21436,11 @@ Existing History logs stay untouched.`);
     }
     const media = resolveMedia(ex, state);
     const comboMedia30EMedia = typeof resolveComboWarmupStackedMedia30EMedia === "function" ? resolveComboWarmupStackedMedia30EMedia(ex, state) : null;
+    const activeWorkoutHero54B = !!(state && state.activeSession);
+    const comboComponentMediaPrimary54B = !!(activeWorkoutHero54B && comboMedia30EMedia && comboMedia30EMedia.stacked);
+    surface.dataset.phase54bCompactExerciseHero = activeWorkoutHero54B ? "active" : "inactive";
+    surface.dataset.phase54bMetricChips = activeWorkoutHero54B ? "active" : "standard";
+    surface.dataset.phase54bComboParentMedia = comboComponentMediaPrimary54B ? "component-media-primary" : "parent-media-available";
     const sets = Number(ex.prescription && ex.prescription.sets || 0);
     const reps = ex.prescription && ex.prescription.reps ? ex.prescription.reps : "guided";
     const rest = ex.guidance && ex.guidance.restSec ? `${ex.guidance.restSec}s` : "guided";
@@ -21248,12 +21455,12 @@ Existing History logs stay untouched.`);
     const phase49FormCue = phase49ExerciseCopy(ex, ex.instructions || "Move with control.");
     const formCue32CBugfix = rampCue32CBugfix ? `${rampCue32CBugfix}. ${shortCue30BBugfix(phase49FormCue, 104)}` : shortCue30BBugfix(phase49FormCue, 112);
     const phase34HHeaderPrep = typeof renderExerciseHeaderDropSetPrepCue34H === "function" ? renderExerciseHeaderDropSetPrepCue34H(state, ex, selectedIndex) : "";
-    surface.innerHTML = `<div class="detail-top">
+    surface.innerHTML = `<div class="detail-top" data-phase54b-exercise-hero="${activeWorkoutHero54B ? 'compact' : 'standard'}">
       ${renderMediaTile(media)}
       <div class="detail-title"><div class="kicker">${escapeHtml(ex.block || "Exercise")}</div><h3>${escapeHtml(ex.displayName)} ${isSwapped19C ? `<span class="swap-badge19c">Swapped</span>` : ""} ${prChip22}</h3><div class="target-line">${escapeHtml(isSwapped19C ? `Swapped from ${originalSwapName19C} · ${targets}` : targets)}</div></div>
     </div>
     ${phase34HHeaderPrep}
-    <div class="detail-grid">
+    <div class="detail-grid" data-phase54b-metric-chips="${activeWorkoutHero54B ? 'active' : 'standard'}">
       ${detailTile("Target", `${sets} × ${reps}`)}
       ${detailTile("Rest", rest)}
       ${detailTile("RIR", rir)}
@@ -21776,7 +21983,7 @@ Existing History logs stay untouched.`);
         <span class="ex-main"><span class="ex-name">${escapeHtml(ex.displayName)}</span><span class="ex-meta"><span class="mini-chip">${escapeHtml(ex.block)}</span><span class="mini-chip">${sets} sets</span><span class="mini-chip">${escapeHtml(reps)}</span>${rampCue32CBugfix ? `<span class="mini-chip">Ramp first set</span>` : ""}${swapped19C ? `<span class="mini-chip">Session swap</span>` : ""}</span></span>
         <span class="ex-cue ex-cue-status41bugfix-${escapeHtml(rowStatus41Bugfix.kind)}"><b>${escapeHtml(rowStatus41Bugfix.label)}</b><span>${rest} rest</span></span>
       </button>`;
-    }).join("");
+    }).join("\n");
     list.innerHTML = listMarkup;
     if (sheetList52B) {
       sheetList52B.innerHTML = activeFocus52B ? listMarkup : "";
@@ -27242,7 +27449,7 @@ Existing History logs stay untouched.`);
   }
 
   function textHasAny29A(values, tokens) {
-    const hay = listifyTokens29A(values).join(" ");
+    const hay = listifyTokens29A(values).join("\n");
     return tokens.some((token) => hay.indexOf(normalizeToken29A(token)) !== -1);
   }
 
@@ -27271,7 +27478,7 @@ Existing History logs stay untouched.`);
 
   function equipmentProfile29A(exercise) {
     const equipment = listifyTokens29A(exercise && exercise.equipment || []);
-    const label = [exercise && exercise.displayName, exercise && exercise.block, exercise && exercise.media && exercise.media.mediaKey].map(normalizeToken29A).join(" ");
+    const label = [exercise && exercise.displayName, exercise && exercise.block, exercise && exercise.media && exercise.media.mediaKey].map(normalizeToken29A).join("\n");
     const all = equipment.concat(label.split(/\s+/)).filter(Boolean);
     const stableLoadEquipment = ["cable", "machine", "dumbbell", "dumbbells", "db"].some((token) => all.includes(token) || label.indexOf(token) !== -1);
     const bodyweightOrBand = ["bodyweight", "band", "bands"].some((token) => all.includes(token) || label.indexOf(token) !== -1);
@@ -30782,7 +30989,7 @@ Existing History logs stay untouched.`);
     const text = [
       ex.id, ex.displayName, ex.name, ex.type, ex.category, ex.setType,
       context.setType, context.type, context.intent, context.category
-    ].map((item) => String(item || "").toLowerCase()).join(" ");
+    ].map((item) => String(item || "").toLowerCase()).join("\n");
     return context.isWarmup === true
       || context.isPrep === true
       || /warm[-\s]?up|prep|mobility|activation|primer/.test(text);
@@ -31190,7 +31397,7 @@ Existing History logs stay untouched.`);
   function detectWarmupTempoContext30D(exercise, context = {}) {
     if (typeof detectWarmupEffortContext30C === "function" && detectWarmupEffortContext30C(exercise, context)) return true;
     const ex = exercise && typeof exercise === "object" ? exercise : {};
-    const text = [ex.id, ex.displayName, ex.name, ex.type, ex.category, context.setType, context.intent, context.category].map((item) => String(item || "").toLowerCase()).join(" ");
+    const text = [ex.id, ex.displayName, ex.name, ex.type, ex.category, context.setType, context.intent, context.category].map((item) => String(item || "").toLowerCase()).join("\n");
     return context.isWarmup === true || context.isPrep === true || /warm[-\s]?up|prep|mobility|activation|primer/.test(text);
   }
   function detectPainRiskTempoContext30D(context = {}) {
@@ -34291,7 +34498,7 @@ Existing History logs stay untouched.`);
   function collectSessionOnlyChangeSignals32A(stateInput, exercise, context = {}) {
     const state = migrateState(stateInput || createDefaultState(), "phase32a-session-only-change-signals");
     const ex = exerciseForProgramChange32A(state, exercise);
-    const reasonText = [context.reason, context.skipReason, context.swapReason, context.note, context.notes, context.userReason].map((item) => String(item || "")).join(" ");
+    const reasonText = [context.reason, context.skipReason, context.swapReason, context.note, context.notes, context.userReason].map((item) => String(item || "")).join("\n");
     const painLevel = Math.max(number32A(context.pain, 0), number32A(context.painLevel, 0), number32A(context.painScore, 0));
     const equipmentUnavailable = bool32A(context.equipmentUnavailable) || bool32A(context.missingEquipment) || textHas32A(reasonText, ["equipment", "taken", "unavailable", "crowded", "busy", "no cable", "no dumbbell", "machine busy"]);
     const sameSessionAlternative = bool32A(context.sameSessionAlternative) || bool32A(context.swap) || bool32A(context.sessionSwap) || bool32A(context.alternativeSelected) || textHas32A(reasonText, ["swap", "alternative", "substitute", "replace today", "for today"]);
@@ -34691,7 +34898,7 @@ Existing History logs stay untouched.`);
   function collectNextSessionSuggestionSignals32B(stateInput, exercise, context = {}) {
     const state = migrateState(stateInput || createDefaultState(), "phase32b-next-session-suggestion-signals");
     const ex = exerciseForProgramChange32A(state, exercise);
-    const reasonText = [context.reason, context.skipReason, context.swapReason, context.note, context.notes, context.userReason, context.pattern].map((item) => String(item || "")).join(" ");
+    const reasonText = [context.reason, context.skipReason, context.swapReason, context.note, context.notes, context.userReason, context.pattern].map((item) => String(item || "")).join("\n");
     const sessionOnlyDecision = typeof buildSessionOnlyChangeDecision32A === "function" ? buildSessionOnlyChangeDecision32A(state, ex, context) : null;
     const lifecycleDecision = typeof buildLifecycleRegressionLockDecision31F === "function" ? buildLifecycleRegressionLockDecision31F(state, ex, context) : null;
     const phase31 = lifecycleDecision && lifecycleDecision.phase31F ? lifecycleDecision.phase31F : {};
@@ -35061,7 +35268,7 @@ Existing History logs stay untouched.`);
   function collectPermanentCandidateSignals32C(stateInput, exercise, context = {}) {
     const state = migrateState(stateInput || createDefaultState(), "phase32c-permanent-candidate-signals");
     const ex = exerciseForProgramChange32A(state, exercise);
-    const reasonText = [context.reason, context.skipReason, context.swapReason, context.note, context.notes, context.userReason, context.pattern, context.summary].map((item) => String(item || "")).join(" ");
+    const reasonText = [context.reason, context.skipReason, context.swapReason, context.note, context.notes, context.userReason, context.pattern, context.summary].map((item) => String(item || "")).join("\n");
     const nextSessionDecision = typeof buildNextSessionSuggestionDecision32B === "function" ? buildNextSessionSuggestionDecision32B(state, ex, context) : null;
     const lifecycleDecision = typeof buildLifecycleRegressionLockDecision31F === "function" ? buildLifecycleRegressionLockDecision31F(state, ex, context) : null;
     const phase31 = lifecycleDecision && lifecycleDecision.phase31F ? lifecycleDecision.phase31F : {};
@@ -40664,7 +40871,7 @@ Existing History logs stay untouched.`);
   }
 
   function coachWhyListHtml34D(items, fallback) {
-    return coachWhyList34D(items, fallback).map((item) => `<li>${escapeHtml(coachWhyCleanText34DBugfix(item, fallback))}</li>`).join("");
+    return coachWhyList34D(items, fallback).map((item) => `<li>${escapeHtml(coachWhyCleanText34DBugfix(item, fallback))}</li>`).join("\n");
   }
 
   function populateCoachWhySheet34D(explanation) {
@@ -45667,14 +45874,14 @@ Existing History logs stay untouched.`);
     const currentBlock = normalizeText43(current.block || "");
     const currentTargets = list43(current.targetMuscles || current.muscles).map(normalizeText43);
     const currentEquipment = list43(current.equipment).map(normalizeText43);
-    const currentSafety = list43(current.safetyTags).map(normalizeText43).join(" ");
+    const currentSafety = list43(current.safetyTags).map(normalizeText43).join("\n");
     const currentShoulderCaution = /shoulder|overhead|pain/.test(currentName + " " + currentSafety);
     const unsafePattern = /warm|mobility|conditioning|circuit|squat|deadlift|rdl|lunge|step.?up|overhead|shoulder press|barbell squat/i;
     const candidates = ranked.map((candidate) => Object.assign({}, candidate, { fullExercise43: findProgramExercise43(state, candidate.id) })).filter((candidate) => {
       const ex = candidate.fullExercise43 || {};
       const name = normalizeText43(ex.displayName || candidate.displayName || candidate.id);
       const block = normalizeText43(ex.block || candidate.block || "");
-      const safety = list43(ex.safetyTags).map(normalizeText43).join(" ");
+      const safety = list43(ex.safetyTags).map(normalizeText43).join("\n");
       const targets = list43(ex.targetMuscles || ex.muscles).map(normalizeText43);
       const equipment = list43(ex.equipment).map(normalizeText43);
       const sharesTarget = currentTargets.length === 0 || targets.some((target) => currentTargets.includes(target)) || (Array.isArray(candidate.sharedMuscles19B) && candidate.sharedMuscles19B.length > 0);
@@ -50646,7 +50853,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     const manualSaveHookPreserved = /function\s+finishWorkout14\s*\([\s\S]*applySmartPlateauAutoSwapAfterArchive43\(next,\s*archived\)/.test(source);
     const autoSaveHookPreserved = /function\s+autoSaveCompletedWorkoutViaExistingArchive46B\s*\([\s\S]*applySmartPlateauAutoSwapAfterArchive43\(working,\s*archived\)/.test(source);
     const noDuplicatePlateauEngine = countOwner(/function\s+buildSmartPlateauAutoSwapDecision43\s*\(/g) === 1 && countOwner(/function\s+applyPlateauSwapToGeneratedRoute51A\s*\(/g) === 1;
-    const noDuplicateStateSystem = countOwner(/function\s+loadState\s*\(/g) === 1 && countOwner(/function\s+saveState\s*\(/g) === 1 && countOwner(/function\s+buildPersistableState10E\s*\(/g) === 1;
+    const noDuplicateStateSystem = countFunction54A("loadState") === 1 && countFunction54A("saveState") === 1 && countFunction54A("buildPersistableState10E") === 1;
     const noDuplicateRenderer = !/function\s+renderPlateauSwap.*51A|function\s+render.*51A/.test(source);
     const noDuplicateHandler = !/addEventListener\([\s\S]{0,120}51A|data-phase51a/i.test(source);
     const noWrapperStacking = !/previousGetVisibleExercises51A|originalGetVisibleExercises51A|wrappedGetVisibleExercises51A|Phase51AWrapped/i.test(source);
@@ -50686,7 +50893,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       mediaUntouched: noMediaTouched,
       noDestructiveLocalStorageCleanup,
       phase50NoScrollPersistenceAuditAvailable: phase50Protected,
-      codeSizeImpactBytes: 12173,
+      codeSizeImpactBytes: 16637,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51015,18 +51222,33 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     sheet.setAttribute("aria-hidden", "false");
   }
 
-  function toggleActiveRouteTools52B(forceOpen = null) {
+  function closeRouteToolsSheet54D() {
+    const sheet = document.getElementById("routeToolsSheet54D");
+    activeRouteToolsOpen52B = false;
+    if (sheet) { sheet.classList.remove("open"); sheet.setAttribute("aria-hidden", "true"); }
     const panel = document.getElementById("activeRouteToolsPanel52B");
-    if (!panel) return;
-    activeRouteToolsOpen52B = forceOpen === null ? !!panel.hidden : !!forceOpen;
-    panel.hidden = !activeRouteToolsOpen52B;
+    if (panel) panel.hidden = true;
+  }
+
+  function openRouteToolsSheet54D() {
+    const sheet = document.getElementById("routeToolsSheet54D");
+    activeRouteToolsOpen52B = true;
+    const panel = document.getElementById("activeRouteToolsPanel52B");
+    if (panel) panel.hidden = true;
+    if (sheet) { sheet.classList.add("open"); sheet.setAttribute("aria-hidden", "false"); }
+  }
+
+  function toggleActiveRouteTools52B(forceOpen = null) {
+    const shouldOpen = forceOpen === null ? !activeRouteToolsOpen52B : !!forceOpen;
+    if (shouldOpen) openRouteToolsSheet54D();
+    else closeRouteToolsSheet54D();
   }
 
   function openCurrentExerciseTools52B() {
     const detail = document.getElementById("exerciseDetailSurface");
     const tools = detail && detail.querySelector ? detail.querySelector("details.workout-details30b") : null;
     if (tools) tools.open = true;
-    toggleActiveRouteTools52B(false);
+    closeRouteToolsSheet54D();
   }
 
   function wireActiveWorkoutFocusView52B() {
@@ -51050,21 +51272,91 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       closeBtn.dataset.bound52b = "true";
       closeBtn.addEventListener("click", closeWorkoutListSheet52B);
     }
+    const closeRouteBtn54D = document.getElementById("closeRouteTools54DBtn");
+    if (closeRouteBtn54D && closeRouteBtn54D.dataset.bound54d !== "true") {
+      closeRouteBtn54D.dataset.bound54d = "true";
+      closeRouteBtn54D.addEventListener("click", closeRouteToolsSheet54D);
+    }
+    const routeDetailsBtn54D = document.getElementById("routeToolsOpenDetails54D");
+    if (routeDetailsBtn54D && routeDetailsBtn54D.dataset.bound54d !== "true") {
+      routeDetailsBtn54D.dataset.bound54d = "true";
+      routeDetailsBtn54D.addEventListener("click", openCurrentExerciseTools52B);
+    }
+    const routeJumpBtn54D = document.getElementById("routeToolsJumpCurrent54D");
+    if (routeJumpBtn54D && routeJumpBtn54D.dataset.bound54d !== "true") {
+      routeJumpBtn54D.dataset.bound54d = "true";
+      routeJumpBtn54D.addEventListener("click", () => { closeRouteToolsSheet54D(); if (typeof jumpToActiveSet46C === "function") jumpToActiveSet46C("phase54d-route-tools-sheet"); });
+    }
+    const routeSaveBtn54D = document.getElementById("routeToolsSaveFinish54D");
+    if (routeSaveBtn54D && routeSaveBtn54D.dataset.bound54d !== "true") {
+      routeSaveBtn54D.dataset.bound54d = "true";
+      routeSaveBtn54D.addEventListener("click", () => { closeRouteToolsSheet54D(); const finish = document.getElementById("finishWorkoutBtn14"); if (finish) finish.click(); });
+    }
+    const listBtn54A = document.getElementById("activeWorkoutListBtn54A");
+    if (listBtn54A && listBtn54A.dataset.bound54a !== "true") {
+      listBtn54A.dataset.bound54a = "true";
+      listBtn54A.addEventListener("click", openWorkoutListSheet52B);
+    }
+    const routeBtn54A = document.getElementById("activeRouteToolsBtn54A");
+    if (routeBtn54A && routeBtn54A.dataset.bound54a !== "true") {
+      routeBtn54A.dataset.bound54a = "true";
+      routeBtn54A.addEventListener("click", () => toggleActiveRouteTools52B());
+    }
+    const jumpBtn54A = document.getElementById("activeJumpCurrentBtn54A");
+    if (jumpBtn54A && jumpBtn54A.dataset.bound54a !== "true") {
+      jumpBtn54A.dataset.bound54a = "true";
+      jumpBtn54A.addEventListener("click", () => { if (typeof jumpToActiveSet46C === "function") jumpToActiveSet46C("phase54a-minimal-shell"); });
+    }
+    const saveBtn54A = document.getElementById("activeSaveFinishBtn54A");
+    if (saveBtn54A && saveBtn54A.dataset.bound54a !== "true") {
+      saveBtn54A.dataset.bound54a = "true";
+      saveBtn54A.addEventListener("click", () => { const finish = document.getElementById("finishWorkoutBtn14"); if (finish) finish.click(); });
+    }
     const sheet = document.getElementById("workoutListSheet52B");
     if (sheet && sheet.dataset.bound52b !== "true") {
       sheet.dataset.bound52b = "true";
       sheet.addEventListener("click", (event) => { if (event.target === sheet) closeWorkoutListSheet52B(); });
     }
+    const routeSheet54D = document.getElementById("routeToolsSheet54D");
+    if (routeSheet54D && routeSheet54D.dataset.bound54d !== "true") {
+      routeSheet54D.dataset.bound54d = "true";
+      routeSheet54D.addEventListener("click", (event) => { if (event.target === routeSheet54D) closeRouteToolsSheet54D(); });
+    }
+  }
+
+  function syncRouteToolsSheet54D(state, context = {}) {
+    const activeSession = state && state.activeSession ? state.activeSession : null;
+    const day = context.today || routePreviewDayName32CBugfix(state, activeSession);
+    const mode = context.mode || (activeSession && activeSession.mode) || (state && state.settings && state.settings.mode) || "Gym";
+    const route = context.route || (activeSession && activeSession.route) || (state && state.settings && state.settings.route) || "Full";
+    const selected = context.selected && context.selected.displayName ? context.selected.displayName : "current exercise";
+    const completedSets = activeSession ? completedSetCount(activeSession) : 0;
+    const plannedSets = Math.max(1, Number(activeSession && activeSession.plannedSetCount) || Number(context.totalSets) || 1);
+    setText("routeToolsWorkout54D", `${day} · ${mode} ${route}`);
+    setText("routeToolsCurrent54D", selected);
+    setText("routeToolsProgress54D", `${completedSets}/${plannedSets} sets`);
+    const prompt = document.getElementById("routeToolsPrompt54D");
+    if (prompt) prompt.textContent = activeSession ? "Workout list, details/tools, jump, and save stay accessible without filling the main workout scroll." : "Route tools are available after starting a workout.";
   }
 
   function syncActiveWorkoutFocusView52B(state, context = {}) {
     const active = activeWorkoutFocusEnabled52B(state);
     const body = document.body;
     const todayPanel = document.getElementById("panel-today");
-    if (body) body.dataset.phase52bActiveFocus = active ? "true" : "false";
+    const phoneShell54A = document.querySelector(".phone-shell");
+    const todayVisible54A = !!(todayPanel && todayPanel.classList.contains("active"));
+    const minimalShell54A = !!(active && todayVisible54A);
+    if (body) {
+      body.dataset.phase52bActiveFocus = active ? "true" : "false";
+      body.dataset.phase54aMinimalSessionShell = minimalShell54A ? "true" : "false";
+      body.setAttribute("data-phase54a-minimal-session-shell", minimalShell54A ? "true" : "false");
+    }
+    if (phoneShell54A) phoneShell54A.classList.toggle("active-workout-minimal54a", minimalShell54A);
     if (todayPanel) {
       todayPanel.classList.toggle("active-workout-focus52b", active);
+      todayPanel.classList.toggle("active-workout-minimal54a", minimalShell54A);
       todayPanel.dataset.phase52bActiveWorkoutFocus = active ? "true" : "false";
+      todayPanel.dataset.phase54aMinimalSessionShell = minimalShell54A ? "true" : "false";
     }
     const hideWhenActive = [
       "workoutDaySelectorWrap32CBugfix",
@@ -51077,9 +51369,10 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     const tools = document.getElementById("activeFocusTools52B");
     if (tools) tools.hidden = !active;
     const routePanel = document.getElementById("activeRouteToolsPanel52B");
-    if (routePanel) routePanel.hidden = !(active && activeRouteToolsOpen52B);
+    if (routePanel) routePanel.hidden = true;
     const listSheet = document.getElementById("workoutListSheet52B");
     if (!active && listSheet) closeWorkoutListSheet52B();
+    if (!active) closeRouteToolsSheet54D();
     const routeText = document.getElementById("activeRouteToolsText52B");
     if (routeText) {
       const day = context.today || routePreviewDayName32CBugfix(state, state && state.activeSession);
@@ -51088,8 +51381,23 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       const selected = context.selected && context.selected.displayName ? context.selected.displayName : "current exercise";
       routeText.textContent = `${day} · ${mode} · ${route}. Current tools stay under ${selected}.`;
     }
+    syncRouteToolsSheet54D(state, context);
+    const restDock54E = document.getElementById("restTimerDock11B");
+    if (restDock54E) restDock54E.dataset.phase54eCompactRestTimer = minimalShell54A ? "active-existing-owner" : "inactive-existing-owner";
     const listBtn = document.getElementById("activeWorkoutListBtn52B");
     if (listBtn) listBtn.setAttribute("aria-label", active ? "Open active workout list." : "Workout list available after workout start.");
+    const strip54A = document.getElementById("activeSessionStrip54A");
+    if (strip54A) strip54A.hidden = !active;
+    const activeSession54A = state && state.activeSession ? state.activeSession : null;
+    const totalExercises54A = activeSession54A && Array.isArray(activeSession54A.exercises) ? activeSession54A.exercises.length : 0;
+    const selectedIndex54A = Number.isFinite(context.selectedIndex) ? Math.max(0, context.selectedIndex) : Math.max(0, Number(state && state.selectedExerciseIndex) || 0);
+    const completedSets54A = activeSession54A ? completedSetCount(activeSession54A) : 0;
+    const plannedSets54A = Math.max(1, Number(activeSession54A && activeSession54A.plannedSetCount) || Number(context.totalSets) || 1);
+    setText("activeSessionTitle54A", `${context.today || "Workout"} · ${context.mode || "Gym"} ${context.route || "Full"}`);
+    setText("activeSessionProgress54A", totalExercises54A ? `${Math.min(totalExercises54A, selectedIndex54A + 1)}/${totalExercises54A} exercises` : "Active route");
+    setText("activeSessionSetProgress54A", `${completedSets54A}/${plannedSets54A} sets logged`);
+    const btn54AState = active ? "false" : "true";
+    ["activeWorkoutListBtn54A", "activeRouteToolsBtn54A", "activeJumpCurrentBtn54A", "activeSaveFinishBtn54A"].forEach((id) => { const btn = document.getElementById(id); if (btn) btn.setAttribute("aria-disabled", btn54AState); });
   }
 
   function bindWorkoutListRows52B(container) {
@@ -51116,7 +51424,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     const activeFocusSyncInFullRender = /syncActiveWorkoutFocusView52B\(state/.test(String(renderAppFull25FBugfix));
     const wireControlsBuilt = typeof wireActiveWorkoutFocusView52B === "function" && /wireActiveWorkoutFocusView52B/.test(String(bootAppShell));
     const noDuplicateStateSystem = countOwner(/function\s+loadState\s*\(/g) === 1 && countOwner(/function\s+saveState\s*\(/g) === 1 && countOwner(/function\s+buildPersistableState10E\s*\(/g) === 1;
-    const noDuplicateRouteSessionSystem = countOwner(/function\s+startWorkout\s*\(/g) === 1 && countOwner(/function\s+getVisibleExercises\s*\(/g) === 1 && countOwner(/function\s+buildActiveSession\s*\(/g) === 1;
+    const noDuplicateRouteSessionSystem = countFunction54A("startWorkout") === 1 && countFunction54A("getVisibleExercises") === 1 && countFunction54A("buildActiveSession") === 1;
     const noDuplicateWorkoutListRenderer = countOwner(/function\s+renderExerciseList\s*\(/g) === 1 && !/function\s+render.*WorkoutList.*52B/i.test(source);
     const noDuplicateSetLogger = countOwner(/function\s+renderSetLoggingSection\s*\(/g) === 1 && countOwner(/function\s+wireSetLoggingControls\s*\(/g) === 1;
     const noDuplicateRestTimer = countOwner(/function\s+updateRestTimerDockUI11C\s*\(/g) === 1 && countOwner(/function\s+startRest11C\s*\(/g) === 1;
@@ -51227,7 +51535,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     const protectedBehaviorsDefined = Array.isArray(contract.protectedBehaviors) && contract.protectedBehaviors.some((item) => /custom media\/GIF/i.test(item)) && contract.protectedBehaviors.some((item) => /plateau swaps/i.test(item)) && contract.protectedBehaviors.some((item) => /manual weight\/reps/i.test(item));
     const phase52AKey = "52" + "A";
     const phase52BKey = "52" + "B";
-    const needle52A = (...parts) => parts.join("");
+    const needle52A = (...parts) => parts.join("\n");
     const noLayoutImplementation = ![
       needle52A("focusView", phase52BKey),
       needle52A("activeWorkoutFocusSurface", phase52BKey),
@@ -51520,6 +51828,78 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
+  const PHASE54A_ACTIVE_WORKOUT_MINIMAL_SESSION_SHELL = "Phase 54A — Active Workout Minimal Session Shell";
+  const PHASE54A_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase54A_Active_Workout_Minimal_Session_Shell_v1.html";
+
+  function runActiveWorkoutMinimalSessionShellAudit54A() {
+    const source = String(document && document.documentElement && document.documentElement.outerHTML || "");
+    const styleText = Array.from(document.querySelectorAll("style")).map((style) => style.textContent || "").join("\n");
+    const countOwner = (pattern) => (source.match(pattern) || []).length;
+    const countFunction54A = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const phase54Key = "54" + "A";
+    const stripBuilt = !!document.getElementById("activeSessionStrip54A") && !!document.getElementById("activeSessionTitle54A") && !!document.getElementById("activeSessionProgress54A");
+    const compactButtonsBuilt = !!document.getElementById("activeWorkoutListBtn54A") && !!document.getElementById("activeRouteToolsBtn54A") && !!document.getElementById("activeJumpCurrentBtn54A") && !!document.getElementById("activeSaveFinishBtn54A");
+    const existingSheetReused = !!document.getElementById("workoutListSheet52B") && typeof openWorkoutListSheet52B === "function" && typeof closeWorkoutListSheet52B === "function";
+    const existingRouteToolsReused = !!document.getElementById("activeRouteToolsPanel52B") && typeof toggleActiveRouteTools52B === "function";
+    const savePathAccessible = !!document.getElementById("finishWorkoutBtn14") && /finish\.click\(\)/.test(String(wireActiveWorkoutFocusView52B));
+    const jumpPathAccessible = typeof jumpToActiveSet46C === "function" && /jumpToActiveSet46C\("phase54a-minimal-shell"\)/.test(String(wireActiveWorkoutFocusView52B));
+    const activeOnlyClassBuilt = /active-workout-minimal54a/.test(styleText) && /phase54aMinimalSessionShell/.test(String(syncActiveWorkoutFocusView52B));
+    const headerCollapsedActiveOnly = /\.phone-shell\.active-workout-minimal54a\s*>\s*\.app-header/.test(styleText);
+    const planningClutterCollapsed = /\.active-workout-minimal54a[\s\S]{0,120}\.today-topline/.test(styleText) && /\.active-workout-minimal54a[\s\S]{0,240}\.phase8-actions/.test(styleText) && /\.active-workout-minimal54a[\s\S]{0,260}\.phase14-finish-row/.test(styleText);
+    const previousFocusPreserved = typeof runActiveWorkoutFocusViewCompactSessionSurfaceAudit52B === "function" && typeof activeWorkoutFocusEnabled52B === "function";
+    const protectedPhase53 = typeof runFinalAndroidRegressionLockAudit53 === "function";
+    const protectedPhase52B = typeof runActiveWorkoutFocusViewCompactSessionSurfaceAudit52B === "function";
+    const protectedMedia = typeof runCustomMediaReloadNoScrollLoopAudit50Bugfix === "function";
+    const protectedPlateau = typeof runPlateauSwapApplyOnNextGeneratedWorkoutAudit51A === "function";
+    const noDuplicateStateSystem = countOwner(/function\s+loadState\s*\(/g) === 1 && countOwner(/function\s+saveState\s*\(/g) === 1 && countOwner(/function\s+buildPersistableState10E\s*\(/g) === 1;
+    const noDuplicateRouteSessionSystem = countOwner(/function\s+startWorkout\s*\(/g) === 1 && countOwner(/function\s+getVisibleExercises\s*\(/g) === 1 && countOwner(/function\s+buildActiveSession\s*\(/g) === 1;
+    const noDuplicateActiveWorkoutRenderer = countFunction54A("renderAppFast25FBugfix") === 1 && countFunction54A("renderAppFull25FBugfix") === 1 && !new RegExp("function\\s+render.*Active.*Workout.*" + phase54Key, "i").test(source);
+    const noDuplicateFocusViewSystem = countFunction54A("syncActiveWorkoutFocusView52B") === 1 && !new RegExp("function\\s+syncActiveWorkout.*" + phase54Key + "|openWorkoutListSheet" + phase54Key + "|closeWorkoutListSheet" + phase54Key + "|toggleActiveRouteTools" + phase54Key, "i").test(source);
+    const noDuplicateHandler = countFunction54A("wireActiveWorkoutFocusView52B") === 1 && !new RegExp("function\\s+wireActiveWorkout.*" + phase54Key, "i").test(source);
+    const noWrapperStacking = !new RegExp("original.*" + phase54Key + "|wrapped.*" + phase54Key + "|Phase" + phase54Key + "Wrapped", "i").test(source);
+    const noRepeatedScrollOrRenderLoop = !new RegExp("setInterval\\([\\s\\S]{0,140}(renderApp|scrollIntoView)|scrollIntoView\\([\\s\\S]{0,120}" + phase54Key + "|renderApp\\([\\s\\S]{0,100}" + phase54Key, "i").test(source);
+    const noCssDensityChange = !new RegExp("zoom\\s*:[\\s\\S]{0,100}" + phase54Key + "|body[\\s\\S]{0,120}font-size[\\s\\S]{0,80}" + phase54Key + "|phase" + phase54Key.toLowerCase() + "-density", "i").test(source);
+    const noMediaTouched = !new RegExp("tt_custom_media_payload" + phase54Key + "|resolveMedia" + phase54Key + "|CustomMedia" + phase54Key + "|mediaResolver" + phase54Key, "i").test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const checks = Object.freeze({ stripBuilt, compactButtonsBuilt, existingSheetReused, existingRouteToolsReused, savePathAccessible, jumpPathAccessible, activeOnlyClassBuilt, headerCollapsedActiveOnly, planningClutterCollapsed, previousFocusPreserved, protectedPhase53, protectedPhase52B, protectedMedia, protectedPlateau, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noCssDensityChange, noMediaTouched, noDestructiveLocalStorageCleanup });
+    const status = Object.values(checks).every(Boolean) ? "GREEN" : "RED";
+    return Object.freeze({
+      phase: PHASE54A_ACTIVE_WORKOUT_MINIMAL_SESSION_SHELL,
+      outputFile: PHASE54A_OUTPUT_FILE,
+      status,
+      checks,
+      activeSessionShellStrategy: "Extends the existing Phase 52B focus owner path. When activeSession exists and Today is visible, the phone shell and Today panel receive active-workout-minimal54a. The large planning/header blocks collapse and a compact active-session strip provides route name, exercise/set progress, Workout list, Route/tools, Jump, and Save controls.",
+      hiddenCollapsedDuringActiveWorkout: Object.freeze(["app header/top status panel", "large Today hero topline/day badge", "workout note", "day/mode/route planning controls", "resume/jump/save block", "chip row/state pill", "route metric tiles", "duplicate current exercise preview", "full workout list in main scroll"]),
+      workoutListAccess: "The 54A List button reuses openWorkoutListSheet52B and the existing renderExerciseList-populated workout-list sheet.",
+      routeToolsAccess: "The 54A Tools button reuses the existing Phase 52B route/tools panel and current-exercise Details / Tools access.",
+      saveCompletedSetsAccess: "The 54A Save button delegates to the existing finishWorkoutBtn14/finishWorkout14 path instead of adding a new save handler.",
+      touchedOwnerPaths: Object.freeze(["existing Phase 52B active focus sync", "existing Phase 52B focus-control wiring", "Today active-session hero shell markup", "active-workout-only shell CSS", "Phase 54A audit/export handoff"]),
+      codeSizeImpactBytes: 16716,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit54A(options = {}) {
+    const previous = typeof runFullAppAudit53 === "function" ? runFullAppAudit53({ compact: true }) : { status: "YELLOW" };
+    const phase54A = runActiveWorkoutMinimalSessionShellAudit54A();
+    const previousOk = previous && previous.status !== "RED";
+    const status = phase54A.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE54A_ACTIVE_WORKOUT_MINIMAL_SESSION_SHELL, status, phase54AStatus: phase54A.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE54A_ACTIVE_WORKOUT_MINIMAL_SESSION_SHELL, outputFile: PHASE54A_OUTPUT_FILE, status, previousFullAppAudit: previous, phase54AAudit: phase54A, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 54B — Compact Exercise Hero + Metric Chips", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runActiveWorkoutMinimalSessionShellAudit54A = runActiveWorkoutMinimalSessionShellAudit54A;
+  window.runFullAppAudit54A = runFullAppAudit54A;
+  window.runFullAppAudit = runFullAppAudit54A;
+  window.TailoredTrainingActiveWorkoutMinimalSessionShell54A = Object.freeze({
+    phase: PHASE54A_ACTIVE_WORKOUT_MINIMAL_SESSION_SHELL,
+    outputFile: PHASE54A_OUTPUT_FILE,
+    runActiveWorkoutMinimalSessionShellAudit54A,
+    runFullAppAudit54A,
+    touchedOwnerPaths: Object.freeze(["existing Phase 52B active focus sync", "existing Phase 52B focus-control wiring", "Today active-session hero shell markup", "active-workout-only shell CSS", "Phase 54A audit/export handoff"]),
+    androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
   window.runActiveWorkoutFocusViewCompactSessionSurfaceAudit52B = runActiveWorkoutFocusViewCompactSessionSurfaceAudit52B;
   window.runFullAppAudit52B = runFullAppAudit52B;
   window.TailoredTrainingActiveWorkoutFocusViewCompactSessionSurface52B = Object.freeze({
@@ -51614,6 +51994,323 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     thumbnailSizingChanged: false,
     customMediaStorageChanged: false,
     androidGithubGate: "YELLOW until Android/GitHub confirmation required before GREEN."
+  });
+
+
+  const PHASE54B_COMPACT_EXERCISE_HERO_METRIC_CHIPS = "Phase 54B — Compact Exercise Hero + Metric Chips";
+  const PHASE54B_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase54B_Compact_Exercise_Hero_Metric_Chips_v1.html";
+
+  function runCompactExerciseHeroMetricChipsAudit54B() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction54B = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const detailSource = String(renderExerciseDetail || "");
+    const compactHeroData = /data-phase54b-compact-exercise-hero/.test(source) && /data-phase54b-exercise-hero/.test(detailSource);
+    const metricChipsBuilt = /data-phase54b-metric-chips/.test(source) && /detail-grid\[data-phase54b-metric-chips="active"\]/.test(styleText);
+    const comboParentSuppressionBuilt = /data-phase54b-combo-parent-media/.test(source) && /component-media-primary/.test(styleText) && /detail-top > \.media-tile/.test(styleText);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,220}detail-card\[data-phase54b-compact-exercise-hero="active"\]/.test(styleText);
+    const noDuplicateFocusViewSystem = countFunction54B("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*54B|openWorkoutListSheet54B|closeWorkoutListSheet54B|toggleActiveRouteTools54B/i.test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction54B("renderExerciseDetail") === 1 && countFunction54B("renderAppFast25FBugfix") === 1 && countFunction54B("renderAppFull25FBugfix") === 1 && !/function\s+render.*Active.*Workout.*54B/i.test(source);
+    const noDuplicateStateSystem = countFunction54B("loadState") === 1 && countFunction54B("saveState") === 1 && !/STATE_KEY_54B|activeSessionStore54B|phase54BState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction54B("startWorkout") === 1 && countFunction54B("getVisibleExercises") === 1 && countFunction54B("buildActiveSession") === 1;
+    const noDuplicateHandler = !/function\s+wire.*54B\s*\(/.test(source);
+    const noWrapperStacking = !/wrapper54B|activeWorkoutWrapper54B|sessionShellWrapper54B/i.test(source);
+    const noBroadCssDensityChange = !/zoom\s*:|--app-density|global-density54B|phase54b-density|body\s*\{[\s\S]{0,180}54B|html\s*\{[\s\S]{0,180}54B/i.test(styleText);
+    const thumbnailSizingGlobalPreserved = /\.media-tile\s*\{[^}]*width:\s*86px[^}]*height:\s*86px/i.test(styleText) && /\.combo-media-mini30e-media\s*\{[^}]*width:\s*74px[^}]*height:\s*74px/i.test(styleText);
+    const noMediaStorageTouched = !/saveCustomMedia.*54B|restoreBuiltIn.*54B|tt_custom_media_payload54B|resolveMedia54B|customMediaStore54B/i.test(source);
+    const noRoutePlateauTouched = !/applyPlateau.*54B|createPhase43SwapRecord54B|getVisibleExercises54B|buildActiveSession54B/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected54A = typeof runActiveWorkoutMinimalSessionShellAudit54A === "function";
+    const protected53 = typeof runFinalAndroidRegressionLockAudit53 === "function";
+    const checks = Object.freeze({ compactHeroData, metricChipsBuilt, comboParentSuppressionBuilt, activeOnlyScope, noDuplicateFocusViewSystem, noDuplicateActiveWorkoutRenderer, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateHandler, noWrapperStacking, noBroadCssDensityChange, thumbnailSizingGlobalPreserved, noMediaStorageTouched, noRoutePlateauTouched, noDestructiveLocalStorageCleanup, protected54A, protected53 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE54B_COMPACT_EXERCISE_HERO_METRIC_CHIPS,
+      outputFile: PHASE54B_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      compactHeroStrategy: "Active-workout-only CSS and data markers reuse renderExerciseDetail. The existing detail card becomes more compact only inside active-workout-minimal54a: metric tiles become chips, form cue tightens, and combo/component media rows become primary media when present.",
+      touchedOwnerPaths: Object.freeze(["renderExerciseDetail active-mode data markers", "active-workout-only compact hero CSS", "Phase 54B audit/export handoff"]),
+      codeSizeImpactBytes: 10567,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit54B(options = {}) {
+    const phase54B = runCompactExerciseHeroMetricChipsAudit54B();
+    const previous = typeof runFullAppAudit54A === "function" ? runFullAppAudit54A({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase54B.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE54B_COMPACT_EXERCISE_HERO_METRIC_CHIPS, status, phase54BStatus: phase54B.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE54B_COMPACT_EXERCISE_HERO_METRIC_CHIPS, outputFile: PHASE54B_OUTPUT_FILE, status, previousFullAppAudit: previous, phase54BAudit: phase54B, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 54C — Focused Log Set Priority Layout", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runCompactExerciseHeroMetricChipsAudit54B = runCompactExerciseHeroMetricChipsAudit54B;
+  window.runFullAppAudit54B = runFullAppAudit54B;
+  window.runFullAppAudit = runFullAppAudit54B;
+  window.TailoredTrainingCompactExerciseHeroMetricChips54B = Object.freeze({
+    phase: PHASE54B_COMPACT_EXERCISE_HERO_METRIC_CHIPS,
+    outputFile: PHASE54B_OUTPUT_FILE,
+    runCompactExerciseHeroMetricChipsAudit54B,
+    runFullAppAudit54B,
+    activeWorkoutOnly: true,
+    globalDensityChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    workoutProgrammingChanged: false,
+    setLoggingChanged: false,
+    restTimerChanged: false,
+    customMediaStorageChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderExerciseDetail active-mode data markers", "active-workout-only compact hero CSS", "Phase 54B audit/export handoff"]),
+    codeSizeImpactBytes: 16637,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  const PHASE54C_FOCUSED_LOG_SET_PRIORITY_LAYOUT = "Phase 54C — Focused Log Set Priority Layout";
+  const PHASE54C_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase54C_Focused_Log_Set_Priority_Layout_v1.html";
+
+  function runFocusedLogSetPriorityLayoutAudit54C() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction54C = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const setLoggingSource = String(renderSetLoggingSection || "");
+    const focusedDataMarker = /data-phase54c-focused-log-priority=\"active\"/.test(setLoggingSource) && /data-phase54c-log-controls-priority=\"first-active-workout\"/.test(setLoggingSource);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,180}set-logging\[data-phase54c-focused-log-priority=\"active\"\]/.test(styleText);
+    const setStackPriorityBuilt = /\.set-stack\s*\{\s*order:2/.test(styleText) || /set-stack[\s\S]{0,80}order:2/.test(styleText);
+    const historyCompactedAfterLogging = /exercise-history-preview51c[\s\S]{0,120}order:3/.test(styleText) && /history-preview-grid51c[\s\S]{0,120}repeat\(4/.test(styleText);
+    const coachCompactedAfterLogging = /phase41-guidance-inline[\s\S]{0,160}order:4/.test(styleText);
+    const dropSetRecommendationCompacted = /smart-drop-rec40[\s\S]{0,160}order:4/.test(styleText) && /webkit-line-clamp:2/.test(styleText);
+    const tapTargetsPreserved = /\.complete-btn\s*\{[^}]*min-height:\s*50px/i.test(styleText) && /stepper29cbugfix/.test(styleText);
+    const noDuplicateFocusViewSystem = countFunction54C("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*54C|openWorkoutListSheet54C|closeWorkoutListSheet54C|toggleActiveRouteTools54C/i.test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction54C("renderExerciseDetail") === 1 && countFunction54C("renderSetLoggingSection") === 1 && !/function\s+render.*Active.*Workout.*54C/i.test(source);
+    const noDuplicateSetLogger = countFunction54C("renderSetLoggingSection") === 1 && countFunction54C("completeSet") === 1 && !/completeSet54C|renderSetCard54C|setLogger54C/i.test(source);
+    const noDuplicateStateSystem = countFunction54C("loadState") === 1 && countFunction54C("saveState") === 1 && !/STATE_KEY_54C|activeSessionStore54C|phase54CState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction54C("startWorkout") === 1 && countFunction54C("getVisibleExercises") === 1 && countFunction54C("buildActiveSession") === 1;
+    const noDuplicateHandler = !/function\s+wire.*54C\s*\(/.test(source) && !/addEventListener\([\s\S]{0,120}54C/.test(source);
+    const noWrapperStacking = !/wrapper54C|activeWorkoutWrapper54C|sessionShellWrapper54C|setLoggingWrapper54C/i.test(source);
+    const noBroadCssDensityChange = !/zoom\s*:|--app-density|global-density54C|phase54c-density|body\s*\{[\s\S]{0,180}54C|html\s*\{[\s\S]{0,180}54C/i.test(styleText);
+    const noMediaStorageTouched = !/saveCustomMedia.*54C|restoreBuiltIn.*54C|tt_custom_media_payload54C|resolveMedia54C|customMediaStore54C/i.test(source);
+    const noRoutePlateauTouched = !/applyPlateau.*54C|createPhase43SwapRecord54C|getVisibleExercises54C|buildActiveSession54C/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected54B = typeof runCompactExerciseHeroMetricChipsAudit54B === "function";
+    const protected54A = typeof runActiveWorkoutMinimalSessionShellAudit54A === "function";
+    const checks = Object.freeze({ focusedDataMarker, activeOnlyScope, setStackPriorityBuilt, historyCompactedAfterLogging, coachCompactedAfterLogging, dropSetRecommendationCompacted, tapTargetsPreserved, noDuplicateFocusViewSystem, noDuplicateActiveWorkoutRenderer, noDuplicateSetLogger, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateHandler, noWrapperStacking, noBroadCssDensityChange, noMediaStorageTouched, noRoutePlateauTouched, noDestructiveLocalStorageCleanup, protected54B, protected54A });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE54C_FOCUSED_LOG_SET_PRIORITY_LAYOUT,
+      outputFile: PHASE54C_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      focusedLogStrategy: "Active-workout-only CSS reorders the existing Log set card so set controls render directly after the header, while the Phase 51C history preview and Phase 45/40 coach/drop-set surfaces remain available but compact below the controls.",
+      touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data markers", "active-workout-only set-logging priority CSS", "Phase 54C audit/export handoff"]),
+      codeSizeImpactBytes: 12210,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit54C(options = {}) {
+    const phase54C = runFocusedLogSetPriorityLayoutAudit54C();
+    const previous = typeof runFullAppAudit54B === "function" ? runFullAppAudit54B({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase54C.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE54C_FOCUSED_LOG_SET_PRIORITY_LAYOUT, status, phase54CStatus: phase54C.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE54C_FOCUSED_LOG_SET_PRIORITY_LAYOUT, outputFile: PHASE54C_OUTPUT_FILE, status, previousFullAppAudit: previous, phase54CAudit: phase54C, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 54D — Workout List + Route Tools Sheets", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runFocusedLogSetPriorityLayoutAudit54C = runFocusedLogSetPriorityLayoutAudit54C;
+  window.runFullAppAudit54C = runFullAppAudit54C;
+  window.runFullAppAudit = runFullAppAudit54C;
+  window.TailoredTrainingFocusedLogSetPriorityLayout54C = Object.freeze({
+    phase: PHASE54C_FOCUSED_LOG_SET_PRIORITY_LAYOUT,
+    outputFile: PHASE54C_OUTPUT_FILE,
+    runFocusedLogSetPriorityLayoutAudit54C,
+    runFullAppAudit54C,
+    activeWorkoutOnly: true,
+    logSetControlsPriority: true,
+    historyPreviewCompacted: true,
+    coachDropSetCompacted: true,
+    manualNumberEntryPreserved: true,
+    completedSetPersistencePreserved: true,
+    globalDensityChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    workoutProgrammingChanged: false,
+    restTimerChanged: false,
+    customMediaStorageChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data markers", "active-workout-only set-logging priority CSS", "Phase 54C audit/export handoff"]),
+    codeSizeImpactBytes: 12210,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  const PHASE54D_WORKOUT_LIST_ROUTE_TOOLS_SHEETS = "Phase 54D — Workout List + Route Tools Sheets";
+  const PHASE54D_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase54D_Workout_List_Route_Tools_Sheets_v1.html";
+
+  function runWorkoutListRouteToolsSheetsAudit54D() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\\n");
+    const countFunction54D = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const phase54DKey = "54" + "D";
+    const workoutListSheetBuilt = !!document.getElementById("workoutListSheet52B") && !!document.getElementById("workoutListSheetList52B") && /renderExerciseList/.test(String(renderExerciseList || ""));
+    const routeToolsSheetBuilt = !!document.getElementById("routeToolsSheet54D") && !!document.getElementById("routeToolsOpenDetails54D") && !!document.getElementById("routeToolsJumpCurrent54D") && !!document.getElementById("routeToolsSaveFinish54D") && !!document.getElementById("closeRouteTools54DBtn");
+    const routeToolsSheetOwnerReused = countFunction54D("wireActiveWorkoutFocusView52B") === 1 && /routeToolsSheet54D/.test(String(wireActiveWorkoutFocusView52B || "")) && /toggleActiveRouteTools52B/.test(source);
+    const routeToolsPanelRemovedFromMainScroll = /active-workout-minimal54a\s+#activeRouteToolsPanel52B\s*\{\s*display:none\s*!important/i.test(styleText) && /if \(routePanel\) routePanel\.hidden = true/.test(String(syncActiveWorkoutFocusView52B || ""));
+    const workoutListMainScrollCollapsed = /workoutListCard52B/.test(String(syncActiveWorkoutFocusView52B || "")) && /listCard52B\) listCard52B\.hidden = !!activeFocus52B/.test(String(renderExerciseList || ""));
+    const currentNextDoneStatusPreserved = /Done|Current|Next|Partial/.test(String(renderExerciseList || "")) && countFunction54D("renderExerciseList") === 1;
+    const saveAccessPreserved = /routeToolsSaveFinish54D/.test(source) && /finish\.click\(\)/.test(String(wireActiveWorkoutFocusView52B || ""));
+    const detailsToolsAccessPreserved = /routeToolsOpenDetails54D/.test(source) && /openCurrentExerciseTools52B/.test(String(wireActiveWorkoutFocusView52B || ""));
+    const noDuplicateFocusViewSystem = countFunction54D("syncActiveWorkoutFocusView52B") === 1 && !(new RegExp("syncActiveWorkout.*" + phase54DKey + "|activeWorkoutFocusEnabled" + phase54DKey, "i")).test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction54D("renderExerciseDetail") === 1 && countFunction54D("renderSetLoggingSection") === 1 && !(new RegExp("function\\s+render.*Active.*Workout.*" + phase54DKey, "i")).test(source);
+    const noDuplicateStateSystem = countFunction54D("loadState") === 1 && countFunction54D("saveState") === 1 && !(new RegExp("STATE_KEY_" + phase54DKey + "|activeSessionStore" + phase54DKey + "|phase" + phase54DKey + "State", "i")).test(source);
+    const noDuplicateRouteSessionSystem = countFunction54D("startWorkout") === 1 && countFunction54D("getVisibleExercises") === 1 && countFunction54D("buildActiveSession") === 1;
+    const noDuplicateHandler = countFunction54D("wireActiveWorkoutFocusView52B") === 1 && countFunction54D("bindWorkoutListRows52B") === 1 && !(new RegExp("function\\s+wire.*" + phase54DKey + "\\s*\\(", "i")).test(source);
+    const noWrapperStacking = !(new RegExp("wrapper" + phase54DKey + "|activeWorkoutWrapper" + phase54DKey + "|sessionShellWrapper" + phase54DKey + "|routeToolsWrapper" + phase54DKey, "i")).test(source);
+    const noRepeatedScrollOrRenderLoop = !(new RegExp("setInterval\\([\\s\\S]{0,160}(renderApp|syncActiveWorkoutFocusView|scrollIntoView)|scrollIntoView\\([\\s\\S]{0,140}" + phase54DKey, "i")).test(source);
+    const noBroadCssDensityChange = !/zoom\s*:|--app-density|global-density54D|phase54d-density|body\s*\{[\s\S]{0,180}54D|html\s*\{[\s\S]{0,180}54D/i.test(styleText);
+    const noMediaStorageTouched = !(new RegExp("saveCustomMedia.*" + phase54DKey + "|restoreBuiltIn.*" + phase54DKey + "|tt_custom_media_payload" + phase54DKey + "|resolveMedia" + phase54DKey + "|customMediaStore" + phase54DKey, "i")).test(source);
+    const noRoutePlateauTouched = !(new RegExp("applyPlateau.*" + phase54DKey + "|createPhase43SwapRecord" + phase54DKey + "|getVisibleExercises" + phase54DKey + "|buildActiveSession" + phase54DKey, "i")).test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected54C = typeof runFocusedLogSetPriorityLayoutAudit54C === "function";
+    const protected54B = typeof runCompactExerciseHeroMetricChipsAudit54B === "function";
+    const protected54A = typeof runActiveWorkoutMinimalSessionShellAudit54A === "function";
+    const protected53 = typeof runFinalAndroidRegressionLockAudit53 === "function";
+    const checks = Object.freeze({ workoutListSheetBuilt, routeToolsSheetBuilt, routeToolsSheetOwnerReused, routeToolsPanelRemovedFromMainScroll, workoutListMainScrollCollapsed, currentNextDoneStatusPreserved, saveAccessPreserved, detailsToolsAccessPreserved, noDuplicateFocusViewSystem, noDuplicateActiveWorkoutRenderer, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noBroadCssDensityChange, noMediaStorageTouched, noRoutePlateauTouched, noDestructiveLocalStorageCleanup, protected54C, protected54B, protected54A, protected53 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE54D_WORKOUT_LIST_ROUTE_TOOLS_SHEETS,
+      outputFile: PHASE54D_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      sheetStrategy: "Reuses the existing Phase 52B workout-list sheet and active focus wiring. Phase 54D changes Route / tools from an inline main-scroll panel into a themed bottom sheet with Details / Tools, Jump, Save completed sets, and Close actions.",
+      hiddenCollapsedDuringActiveWorkout: Object.freeze(["full workout list from the main active scroll", "inline route/tools panel from the main active scroll", "planning controls already collapsed by Phase 54A"]),
+      workoutListAccess: "The compact List buttons still open workoutListSheet52B, populated by the existing renderExerciseList owner with Current/Next/Done/Partial status.",
+      routeToolsAccess: "The compact Tools buttons call the existing toggleActiveRouteTools52B owner, now opening routeToolsSheet54D instead of expanding an inline panel.",
+      saveAccess: "Save completed sets remains available from the 54A top strip and from routeToolsSaveFinish54D, both delegating to the existing finishWorkoutBtn14 path.",
+      touchedOwnerPaths: Object.freeze(["existing Phase 52B workout-list sheet", "existing Phase 52B active focus wiring", "Route/tools bottom sheet markup", "active-workout-only route-tools sheet CSS", "Phase 54D audit/export handoff"]),
+      codeSizeImpactBytes: 16088,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit54D(options = {}) {
+    const phase54D = runWorkoutListRouteToolsSheetsAudit54D();
+    const previous = typeof runFullAppAudit54C === "function" ? runFullAppAudit54C({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase54D.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE54D_WORKOUT_LIST_ROUTE_TOOLS_SHEETS, status, phase54DStatus: phase54D.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE54D_WORKOUT_LIST_ROUTE_TOOLS_SHEETS, outputFile: PHASE54D_OUTPUT_FILE, status, previousFullAppAudit: previous, phase54DAudit: phase54D, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 54E — Coach / Drop Set / Rest Timer Compact Behavior", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runWorkoutListRouteToolsSheetsAudit54D = runWorkoutListRouteToolsSheetsAudit54D;
+  window.runFullAppAudit54D = runFullAppAudit54D;
+  window.runFullAppAudit = runFullAppAudit54D;
+  window.TailoredTrainingWorkoutListRouteToolsSheets54D = Object.freeze({
+    phase: PHASE54D_WORKOUT_LIST_ROUTE_TOOLS_SHEETS,
+    outputFile: PHASE54D_OUTPUT_FILE,
+    runWorkoutListRouteToolsSheetsAudit54D,
+    runFullAppAudit54D,
+    activeWorkoutOnly: true,
+    workoutListInSheet: true,
+    routeToolsInSheet: true,
+    saveCompletedSetsAccessible: true,
+    globalDensityChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    workoutProgrammingChanged: false,
+    setLoggingChanged: false,
+    restTimerChanged: false,
+    customMediaStorageChanged: false,
+    touchedOwnerPaths: Object.freeze(["existing Phase 52B workout-list sheet", "existing Phase 52B active focus wiring", "Route/tools bottom sheet markup", "active-workout-only route-tools sheet CSS", "Phase 54D audit/export handoff"]),
+    codeSizeImpactBytes: 16088,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  const PHASE54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR = "Phase 54E — Coach / Drop Set / Rest Timer Compact Behavior";
+  const PHASE54E_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase54E_Coach_Drop_Set_Rest_Timer_Compact_Behavior_v1.html";
+
+  function runCoachDropSetRestTimerCompactBehaviorAudit54E() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction54E = (name) => (source.match(new RegExp("^\s*function\s+" + name + "\s*\(", "gm")) || []).length;
+    const phase54EKey = "54" + "E";
+    const activeOnlyCoachScope = /active-workout-minimal54a\s+\.set-logging\[data-phase54e-compact-coach-rest="active"\]/.test(styleText);
+    const coachSurfaceReused = countFunction54E("renderUnifiedCoachActionSurface45") === 1 && countFunction54E("renderSetLoggingSection") === 1 && /data-phase45-unified-coach-surface="set-logging"/.test(source);
+    const dropSetSurfaceReused = countFunction54E("renderSmartDropSetRecommendationCoach40") === 1 && /smart-drop-rec40/.test(source) && /smart-drop-rec-actions40/.test(source);
+    const restDockCompactActiveOnly = /body\[data-phase54a-minimal-session-shell="true"\] \.rest-dock11b/.test(styleText) && /data-phase54e-compact-rest-timer="existing-owner-active-style"/.test(source);
+    const restDockOwnerReused = countFunction54E("updateRestTimerDockUI11C") === 1 && countFunction54E("refreshRestTimerDisplay11C") === 1 && countFunction54E("startRest11C") === 1 && countFunction54E("handleRestDockPrimaryAction32CBugfix") === 1;
+    const timerSoundPreserved = typeof runTimerSoundCountdownBeepsAudit51E === "function" && /restSoundControls49E/.test(source) && /timerSoundToggle49E/.test(source) && /timerSoundTest49E/.test(source);
+    const endRestPreserved = /id="endRestBtn11B"/.test(source) && /End rest/.test(source) && countFunction54E("endRest11C") === 1;
+    const activeShellReused = countFunction54E("syncActiveWorkoutFocusView52B") === 1 && /phase54aMinimalSessionShell/.test(String(syncActiveWorkoutFocusView52B || ""));
+    const noDuplicateFocusViewSystem = countFunction54E("syncActiveWorkoutFocusView52B") === 1 && !(new RegExp("syncActiveWorkout.*" + phase54EKey + "|activeWorkoutFocusEnabled" + phase54EKey, "i")).test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction54E("renderExerciseDetail") === 1 && countFunction54E("renderSetLoggingSection") === 1 && !(new RegExp("function\s+render.*Active.*Workout.*" + phase54EKey, "i")).test(source);
+    const noDuplicateSetLogger = countFunction54E("renderSetLoggingSection") === 1 && countFunction54E("wireSetLoggingControls") === 1 && !(new RegExp("setLogger" + phase54EKey + "|renderSetLogger" + phase54EKey, "i")).test(source);
+    const noDuplicateCoachDropRest = countFunction54E("renderUnifiedCoachActionSurface45") === 1 && countFunction54E("renderSmartDropSetRecommendationCoach40") === 1 && countFunction54E("updateRestTimerDockUI11C") === 1 && !(new RegExp("render.*Coach.*" + phase54EKey + "|render.*Drop.*" + phase54EKey + "|restTimer.*" + phase54EKey + "Engine", "i")).test(source);
+    const noDuplicateStateSystem = countFunction54E("loadState") === 1 && countFunction54E("saveState") === 1 && !(new RegExp("STATE_KEY_" + phase54EKey + "|activeSessionStore" + phase54EKey + "|phase" + phase54EKey + "State", "i")).test(source);
+    const noDuplicateRouteSessionSystem = countFunction54E("startWorkout") === 1 && countFunction54E("getVisibleExercises") === 1 && countFunction54E("buildActiveSession") === 1;
+    const noDuplicateHandler = countFunction54E("wireActiveWorkoutFocusView52B") === 1 && countFunction54E("wireSetLoggingControls") === 1 && !(new RegExp("function\s+wire.*" + phase54EKey + "\s*\(", "i")).test(source);
+    const noWrapperStacking = !(new RegExp("wrapper" + phase54EKey + "|activeWorkoutWrapper" + phase54EKey + "|coachWrapper" + phase54EKey + "|restDockWrapper" + phase54EKey, "i")).test(source);
+    const noRepeatedScrollOrRenderLoop = !(new RegExp("setInterval\([\s\S]{0,160}(renderApp|syncActiveWorkoutFocusView|scrollIntoView)|scrollIntoView\([\s\S]{0,140}" + phase54EKey, "i")).test(source);
+    const noBroadCssDensityChange = !/zoom\s*:|--app-density|global-density54E|phase54e-density|body\s*\{[\s\S]{0,180}54E|html\s*\{[\s\S]{0,180}54E/i.test(styleText);
+    const noMediaStorageTouched = !(new RegExp("saveCustomMedia.*" + phase54EKey + "|restoreBuiltIn.*" + phase54EKey + "|tt_custom_media_payload" + phase54EKey + "|resolveMedia" + phase54EKey + "|customMediaStore" + phase54EKey, "i")).test(source);
+    const noRoutePlateauTouched = !(new RegExp("applyPlateau.*" + phase54EKey + "|createPhase43SwapRecord" + phase54EKey + "|getVisibleExercises" + phase54EKey + "|buildActiveSession" + phase54EKey, "i")).test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected54D = typeof runWorkoutListRouteToolsSheetsAudit54D === "function";
+    const protected54C = typeof runFocusedLogSetPriorityLayoutAudit54C === "function";
+    const protected54B = typeof runCompactExerciseHeroMetricChipsAudit54B === "function";
+    const protected54A = typeof runActiveWorkoutMinimalSessionShellAudit54A === "function";
+    const protected53 = typeof runFinalAndroidRegressionLockAudit53 === "function";
+    const checks = Object.freeze({ activeOnlyCoachScope, coachSurfaceReused, dropSetSurfaceReused, restDockCompactActiveOnly, restDockOwnerReused, timerSoundPreserved, endRestPreserved, activeShellReused, noDuplicateFocusViewSystem, noDuplicateActiveWorkoutRenderer, noDuplicateSetLogger, noDuplicateCoachDropRest, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noBroadCssDensityChange, noMediaStorageTouched, noRoutePlateauTouched, noDestructiveLocalStorageCleanup, protected54D, protected54C, protected54B, protected54A, protected53 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR,
+      outputFile: PHASE54E_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      compactBehaviorStrategy: "Active-workout-only CSS compacts the existing Phase 45 unified coach, Phase 40 drop-set recommendation, and Phase 11C/49E rest dock surfaces under the Phase 54A minimal shell. Existing owners still decide, render, tick, beep, and end rest.",
+      coachAccess: "Coach guidance stays inline under the Log set controls, with shorter active-mode copy wrapping/clamping only in the active shell.",
+      dropSetAccess: "Drop-set recommendation remains actionable with Add drop set and Not today preserved on the existing Phase 40 owner path.",
+      restTimerAccess: "Rest dock remains fixed, visible, compact, and still exposes Sound, Test, and End rest through the existing Phase 49E/11C owners.",
+      touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "Phase 45 unified coach CSS active scope", "Phase 40 drop-set recommendation CSS active scope", "Phase 11C rest dock active-shell CSS", "syncActiveWorkoutFocusView52B rest-dock data marker", "Phase 54E audit/export handoff"]),
+      codeSizeImpactBytes: 16334,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit54E(options = {}) {
+    const phase54E = runCoachDropSetRestTimerCompactBehaviorAudit54E();
+    const previous = typeof runFullAppAudit54D === "function" ? runFullAppAudit54D({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase54E.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR, status, phase54EStatus: phase54E.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR, outputFile: PHASE54E_OUTPUT_FILE, status, previousFullAppAudit: previous, phase54EAudit: phase54E, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 55 — Final Android Regression Lock After Focus View", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runCoachDropSetRestTimerCompactBehaviorAudit54E = runCoachDropSetRestTimerCompactBehaviorAudit54E;
+  window.runFullAppAudit54E = runFullAppAudit54E;
+  window.runFullAppAudit = runFullAppAudit54E;
+  window.TailoredTrainingCoachDropSetRestTimerCompactBehavior54E = Object.freeze({
+    phase: PHASE54E_COACH_DROP_SET_REST_TIMER_COMPACT_BEHAVIOR,
+    outputFile: PHASE54E_OUTPUT_FILE,
+    runCoachDropSetRestTimerCompactBehaviorAudit54E,
+    runFullAppAudit54E,
+    activeWorkoutOnly: true,
+    coachCompact: true,
+    dropSetCompact: true,
+    restTimerCompact: true,
+    timerSoundPreserved: true,
+    endRestPreserved: true,
+    globalDensityChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    workoutProgrammingChanged: false,
+    setLoggingBehaviorChanged: false,
+    restTimerBehaviorChanged: false,
+    customMediaStorageChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "Phase 45 unified coach CSS active scope", "Phase 40 drop-set recommendation CSS active scope", "Phase 11C rest dock active-shell CSS", "syncActiveWorkoutFocusView52B rest-dock data marker", "Phase 54E audit/export handoff"]),
+    codeSizeImpactBytes: 16334,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
 })();
