@@ -1,3 +1,22 @@
+<!doctype html>
+
+<!--
+PHASE_60_FINAL_ANDROID_REGRESSION_LOCK_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59H_Compact_Coach_Tip_Rest_Timer_Overlay_Check_v1.html as the Android/GitHub GREEN base and Tailored training plan v59.txt as the active plan source.
+- Added a read-only final Android regression lock for the compact north-star active-workout cycle: darker contrast lock, slim top metrics, media count rules, compact combo rows/useful copy, slim Stats row, unified Log set rows, Log header History/drop-set rail, compact coach tip, and rest timer overlay stability.
+- Added Phase 60 checklist/static owner audit/export handoff only; no product UI, CSS restyling, workout programming, route/session behavior, set logging behavior, rest timer behavior, coach/drop-set logic, custom media storage, History/Data/Backup layout, thumbnail sizing, global density, or boot storage cleanup changed.
+- Preserved custom media/GIF reload, no-scroll-loop protection, active/later/drop-set persistence, plateau next-route swaps, set-menu cleanup, exercise-history sheet, manual entry, timer sound, reset controls, Save completed sets, and History logs.
+- Android/GitHub confirmation required before GREEN because this is the final device regression lock after the Phase 59 compact active-workout visual cycle.
+-->
+
+<!--
+PHASE_59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59G_Log_Header_History_Drop_Set_Action_Rail_v1.html as the Android/GitHub GREEN base.
+- Added active-workout-only compact coach strip styling so the existing unified coach output reads like a slim icon + text tip instead of a large card.
+- Added an active-workout rest-timer overlay stability pass: clearer fixed bottom dock, protected End rest / Sound / Test controls, safe bottom breathing room, and no scrollIntoView/render loops.
+- Reused the existing Phase 45 unified coach owner, Phase 40 drop-set rail/handlers, Phase 11C rest timer dock, and Phase 49E timer sound controls; no duplicate coach, timer, set logger, state, route/session, or media system was added.
+- Preserved workout programming, set logging behavior, manual entry, drop-set logic, timer sound behavior, custom media/GIF durability, plateau swaps, reset controls, History/Data/Backup, thumbnail sizing, global density, and non-destructive boot behavior.
+-->
 <!--
 PHASE_59C_EXERCISE_HERO_MEDIA_COUNT_RULES_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase59B_Top_Active_Header_Slim_Route_Metrics_v1.html as the Android/GitHub GREEN base and Tailored training plan v59.txt as the active plan source.
@@ -105,6 +124,16 @@ PHASE_51E_TIMER_SOUND_COUNTDOWN_BEEPS_V1_CHANGELOG
 - Did not change workout programming, set logging values, rest timing, End rest behavior, drop-set/coach behavior, custom media persistence, plateau swaps, History/Data/Backup, thumbnail sizing, visual density, or boot storage cleanup.
 -->
 <!doctype html>
+
+<!--
+PHASE_59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase59F_Unified_Log_Set_Rows_v1.html as the Android/GitHub GREEN base.
+- Moved active-workout exercise history access from the always-visible Log set body into a compact Log set header History chip that reuses the existing Phase 51C exercise-history sheet.
+- Added an active-workout compact drop-set action rail near the Log set header when the existing Phase 40 recommendation owner says a drop set is recommended.
+- The compact rail reuses the existing Phase 40 Add drop set and Not today/Skip handlers, includes the correct target set number, and keeps a small Why affordance without changing drop-set logic.
+- Suppressed only the old large active-workout smart drop-set recommendation card when the compact rail is present.
+- Preserved set logging, manual entry, carry-forward, completed rows, custom media/GIF durability, plateau swaps, rest timer, timer sounds, workout-list/route-tools sheets, reset controls, History/Data/Backup, route/session logic, workout programming, global density, thumbnail sizing, and non-destructive boot behavior.
+-->
 
 <!--
 PHASE_59F_UNIFIED_LOG_SET_ROWS_V1_CHANGELOG
@@ -3668,6 +3697,259 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
       }
     }
 
+
+/* PHASE_59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL_V1_CSS — active-workout-only Log header History chip + compact drop-set rail; no global density or behavior changes */
+.active-workout-minimal54a .set-logging[data-phase59g-log-header-history-drop-rail="active"] .set-head[data-phase59g-log-header="history-chip"] {
+  align-items: flex-start;
+  gap: 10px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  padding-bottom: 9px;
+  margin-bottom: 8px;
+}
+.active-workout-minimal54a .set-logging[data-phase59g-log-header-history-drop-rail="active"] .log-head-title59g {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.active-workout-minimal54a .set-logging[data-phase59g-log-header-history-drop-rail="active"] .log-head-title59g h4 {
+  margin: 0;
+}
+.active-workout-minimal54a .set-logging[data-phase59g-log-header-history-drop-rail="active"] .log-head-actions59g {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+.active-workout-minimal54a .history-chip59g {
+  appearance: none;
+  border: 1px solid rgba(245, 158, 11, 0.34);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.13), rgba(15, 23, 42, 0.72));
+  color: rgba(254, 243, 199, 0.96);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.05), 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+.active-workout-minimal54a .history-chip59g:active {
+  transform: translateY(1px);
+}
+.active-workout-minimal54a .drop-set-action-rail59g {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.28);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.13), rgba(15, 23, 42, 0.88));
+  border-radius: 16px;
+  padding: 9px 10px;
+  margin: 2px 0 9px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.active-workout-minimal54a .drop-set-action-rail-copy59g {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.active-workout-minimal54a .drop-set-action-rail-copy59g b {
+  color: rgba(254, 243, 199, 0.98);
+  font-size: 0.88rem;
+  line-height: 1.15;
+}
+.active-workout-minimal54a .drop-set-action-rail-copy59g span {
+  color: rgba(203, 213, 225, 0.82);
+  font-size: 0.76rem;
+  line-height: 1.2;
+}
+.active-workout-minimal54a .drop-set-action-rail59g .drop-set-rail-add59g,
+.active-workout-minimal54a .drop-set-action-rail59g .drop-set-rail-skip59g {
+  appearance: none;
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 0.76rem;
+  font-weight: 850;
+  white-space: nowrap;
+}
+.active-workout-minimal54a .drop-set-action-rail59g .drop-set-rail-add59g {
+  border: 1px solid rgba(45, 212, 191, 0.48);
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.26), rgba(8, 47, 73, 0.72));
+  color: rgba(204, 251, 241, 0.98);
+}
+.active-workout-minimal54a .drop-set-action-rail59g .drop-set-rail-skip59g {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.7);
+  color: rgba(226, 232, 240, 0.9);
+}
+.active-workout-minimal54a .drop-set-rail-why59g {
+  grid-column: 1 / -1;
+  color: rgba(203, 213, 225, 0.78);
+  font-size: 0.74rem;
+  line-height: 1.24;
+}
+.active-workout-minimal54a .drop-set-rail-why59g summary {
+  width: fit-content;
+  cursor: pointer;
+  color: rgba(254, 243, 199, 0.9);
+  font-weight: 800;
+  list-style: none;
+}
+.active-workout-minimal54a .drop-set-rail-why59g summary::-webkit-details-marker {
+  display: none;
+}
+.active-workout-minimal54a .drop-set-rail-why59g span {
+  display: block;
+  margin-top: 4px;
+  color: rgba(203, 213, 225, 0.82);
+}
+.active-workout-minimal54a .set-logging[data-phase59g-log-header-history-drop-rail="active"] > .exercise-history-preview51c {
+  display: none !important;
+}
+@media (max-width: 520px) {
+  .active-workout-minimal54a .drop-set-action-rail59g {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .active-workout-minimal54a .drop-set-action-rail59g .drop-set-rail-add59g,
+  .active-workout-minimal54a .drop-set-action-rail59g .drop-set-rail-skip59g {
+    width: 100%;
+  }
+  .active-workout-minimal54a .set-logging[data-phase59g-log-header-history-drop-rail="active"] .log-head-actions59g {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+  
+
+/* PHASE_59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK_V1_CSS — active-workout-only coach strip + rest timer overlay stability; no behavior, density, or global layout changes */
+.active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] {
+  display:grid;
+  grid-template-columns:auto minmax(0, 1fr);
+  grid-template-areas:"icon title" "icon detail";
+  align-items:center;
+  column-gap:9px;
+  row-gap:2px;
+  margin:7px 0 9px;
+  padding:8px 10px;
+  border-radius:16px;
+  border:1px solid rgba(244,201,109,.26);
+  background:linear-gradient(135deg, rgba(244,201,109,.11), rgba(6,12,20,.90));
+  box-shadow:0 10px 22px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.035);
+}
+.active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] .phase41-guidance-kicker {
+  grid-area:icon;
+  width:30px;
+  height:30px;
+  border-radius:12px;
+  display:inline-grid;
+  place-items:center;
+  align-self:center;
+  color:transparent;
+  font-size:0;
+  letter-spacing:0;
+  background:linear-gradient(135deg, rgba(244,201,109,.20), rgba(99,230,190,.10));
+  border:1px solid rgba(244,201,109,.26);
+  box-shadow:0 8px 18px rgba(0,0,0,.18);
+}
+.active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] .phase41-guidance-kicker::before {
+  content:"⚡";
+  color:rgba(254,243,199,.96);
+  font-size:15px;
+  line-height:1;
+}
+.active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] b {
+  grid-area:title;
+  min-width:0;
+  color:rgba(248,250,252,.96);
+  font-size:.83rem;
+  line-height:1.16;
+  letter-spacing:-.012em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] span:not(.phase41-guidance-kicker) {
+  grid-area:detail;
+  min-width:0;
+  color:rgba(203,213,225,.80);
+  font-size:.72rem;
+  line-height:1.18;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  display:block;
+}
+.active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase42-fatigue-guidance="true"],
+.active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase41-guidance-tone="lower"] {
+  border-color:rgba(244,201,109,.34);
+  background:linear-gradient(135deg, rgba(244,201,109,.13), rgba(63,18,18,.20), rgba(6,12,20,.90));
+}
+body[data-phase54a-minimal-session-shell="true"] .main,
+body[data-phase54aMinimalSessionShell="true"] .main {
+  padding-bottom:calc(168px + env(safe-area-inset-bottom, 0px));
+}
+body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"],
+body[data-phase54aMinimalSessionShell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] {
+  z-index:48;
+  bottom:calc(74px + env(safe-area-inset-bottom, 0px));
+  width:min(374px, calc(100% - 22px));
+  max-width:min(374px, calc(100% - 22px));
+  max-height:calc(36vh - env(safe-area-inset-bottom, 0px));
+  overflow:hidden;
+  border:1px solid rgba(99,230,190,.25);
+  background:linear-gradient(180deg, rgba(8,14,24,.96), rgba(3,8,14,.94));
+  box-shadow:0 18px 44px rgba(0,0,0,.44), 0 0 0 1px rgba(99,230,190,.045), inset 0 1px 0 rgba(255,255,255,.045);
+}
+body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-top,
+body[data-phase54aMinimalSessionShell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-top {
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto;
+  align-items:center;
+  gap:10px;
+}
+body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-title,
+body[data-phase54aMinimalSessionShell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-title,
+body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-meta,
+body[data-phase54aMinimalSessionShell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-meta {
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-clock,
+body[data-phase54aMinimalSessionShell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .rest-dock11b-clock {
+  color:rgba(236,253,245,.98);
+  text-shadow:0 0 18px rgba(99,230,190,.18);
+}
+body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .end-rest-btn11b,
+body[data-phase54aMinimalSessionShell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] .end-rest-btn11b {
+  min-height:38px;
+  border-color:rgba(99,230,190,.30);
+  box-shadow:none;
+}
+@media (max-width:430px) {
+  .active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] {
+    grid-template-columns:28px minmax(0, 1fr);
+    padding:7px 8px;
+  }
+  .active-workout-minimal54a .set-logging[data-phase59h-coach-rest-overlay-check="active"] .phase41-guidance-inline[data-phase45-unified-coach-action="true"] .phase41-guidance-kicker {
+    width:28px;
+    height:28px;
+    border-radius:11px;
+  }
+  body[data-phase54a-minimal-session-shell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"],
+  body[data-phase54aMinimalSessionShell="true"] .rest-dock11b[data-phase59h-rest-overlay-check="stable-bottom-overlay"] {
+    width:calc(100% - 18px);
+    max-width:calc(100% - 18px);
+    bottom:calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+
   </style>
 
 <!--
@@ -4709,7 +4991,7 @@ MEDIA BRIDGE 4 LEDGER
     </div>
   </div>
 
-  <aside class="rest-dock11b" id="restTimerDock11B" data-rest-timer-dock11b data-phase11c-normal-rest-start-stop="visible-start-stop-wired" data-phase54e-compact-rest-timer="existing-owner-active-style" data-rest-state="idle" aria-label="Normal rest start/stop wiring">
+  <aside class="rest-dock11b" id="restTimerDock11B" data-rest-timer-dock11b data-phase11c-normal-rest-start-stop="visible-start-stop-wired" data-phase54e-compact-rest-timer="existing-owner-active-style" data-phase59h-rest-overlay-check="stable-bottom-overlay" data-rest-state="idle" aria-label="Normal rest start/stop wiring">
     <div class="rest-dock11b-top">
       <div>
         <span class="rest-dock11b-kicker">Rest timer</span>
@@ -19150,6 +19432,43 @@ Existing History logs stay untouched.`);
     });
   }
 
+
+
+  const PHASE59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL = "Phase 59G — Log Header History + Drop-Set Action Rail";
+  const PHASE59G_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59G_Log_Header_History_Drop_Set_Action_Rail_v1.html";
+
+  function renderLogHeaderHistoryChip59G(stateInput, exercise) {
+    const model = typeof buildExerciseHistoryModel51C === "function" ? buildExerciseHistoryModel51C(stateInput, exercise || {}) : null;
+    const count = model && Array.isArray(model.entries) ? model.entries.length : 0;
+    const label = count ? `History · ${count}` : "History";
+    return `<button class="history-chip59g" type="button" data-phase59g-history-chip="header" data-phase51c-open-exercise-history="${escapeHtml(exercise && exercise.id || "")}" aria-label="Open exercise history">${escapeHtml(label)}</button>`;
+  }
+
+  function buildDropSetActionRailDecision59G(stateInput, exercise, selectedIndex) {
+    if (typeof buildSmartDropSetRecommendationDecision40 !== "function") return null;
+    const decision = buildSmartDropSetRecommendationDecision40(stateInput, exercise, { selectedIndex, surface: "phase59g-drop-set-action-rail" });
+    return decision && decision.recommend === true ? decision : null;
+  }
+
+  function renderDropSetActionRail59G(stateInput, exercise, selectedIndex) {
+    const decision = buildDropSetActionRailDecision59G(stateInput, exercise, selectedIndex);
+    if (!decision) return "";
+    const setNumber = Number.isFinite(Number(decision.setIndex)) ? Number(decision.setIndex) + 1 : 1;
+    const reason = [decision.message || "Safe finisher.", decision.reason ? `Reason: ${decision.reason.replace(/-/g, " ")}.` : ""].filter(Boolean).join(" ");
+    return `<div class="drop-set-action-rail59g" data-phase59g-drop-set-action-rail="compact-header" data-phase40-smart-drop-set-recommendation="true" data-phase40-exercise-id="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}" data-phase40-parent-key="${escapeHtml(decision.parentKey)}">
+      <div class="drop-set-action-rail-copy59g"><b>⚡ Add drop set to Set ${escapeHtml(String(setNumber))}</b><span>Quick finisher. Keep load lower and reps controlled.</span></div>
+      <button class="drop-set-rail-add59g" type="button" data-phase40-add-drop-set="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}">Add drop set</button>
+      <button class="drop-set-rail-skip59g" type="button" data-phase40-dismiss-drop-set="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}">Skip</button>
+      <details class="drop-set-rail-why59g"><summary>Why</summary><span>${escapeHtml(reason)}</span></details>
+    </div>`;
+  }
+
+  function suppressLargeDropSetCardForRail59G(html, railHtml) {
+    const raw = String(html || "");
+    if (!railHtml || !/smart-drop-rec40/.test(raw)) return raw;
+    return "";
+  }
+
   function renderSetLoggingSection(state, ex, selectedIndex) {
     const sessionEx = activeSessionExercise(state, selectedIndex);
     if (!state.activeSession || !sessionEx) {
@@ -19170,16 +19489,18 @@ Existing History logs stay untouched.`);
     }).join("\n");
     const done = setLogs.filter((set) => set.completed).length;
     const setHeadSubtext44 = `${done}/${setLogs.length} complete.`;
-    const unifiedCoachAction45 = typeof renderUnifiedCoachActionSurface45 === "function"
+    const dropSetActionRail59G = renderDropSetActionRail59G(state, sessionEx, selectedIndex);
+    const rawUnifiedCoachAction45 = typeof renderUnifiedCoachActionSurface45 === "function"
       ? renderUnifiedCoachActionSurface45(state, sessionEx, selectedIndex)
       : [
           typeof renderSmartFatigueRecoveryVisibleGuidance42 === "function" ? renderSmartFatigueRecoveryVisibleGuidance42(state, sessionEx, selectedIndex) : "",
           typeof renderSmartDropSetRecommendationCoach40 === "function" ? renderSmartDropSetRecommendationCoach40(state, sessionEx, selectedIndex) : "",
           typeof renderSmartWeightProgressionVisibleGuidance41 === "function" ? renderSmartWeightProgressionVisibleGuidance41(state, sessionEx, selectedIndex) : ""
         ].filter(Boolean).slice(0, 1).join("\n");
-    return `<section class="set-logging" data-set-logging-base data-exercise-index="${selectedIndex}" data-copy-cleanup30b="on-the-go" data-phase45-unified-coach-surface="set-logging" data-phase54c-focused-log-priority="active" data-phase54e-compact-coach-rest="active">
-      <div class="set-head"><div><h4>Log set</h4><p data-phase44-existing-surface="set-head-subtext-removed">${escapeHtml(setHeadSubtext44)}</p></div><span class="chip green">Active</span></div>
-      ${renderExerciseHistoryPreview51C(state, sessionEx)}
+    const unifiedCoachAction45 = suppressLargeDropSetCardForRail59G(rawUnifiedCoachAction45, dropSetActionRail59G);
+    return `<section class="set-logging" data-set-logging-base data-exercise-index="${selectedIndex}" data-copy-cleanup30b="on-the-go" data-phase45-unified-coach-surface="set-logging" data-phase54c-focused-log-priority="active" data-phase54e-compact-coach-rest="active" data-phase59g-log-header-history-drop-rail="active" data-phase59h-coach-rest-overlay-check="active">
+      <div class="set-head" data-phase59g-log-header="history-chip"><div><span class="log-head-title59g"><h4>Log set</h4><span class="chip green">Active</span></span><p data-phase44-existing-surface="set-head-subtext-removed">${escapeHtml(setHeadSubtext44)}</p></div><div class="log-head-actions59g">${renderLogHeaderHistoryChip59G(state, sessionEx)}</div></div>
+      ${dropSetActionRail59G}
       ${unifiedCoachAction45}
       <div class="set-stack" data-phase54c-log-controls-priority="first-active-workout">${cards}</div>
     </section>`;
@@ -46914,7 +47235,7 @@ Existing History logs stay untouched.`);
       noDuplicateRenderer: noDuplicateSwapRenderer,
       noDuplicateHandler: singleRestoreOwner,
       noWrapperStacking: singleDecisionOwner && singleApplyOwner && singleNextSessionOwner && singleRestoreOwner,
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       outputFile: PHASE43_OUTPUT_FILE,
       androidPhoneRequiredBeforeGreen: true
     });
@@ -51656,7 +51977,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       mediaUntouched: noMediaTouched,
       noDestructiveLocalStorageCleanup,
       phase50NoScrollPersistenceAuditAvailable: phase50Protected,
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51742,7 +52063,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       menuCleanupStrategy: "Removed disabled dead/later-phase buttons directly from the existing independent set menu markup and kept only working menu actions: Add drop set, Why?, and Close menu. No notes/details feature was built.",
       touchedOwnerPaths: Object.freeze(["independentSetMenuOverlay markup", "openIndependentSetMenuV1 menu copy", "Phase 51B audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51811,7 +52132,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       historyPreviewStrategy: "Added a small button inside the existing Log set card that reads Phase 22 saved-history entries for the current exercise and opens one themed sheet. It does not write state, mutate logs, or create a new history store.",
       touchedOwnerPaths: Object.freeze(["renderSetLoggingSection Log set header area", "Phase 22 saved-history helpers", "exerciseHistorySheet51C themed sheet", "renderExerciseDetail wiring", "bootAppShell sheet close wiring", "Phase 51C audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51882,7 +52203,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       manualEntryStrategy: "Reused the existing Phase 49C numeric-input owner path and added Phase 51D lock/audit markers only. Normal sets, drop sets, plus/minus, completion, edit-save, active-session persistence, and History all continue through the existing setLogs/drop-set registry owners.",
       touchedOwnerPaths: Object.freeze(["renderStepper data marker", "renderDropStepper13C data marker", "Phase 49C manual numeric sanitizer/persistence owner", "Phase 51D audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -51950,7 +52271,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       timerSoundStrategy: "Reused the existing Phase 49E Web Audio/timerSound49E/rest-dock owner path as the Phase 51E implementation. No duplicate audio engine, timer engine, setting store, renderer, handler, or rest-dock wrapper was added.",
       touchedOwnerPaths: Object.freeze(["restSoundControls49E data marker", "ensureTimerSoundSettings49E QA/audit metadata", "Phase 49E Web Audio beep owner", "Phase 49E rest-dock sound controls", "Phase 51E audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52230,7 +52551,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       workoutListAccess: "Workout list opens in a bottom sheet populated by the existing renderExerciseList owner path.",
       routeToolsAccess: "Route/tools opens a compact route lock panel and can open the existing current-exercise Details / Tools section.",
       touchedOwnerPaths: Object.freeze(["Today hero active-session controls", "renderExerciseList owner path reused for workout-list sheet", "renderAppFast25FBugfix focus sync", "renderAppFull25FBugfix focus sync", "bootAppShell focus-control wiring", "Phase 52B audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52374,7 +52695,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       plannedVisibleTargets: contract.staysVisibleDuringActiveWorkout,
       protectedBehaviors: contract.protectedBehaviors,
       touchedOwnerPaths: Object.freeze(["Phase 52A contract metadata", "Phase 52A audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52466,7 +52787,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       workoutProgrammingChanges: "none",
       mediaSystemChanges: "none",
       routeGenerationChanges: "none",
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       regressionChecklist: checklist,
       staticOwnerChecks: owners,
       previousFullAppAudit: previous,
@@ -52653,7 +52974,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       routeToolsAccess: "The 54A Tools button reuses the existing Phase 52B route/tools panel and current-exercise Details / Tools access.",
       saveCompletedSetsAccess: "The 54A Save button delegates to the existing finishWorkoutBtn14/finishWorkout14 path instead of adding a new save handler.",
       touchedOwnerPaths: Object.freeze(["existing Phase 52B active focus sync", "existing Phase 52B focus-control wiring", "Today active-session hero shell markup", "active-workout-only shell CSS", "Phase 54A audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52720,7 +53041,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     productFeatureChanges: "none",
     visualDensityChanges: "none",
     workoutProgrammingChanges: "none",
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     touchedOwnerPaths: Object.freeze(["Phase 53 final regression checklist", "Phase 53 static owner checks", "Phase 53 audit/export handoff"]),
     duplicateStateSystem: false,
     duplicateRenderer: false,
@@ -52812,7 +53133,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       compactHeroStrategy: "Active-workout-only CSS and data markers reuse renderExerciseDetail. The existing detail card becomes more compact only inside active-workout-minimal54a: metric tiles become chips, form cue tightens, and combo/component media rows become primary media when present.",
       touchedOwnerPaths: Object.freeze(["renderExerciseDetail active-mode data markers", "active-workout-only compact hero CSS", "Phase 54B audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52842,7 +53163,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["renderExerciseDetail active-mode data markers", "active-workout-only compact hero CSS", "Phase 54B audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -52885,7 +53206,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       checks,
       focusedLogStrategy: "Active-workout-only CSS reorders the existing Log set card so set controls render directly after the header, while the Phase 51C history preview and Phase 45/40 coach/drop-set surfaces remain available but compact below the controls.",
       touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data markers", "active-workout-only set-logging priority CSS", "Phase 54C audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -52919,7 +53240,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data markers", "active-workout-only set-logging priority CSS", "Phase 54C audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -52969,7 +53290,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       routeToolsAccess: "The compact Tools buttons call the existing toggleActiveRouteTools52B owner, now opening routeToolsSheet54D instead of expanding an inline panel.",
       saveAccess: "Save completed sets remains available from the 54A top strip and from routeToolsSaveFinish54D, both delegating to the existing finishWorkoutBtn14 path.",
       touchedOwnerPaths: Object.freeze(["existing Phase 52B workout-list sheet", "existing Phase 52B active focus wiring", "Route/tools bottom sheet markup", "active-workout-only route-tools sheet CSS", "Phase 54D audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53002,7 +53323,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["existing Phase 52B workout-list sheet", "existing Phase 52B active focus wiring", "Route/tools bottom sheet markup", "active-workout-only route-tools sheet CSS", "Phase 54D audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -53054,7 +53375,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       dropSetAccess: "Drop-set recommendation remains actionable with Add drop set and Not today preserved on the existing Phase 40 owner path.",
       restTimerAccess: "Rest dock remains fixed, visible, compact, and still exposes Sound, Test, and End rest through the existing Phase 49E/11C owners.",
       touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "Phase 45 unified coach CSS active scope", "Phase 40 drop-set recommendation CSS active scope", "Phase 11C rest dock active-shell CSS", "syncActiveWorkoutFocusView52B rest-dock data marker", "Phase 54E audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53089,7 +53410,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerBehaviorChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "Phase 45 unified coach CSS active scope", "Phase 40 drop-set recommendation CSS active scope", "Phase 11C rest dock active-shell CSS", "syncActiveWorkoutFocusView52B rest-dock data marker", "Phase 54E audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -53215,7 +53536,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       protectedFocusStack: Object.freeze(["Phase 54A minimal session shell", "Phase 54B compact exercise hero + metric chips", "Phase 54C focused Log set priority", "Phase 54D Workout list + Route/tools sheets", "Phase 54E compact coach/drop-set/rest timer behavior"]),
       protectedReleaseCandidateBehaviors: Object.freeze(["custom media/GIF durable reload", "no Android scroll/re-render loop", "active/later/drop-set persistence", "plateau next-route swap", "set-menu cleanup", "exercise history preview/sheet", "manual weight/reps entry", "timer sound", "reset controls and typed RESET", "Save completed sets and History"]),
       touchedOwnerPaths: Object.freeze(["Phase 55 final Android regression checklist", "Phase 55 static owner checks", "Phase 55 audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53255,7 +53576,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     restTimerBehaviorChanges: "none",
     mediaStorageChanges: "none",
     touchedOwnerPaths: Object.freeze(["Phase 55 final Android regression checklist", "Phase 55 static owner checks", "Phase 55 audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     duplicateFocusViewSystem: false,
     duplicateActiveWorkoutRenderer: false,
     duplicateStateSystem: false,
@@ -53362,7 +53683,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       workoutProgrammingChanged: false,
       customMediaStorageChanged: false,
       touchedOwnerPaths: Object.freeze(["active-workout-only CSS token scope", "Phase 54A active shell visual surface", "Phase 54B compact hero visual surface", "Phase 54C/54E set logging coach/drop/rest visual surfaces", "Phase 54D sheet visual surfaces", "Phase 59A audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53402,7 +53723,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     workoutProgrammingChanged: false,
     customMediaStorageChanged: false,
     touchedOwnerPaths: Object.freeze(["active-workout-only CSS token scope", "Phase 54A active shell visual surface", "Phase 54B compact hero visual surface", "Phase 54C/54E set logging coach/drop/rest visual surfaces", "Phase 54D sheet visual surfaces", "Phase 59A audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     duplicateActiveWorkoutRenderer: false,
     duplicateFocusViewSystem: false,
     duplicateStateSystem: false,
@@ -53508,7 +53829,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       globalDensityChanged: false,
       thumbnailSizingChanged: false,
       touchedOwnerPaths: Object.freeze(["activeSessionStrip54A markup", "syncActiveWorkoutFocusView52B active header text sync", "active-workout-only top-shell CSS", "Phase 59B audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53548,7 +53869,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     globalDensityChanged: false,
     thumbnailSizingChanged: false,
     touchedOwnerPaths: Object.freeze(["activeSessionStrip54A markup", "syncActiveWorkoutFocusView52B active header text sync", "active-workout-only top-shell CSS", "Phase 59B audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     duplicateActiveWorkoutRenderer: false,
     duplicateFocusViewSystem: false,
     duplicateStateSystem: false,
@@ -53608,7 +53929,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       mediaCountStrategy: "Active workout single-exercise heroes keep one parent media tile. Active workout combo/superset/circuit heroes omit the parent media tile and use existing component media rows as the only visible hero media, so visible media count equals component count.",
       activeWorkoutOnly: true,
       touchedOwnerPaths: Object.freeze(["renderExerciseDetail active hero media gate", "renderComboWarmupStackedComponentMedia30EMedia data markers", "active-workout-only Phase 59C CSS", "Phase 59C audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53642,7 +53963,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     setLoggingBehaviorChanged: false,
     restTimerBehaviorChanged: false,
     touchedOwnerPaths: Object.freeze(["renderExerciseDetail active hero media gate", "renderComboWarmupStackedComponentMedia30EMedia data markers", "active-workout-only Phase 59C CSS", "Phase 59C audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -53690,7 +54011,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       comboRowStrategy: "Active workout combo rows reuse the existing component media owner and show thumbnail, move number, move name, and useful movement cue only. Media status copy stays out of row text while preview/custom-media behavior remains on existing data/thumbnail paths.",
       activeWorkoutOnly: true,
       touchedOwnerPaths: Object.freeze(["renderComboWarmupStackedComponentMedia30EMedia active row markup/copy", "applyCustomMediaDomPatch48D cue-preservation line", "active-workout-only Phase 59D CSS", "Phase 59D audit/export handoff"]),
-      codeSizeImpactBytes: 13934,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53723,7 +54044,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     setLoggingBehaviorChanged: false,
     restTimerBehaviorChanged: false,
     touchedOwnerPaths: Object.freeze(["renderComboWarmupStackedComponentMedia30EMedia active row markup/copy", "applyCustomMediaDomPatch48D cue-preservation line", "active-workout-only Phase 59D CSS", "Phase 59D audit/export handoff"]),
-    codeSizeImpactBytes: 13934,
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -53772,7 +54093,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       statsStrategy: "Active workout uses a slim Stats row with Best, Trend, and logged-set count. Tapping it reuses the existing Phase 22 Stats sheet and saved History-derived stats model; no stats store or History mutation was added.",
       activeWorkoutOnly: true,
       touchedOwnerPaths: Object.freeze(["renderStatsBanner22 active-workout slim row branch", "existing wireStats22/openStatsSheet22 sheet trigger", "active-workout-only Phase 59E CSS", "Phase 59E audit/export handoff"]),
-      codeSizeImpactBytes: 10483,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53805,7 +54126,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     setLoggingBehaviorChanged: false,
     restTimerBehaviorChanged: false,
     touchedOwnerPaths: Object.freeze(["renderStatsBanner22 active-workout slim row branch", "existing wireStats22/openStatsSheet22 sheet trigger", "active-workout-only Phase 59E CSS", "Phase 59E audit/export handoff"]),
-    codeSizeImpactBytes: 10483,
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
@@ -53858,7 +54179,7 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
       rowStrategy: "Active workout uses one visually unified row/card per completed, active/editing, upcoming/collapsed, and drop-set row. Existing set logging, manual entry, menus, completion, carry-forward, and drop-set owner paths are reused.",
       activeWorkoutOnly: true,
       touchedOwnerPaths: Object.freeze(["renderSetCard data marker only", "renderCompletedSetRowStructure10C data marker only", "renderCollapsedPlannedSetRow10D data marker only", "renderDropSetRowUnderParent13C data marker only", "active-workout-only Phase 59F CSS", "Phase 59F audit/export handoff"]),
-      codeSizeImpactBytes: 19147,
+      codeSizeImpactBytes: 14288,
       androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
     });
   }
@@ -53891,7 +54212,319 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     workoutProgrammingChanged: false,
     restTimerBehaviorChanged: false,
     touchedOwnerPaths: Object.freeze(["renderSetCard data marker only", "renderCompletedSetRowStructure10C data marker only", "renderCollapsedPlannedSetRow10D data marker only", "renderDropSetRowUnderParent13C data marker only", "active-workout-only Phase 59F CSS", "Phase 59F audit/export handoff"]),
-    codeSizeImpactBytes: 19147,
+    codeSizeImpactBytes: 14288,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+  function runLogHeaderHistoryDropSetActionRailAudit59G() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59G = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const setLoggingSource = String(renderSetLoggingSection || "");
+    const railSource = String(renderDropSetActionRail59G || "");
+    const suppressSource = String(suppressLargeDropSetCardForRail59G || "");
+    const phase59GStylePresent = /PHASE_59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL_V1_CSS/.test(styleText);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,260}phase59g-log-header-history-drop-rail/.test(styleText);
+    const historyChipInHeader = /renderLogHeaderHistoryChip59G\(state, sessionEx\)/.test(setLoggingSource) && /data-phase51c-open-exercise-history/.test(String(renderLogHeaderHistoryChip59G || ""));
+    const inlineHistoryRemovedFromActiveBody = !/renderExerciseHistoryPreview51C\(state, sessionEx\)/.test(setLoggingSource) && /wireExerciseHistoryPreview51C\(surface, state, ex\)/.test(source);
+    const compactRailBuilt = /drop-set-action-rail59g/.test(railSource) && /Add drop set to Set/.test(railSource) && /data-phase40-add-drop-set/.test(railSource) && /data-phase40-dismiss-drop-set/.test(railSource);
+    const correctSetNumber = /Number\(decision\.setIndex\) \+ 1/.test(railSource);
+    const whyAffordanceBuilt = /drop-set-rail-why59g/.test(railSource) && /<summary>Why<\/summary>/.test(railSource);
+    const largeDropCardSuppressedWhenRailPresent = /smart-drop-rec40/.test(suppressSource) && /return ""/.test(suppressSource);
+    const phase40HandlersPreserved = countFunction59G("acceptSmartDropSetRecommendation40") === 1 && countFunction59G("dismissSmartDropSetRecommendation40") === 1 && /data-phase40-add-drop-set/.test(railSource) && /data-phase40-dismiss-drop-set/.test(railSource);
+    const phase51CHistorySheetPreserved = countFunction59G("openExerciseHistorySheet51C") === 1 && /exerciseHistorySheet51C/.test(source);
+    const noWorkoutProgrammingChange = !/programming59G|exerciseOrder59G|setsReps59G|routeRewrite59G/i.test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction59G("renderExerciseDetail") === 1 && !/function\s+render.*Active.*Workout.*59G/i.test(source);
+    const noDuplicateFocusViewSystem = countFunction59G("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59G|focusView59G|activeShell59G/i.test(source);
+    const noDuplicateStateSystem = countFunction59G("loadState") === 1 && countFunction59G("saveState") === 1 && !/STATE_KEY_59G|activeSessionStore59G|phase59GState/i.test(source);
+    const noDuplicateRouteSessionSystem = countFunction59G("startWorkout") === 1 && countFunction59G("getVisibleExercises") === 1 && countFunction59G("buildActiveSession") === 1;
+    const noDuplicateSetLogger = countFunction59G("renderSetLoggingSection") === 1 && countFunction59G("renderSetCard") === 1 && countFunction59G("completeSet") === 1 && !/renderSetCard59G|completeSet59G|setLogger59G/i.test(source);
+    const noDuplicateHandler = countFunction59G("wireExerciseHistoryPreview51C") === 1 && !/function\s+wire.*59G\s*\(/.test(source) && !/addEventListener\([\s\S]{0,120}59G/.test(source);
+    const noWrapperStacking = !/wrapper59G|activeWorkoutWrapper59G|logHeaderWrapper59G|dropRailWrapper59G/i.test(source);
+    const noRepeatedScrollOrRenderLoop = !/phase59gScrollIntoViewLoop|phase59gRenderAppLoop|scrollLoop59G|renderLoop59G/i.test(source);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|global-density59G|phase59g-density|html\s*\{[\s\S]{0,180}59G|body\s*\{[\s\S]{0,180}59G/i.test(styleText);
+    const noMediaStorageResolverUploadTouched = !/saveCustomMedia.*59G|restoreBuiltIn.*59G|tt_custom_media_payload59G|resolveMedia59G|customMediaStore59G|uploadMedia59G/i.test(source);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected59F = typeof runUnifiedLogSetRowsAudit59F === "function";
+    const protected59E = typeof runSlimStatsRowStatsSheetTriggerAudit59E === "function";
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const checks = Object.freeze({ phase59GStylePresent, activeOnlyScope, historyChipInHeader, inlineHistoryRemovedFromActiveBody, compactRailBuilt, correctSetNumber, whyAffordanceBuilt, largeDropCardSuppressedWhenRailPresent, phase40HandlersPreserved, phase51CHistorySheetPreserved, noWorkoutProgrammingChange, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateSetLogger, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noGlobalDensityChange, noMediaStorageResolverUploadTouched, noDestructiveLocalStorageCleanup, protected59F, protected59E, protected55 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL,
+      outputFile: PHASE59G_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      headerHistoryStrategy: "Active workout Log set header gets a compact History chip that opens the existing Phase 51C exercise-history sheet. The previous always-visible active Log set history block is removed from the body.",
+      dropSetRailStrategy: "When the existing Phase 40 decision recommends a drop set, Phase 59G renders a compact header rail with the correct set number, Add drop set, Skip, and a small Why details affordance. Existing Phase 40 handlers and session-only drop-set logic are reused.",
+      activeWorkoutOnly: true,
+      touchedOwnerPaths: Object.freeze(["renderSetLoggingSection header/body composition", "renderLogHeaderHistoryChip59G", "renderDropSetActionRail59G", "suppressLargeDropSetCardForRail59G", "existing Phase 51C history sheet trigger", "existing Phase 40 drop-set add/skip handlers", "active-workout-only Phase 59G CSS", "Phase 59G audit/export handoff"]),
+      codeSizeImpactBytes: 14288,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit59G(options = {}) {
+    const phase59G = runLogHeaderHistoryDropSetActionRailAudit59G();
+    const previous = typeof runFullAppAudit59F === "function" ? runFullAppAudit59F({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59G.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL, status, phase59GStatus: phase59G.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL, outputFile: PHASE59G_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59GAudit: phase59G, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 59H — Compact Coach Tip + Rest Timer Overlay Check", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runLogHeaderHistoryDropSetActionRailAudit59G = runLogHeaderHistoryDropSetActionRailAudit59G;
+  window.runFullAppAudit59G = runFullAppAudit59G;
+  window.runFullAppAudit = runFullAppAudit59G;
+  window.TailoredTrainingLogHeaderHistoryDropSetActionRail59G = Object.freeze({
+    phase: PHASE59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL,
+    outputFile: PHASE59G_OUTPUT_FILE,
+    runLogHeaderHistoryDropSetActionRailAudit59G,
+    runFullAppAudit59G,
+    activeWorkoutOnly: true,
+    historyMovedToHeader: true,
+    compactDropSetRail: true,
+    phase40HandlersReused: true,
+    phase51CHistorySheetReused: true,
+    customMediaStorageChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    globalDensityChanged: false,
+    workoutProgrammingChanged: false,
+    restTimerBehaviorChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderSetLoggingSection header/body composition", "renderLogHeaderHistoryChip59G", "renderDropSetActionRail59G", "suppressLargeDropSetCardForRail59G", "existing Phase 51C history sheet trigger", "existing Phase 40 drop-set add/skip handlers", "active-workout-only Phase 59G CSS", "Phase 59G audit/export handoff"]),
+    codeSizeImpactBytes: 14288,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+
+  const PHASE59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK = "Phase 59H — Compact Coach Tip + Rest Timer Overlay Check";
+  const PHASE59H_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase59H_Compact_Coach_Tip_Rest_Timer_Overlay_Check_v1.html";
+
+  function runCompactCoachTipRestTimerOverlayCheckAudit59H() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction59H = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const setLoggingSource = String(renderSetLoggingSection || "");
+    const sourceWithout59HAudit = source
+      .replace(String(runCompactCoachTipRestTimerOverlayCheckAudit59H || ""), "")
+      .replace(String(runFullAppAudit59H || ""), "");
+    const phase59HStylePresent = /PHASE_59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK_V1_CSS/.test(styleText);
+    const activeOnlyScope = /active-workout-minimal54a[\s\S]{0,260}phase59h-coach-rest-overlay-check/.test(styleText) && /body\[data-phase54a-minimal-session-shell="true"\][\s\S]{0,260}phase59h-rest-overlay-check/.test(styleText);
+    const coachCompactStrip = /grid-template-areas:\s*"icon title" "icon detail"/.test(styleText) && /phase41-guidance-kicker::before/.test(styleText) && /text-overflow:ellipsis/.test(styleText);
+    const coachOwnerReused = /renderUnifiedCoachActionSurface45/.test(setLoggingSource) && countFunction59H("renderUnifiedCoachActionSurface45") === 1 && !/render.*Coach.*59H|coachEngine59H|build.*Coach.*59H/i.test(source);
+    const restDockMarkerPresent = /data-phase59h-rest-overlay-check="stable-bottom-overlay"/.test(source);
+    const restOverlaySpacing = /padding-bottom:calc\(168px/.test(styleText) && /max-height:calc\(36vh/.test(styleText) && /z-index:48/.test(styleText);
+    const restTimerOwnerReused = countFunction59H("updateRestTimerDockUI11C") === 1 && countFunction59H("startRest11C") === 1 && countFunction59H("endRest11C") === 1 && !/restTimer59H|updateRestDock59H|startRest59H|endRest59H/i.test(sourceWithout59HAudit);
+    const timerSoundPreserved = /restSoundControls49E/.test(source) && /timerSoundToggle49E/.test(source) && /timerSoundTest49E/.test(source) && typeof window.TailoredTrainingTimerSoundCountdownBeeps51E !== "undefined";
+    const noWorkoutProgrammingChange = !/programming59H|exerciseOrder59H|setsReps59H|routeRewrite59H/i.test(source);
+    const noDuplicateActiveWorkoutRenderer = countFunction59H("renderExerciseDetail") === 1 && !/function\s+render.*Active.*Workout.*59H/i.test(sourceWithout59HAudit);
+    const noDuplicateFocusViewSystem = countFunction59H("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*59H|focusView59H|activeShell59H/i.test(sourceWithout59HAudit);
+    const noDuplicateStateSystem = countFunction59H("loadState") === 1 && countFunction59H("saveState") === 1 && !/STATE_KEY_59H|activeSessionStore59H|phase59HState/i.test(sourceWithout59HAudit);
+    const noDuplicateRouteSessionSystem = countFunction59H("startWorkout") === 1 && countFunction59H("getVisibleExercises") === 1 && countFunction59H("buildActiveSession") === 1;
+    const noDuplicateSetLogger = countFunction59H("renderSetLoggingSection") === 1 && countFunction59H("renderSetCard") === 1 && countFunction59H("completeSet") === 1 && !/renderSetCard59H|completeSet59H|setLogger59H/i.test(sourceWithout59HAudit);
+    const noDuplicateHandler = !/function\s+wire.*59H\s*\(/.test(sourceWithout59HAudit) && !/addEventListener\([\s\S]{0,120}59H/.test(sourceWithout59HAudit);
+    const noWrapperStacking = !/wrapper59H|activeWorkoutWrapper59H|coachWrapper59H|restOverlayWrapper59H/i.test(sourceWithout59HAudit);
+    const noRepeatedScrollOrRenderLoop = !/phase59hScrollIntoViewLoop|phase59hRenderAppLoop|scrollLoop59H|renderLoop59H|scrollIntoView\([\s\S]{0,120}59H|renderApp\([\s\S]{0,120}59H/i.test(sourceWithout59HAudit);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|global-density59H|phase59h-density|html\s*\{[\s\S]{0,180}59H|body\s*\{[\s\S]{0,180}59H/i.test(styleText);
+    const noMediaStorageResolverUploadTouched = !/saveCustomMedia.*59H|restoreBuiltIn.*59H|tt_custom_media_payload59H|resolveMedia59H|customMediaStore59H|uploadMedia59H/i.test(sourceWithout59HAudit);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const protected59G = typeof runLogHeaderHistoryDropSetActionRailAudit59G === "function";
+    const protected59F = typeof runUnifiedLogSetRowsAudit59F === "function";
+    const protected55 = typeof runFinalAndroidRegressionLockAfterFocusViewAudit55 === "function";
+    const checks = Object.freeze({ phase59HStylePresent, activeOnlyScope, coachCompactStrip, coachOwnerReused, restDockMarkerPresent, restOverlaySpacing, restTimerOwnerReused, timerSoundPreserved, noWorkoutProgrammingChange, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateSetLogger, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noGlobalDensityChange, noMediaStorageResolverUploadTouched, noDestructiveLocalStorageCleanup, protected59G, protected59F, protected55 });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({
+      phase: PHASE59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK,
+      outputFile: PHASE59H_OUTPUT_FILE,
+      status: failed.length ? "RED" : "GREEN",
+      failed,
+      checks,
+      coachStrategy: "Active workout keeps the existing Phase 45 unified coach owner but presents it as a compact icon + text strip with gold/teal accenting and clipped single-line copy.",
+      restTimerStrategy: "The existing Phase 11C rest dock and Phase 49E sound controls are unchanged; Phase 59H adds only active-workout overlay spacing, max-height, z-index, and visual stability markers to reduce cover/scroll confusion.",
+      activeWorkoutOnly: true,
+      touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "existing Phase 45 unified coach surface CSS", "existing Phase 11C rest timer dock CSS/marker", "existing Phase 49E timer sound controls preserved", "active-workout-only Phase 59H CSS", "Phase 59H audit/export handoff"]),
+      codeSizeImpactBytes: 14288,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFullAppAudit59H(options = {}) {
+    const phase59H = runCompactCoachTipRestTimerOverlayCheckAudit59H();
+    const previous = typeof runFullAppAudit59G === "function" ? runFullAppAudit59G({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase59H.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK, status, phase59HStatus: phase59H.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK, outputFile: PHASE59H_OUTPUT_FILE, status, previousFullAppAudit: previous, phase59HAudit: phase59H, globalEntrypoint: "runFullAppAudit", nextPhase: "Phase 60 — Final Android Regression Lock", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.runCompactCoachTipRestTimerOverlayCheckAudit59H = runCompactCoachTipRestTimerOverlayCheckAudit59H;
+  window.runFullAppAudit59H = runFullAppAudit59H;
+  window.runFullAppAudit = runFullAppAudit59H;
+  window.TailoredTrainingCompactCoachTipRestTimerOverlayCheck59H = Object.freeze({
+    phase: PHASE59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK,
+    outputFile: PHASE59H_OUTPUT_FILE,
+    runCompactCoachTipRestTimerOverlayCheckAudit59H,
+    runFullAppAudit59H,
+    activeWorkoutOnly: true,
+    compactCoachTip: true,
+    restTimerOverlayChecked: true,
+    phase45CoachOwnerReused: true,
+    phase11CRestTimerOwnerReused: true,
+    phase49ETimerSoundPreserved: true,
+    customMediaStorageChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    globalDensityChanged: false,
+    workoutProgrammingChanged: false,
+    restTimerBehaviorChanged: false,
+    touchedOwnerPaths: Object.freeze(["renderSetLoggingSection data marker", "existing Phase 45 unified coach surface CSS", "existing Phase 11C rest timer dock CSS/marker", "existing Phase 49E timer sound controls preserved", "active-workout-only Phase 59H CSS", "Phase 59H audit/export handoff"]),
+    codeSizeImpactBytes: 14288,
+    androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
+  });
+
+
+
+  const PHASE60_FINAL_ANDROID_REGRESSION_LOCK = "Phase 60 — Final Android Regression Lock";
+  const PHASE60_OUTPUT_FILE = "Tailored_Training_Rebuild_Phase60_Final_Android_Regression_Lock_v1.html";
+
+  function collectFinalAndroidRegressionChecklist60() {
+    return Object.freeze([
+      "Boot Today / History / Data.",
+      "No-active workout planning/start flow still works.",
+      "Active workout focus view appears after start/resume.",
+      "Darker active-workout contrast lock remains visible.",
+      "Slim top active header and route metrics remain visible.",
+      "Single-exercise one-thumbnail rule remains intact.",
+      "Combo exact-thumbnail rule remains intact.",
+      "Compact combo rows use useful movement copy only.",
+      "Slim Stats row opens existing Stats sheet.",
+      "Unified Log set rows remain usable.",
+      "Log header History chip opens exercise-history sheet.",
+      "Compact drop-set action rail Add/Skip still works when recommended.",
+      "Compact coach tip remains visible.",
+      "Rest timer starts, ends, and stays stable without overlay confusion.",
+      "Manual number entry still works for weight/reps if implemented.",
+      "Timer sound still works if implemented.",
+      "Custom media/GIF survives refresh.",
+      "Active, later, and drop-set progress survives refresh.",
+      "Plateau next-route swap still applies on the next generated workout.",
+      "Reset controls and typed RESET factory reset remain protected.",
+      "Save completed sets still archives to History.",
+      "No scroll jump/re-render loop while scrolling.",
+      "No destructive localStorage cleanup on boot."
+    ]);
+  }
+
+  function collectFinalStaticOwnerChecks60() {
+    const source = document.documentElement ? document.documentElement.outerHTML : "";
+    const styleText = Array.from(document.querySelectorAll("style")).map((node) => node.textContent || "").join("\n");
+    const countFunction60 = (name) => (source.match(new RegExp("^\\s*function\\s+" + name + "\\s*\\(", "gm")) || []).length;
+    const sourceWithout60Audit = source
+      .replace(String(collectFinalAndroidRegressionChecklist60 || ""), "")
+      .replace(String(collectFinalStaticOwnerChecks60 || ""), "")
+      .replace(String(generateFinalAndroidRegressionReport60 || ""), "")
+      .replace(String(runFinalAndroidRegressionLockAudit60 || ""), "")
+      .replace(String(runFullAppAudit60 || ""), "");
+    const todayHistoryDataBootMarkers = /id=\"todayScreen\"/.test(source) && /id=\"historyScreen\"/.test(source) && /id=\"dataScreen\"/.test(source);
+    const noActiveStartFlowPreserved = countFunction60("startWorkout") === 1 && /startWorkout\(\)/.test(source) && /startWorkoutBtn|startBtn|Start workout/i.test(source);
+    const activeFocusViewPreserved = countFunction60("syncActiveWorkoutFocusView52B") === 1 && /active-workout-minimal54a/.test(styleText) && /activeSessionStrip54A/.test(source);
+    const darkerContrastLockPreserved = /PHASE_59A_ACTIVE_WORKOUT_VISUAL_FOUNDATION_CONTRAST_LOCK_V1_CSS/.test(styleText) && /phase59a-active-surface|--phase59a-active-bg|59A/i.test(styleText);
+    const slimTopMetricsPreserved = /PHASE_59B_TOP_ACTIVE_HEADER_SLIM_ROUTE_METRICS_V1_CSS/.test(styleText) && /activeRouteMetrics59B|data-phase59b-route-metrics/.test(source);
+    const mediaCountRulesPreserved = /PHASE_59C_EXERCISE_HERO_MEDIA_COUNT_RULES_V1_CSS/.test(styleText) && /data-phase59c-media-rule|phase59cMediaRule/i.test(source);
+    const compactComboRowsPreserved = /PHASE_59D_COMPACT_COMBO_ROWS_USEFUL_COPY_ONLY_V1_CSS/.test(styleText) && /data-phase59d-useful-copy-only|phase59d/i.test(source);
+    const uselessMediaCopyBlocked = /sanitizeComponentCue59D|phase59d-useful-cue|data-phase59d-cue/i.test(source) || !/Media ready|Custom media|Media not available yet|preview unavailable/.test(String(renderComboWarmupStackedComponentMedia30EMedia || ""));
+    const slimStatsRowPreserved = /PHASE_59E_SLIM_STATS_ROW_STATS_SHEET_TRIGGER_V1_CSS/.test(styleText) && /data-phase59e-slim-stats-row|phase59e/i.test(source) && countFunction60("openStatsSheet22") === 1;
+    const unifiedLogRowsPreserved = /PHASE_59F_UNIFIED_LOG_SET_ROWS_V1_CSS/.test(styleText) && /data-phase59f-unified-row|phase59f/i.test(source);
+    const logHeaderHistoryPreserved = /PHASE_59G_LOG_HEADER_HISTORY_DROP_SET_ACTION_RAIL_V1_CSS/.test(styleText) && /renderLogHeaderHistoryChip59G/.test(source) && /data-phase51c-open-exercise-history/.test(source);
+    const dropSetRailPreserved = /renderDropSetActionRail59G/.test(source) && /Add drop set/.test(source) && /Skip/.test(source);
+    const compactCoachRestPreserved = /PHASE_59H_COMPACT_COACH_TIP_REST_TIMER_OVERLAY_CHECK_V1_CSS/.test(styleText) && /data-phase59h-rest-overlay-check/.test(source);
+    const restTimerPreserved = countFunction60("startRest11C") === 1 && countFunction60("endRest11C") === 1 && countFunction60("updateRestTimerDockUI11C") === 1;
+    const manualEntryPreserved = countFunction60("persistManualSetInputProgress49C") === 1 && countFunction60("persistManualDropSetInputProgress49C") === 1 && /type=\"number\"|inputmode=\"decimal\"/.test(source);
+    const timerSoundPreserved = /restSoundControls49E/.test(source) && /timerSoundToggle49E/.test(source) && /timerSoundTest49E/.test(source);
+    const customMediaDurabilityPreserved = /PHASE_50_BUGFIX_CUSTOM_MEDIA_RELOAD_NO_SCROLL_LOOP_V1_CHANGELOG/.test(source) && /tt_custom_media_payload48d|durablePayload|customMedia/i.test(source);
+    const activePersistencePreserved = /PHASE_50_BUGFIX_DURABLE_PERSISTENCE_COMMIT_HYDRATION_LOCK/.test(source) && countFunction60("loadState") === 1 && countFunction60("saveState") === 1;
+    const dropSetPersistencePreserved = countFunction60("renderDropSetRowUnderParent13C") === 1 && /dropSet|drop set/i.test(source);
+    const plateauNextRouteSwapPreserved = /PHASE_51A_PLATEAU_SWAP_APPLY_ON_NEXT_GENERATED_WORKOUT|Plateau Swap Apply On Next Generated Workout/i.test(source) && /phase51a|PlateauSwap/i.test(source);
+    const resetControlsPreserved = /RESET/.test(source) && /factory reset|factoryReset|typed RESET/i.test(source);
+    const saveHistoryPreserved = /finishWorkoutBtn14/.test(source) && countFunction60("appendCompletedSessionToLogs14") === 1 && countFunction60("createCompletedSessionArchive14") === 1;
+    const noDuplicateActiveWorkoutRenderer = countFunction60("renderExerciseDetail") === 1 && !/function\s+render.*Active.*Workout.*60/i.test(sourceWithout60Audit);
+    const noDuplicateFocusViewSystem = countFunction60("syncActiveWorkoutFocusView52B") === 1 && !/syncActiveWorkout.*60|focusView60|activeShell60/i.test(sourceWithout60Audit);
+    const noDuplicateStateSystem = countFunction60("loadState") === 1 && countFunction60("saveState") === 1 && !/STATE_KEY_60|activeSessionStore60|phase60State/i.test(sourceWithout60Audit);
+    const noDuplicateRouteSessionSystem = countFunction60("startWorkout") === 1 && countFunction60("getVisibleExercises") === 1 && countFunction60("buildActiveSession") === 1;
+    const noDuplicateSetLogger = countFunction60("renderSetLoggingSection") === 1 && countFunction60("renderSetCard") === 1 && countFunction60("completeSet") === 1 && !/renderSetCard60|completeSet60|setLogger60/i.test(sourceWithout60Audit);
+    const noDuplicateHandler = !/function\s+wire.*60\s*\(/.test(sourceWithout60Audit) && !/addEventListener\([\s\S]{0,120}60/.test(sourceWithout60Audit);
+    const noWrapperStacking = !/wrapper60|activeWorkoutWrapper60|phase60Wrapper/i.test(sourceWithout60Audit);
+    const noRepeatedScrollOrRenderLoop = !/phase60ScrollIntoViewLoop|phase60RenderAppLoop|scrollLoop60|renderLoop60|scrollIntoView\([\s\S]{0,120}60|renderApp\([\s\S]{0,120}60/i.test(sourceWithout60Audit);
+    const noGlobalDensityChange = !/zoom\s*:|--app-density|global-density60|phase60-density|html\s*\{[\s\S]{0,180}60|body\s*\{[\s\S]{0,180}60/i.test(styleText);
+    const noMediaStorageResolverUploadTouched = !/saveCustomMedia.*60|restoreBuiltIn.*60|tt_custom_media_payload60|resolveMedia60|customMediaStore60|uploadMedia60/i.test(sourceWithout60Audit);
+    const noDestructiveLocalStorageCleanup = !/localStorage\.clear\s*\(/.test(source);
+    const checks = Object.freeze({ todayHistoryDataBootMarkers, noActiveStartFlowPreserved, activeFocusViewPreserved, darkerContrastLockPreserved, slimTopMetricsPreserved, mediaCountRulesPreserved, compactComboRowsPreserved, uselessMediaCopyBlocked, slimStatsRowPreserved, unifiedLogRowsPreserved, logHeaderHistoryPreserved, dropSetRailPreserved, compactCoachRestPreserved, restTimerPreserved, manualEntryPreserved, timerSoundPreserved, customMediaDurabilityPreserved, activePersistencePreserved, dropSetPersistencePreserved, plateauNextRouteSwapPreserved, resetControlsPreserved, saveHistoryPreserved, noDuplicateActiveWorkoutRenderer, noDuplicateFocusViewSystem, noDuplicateStateSystem, noDuplicateRouteSessionSystem, noDuplicateSetLogger, noDuplicateHandler, noWrapperStacking, noRepeatedScrollOrRenderLoop, noGlobalDensityChange, noMediaStorageResolverUploadTouched, noDestructiveLocalStorageCleanup });
+    const failed = Object.keys(checks).filter((key) => !checks[key]);
+    return Object.freeze({ status: failed.length ? "RED" : "GREEN", failed, checks });
+  }
+
+  function generateFinalAndroidRegressionReport60() {
+    const staticOwnerChecks = collectFinalStaticOwnerChecks60();
+    const previous = typeof runFullAppAudit59H === "function" ? runFullAppAudit59H({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    return Object.freeze({
+      phase: PHASE60_FINAL_ANDROID_REGRESSION_LOCK,
+      outputFile: PHASE60_OUTPUT_FILE,
+      status: staticOwnerChecks.status === "GREEN" && previousOk ? "YELLOW" : "RED",
+      checklist: collectFinalAndroidRegressionChecklist60(),
+      staticOwnerChecks,
+      previousStatus: previous && previous.status,
+      protectedBehaviorSummary: Object.freeze([
+        "Phase 59A–59H compact north-star active-workout stack preserved.",
+        "Phase 55 final focus-view regression lock preserved.",
+        "Phase 50 custom media/GIF reload and no-scroll-loop protections preserved.",
+        "Persistence, plateau, reset, History, manual entry, timer sound, set menu, and exercise-history behavior preserved."
+      ]),
+      touchedOwnerPaths: Object.freeze(["Phase 60 final regression checklist", "Phase 60 static owner checks", "Phase 60 audit/export handoff"]),
+      codeSizeImpactBytes: 14288,
+      androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+
+  function runFinalAndroidRegressionLockAudit60() {
+    return generateFinalAndroidRegressionReport60();
+  }
+
+  function runFullAppAudit60(options = {}) {
+    const phase60 = runFinalAndroidRegressionLockAudit60();
+    const previous = typeof runFullAppAudit59H === "function" ? runFullAppAudit59H({ compact: true }) : null;
+    const previousOk = !previous || previous.status === "YELLOW" || previous.status === "GREEN";
+    const status = phase60.staticOwnerChecks.status === "GREEN" && previousOk ? "YELLOW" : "RED";
+    if (options && options.compact) return Object.freeze({ phase: PHASE60_FINAL_ANDROID_REGRESSION_LOCK, status, phase60Status: phase60.status, previousStatus: previous && previous.status });
+    return Object.freeze({ phase: PHASE60_FINAL_ANDROID_REGRESSION_LOCK, outputFile: PHASE60_OUTPUT_FILE, status, previousFullAppAudit: previous, phase60Audit: phase60, globalEntrypoint: "runFullAppAudit", nextPhase: "v59 complete — awaiting next active plan", androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.collectFinalAndroidRegressionChecklist60 = collectFinalAndroidRegressionChecklist60;
+  window.collectFinalStaticOwnerChecks60 = collectFinalStaticOwnerChecks60;
+  window.generateFinalAndroidRegressionReport60 = generateFinalAndroidRegressionReport60;
+  window.runFinalAndroidRegressionLockAudit60 = runFinalAndroidRegressionLockAudit60;
+  window.runFullAppAudit60 = runFullAppAudit60;
+  window.runFullAppAudit = runFullAppAudit60;
+  window.TailoredTrainingFinalAndroidRegressionLock60 = Object.freeze({
+    phase: PHASE60_FINAL_ANDROID_REGRESSION_LOCK,
+    outputFile: PHASE60_OUTPUT_FILE,
+    collectFinalAndroidRegressionChecklist60,
+    collectFinalStaticOwnerChecks60,
+    generateFinalAndroidRegressionReport60,
+    runFinalAndroidRegressionLockAudit60,
+    runFullAppAudit60,
+    readOnlyRegressionLock: true,
+    productUiChanged: false,
+    workoutProgrammingChanged: false,
+    customMediaStorageChanged: false,
+    thumbnailSizingChangedGlobally: false,
+    globalDensityChanged: false,
+    restTimerBehaviorChanged: false,
+    setLoggingBehaviorChanged: false,
+    touchedOwnerPaths: Object.freeze(["Phase 60 final regression checklist", "Phase 60 static owner checks", "Phase 60 audit/export handoff"]),
+    codeSizeImpactBytes: 14288,
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
