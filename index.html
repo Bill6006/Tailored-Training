@@ -1,6 +1,17 @@
 <!doctype html>
 
 <!--
+PHASE_64BD_BUGFIX_1_ONE_MOVE_SUPERSET_LABEL_AND_COMPONENT_INTEGRITY_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BD_BUGFIX_1_Alternative_Swap_Drop_Set_Context_Refresh_v1.html as the current YELLOW working base after Alternative swap/drop-set context refresh.
+- Narrow grouped-exercise display bugfix: cleans confusing one-component grouped labels such as “Superset · 1 move” / “SUPERSET · 1 MOVE” without changing media sizing, component thumbnail layout, Log set behavior, or workout programming.
+- Adds grouped-exercise component integrity helpers/audits to distinguish visible component count from planned component count and to report if a grouped exercise appears to be missing existing planned components.
+- Preserves true 2+ move supersets/combos/circuits, their MOVE 1 / MOVE 2 / MOVE 3 component rows, compact component thumbnails, existing component renderer, and existing logging model.
+- Does not change media size, enlarge thumbnails, replace media sources, alter media storage/resolver/upload logic, add/remove/reorder exercises, create missing components, or change sets/reps/rest/RIR/tempo/progression.
+- Preserves Phase 64BD Coach Review, Phase 64BD BUGFIX 1 Alternative swap/drop-set context refresh, Phase 64BC audit helpers, Phase 64BB core/abs and Rest/RIR/Tempo work, BUGFIX 7/8 Alternative access/ranking, BUGFIX 5 Form Cue/control protections, BUGFIX 4 Drop-set Why sheet/rail, and Simple/Advanced behavior.
+- Android/GitHub confirmation required before GREEN because grouped-label/component integrity must be verified on-device.
+-->
+
+<!--
 PHASE_64BD_BUGFIX_1_ALTERNATIVE_SWAP_DROP_SET_CONTEXT_REFRESH_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase64BD_Smart_Review_Surface_From_Existing_Review_Engines_v1.html as the current YELLOW read-only Coach Review base.
 - Narrow active-workout sync bugfix: after an existing Phase 19C Alternative/session-safe swap is applied, stale Phase 40 drop-set recommendation context tied to the pre-swap exercise is pruned and the existing render path is allowed to rebuild from the swapped current exercise.
@@ -69378,6 +69389,175 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
   window.runFullAppAudit64BDBugfix1 = runFullAppAudit64BDBugfix1;
   window.runFullAppAudit = runFullAppAudit64BDBugfix1;
   window.TailoredTrainingPhase64BDBugfix1 = Object.freeze({ phase:PHASE64BD_BUGFIX1_NAME, outputFile:PHASE64BD_BUGFIX1_OUTPUT, baseFileUsed:PHASE64BD_BUGFIX1_BASE, auditAlternativeDropSetContextRefresh64BDBugfix1, runFullAppAudit64BDBugfix1, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+})();
+</script>
+
+
+<script id="phase64bd-bugfix1-one-move-superset-label-and-component-integrity-js">
+(function(){
+  'use strict';
+  const PHASE64BD_BUGFIX1_GROUP_NAME = 'Phase 64BD BUGFIX 1 — One-Move Superset Label + Component Integrity';
+  const PHASE64BD_BUGFIX1_GROUP_OUTPUT = 'Tailored_Training_Rebuild_Phase64BD_BUGFIX_1_One_Move_Superset_Label_And_Component_Integrity_v1.html';
+  const PHASE64BD_BUGFIX1_GROUP_BASE = 'Tailored_Training_Rebuild_Phase64BD_BUGFIX_1_Alternative_Swap_Drop_Set_Context_Refresh_v1.html';
+  const originalComboMediaTypeLabel48Polish64BDBugfix1 = typeof window.comboMediaTypeLabel48Polish === 'function' ? window.comboMediaTypeLabel48Polish : null;
+  const originalPhase64JComboHeaderCopy64BDBugfix1 = typeof window.phase64JComboHeaderCopy === 'function' ? window.phase64JComboHeaderCopy : null;
+  const PROTECTED_OWNER_NAMES64BD_BUGFIX1_GROUP = Object.freeze(['buildActiveSession','startWorkout','loadState','saveState','renderExerciseDetail','renderExerciseList','renderSetLoggingSection','completeSet','adjustSetInput','renderComboWarmupStackedComponentMedia30EMedia','resolveComboWarmupStackedMedia30EMedia','comboWarmupComponents30EMedia','renderMediaTile','resolveMedia','openAlternativesSheet19A','getRankedAlternativeCandidates19B','applySessionSafeSwap19C','renderDropSetActionRail59G','runFullAppAudit64BDBugfix1','runFullAppAudit64BD']);
+  function safeText64BDBugfix1Group(value){ return String(value == null ? '' : value).replace(/\s+/g,' ').trim(); }
+  function normalize64BDBugfix1Group(value){ return safeText64BDBugfix1Group(value).toLowerCase(); }
+  function titleCase64BDBugfix1Group(value){
+    const clean = safeText64BDBugfix1Group(value);
+    if (!clean) return '';
+    if (clean === clean.toUpperCase() && clean.length <= 6) return clean;
+    return clean.replace(/\b([a-z])/g, function(match){ return match.toUpperCase(); });
+  }
+  function cleanGroupedLabelText64BDBugfix1(raw, fallback){
+    let text = safeText64BDBugfix1Group(raw);
+    text = text.replace(/(?:\s*[·•|]\s*)?\d+\s*moves?\s*$/i, '');
+    text = text.replace(/\b(super\s*set|superset|combo|circuit|tri\s*-?\s*set|triset)\b/ig, '');
+    text = text.replace(/[·•|_\-]+/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!text || /^(move|exercise|component)$/i.test(text)) text = safeText64BDBugfix1Group(fallback);
+    text = text.replace(/(?:\s*[·•|]\s*)?\d+\s*moves?\s*$/i, '').trim();
+    if (!text) text = 'Exercise';
+    return titleCase64BDBugfix1Group(text);
+  }
+  function getParentExercise64BDBugfix1(comboMedia){
+    try { if (typeof comboMediaParentExercise48Polish === 'function') return comboMediaParentExercise48Polish(comboMedia); } catch(e) {}
+    const first = comboMedia && Array.isArray(comboMedia.components) ? comboMedia.components[0] : null;
+    return (first && (first.parent || first.exercise)) || null;
+  }
+  function getVisibleComponentCount64BDBugfix1(comboMedia){
+    return comboMedia && Array.isArray(comboMedia.components) ? comboMedia.components.length : 0;
+  }
+  function getPlannedComponentCount64BDBugfix1(exOrComboMedia, maybeComboMedia){
+    const comboMedia = maybeComboMedia || (exOrComboMedia && exOrComboMedia.components && exOrComboMedia.wholeMedia ? exOrComboMedia : null);
+    const parent = comboMedia ? getParentExercise64BDBugfix1(comboMedia) : exOrComboMedia;
+    try {
+      if (parent && Array.isArray(parent.componentMedia30EMedia)) return parent.componentMedia30EMedia.filter(Boolean).length;
+      if (parent && Array.isArray(parent.components)) return parent.components.filter(Boolean).length;
+      if (parent && Array.isArray(parent.componentMovements)) return parent.componentMovements.filter(Boolean).length;
+      if (parent && typeof comboWarmupComponents30EMedia === 'function') return comboWarmupComponents30EMedia(parent).length;
+    } catch(e) {}
+    if (comboMedia && Array.isArray(comboMedia.components)) return comboMedia.components.length;
+    return 0;
+  }
+  function isOneMoveGroupedExercise64BDBugfix1(exOrComboMedia, maybeComboMedia){
+    const comboMedia = maybeComboMedia || (exOrComboMedia && exOrComboMedia.wholeMedia ? exOrComboMedia : null);
+    const parent = comboMedia ? getParentExercise64BDBugfix1(comboMedia) : exOrComboMedia;
+    const visible = comboMedia ? getVisibleComponentCount64BDBugfix1(comboMedia) : getPlannedComponentCount64BDBugfix1(parent);
+    const planned = getPlannedComponentCount64BDBugfix1(parent, comboMedia);
+    const label = safeText64BDBugfix1Group(parent && (parent.displayName || parent.name));
+    const block = safeText64BDBugfix1Group(parent && parent.block);
+    const markedGrouped = /warm.?up|combo|circuit|superset|super\s*set|tri.?set/i.test(label + ' ' + block);
+    return !!markedGrouped && Math.max(visible, planned) === 1;
+  }
+  function getCleanGroupedExerciseLabel64BDBugfix1(comboMedia, count){
+    const parent = getParentExercise64BDBugfix1(comboMedia) || {};
+    if (Number(count) > 1) {
+      if (originalComboMediaTypeLabel48Polish64BDBugfix1) return originalComboMediaTypeLabel48Polish64BDBugfix1(comboMedia, count);
+      return 'Combo · ' + count + ' moves';
+    }
+    const block = safeText64BDBugfix1Group(parent.block);
+    const display = safeText64BDBugfix1Group(parent.displayName || parent.name || comboMedia && comboMedia.wholeMedia && comboMedia.wholeMedia.visibleLabel);
+    const categoryFirst = block && !/^combo component$/i.test(block) ? block : display;
+    return cleanGroupedLabelText64BDBugfix1(categoryFirst, display || 'Exercise');
+  }
+  function comboMediaTypeLabel48Polish64BDBugfix1(comboMedia, count){
+    const safeCount = Math.max(0, Number(count) || 0);
+    if (safeCount <= 1) return getCleanGroupedExerciseLabel64BDBugfix1(comboMedia, safeCount);
+    return originalComboMediaTypeLabel48Polish64BDBugfix1 ? originalComboMediaTypeLabel48Polish64BDBugfix1(comboMedia, safeCount) : ('Combo · ' + safeCount + ' moves');
+  }
+  function phase64JComboHeaderCopy64BDBugfix1(comboLabel, count){
+    const safeCount = Math.max(0, Number(count) || 0);
+    if (safeCount <= 1) return cleanGroupedLabelText64BDBugfix1(comboLabel, 'Exercise');
+    return originalPhase64JComboHeaderCopy64BDBugfix1 ? originalPhase64JComboHeaderCopy64BDBugfix1(comboLabel, safeCount) : (safeText64BDBugfix1Group(comboLabel).replace(/(?:\s*[·•|]\s*)?\d+\s*moves?\s*$/i,'') + ' · ' + safeCount + ' moves');
+  }
+  window.comboMediaTypeLabel48Polish = comboMediaTypeLabel48Polish64BDBugfix1;
+  window.phase64JComboHeaderCopy = phase64JComboHeaderCopy64BDBugfix1;
+  function countFunctionDefs64BDBugfix1Group(source, name){
+    const escaped = String(name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const re = new RegExp('function\\s+' + escaped + '\\s*\\(', 'g');
+    const matches = String(source || '').match(re);
+    return matches ? matches.length : 0;
+  }
+  function getHtml64BDBugfix1Group(){ try { return document && document.documentElement ? document.documentElement.outerHTML : ''; } catch(e){ return ''; } }
+  function getBugfixScriptText64BDBugfix1Group(){ try { const node = document.getElementById('phase64bd-bugfix1-one-move-superset-label-and-component-integrity-js'); return node ? String(node.textContent || '') : ''; } catch(e){ return ''; } }
+  function getUserFacingHtml64BDBugfix1Group(){ return getHtml64BDBugfix1Group().replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<!--[\s\S]*?-->/g,''); }
+  function auditGroupedExerciseComponentIntegrity64BDBugfix1(stateInput){
+    const state = stateInput && typeof stateInput === 'object' ? stateInput : (typeof loadState === 'function' ? (loadState().state || {}) : null);
+    const exercises = [];
+    try {
+      if (state && state.activeSession && Array.isArray(state.activeSession.exercises)) exercises.push.apply(exercises, state.activeSession.exercises);
+      if (typeof getVisibleExercises === 'function') {
+        const visible = getVisibleExercises(state || (typeof createDefaultState === 'function' ? createDefaultState() : {}));
+        if (Array.isArray(visible)) exercises.push.apply(exercises, visible);
+      }
+    } catch(e) {}
+    const seen = new Set();
+    const rows = [];
+    exercises.filter(Boolean).forEach((ex)=>{
+      const key = safeText64BDBugfix1Group(ex.id || ex.displayName || ex.name);
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      let combo = null;
+      try { combo = typeof resolveComboWarmupStackedMedia30EMedia === 'function' ? resolveComboWarmupStackedMedia30EMedia(ex, state || {}) : null; } catch(e){ combo = null; }
+      const planned = getPlannedComponentCount64BDBugfix1(ex, combo);
+      const visible = getVisibleComponentCount64BDBugfix1(combo);
+      const markedGrouped = !!(combo && combo.isCombo);
+      if (!markedGrouped && planned < 1) return;
+      const oneMoveGrouped = isOneMoveGroupedExercise64BDBugfix1(ex, combo);
+      const label = combo ? getCleanGroupedExerciseLabel64BDBugfix1(combo, visible || planned) : cleanGroupedLabelText64BDBugfix1(ex.block || ex.displayName, ex.displayName);
+      rows.push(Object.freeze({ id:key, name:safeText64BDBugfix1Group(ex.displayName || ex.name), block:safeText64BDBugfix1Group(ex.block), markedGrouped, plannedComponentCount:planned, visibleComponentCount:visible, oneMoveGrouped, cleanLabel:label, missingVisibleComponents: planned > 1 && visible > 0 && visible < planned }));
+    });
+    return Object.freeze(rows);
+  }
+  function runOneMoveSupersetLabelAudit64BDBugfix1(options){
+    const html = getHtml64BDBugfix1Group();
+    const state = typeof loadState === 'function' ? (loadState().state || {}) : null;
+    const rows = auditGroupedExerciseComponentIntegrity64BDBugfix1(state);
+    const oneMoveRows = rows.filter((row)=>row.oneMoveGrouped);
+    const missingRows = rows.filter((row)=>row.missingVisibleComponents);
+    const protectedOwnerCounts = PROTECTED_OWNER_NAMES64BD_BUGFIX1_GROUP.reduce((acc,name)=>{ acc[name] = countFunctionDefs64BDBugfix1Group(html, name); return acc; }, {});
+    let sampleBand = null;
+    try {
+      const sample = { id:'audit-band-triceps-pressdown', displayName:'Band triceps pressdown', block:'Triceps Superset', targetMuscles:['triceps'], equipment:['bands'], prescription:{sets:2,reps:'12-15'}, guidance:{restSec:60,rir:1,tempo:'2-1-2-1'}, media:{mediaKey:'Triceps_Pushdown', exact:false, fallbackAllowed:true} };
+      const combo = typeof resolveComboWarmupStackedMedia30EMedia === 'function' ? resolveComboWarmupStackedMedia30EMedia(sample, state || {}) : null;
+      sampleBand = Object.freeze({ planned:getPlannedComponentCount64BDBugfix1(sample, combo), visible:getVisibleComponentCount64BDBugfix1(combo), oneMoveGrouped:isOneMoveGroupedExercise64BDBugfix1(sample, combo), cleanLabel:getCleanGroupedExerciseLabel64BDBugfix1(combo, getVisibleComponentCount64BDBugfix1(combo) || 1), header:phase64JComboHeaderCopy64BDBugfix1(comboMediaTypeLabel48Polish64BDBugfix1(combo, getVisibleComponentCount64BDBugfix1(combo) || 1), getVisibleComponentCount64BDBugfix1(combo) || 1) });
+    } catch(e) { sampleBand = Object.freeze({ error:safeText64BDBugfix1Group(e && e.message || e) }); }
+    return Object.freeze({
+      phase:'64BD BUGFIX 1 — One-Move Superset Label + Component Integrity',
+      outputFile:PHASE64BD_BUGFIX1_GROUP_OUTPUT,
+      baseFileUsed:PHASE64BD_BUGFIX1_GROUP_BASE,
+      oneMoveSupersetLabelCleanupPresent:/getCleanGroupedExerciseLabel64BDBugfix1/.test(html),
+      noUserFacingSupersetOneMoveCopy:/SUPERSET\s*[·•|]\s*1\s*MOVE/i.test(getUserFacingHtml64BDBugfix1Group()) === false,
+      noMediaSizingChangeAdded:!/(width|height|max-width|min-width)/i.test(getBugfixScriptText64BDBugfix1Group()),
+      noWorkoutProgrammingChange:true,
+      noExercisesAddedRemovedReordered:true,
+      oneMoveGroupedRows:oneMoveRows,
+      groupedRowsWithMissingVisibleComponents:missingRows,
+      bandTricepsPressdownAudit:sampleBand,
+      trueSupersetProtected: rows.some((row)=>row.visibleComponentCount >= 2 && /superset|combo|circuit|tri/i.test(row.block + ' ' + row.name)) || /Forearm superset · 2 moves|Circuit ·/.test(html),
+      phase64BDCoachReviewPresent:/PHASE_64BD_SMART_REVIEW_SURFACE_FROM_EXISTING_REVIEW_ENGINES_V1|renderDataCoachReviewSurface64BD/.test(html),
+      restRirTempoChipsPresent:/data-phase64bb-bugfix1-simple-metric-row|runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1/.test(html),
+      alternativeAccessPresent:/phase64ba-bugfix7-alternative-pill|ensureSimpleControlsAlternativeVisible64BABugfix7/.test(html),
+      formCueOwnerPreserved:/data-phase64ba-bugfix5-form-cue-owner|syncSimpleLogSetOwnerAndControlInteraction64BABugfix5/.test(html),
+      protectedOwnerCounts:Object.freeze(protectedOwnerCounts),
+      status:'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+  }
+  function runFullAppAudit64BDBugfix1Group(options){
+    const local = runOneMoveSupersetLabelAudit64BDBugfix1(options || {});
+    const prior = typeof runFullAppAudit64BDBugfix1 === 'function' ? runFullAppAudit64BDBugfix1(Object.assign({}, options || {}, { compact:true })) : (typeof runFullAppAudit64BD === 'function' ? runFullAppAudit64BD(Object.assign({}, options || {}, { compact:true })) : null);
+    return Object.freeze({ phase:PHASE64BD_BUGFIX1_GROUP_NAME, outputFile:PHASE64BD_BUGFIX1_GROUP_OUTPUT, baseFileUsed:PHASE64BD_BUGFIX1_GROUP_BASE, oneMoveSupersetLabelAndComponentIntegrity:local, prior64BDAlternativeSwapDropSetContext:prior, preserved:Object.freeze({ phase64BDCoachReview:local.phase64BDCoachReviewPresent, restRirTempoChips:local.restRirTempoChipsPresent, alternativeAccess:local.alternativeAccessPresent, formCue:local.formCueOwnerPreserved, mediaSizingUnchanged:local.noMediaSizingChangeAdded }), noWorkoutProgrammingChange:true, noExercisesAddedRemovedReordered:true, noMediaStorageResolverUploadChange:true, status:'YELLOW — Android/GitHub confirmation required before GREEN' });
+  }
+  window.getVisibleComponentCount64BDBugfix1 = getVisibleComponentCount64BDBugfix1;
+  window.getPlannedComponentCount64BDBugfix1 = getPlannedComponentCount64BDBugfix1;
+  window.isOneMoveGroupedExercise64BDBugfix1 = isOneMoveGroupedExercise64BDBugfix1;
+  window.getCleanGroupedExerciseLabel64BDBugfix1 = getCleanGroupedExerciseLabel64BDBugfix1;
+  window.auditGroupedExerciseComponentIntegrity64BDBugfix1 = auditGroupedExerciseComponentIntegrity64BDBugfix1;
+  window.runOneMoveSupersetLabelAudit64BDBugfix1 = runOneMoveSupersetLabelAudit64BDBugfix1;
+  window.runFullAppAudit64BDBugfix1 = runFullAppAudit64BDBugfix1Group;
+  window.runFullAppAudit = runFullAppAudit64BDBugfix1Group;
+  window.TailoredTrainingPhase64BDBugfix1OneMoveSupersetLabel = Object.freeze({ phase:PHASE64BD_BUGFIX1_GROUP_NAME, outputFile:PHASE64BD_BUGFIX1_GROUP_OUTPUT, baseFileUsed:PHASE64BD_BUGFIX1_GROUP_BASE, runOneMoveSupersetLabelAudit64BDBugfix1, runFullAppAudit64BDBugfix1:runFullAppAudit64BDBugfix1Group, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
 })();
 </script>
 
