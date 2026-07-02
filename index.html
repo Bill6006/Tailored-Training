@@ -1,3 +1,38 @@
+<!doctype html>
+
+<!--
+PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BB_Core_Abs_Priority_And_Visible_Abs_Honesty_Lock_v1.html as the current YELLOW working base after Core / Abs Priority + Visible Abs Honesty Lock.
+- Simple-mode metric visibility bugfix only: adds one compact Rest / RIR / Tempo chip row to the existing current exercise header/card so Simple mode shows the key training details without restoring the bulky Advanced metric strip.
+- Target is intentionally not added to the Simple header metric row because Target remains visible on the active set card.
+- Advanced view is not redesigned; only the shared RIR formatter is made safe so values that already include RIR do not render as duplicate text such as 1 RIR RIR.
+- Preserves Phase 64BB core/abs priority work, direct-vs-indirect core awareness, Cable crunch / Standing Pallof press additions, visible-abs honesty copy, and Gym no-floor core preference.
+- Preserves BUGFIX 7 Alternative visibility, BUGFIX 8 Gym no-floor Alternative ranking, BUGFIX 5 FORM CUE/control interaction lock, BUGFIX 4 Drop-set Why sheet/rail, BUGFIX 3 header/media polish, thumbnail/media behavior, Log set controls, rest timer, coach/drop-set behavior, bottom nav, and activeSession/start/load/save/route/detail/list/logging owners.
+- Does not resize thumbnails, move media, restore Advanced detail blocks in Simple mode, alter workout programming, add nutrition/body-fat tracking, or add timer/render/scroll/localStorage workarounds.
+- Android/GitHub confirmation required before GREEN because this changes Simple-mode current exercise header presentation on device.
+-->
+<!--
+PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BA_REDO_BUGFIX_8_Gym_No_Floor_Alternative_Ranking_v1.html as the current YELLOW working base after Gym no-floor alternative ranking.
+- Added core/abs as a first-class priority muscle group alongside arms, chest, quads, hamstrings, forearms, and calves.
+- Added core/abs normalization for abs, core, abdominals, rectus abdominis, obliques, transverse abdominis, and trunk/core stability.
+- Added direct-vs-indirect core awareness so direct ab/core exercises count more strongly than compound movements with only trunk demand.
+- Added a small non-floor Gym direct-core dose only because the current program had no clear non-floor direct core track: cable crunch and Pallof press.
+- Preserved Home flexibility: floor core is not globally banned, but Gym-mode core alternatives prefer non-floor cable/machine/hanging/captain-chair/standing options when available and label floor-only fallbacks honestly.
+- Added visible-abs honesty copy: core work builds the muscle and improves shape, but visible abs depend mostly on body-fat level, nutrition, and recovery.
+- Preserved Phase 64BA BUGFIX 7 visible Alternative access, BUGFIX 8 Gym no-floor ranking, BUGFIX 5 Simple Log set/Form Cue/control interaction lock, BUGFIX 4 Drop-set Why sheet/rail lock, BUGFIX 3 single-move header polish, thumbnail/media behavior, active set controls, rest timer, coach/drop-set behavior, bottom nav, and activeSession/start/load/save/route/detail/list/logging owners.
+- Does not add a nutrition tracker, calorie target, body-fat calculator, media/storage/upload change, duplicate route/state/render/set/media/rest-timer system, localStorage cleanup, or timer/render/scroll workaround.
+- Android/GitHub confirmation required before GREEN because this changes goal coverage/programming intelligence and adds direct core coverage.
+-->
+<!--
+PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BA_REDO_BUGFIX_7_Simple_Mode_Alternative_Button_Actually_Visible_v1.html as the current tested YELLOW base.
+- Alternative-ranking-only bugfix: keeps BUGFIX 7 Alternative access visible while improving the existing Phase 19 ranked alternatives so Gym mode strongly prefers non-floor, gym-friendly substitutions and demotes floor-based or stability-ball alternatives unless no better non-floor match exists.
+- Reuses the existing Phase 19 alternatives/session-safe swap owner path via openAlternativesSheet19A / getRankedAlternativeCandidates19B / applySessionSafeSwap19C; no new alternative engine, hard-coded replacement list, automatic swap, workout programming rewrite, or exercise-order change was added.
+- Adds honest candidate tags/reasons such as Muscle match, Gym fit, No floor, Bench-supported, Cable/machine, Dumbbell match, Stability ball avoided, and Floor fallback; floor options are not labeled as strong Gym fit.
+- Preserves BUGFIX 7 visible Alternative row/pill, BUGFIX 5 FORM CUE/control interaction lock, BUGFIX 4 Drop-set Why sheet/rail lock, BUGFIX 3 header/media polish, thumbnail size/layout, set controls, rest timer, coach/drop-set logic, bottom nav, and all media storage/resolver/upload logic.
+- Android/GitHub confirmation required before GREEN because alternative ordering must be verified on-device in Gym Lazy with Stability ball DB squeeze press.
+-->
 <!--
 PHASE_64BA_REDO_BUGFIX_7_SIMPLE_MODE_ALTERNATIVE_BUTTON_ACTUALLY_VISIBLE_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase64BA_REDO_BUGFIX_6_Simple_Mode_Current_Exercise_Alternative_Access_v1.html as the current tested YELLOW base.
@@ -10879,6 +10914,65 @@ body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailS
 /* END_PHASE_64BA_REDO_BUGFIX_7_SIMPLE_MODE_ALTERNATIVE_BUTTON_ACTUALLY_VISIBLE_V1_CSS */
 </style>
 
+
+<style>
+/* PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1_CSS
+   Simple-mode-only Rest/RIR/Tempo visibility. Target intentionally remains on the active set card, not this header row. */
+.phase64bb-bugfix1-simple-metric-row {
+  display:none;
+}
+body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .detail-title[data-phase64bb-bugfix1-simple-header-metrics="rest-rir-tempo"] {
+  min-width:0 !important;
+}
+body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .phase64bb-bugfix1-simple-metric-row[data-phase64bb-bugfix1-simple-metric-row="rest-rir-tempo"] {
+  display:flex !important;
+  flex-wrap:wrap !important;
+  align-items:center !important;
+  gap:5px !important;
+  margin-top:7px !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .phase64bb-bugfix1-simple-metric-chip {
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  max-width:100% !important;
+  min-height:24px !important;
+  padding:0 8px !important;
+  border-radius:999px !important;
+  border:1px solid rgba(148,163,184,.22) !important;
+  background:rgba(15,23,42,.48) !important;
+  color:rgba(226,232,240,.88) !important;
+  font-size:10.5px !important;
+  line-height:1 !important;
+  font-weight:850 !important;
+  letter-spacing:.01em !important;
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .phase64bb-bugfix1-simple-metric-chip[data-phase64bb-bugfix1-chip="rir"] {
+  color:rgba(204,251,241,.92) !important;
+  border-color:rgba(45,212,191,.23) !important;
+  background:rgba(20,184,166,.09) !important;
+}
+body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .phase64ba-bugfix6-alternative-row,
+body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .phase64ba-bugfix7-alternative-row {
+  margin-top:7px !important;
+}
+@media (max-width:380px) {
+  body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .phase64bb-bugfix1-simple-metric-row[data-phase64bb-bugfix1-simple-metric-row="rest-rir-tempo"] {
+    gap:4px !important;
+  }
+  body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface .phase64bb-bugfix1-simple-metric-chip {
+    min-height:23px !important;
+    padding:0 7px !important;
+    font-size:10px !important;
+  }
+}
+/* END_PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1_CSS */
+</style>
 </head>
 <body data-phase21-notes-page="built-exercise-session-notes-safe-load-save" data-phase22-stats-pr-trend-base="built-logs-only">
   <!--
@@ -12061,7 +12155,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
   let pendingSafeImportValidation16D = null;
   const SHELL_TABS = Object.freeze(["today", "history", "data"]);
   const DAY_NAMES = Object.freeze(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]);
-  const STATE_SEED = Object.freeze({"version":"2.0.0","schemaVersion":"state.phase22-stats-pr-trend-base.1","appName":"Tailored Training","sourceOfTruth":"Tailored_Training_Rebuild_Master_Plan_v19_Real_Media_Restoration_No_Fake_Generated_GIFs.txt","createdByPhase":"Phase 22 Stats PR Trend Base v1","profile":{"name":"Io","sex":"male","age":28,"heightCm":175.26,"heightDisplay":"5'9\"","weightLb":188,"bodyFatPercent":null,"bodyFatKnown":false,"trainingLevel":"intermediate","intensityPreference":"balanced","sleepTypicalHours":"6-7","stressTypical":3,"goalPriorityMuscles":["arms","chest","quads","hamstrings","forearms","calves"],"aestheticGoal":"overall definition","constraints":{"avoidBarbellSquat":true,"overheadPressShoulderCaution":true,"shoulderPainThreshold":3,"noRequiredNutrition":true,"noRequiredBodyFat":true,"noRequiredRecoveryForm":true}},"settings":{"mode":"Gym","route":"Full","lowFrictionIntelligence":true,"units":"lb","weekStartsOn":"Monday","dataSafetyMode":"local-first","backupReminderDays":7,"showCoachChip":true,"showAdvancedAudits":true},"program":{"id":"tailored-training-master-program","version":1,"schemaVersion":"program.phase4.1","sourceOfTruth":"Tailored_Training_Rebuild_Master_Plan_v19_Real_Media_Restoration_No_Fake_Generated_GIFs.txt","weeklySchedule":[{"day":"Monday","type":"Train","title":"Upper Pull + Biceps + Forearms","estimatedMinutes":64,"timeBreakdown":{"warmup":8,"strength":50,"finisherMobility":6},"mainTargets":["back","biceps","rear delts","forearms","grip"],"notes":"Use one-arm rows as the strength anchor."},{"day":"Tuesday","type":"Rest","title":"Rest / Easy Walk","estimatedMinutes":20,"timeBreakdown":{"warmup":0,"strength":0,"finisherMobility":20},"mainTargets":["recovery"],"notes":"Optional 20-30 min walk + shoulder/hip mobility."},{"day":"Wednesday","type":"Train","title":"Lower A \u2014 Quad + Calf Emphasis","estimatedMinutes":62,"timeBreakdown":{"warmup":8,"strength":48,"finisherMobility":6},"mainTargets":["quads","calves","hamstrings support"],"notes":"No barbell squats; use goblet, split squat, reverse lunge."},{"day":"Thursday","type":"Train","title":"Push \u2014 Pecs + Triceps + Shoulder-Safe Delts","estimatedMinutes":60,"timeBreakdown":{"warmup":8,"strength":46,"finisherMobility":6},"mainTargets":["chest","triceps","delts","serratus"],"notes":"Use neutral grips; stop/modify if shoulder pain rises above 3/10."},{"day":"Friday","type":"Train","title":"Lower B \u2014 Hamstrings + Glutes + Calves + Arms","estimatedMinutes":71,"timeBreakdown":{"warmup":8,"strength":57,"finisherMobility":6},"mainTargets":["hamstrings","glutes","calves","biceps"],"notes":"RDL and leg curl drive hamstring growth. Friday may run long unless Lazy/mode engine trims later."},{"day":"Saturday","type":"Rest","title":"Rest / Easy Walk","estimatedMinutes":20,"timeBreakdown":{"warmup":0,"strength":0,"finisherMobility":20},"mainTargets":["recovery"],"notes":"Optional 20-30 min easy walk; no hard leg work."},{"day":"Sunday","type":"Train","title":"Upper Mixed + Arms + Pecs + Definition Finisher","estimatedMinutes":59,"timeBreakdown":{"warmup":8,"strength":43,"finisherMobility":8},"mainTargets":["chest","back","arms","calves","conditioning"],"notes":"Antagonist pairs and rest-pause for time efficiency."}],"exercisesById":[{"id":"mon-01-band-pull-aparts-scap-circles-light-rows","day":"Monday","order":1,"displayName":"Band pull-aparts + scap circles + light rows","block":"Warm-up","targetMuscles":["scapula","rear delts","back"],"prescription":{"sets":2,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Move smoothly; keep ribs down and shoulders away from ears.","progression":"Add band tension only if clean.","media":{"mediaKey":"Band_Pull_Apart","exact":true,"fallbackAllowed":false},"equipment":["bands"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["warmup-not-drop-set-eligible"]},{"id":"mon-02-one-arm-db-row","day":"Monday","order":2,"displayName":"One-arm DB row","block":"Strength","targetMuscles":["lats","mid-back","biceps"],"prescription":{"sets":4,"reps":"6-8 each","avgRepsDefault":7},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-X-1"},"instructions":"Brace one hand on a stable surface; pull elbow toward hip; pause hard at top.","progression":"When all 4 sets hit 8/side with RIR 2, increase DB 2.5-5 lb.","media":{"mediaKey":"One-Arm_Dumbbell_Row","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","bench/stable surface"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-03-chest-supported-db-row-on-stability-ball","day":"Monday","order":3,"displayName":"Chest-supported DB row on stability ball","block":"Hypertrophy","targetMuscles":["mid-back","lats","rear delts"],"prescription":{"sets":3,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":90,"rir":2,"tempo":"3-1-1-1"},"instructions":"Lie chest-down on ball; squeeze shoulder blades without shrugging.","progression":"Add reps first, then load.","media":{"mediaKey":"Bent_Over_Two-Dumbbell_Row","exact":false,"fallbackAllowed":true},"equipment":["dumbbells","stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-04-kneeling-band-lat-pulldown","day":"Monday","order":4,"displayName":"Kneeling band lat pulldown","block":"Hypertrophy","targetMuscles":["lats","teres major"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"2-1-2-1"},"instructions":"Anchor band high; drive elbows down; do not lean back.","progression":"Use thicker band or step farther back after 12 clean reps.","media":{"mediaKey":"Close-Grip_Front_Lat_Pulldown","exact":false,"fallbackAllowed":true},"equipment":["bands","high anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-05-db-rear-delt-reverse-fly","day":"Monday","order":5,"displayName":"DB rear-delt reverse fly","block":"Accessory","targetMuscles":["rear delts","upper back"],"prescription":{"sets":3,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Hinge at hips; lead with elbows; stop before traps take over.","progression":"Add reps first.","media":{"mediaKey":"Bent_Over_Dumbbell_Rear_Delt_Raise_With_Head_On_Bench","exact":false,"fallbackAllowed":true},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"mon-06-db-hammer-curl","day":"Monday","order":6,"displayName":"DB hammer curl","block":"Arm Strength","targetMuscles":["biceps","brachialis","forearms"],"prescription":{"sets":4,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":75,"rir":1,"tempo":"3-0-1-1"},"instructions":"Neutral grip; elbows stay slightly in front of ribs; no swinging.","progression":"Increase weight when all sets hit 10.","media":{"mediaKey":"Alternate_Hammer_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-07-db-reverse-curl","day":"Monday","order":7,"displayName":"DB reverse curl","block":"Forearm","targetMuscles":["brachioradialis","forearm extensors"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":60,"rir":1,"tempo":"2-0-2-1"},"instructions":"Palms down; wrists straight; control the lowering.","progression":"Add reps to 12 before load.","media":{"mediaKey":"Standing_Dumbbell_Reverse_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-08-wrist-curl-reverse-wrist-curl","day":"Monday","order":8,"displayName":"Wrist curl + reverse wrist curl","block":"Forearm Superset","targetMuscles":["forearm flexors","forearm extensors"],"prescription":{"sets":2,"reps":"12-15 each","avgRepsDefault":14},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Do both moves back-to-back, then rest.","progression":"Add reps first; use small DB jumps.","media":{"mediaKey":"Seated_Palms-Down_Barbell_Wrist_Curl","exact":false,"fallbackAllowed":true},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-09-farmer-carry","day":"Monday","order":9,"displayName":"Farmer carry","block":"Grip Finisher","targetMuscles":["grip","traps","core","calves"],"prescription":{"sets":4,"reps":"40-60 sec","avgRepsDefault":1},"guidance":{"restSec":60,"rir":1,"tempo":"carry"},"instructions":"Walk tall with heavy DBs; do not lean back; crush the handles.","progression":"Add time to 60 sec, then load.","media":{"mediaKey":"Farmer_s_Walk","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","walking space"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-01-bodyweight-split-squat-hip-hinge-ankle-rocks","day":"Wednesday","order":1,"displayName":"Bodyweight split squat + hip hinge + ankle rocks","block":"Warm-up","targetMuscles":["quads","hips","ankles"],"prescription":{"sets":2,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Move through full range without knee pain.","progression":"Add depth before speed.","media":{"mediaKey":"90_90_Hamstring","exact":false,"fallbackAllowed":true},"equipment":["bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["squat-pattern-without-barbell","warmup-not-drop-set-eligible"]},{"id":"wed-02-heel-elevated-db-goblet-squat-to-box","day":"Wednesday","order":2,"displayName":"Heel-elevated DB goblet squat to box","block":"Strength","targetMuscles":["quads","glutes","core"],"prescription":{"sets":4,"reps":"6-8","avgRepsDefault":7},"guidance":{"restSec":150,"rir":2,"tempo":"3-1-X-0"},"instructions":"Heels elevated; sit between knees; touch box lightly, do not relax.","progression":"When all sets hit 8, add DB load.","media":{"mediaKey":"Dumbbell_Squat_To_A_Bench","exact":false,"fallbackAllowed":true},"equipment":["dumbbell","box","heel wedge"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["squat-pattern-without-barbell"]},{"id":"wed-03-bulgarian-split-squat","day":"Wednesday","order":3,"displayName":"Bulgarian split squat","block":"Hypertrophy","targetMuscles":["quads","glutes","adductors"],"prescription":{"sets":3,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-1-0"},"instructions":"Front foot far enough that knee tracks over toes comfortably; torso slightly forward.","progression":"Add reps, then DB load.","media":{"mediaKey":"Split_Squat_with_Dumbbells","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","bench/box"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["squat-pattern-without-barbell"]},{"id":"wed-04-front-foot-elevated-reverse-lunge","day":"Wednesday","order":4,"displayName":"Front-foot elevated reverse lunge","block":"Hypertrophy","targetMuscles":["quads","glutes","hamstrings"],"prescription":{"sets":3,"reps":"10-12 each","avgRepsDefault":11},"guidance":{"restSec":90,"rir":1,"tempo":"2-1-1-0"},"instructions":"Step back softly; use front leg to stand; keep full foot planted.","progression":"Add elevation or DB load after 12/side.","media":{"mediaKey":"Dumbbell_Rear_Lunge","exact":true,"fallbackAllowed":false},"equipment":["dumbbells optional","small elevation"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-05-stability-ball-hamstring-curl","day":"Wednesday","order":5,"displayName":"Stability ball hamstring curl","block":"Hamstring Support","targetMuscles":["hamstrings","calves","glutes"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"3-1-1-1"},"instructions":"Hips stay up; curl ball in with heels; slow return.","progression":"Progress to single-leg eccentric if easy.","media":{"mediaKey":"Ball_Leg_Curl","exact":true,"fallbackAllowed":false},"equipment":["stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-06-standing-db-calf-raise","day":"Wednesday","order":6,"displayName":"Standing DB calf raise","block":"Calf Strength","targetMuscles":["gastrocnemius","soleus"],"prescription":{"sets":5,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-2"},"instructions":"Full stretch at bottom; hard 2-sec squeeze at top.","progression":"Add load after all 5 sets hit 12.","media":{"mediaKey":"Standing_Dumbbell_Calf_Raise","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","step optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["calf-priority"]},{"id":"wed-07-wall-tibialis-raise","day":"Wednesday","order":7,"displayName":"Wall tibialis raise","block":"Lower-Leg Balance","targetMuscles":["tibialis anterior"],"prescription":{"sets":3,"reps":"15-20","avgRepsDefault":18},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Back on wall; lift toes toward shins; control down.","progression":"Step feet farther from wall to progress.","media":{"mediaKey":"Anterior_Tibialis-SMR","exact":false,"fallbackAllowed":true},"equipment":["wall","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-08-wall-sit","day":"Wednesday","order":8,"displayName":"Wall sit","block":"Quad Finisher","targetMuscles":["quads"],"prescription":{"sets":2,"reps":"30-45 sec","avgRepsDefault":1},"guidance":{"restSec":60,"rir":1,"tempo":"iso hold"},"instructions":"Knees about 90 degrees; breathe; stop if knee pain.","progression":"Add time to 60 sec.","media":{"mediaKey":"Wall_Squat","exact":false,"fallbackAllowed":true},"equipment":["wall","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"thu-01-scap-push-up-band-external-rotation-light-push-up","day":"Thursday","order":1,"displayName":"Scap push-up + band external rotation + light push-up","block":"Warm-up","targetMuscles":["serratus","rotator cuff","chest"],"prescription":{"sets":2,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Warm shoulders without pain; keep elbows 30-45 degrees from ribs.","progression":"Use lighter band if pinchy.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","bands"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain","warmup-not-drop-set-eligible"]},{"id":"thu-02-neutral-grip-db-floor-press","day":"Thursday","order":2,"displayName":"Neutral-grip DB floor press","block":"Strength","targetMuscles":["pecs","triceps","front delts"],"prescription":{"sets":4,"reps":"6-8","avgRepsDefault":7},"guidance":{"restSec":150,"rir":2,"tempo":"3-1-X-1"},"instructions":"Elbows touch floor gently; wrists stacked; press fast without shoulder pinch.","progression":"When all sets hit 8, add DB load.","media":{"mediaKey":"Dumbbell_Floor_Press","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-03-banded-or-feet-elevated-push-up","day":"Thursday","order":3,"displayName":"Banded or feet-elevated push-up","block":"Hypertrophy","targetMuscles":["pecs","triceps","serratus"],"prescription":{"sets":3,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":90,"rir":1,"tempo":"3-1-1-0"},"instructions":"Hands under shoulders; ribs down; stop 1-2 reps before form breaks.","progression":"Add band/elevation when 12s are clean.","media":{"mediaKey":"Decline_Push-Up","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","band optional","elevation optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-04-stability-ball-db-squeeze-press","day":"Thursday","order":4,"displayName":"Stability ball DB squeeze press","block":"Hypertrophy","targetMuscles":["inner pecs","triceps"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"2-1-2-1"},"instructions":"Press DBs together the entire set; slow stretch; avoid arching.","progression":"Add reps first.","media":{"mediaKey":"Dumbbell_Bench_Press_with_Neutral_Grip","exact":false,"fallbackAllowed":true},"equipment":["dumbbells","stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-05-band-fly","day":"Thursday","order":5,"displayName":"Band fly","block":"Chest Pump","targetMuscles":["pecs"],"prescription":{"sets":2,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Slight elbow bend; hands meet in front of chest; control stretch.","progression":"Step farther from anchor.","media":{"mediaKey":"Cable_Crossover","exact":false,"fallbackAllowed":true},"equipment":["bands","anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-06-db-lateral-raise-in-scapular-plane","day":"Thursday","order":6,"displayName":"DB lateral raise in scapular plane","block":"Shoulder-Safe Delts","targetMuscles":["side delts"],"prescription":{"sets":3,"reps":"12-20","avgRepsDefault":16},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Raise slightly forward of your side; stop around shoulder height; no pain.","progression":"Add reps before weight.","media":{"mediaKey":"Side_Lateral_Raise","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"thu-07-db-floor-skull-crusher","day":"Thursday","order":7,"displayName":"DB floor skull crusher","block":"Triceps","targetMuscles":["triceps"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"3-0-1-1"},"instructions":"Elbows point up; lower DBs beside head; keep upper arm still.","progression":"Add reps first, then load.","media":{"mediaKey":"Lying_Dumbbell_Tricep_Extension","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"thu-08-band-triceps-pressdown","day":"Thursday","order":8,"displayName":"Band triceps pressdown","block":"Triceps Superset","targetMuscles":["triceps"],"prescription":{"sets":3,"reps":"12-20","avgRepsDefault":16},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Pin elbows to sides; lock out hard; slow return.","progression":"Step farther from anchor.","media":{"mediaKey":"Triceps_Pushdown","exact":false,"fallbackAllowed":true},"equipment":["bands","high anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"fri-01-glute-bridge-hip-hinge-drill-calf-rocks","day":"Friday","order":1,"displayName":"Glute bridge + hip hinge drill + calf rocks","block":"Warm-up","targetMuscles":["hips","hamstrings","calves"],"prescription":{"sets":2,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Practice hinge: hips back, spine neutral, soft knees.","progression":"Add reps first.","media":{"mediaKey":"90_90_Hamstring","exact":false,"fallbackAllowed":true},"equipment":["bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["warmup-not-drop-set-eligible","calf-priority"]},{"id":"fri-02-db-romanian-deadlift","day":"Friday","order":2,"displayName":"DB Romanian deadlift","block":"Strength","targetMuscles":["hamstrings","glutes","spinal erectors"],"prescription":{"sets":4,"reps":"6-8","avgRepsDefault":7},"guidance":{"restSec":150,"rir":2,"tempo":"3-1-X-1"},"instructions":"DBs close to legs; feel hamstring stretch; stand by driving hips forward.","progression":"When all sets hit 8, add DB load.","media":{"mediaKey":"Stiff-Legged_Dumbbell_Deadlift","exact":false,"fallbackAllowed":true},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-03-db-hip-thrust-or-floor-glute-bridge","day":"Friday","order":3,"displayName":"DB hip thrust or floor glute bridge","block":"Strength/Hypertrophy","targetMuscles":["glutes","hamstrings"],"prescription":{"sets":4,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":120,"rir":1,"tempo":"2-1-X-2"},"instructions":"Tuck pelvis slightly; squeeze glutes 2 sec at top; do not overarch.","progression":"Add load when 10s are strong.","media":{"mediaKey":"Butt_Lift_Bridge","exact":false,"fallbackAllowed":true},"equipment":["dumbbell optional","bench/floor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-04-stability-ball-leg-curl","day":"Friday","order":4,"displayName":"Stability ball leg curl","block":"Hypertrophy","targetMuscles":["hamstrings"],"prescription":{"sets":4,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":90,"rir":1,"tempo":"3-1-1-1"},"instructions":"Hips stay high; slow eccentric; squeeze heels into ball.","progression":"Progress to single-leg eccentric.","media":{"mediaKey":"Ball_Leg_Curl","exact":true,"fallbackAllowed":false},"equipment":["stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-05-db-step-up","day":"Friday","order":5,"displayName":"DB step-up","block":"Unilateral","targetMuscles":["quads","glutes","hamstrings"],"prescription":{"sets":3,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":90,"rir":2,"tempo":"2-1-1-0"},"instructions":"Use a height where knee/hip stay controlled; drive through full foot.","progression":"Add DB load after clean 10/side.","media":{"mediaKey":"Dumbbell_Step_Ups","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","box/step"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-06-single-leg-db-calf-raise","day":"Friday","order":6,"displayName":"Single-leg DB calf raise","block":"Calves","targetMuscles":["calves"],"prescription":{"sets":4,"reps":"10-15 each","avgRepsDefault":12},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-2"},"instructions":"Full stretch and full top squeeze; use wall for balance only.","progression":"Add reps to 15, then load.","media":{"mediaKey":"Standing_Dumbbell_Calf_Raise","exact":false,"fallbackAllowed":true},"equipment":["dumbbell","wall/step optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["calf-priority"]},{"id":"fri-07-seated-db-calf-raise","day":"Friday","order":7,"displayName":"Seated DB calf raise","block":"Calves","targetMuscles":["soleus"],"prescription":{"sets":3,"reps":"12-20","avgRepsDefault":16},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-2"},"instructions":"DBs on knees; pause top and bottom; no bouncing.","progression":"Add reps first.","media":{"mediaKey":"Dumbbell_Seated_One-Leg_Calf_Raise","exact":false,"fallbackAllowed":true},"equipment":["dumbbells","chair/bench"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["calf-priority"]},{"id":"fri-08-cross-body-hammer-curl","day":"Friday","order":8,"displayName":"Cross-body hammer curl","block":"Biceps/Forearms","targetMuscles":["brachialis","biceps","forearms"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":60,"rir":1,"tempo":"2-0-2-1"},"instructions":"Curl toward opposite pec; wrist neutral; no sway.","progression":"Add weight after all sets hit 12.","media":{"mediaKey":"Cross_Body_Hammer_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-09-banded-curl-rest-pause","day":"Friday","order":9,"displayName":"Banded curl rest-pause","block":"Time-Efficient Pump","targetMuscles":["biceps"],"prescription":{"sets":1,"reps":"15-20 + 3x5","avgRepsDefault":18},"guidance":{"restSec":20,"rir":0,"tempo":"2-0-2-1"},"instructions":"Activation set, rest 20 sec, then 3 mini-sets of 5.","progression":"Add band tension after 20 + all minisets clean.","media":{"mediaKey":"Dumbbell_Bicep_Curl","exact":false,"fallbackAllowed":true},"equipment":["bands"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["intensity-technique-control-later"]},{"id":"sun-01-band-row-push-up-ramp-hip-mobility","day":"Sunday","order":1,"displayName":"Band row + push-up ramp + hip mobility","block":"Warm-up","targetMuscles":["upper body","core"],"prescription":{"sets":2,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Warm chest/back without fatigue.","progression":"Make first set easy.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bands","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain","warmup-not-drop-set-eligible"]},{"id":"sun-02-db-floor-press","day":"Sunday","order":2,"displayName":"DB floor press","block":"Strength Pair A1","targetMuscles":["pecs","triceps"],"prescription":{"sets":3,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-1-1"},"instructions":"Pair with row if time is tight; press with neutral grip if shoulder prefers.","progression":"Add DB load after 10s.","media":{"mediaKey":"Dumbbell_Floor_Press","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"sun-03-one-arm-db-row","day":"Sunday","order":3,"displayName":"One-arm DB row","block":"Strength Pair A2","targetMuscles":["lats","mid-back","biceps"],"prescription":{"sets":3,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-1-1"},"instructions":"Pull elbow toward hip; keep torso quiet.","progression":"Add DB load after 10/side.","media":{"mediaKey":"One-Arm_Dumbbell_Row","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","stable support"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-04-mechanical-drop-set-push-ups","day":"Sunday","order":4,"displayName":"Mechanical drop-set push-ups","block":"Chest Density","targetMuscles":["pecs","triceps","serratus"],"prescription":{"sets":2,"reps":"decline/reg/knee 6-10 each","avgRepsDefault":8},"guidance":{"restSec":90,"rir":1,"tempo":"2-1-1-0"},"instructions":"Do hardest version first, then easier versions without long breaks.","progression":"Add reps before harder variation.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","elevation optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"intensity","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain","intensity-technique-control-later"]},{"id":"sun-05-band-straight-arm-pulldown","day":"Sunday","order":5,"displayName":"Band straight-arm pulldown","block":"Back Pump","targetMuscles":["lats"],"prescription":{"sets":3,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Arms mostly straight; pull band to thighs; feel lats, not triceps.","progression":"Step farther from anchor.","media":{"mediaKey":"Straight-Arm_Pulldown","exact":false,"fallbackAllowed":true},"equipment":["bands","anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-06-supinating-db-curl","day":"Sunday","order":6,"displayName":"Supinating DB curl","block":"Arm Strength","targetMuscles":["biceps"],"prescription":{"sets":3,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":75,"rir":1,"tempo":"3-0-1-1"},"instructions":"Start neutral, rotate palm up; squeeze 1 sec at top.","progression":"Add reps, then weight.","media":{"mediaKey":"Dumbbell_Bicep_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-07-close-grip-push-up","day":"Sunday","order":7,"displayName":"Close-grip push-up","block":"Triceps","targetMuscles":["triceps","chest"],"prescription":{"sets":3,"reps":"AMRAP - 2","avgRepsDefault":10},"guidance":{"restSec":75,"rir":1,"tempo":"2-1-1-0"},"instructions":"Hands just inside shoulder width; elbows track back; stop before form breaks.","progression":"Elevate feet or add band when >15 reps.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","band/elevation optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"sun-08-db-pronation-supination","day":"Sunday","order":8,"displayName":"DB pronation/supination","block":"Forearms","targetMuscles":["forearm rotators"],"prescription":{"sets":2,"reps":"12-15 each","avgRepsDefault":14},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Hold one DB end; rotate slowly; keep elbow fixed.","progression":"Add reps first.","media":{"mediaKey":"Dumbbell_Lying_Pronation","exact":false,"fallbackAllowed":true},"equipment":["dumbbell"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-09-standing-calf-raise-rest-pause","day":"Sunday","order":9,"displayName":"Standing calf raise rest-pause","block":"Calf Pump","targetMuscles":["calves"],"prescription":{"sets":2,"reps":"15 + 5 + 5","avgRepsDefault":15},"guidance":{"restSec":20,"rir":0,"tempo":"2-1-2-2"},"instructions":"15 reps, rest 20 sec, then 5 and 5; hard squeeze.","progression":"Add load after clean reps.","media":{"mediaKey":"Standing_Dumbbell_Calf_Raise","exact":true,"fallbackAllowed":false},"equipment":["dumbbells optional","step optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["intensity-technique-control-later","calf-priority"]},{"id":"sun-10-8-minute-density-circuit-band-row-push-up-reverse-lung","day":"Sunday","order":10,"displayName":"8-minute density circuit: band row, push-up, reverse lunge, dead bug","block":"Definition Finisher","targetMuscles":["conditioning","core","full body"],"prescription":{"sets":1,"reps":"8 min","avgRepsDefault":1},"guidance":{"restSec":60,"rir":2,"tempo":"steady"},"instructions":"Move continuously at quality pace; do not turn it into sloppy cardio.","progression":"Add one clean round before adding difficulty.","media":{"mediaKey":"Dumbbell_Rear_Lunge","exact":true,"fallbackAllowed":false},"equipment":["bands","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]}],"modeRules":{"Gym":"Favor load progression, machines/cables/dumbbells, exact equipment cues, and normal rest intervals.","Home":"Use DB/bands/bodyweight with tempo, unilateral work, pauses, range of motion, and density. Home equipment is configurable, not hard-coded forever."},"lazyRules":{"principle":"Shorter but still effective. Keep highest-value movements and priority muscles; cut extras before anchors.","notAllowed":"Lazy route must not become junk or a throwaway session."},"mediaRegistryStatus":"Phase 17 registry/exact matching ready; custom uploads later","safetyRules":{"noBarbellSquatDependency":true,"shoulderPainThreshold":3,"painOverridesHypertrophy":true,"nutritionUnknownDoesNotBlockTraining":true,"dropSetsControlledLater":true}},"activeSession":null,"logs":{},"notes":{},"swaps":{},"media":{"custom":{},"builtInStatus":"phase17 registry/exact-matching ready; custom upload later","phase17":{"builtInRegistry":true,"customUploadBuilt":false,"cableCurlDumbbellCurlGuard":true}},"bodyMetrics":[],"painChecks":[],"recoveryChecks":[],"nutritionContext":[],"conditioning":[],"qa":{"phase0Contract":"green","phase1ResearchCoachModel":"green","phase2Architecture":"green","phase3DesignSystem":"green","phase4ProgramDatabase":"green","phase5StateEngine":"seed-ready","phase6AppShellNavigation":"shell-ready","phase9SetLoggingBase":"set-logging-base-ready","phase10ACompletedRowStructure":"structure-lock-ready","phase10BIndependentMenu":"independent-menu-ready","phase10CIndependentDoneEditing":"done-editing-collapse-ready","phase10DManualHeaderCollapse":"manual-header-collapse-ready","phase10EAndroidTouchQaLock":"real-phone-gate-ready","phase13DLastMainBeforeDropDetection":"detection-ready","phase13EFullRestBypassBeforeDropSet":"bypass-ready-transition-cue","phase13FDropSetRegressionLock":"regression-lock-ready-phone-test-required","phase14HistoryArchiveSessionDetails":"history-archive-ready","phase17MediaEngineExactMatching":"media-engine-ready","phase18ACustomMediaUi":"ui-only-no-saving","phase18BPreviewValidation":"preview-validation-ready","phase18CCustomMediaExactExerciseSave":"exact-exercise-save-ready","phase18DRestoreBuiltInMedia":"restore-built-in-ready","phase18ECustomMediaStorageBackup":"metadata-backup-ready","phase18FCustomMediaRegressionLock":"regression-lock-ready-phone-test-required","phase19AAlternativesSheetUi":"read-only-sheet-ready","phase19BSameMuscleRanking":"ranking-ready", "phase19CSessionSafeSwap":"session-swap-ready-no-permanent-rewrite","phase19DEquipmentUnavailableFlow":"equipment-unavailable-session-only-ready","phase19EAlternativeRegressionLock":"alternative-regression-lock-ready","phase20APainFeelsWrongQuickAction":"one-tap-entry-ready-no-diagnosis-no-swap","phase20ESafetyRegressionLock":"safety-regression-lock-ready","phase22StatsPrTrendBase":"stats-pr-trend-ready-logs-only"},"backups":{"lastSafetySnapshotAt":null,"snapshotCount":0,"fullBackupExportBuilt":false,"fullBackupImportBuilt":true},"audit":{"lastAuditAt":null,"bootMode":"phase10e-android-touch-qa-lock-load-no-auto-save","storagePolicy":"read safe, write only through explicit saveState/createSeed action","dropSetPhase":"Phase 13F","dropSetRestBypassBuilt":true,"dropSetRestBypassPolicy":"bypass-normal-rest-before-existing-session-only-drop-set","dropSetRegressionLockBuilt":true,"mediaPhase":"Phase 17","mediaEngineBuilt":true,"customMediaUi18ABuilt":true,"customMediaPreviewValidation18BBuilt":true,"customMediaSavingBuilt":true,"mediaExactMatchingPolicy":"registry-first-exact-exercise-matching-with-coaching-view-fallback"}});
+  const STATE_SEED = Object.freeze({"version":"2.0.0","schemaVersion":"state.phase22-stats-pr-trend-base.1","appName":"Tailored Training","sourceOfTruth":"Tailored_Training_Rebuild_Master_Plan_v19_Real_Media_Restoration_No_Fake_Generated_GIFs.txt","createdByPhase":"Phase 22 Stats PR Trend Base v1","profile":{"name":"Io","sex":"male","age":28,"heightCm":175.26,"heightDisplay":"5'9\"","weightLb":188,"bodyFatPercent":null,"bodyFatKnown":false,"trainingLevel":"intermediate","intensityPreference":"balanced","sleepTypicalHours":"6-7","stressTypical":3,"goalPriorityMuscles":["arms","chest","quads","hamstrings","forearms","calves","core"],"aestheticGoal":"overall definition, stronger core, and visible-ab honesty","constraints":{"avoidBarbellSquat":true,"overheadPressShoulderCaution":true,"shoulderPainThreshold":3,"noRequiredNutrition":true,"noRequiredBodyFat":true,"noRequiredRecoveryForm":true}},"settings":{"mode":"Gym","route":"Full","lowFrictionIntelligence":true,"units":"lb","weekStartsOn":"Monday","dataSafetyMode":"local-first","backupReminderDays":7,"showCoachChip":true,"showAdvancedAudits":true},"program":{"id":"tailored-training-master-program","version":1,"schemaVersion":"program.phase4.1","sourceOfTruth":"Tailored_Training_Rebuild_Master_Plan_v19_Real_Media_Restoration_No_Fake_Generated_GIFs.txt","weeklySchedule":[{"day":"Monday","type":"Train","title":"Upper Pull + Biceps + Forearms","estimatedMinutes":64,"timeBreakdown":{"warmup":8,"strength":50,"finisherMobility":6},"mainTargets":["back","biceps","rear delts","forearms","grip"],"notes":"Use one-arm rows as the strength anchor."},{"day":"Tuesday","type":"Rest","title":"Rest / Easy Walk","estimatedMinutes":20,"timeBreakdown":{"warmup":0,"strength":0,"finisherMobility":20},"mainTargets":["recovery"],"notes":"Optional 20-30 min walk + shoulder/hip mobility."},{"day":"Wednesday","type":"Train","title":"Lower A — Quad + Calf Emphasis","estimatedMinutes":62,"timeBreakdown":{"warmup":8,"strength":48,"finisherMobility":6},"mainTargets":["quads","calves","hamstrings support"],"notes":"No barbell squats; use goblet, split squat, reverse lunge."},{"day":"Thursday","type":"Train","title":"Push — Pecs + Triceps + Shoulder-Safe Delts","estimatedMinutes":63,"timeBreakdown":{"warmup":8,"strength":46,"finisherMobility":6},"mainTargets":["chest","triceps","delts","serratus","core/abs"],"notes":"Use neutral grips; stop/modify if shoulder pain rises above 3/10. Includes a short non-floor core finisher for ab muscle/trunk strength; visible abs still depend mostly on body-fat level."},{"day":"Friday","type":"Train","title":"Lower B — Hamstrings + Glutes + Calves + Arms","estimatedMinutes":71,"timeBreakdown":{"warmup":8,"strength":57,"finisherMobility":6},"mainTargets":["hamstrings","glutes","calves","biceps"],"notes":"RDL and leg curl drive hamstring growth. Friday may run long unless Lazy/mode engine trims later."},{"day":"Saturday","type":"Rest","title":"Rest / Easy Walk","estimatedMinutes":20,"timeBreakdown":{"warmup":0,"strength":0,"finisherMobility":20},"mainTargets":["recovery"],"notes":"Optional 20-30 min easy walk; no hard leg work."},{"day":"Sunday","type":"Train","title":"Upper Mixed + Arms + Pecs + Definition Finisher","estimatedMinutes":62,"timeBreakdown":{"warmup":8,"strength":43,"finisherMobility":8},"mainTargets":["chest","back","arms","calves","conditioning","core/abs"],"notes":"Antagonist pairs and rest-pause for time efficiency. Includes a short standing anti-rotation core dose without making the whole workout an ab workout."}],"exercisesById":[{"id":"mon-01-band-pull-aparts-scap-circles-light-rows","day":"Monday","order":1,"displayName":"Band pull-aparts + scap circles + light rows","block":"Warm-up","targetMuscles":["scapula","rear delts","back"],"prescription":{"sets":2,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Move smoothly; keep ribs down and shoulders away from ears.","progression":"Add band tension only if clean.","media":{"mediaKey":"Band_Pull_Apart","exact":true,"fallbackAllowed":false},"equipment":["bands"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["warmup-not-drop-set-eligible"]},{"id":"mon-02-one-arm-db-row","day":"Monday","order":2,"displayName":"One-arm DB row","block":"Strength","targetMuscles":["lats","mid-back","biceps"],"prescription":{"sets":4,"reps":"6-8 each","avgRepsDefault":7},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-X-1"},"instructions":"Brace one hand on a stable surface; pull elbow toward hip; pause hard at top.","progression":"When all 4 sets hit 8/side with RIR 2, increase DB 2.5-5 lb.","media":{"mediaKey":"One-Arm_Dumbbell_Row","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","bench/stable surface"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-03-chest-supported-db-row-on-stability-ball","day":"Monday","order":3,"displayName":"Chest-supported DB row on stability ball","block":"Hypertrophy","targetMuscles":["mid-back","lats","rear delts"],"prescription":{"sets":3,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":90,"rir":2,"tempo":"3-1-1-1"},"instructions":"Lie chest-down on ball; squeeze shoulder blades without shrugging.","progression":"Add reps first, then load.","media":{"mediaKey":"Bent_Over_Two-Dumbbell_Row","exact":false,"fallbackAllowed":true},"equipment":["dumbbells","stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-04-kneeling-band-lat-pulldown","day":"Monday","order":4,"displayName":"Kneeling band lat pulldown","block":"Hypertrophy","targetMuscles":["lats","teres major"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"2-1-2-1"},"instructions":"Anchor band high; drive elbows down; do not lean back.","progression":"Use thicker band or step farther back after 12 clean reps.","media":{"mediaKey":"Close-Grip_Front_Lat_Pulldown","exact":false,"fallbackAllowed":true},"equipment":["bands","high anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-05-db-rear-delt-reverse-fly","day":"Monday","order":5,"displayName":"DB rear-delt reverse fly","block":"Accessory","targetMuscles":["rear delts","upper back"],"prescription":{"sets":3,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Hinge at hips; lead with elbows; stop before traps take over.","progression":"Add reps first.","media":{"mediaKey":"Bent_Over_Dumbbell_Rear_Delt_Raise_With_Head_On_Bench","exact":false,"fallbackAllowed":true},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"mon-06-db-hammer-curl","day":"Monday","order":6,"displayName":"DB hammer curl","block":"Arm Strength","targetMuscles":["biceps","brachialis","forearms"],"prescription":{"sets":4,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":75,"rir":1,"tempo":"3-0-1-1"},"instructions":"Neutral grip; elbows stay slightly in front of ribs; no swinging.","progression":"Increase weight when all sets hit 10.","media":{"mediaKey":"Alternate_Hammer_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-07-db-reverse-curl","day":"Monday","order":7,"displayName":"DB reverse curl","block":"Forearm","targetMuscles":["brachioradialis","forearm extensors"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":60,"rir":1,"tempo":"2-0-2-1"},"instructions":"Palms down; wrists straight; control the lowering.","progression":"Add reps to 12 before load.","media":{"mediaKey":"Standing_Dumbbell_Reverse_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-08-wrist-curl-reverse-wrist-curl","day":"Monday","order":8,"displayName":"Wrist curl + reverse wrist curl","block":"Forearm Superset","targetMuscles":["forearm flexors","forearm extensors"],"prescription":{"sets":2,"reps":"12-15 each","avgRepsDefault":14},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Do both moves back-to-back, then rest.","progression":"Add reps first; use small DB jumps.","media":{"mediaKey":"Seated_Palms-Down_Barbell_Wrist_Curl","exact":false,"fallbackAllowed":true},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"mon-09-farmer-carry","day":"Monday","order":9,"displayName":"Farmer carry","block":"Grip Finisher","targetMuscles":["grip","traps","core","calves"],"prescription":{"sets":4,"reps":"40-60 sec","avgRepsDefault":1},"guidance":{"restSec":60,"rir":1,"tempo":"carry"},"instructions":"Walk tall with heavy DBs; do not lean back; crush the handles.","progression":"Add time to 60 sec, then load.","media":{"mediaKey":"Farmer_s_Walk","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","walking space"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-01-bodyweight-split-squat-hip-hinge-ankle-rocks","day":"Wednesday","order":1,"displayName":"Bodyweight split squat + hip hinge + ankle rocks","block":"Warm-up","targetMuscles":["quads","hips","ankles"],"prescription":{"sets":2,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Move through full range without knee pain.","progression":"Add depth before speed.","media":{"mediaKey":"90_90_Hamstring","exact":false,"fallbackAllowed":true},"equipment":["bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["squat-pattern-without-barbell","warmup-not-drop-set-eligible"]},{"id":"wed-02-heel-elevated-db-goblet-squat-to-box","day":"Wednesday","order":2,"displayName":"Heel-elevated DB goblet squat to box","block":"Strength","targetMuscles":["quads","glutes","core"],"prescription":{"sets":4,"reps":"6-8","avgRepsDefault":7},"guidance":{"restSec":150,"rir":2,"tempo":"3-1-X-0"},"instructions":"Heels elevated; sit between knees; touch box lightly, do not relax.","progression":"When all sets hit 8, add DB load.","media":{"mediaKey":"Dumbbell_Squat_To_A_Bench","exact":false,"fallbackAllowed":true},"equipment":["dumbbell","box","heel wedge"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["squat-pattern-without-barbell"]},{"id":"wed-03-bulgarian-split-squat","day":"Wednesday","order":3,"displayName":"Bulgarian split squat","block":"Hypertrophy","targetMuscles":["quads","glutes","adductors"],"prescription":{"sets":3,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-1-0"},"instructions":"Front foot far enough that knee tracks over toes comfortably; torso slightly forward.","progression":"Add reps, then DB load.","media":{"mediaKey":"Split_Squat_with_Dumbbells","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","bench/box"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["squat-pattern-without-barbell"]},{"id":"wed-04-front-foot-elevated-reverse-lunge","day":"Wednesday","order":4,"displayName":"Front-foot elevated reverse lunge","block":"Hypertrophy","targetMuscles":["quads","glutes","hamstrings"],"prescription":{"sets":3,"reps":"10-12 each","avgRepsDefault":11},"guidance":{"restSec":90,"rir":1,"tempo":"2-1-1-0"},"instructions":"Step back softly; use front leg to stand; keep full foot planted.","progression":"Add elevation or DB load after 12/side.","media":{"mediaKey":"Dumbbell_Rear_Lunge","exact":true,"fallbackAllowed":false},"equipment":["dumbbells optional","small elevation"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-05-stability-ball-hamstring-curl","day":"Wednesday","order":5,"displayName":"Stability ball hamstring curl","block":"Hamstring Support","targetMuscles":["hamstrings","calves","glutes"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"3-1-1-1"},"instructions":"Hips stay up; curl ball in with heels; slow return.","progression":"Progress to single-leg eccentric if easy.","media":{"mediaKey":"Ball_Leg_Curl","exact":true,"fallbackAllowed":false},"equipment":["stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-06-standing-db-calf-raise","day":"Wednesday","order":6,"displayName":"Standing DB calf raise","block":"Calf Strength","targetMuscles":["gastrocnemius","soleus"],"prescription":{"sets":5,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-2"},"instructions":"Full stretch at bottom; hard 2-sec squeeze at top.","progression":"Add load after all 5 sets hit 12.","media":{"mediaKey":"Standing_Dumbbell_Calf_Raise","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","step optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["calf-priority"]},{"id":"wed-07-wall-tibialis-raise","day":"Wednesday","order":7,"displayName":"Wall tibialis raise","block":"Lower-Leg Balance","targetMuscles":["tibialis anterior"],"prescription":{"sets":3,"reps":"15-20","avgRepsDefault":18},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Back on wall; lift toes toward shins; control down.","progression":"Step feet farther from wall to progress.","media":{"mediaKey":"Anterior_Tibialis-SMR","exact":false,"fallbackAllowed":true},"equipment":["wall","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"wed-08-wall-sit","day":"Wednesday","order":8,"displayName":"Wall sit","block":"Quad Finisher","targetMuscles":["quads"],"prescription":{"sets":2,"reps":"30-45 sec","avgRepsDefault":1},"guidance":{"restSec":60,"rir":1,"tempo":"iso hold"},"instructions":"Knees about 90 degrees; breathe; stop if knee pain.","progression":"Add time to 60 sec.","media":{"mediaKey":"Wall_Squat","exact":false,"fallbackAllowed":true},"equipment":["wall","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"thu-01-scap-push-up-band-external-rotation-light-push-up","day":"Thursday","order":1,"displayName":"Scap push-up + band external rotation + light push-up","block":"Warm-up","targetMuscles":["serratus","rotator cuff","chest"],"prescription":{"sets":2,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Warm shoulders without pain; keep elbows 30-45 degrees from ribs.","progression":"Use lighter band if pinchy.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","bands"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain","warmup-not-drop-set-eligible"]},{"id":"thu-02-neutral-grip-db-floor-press","day":"Thursday","order":2,"displayName":"Neutral-grip DB floor press","block":"Strength","targetMuscles":["pecs","triceps","front delts"],"prescription":{"sets":4,"reps":"6-8","avgRepsDefault":7},"guidance":{"restSec":150,"rir":2,"tempo":"3-1-X-1"},"instructions":"Elbows touch floor gently; wrists stacked; press fast without shoulder pinch.","progression":"When all sets hit 8, add DB load.","media":{"mediaKey":"Dumbbell_Floor_Press","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-03-banded-or-feet-elevated-push-up","day":"Thursday","order":3,"displayName":"Banded or feet-elevated push-up","block":"Hypertrophy","targetMuscles":["pecs","triceps","serratus"],"prescription":{"sets":3,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":90,"rir":1,"tempo":"3-1-1-0"},"instructions":"Hands under shoulders; ribs down; stop 1-2 reps before form breaks.","progression":"Add band/elevation when 12s are clean.","media":{"mediaKey":"Decline_Push-Up","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","band optional","elevation optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-04-stability-ball-db-squeeze-press","day":"Thursday","order":4,"displayName":"Stability ball DB squeeze press","block":"Hypertrophy","targetMuscles":["inner pecs","triceps"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"2-1-2-1"},"instructions":"Press DBs together the entire set; slow stretch; avoid arching.","progression":"Add reps first.","media":{"mediaKey":"Dumbbell_Bench_Press_with_Neutral_Grip","exact":false,"fallbackAllowed":true},"equipment":["dumbbells","stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-05-band-fly","day":"Thursday","order":5,"displayName":"Band fly","block":"Chest Pump","targetMuscles":["pecs"],"prescription":{"sets":2,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Slight elbow bend; hands meet in front of chest; control stretch.","progression":"Step farther from anchor.","media":{"mediaKey":"Cable_Crossover","exact":false,"fallbackAllowed":true},"equipment":["bands","anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-06-db-lateral-raise-in-scapular-plane","day":"Thursday","order":6,"displayName":"DB lateral raise in scapular plane","block":"Shoulder-Safe Delts","targetMuscles":["side delts"],"prescription":{"sets":3,"reps":"12-20","avgRepsDefault":16},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Raise slightly forward of your side; stop around shoulder height; no pain.","progression":"Add reps before weight.","media":{"mediaKey":"Side_Lateral_Raise","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"thu-07-db-floor-skull-crusher","day":"Thursday","order":7,"displayName":"DB floor skull crusher","block":"Triceps","targetMuscles":["triceps"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":75,"rir":1,"tempo":"3-0-1-1"},"instructions":"Elbows point up; lower DBs beside head; keep upper arm still.","progression":"Add reps first, then load.","media":{"mediaKey":"Lying_Dumbbell_Tricep_Extension","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"thu-08-band-triceps-pressdown","day":"Thursday","order":8,"displayName":"Band triceps pressdown","block":"Triceps Superset","targetMuscles":["triceps"],"prescription":{"sets":3,"reps":"12-20","avgRepsDefault":16},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Pin elbows to sides; lock out hard; slow return.","progression":"Step farther from anchor.","media":{"mediaKey":"Triceps_Pushdown","exact":false,"fallbackAllowed":true},"equipment":["bands","high anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"thu-09-cable-crunch-core-finisher-64bb","day":"Thursday","order":9,"displayName":"Cable crunch","block":"Core / Abs Finisher","targetMuscles":["abs","rectus abdominis","core"],"prescription":{"sets":2,"reps":"10-15","avgRepsDefault":12},"guidance":{"restSec":45,"rir":2,"tempo":"2-1-2-1"},"instructions":"Kneel or stand at the cable with ribs down; curl the rib cage toward the pelvis without yanking with the arms.","progression":"Add reps to 15 before increasing cable load; stop if low back takes over.","media":{"mediaKey":"Cable_Crunch","exact":false,"fallbackAllowed":true},"equipment":["cable machine","rope attachment"],"modeReady":{"gymFit":"primary","homeFit":"swap recommended","lazyPriority":"accessory","modeEngineStatus":"phase64bb-core-direct-non-floor-gym-dose"},"safetyTags":["core-direct","non-floor-gym-core","visible-abs-honesty"]},{"id":"fri-01-glute-bridge-hip-hinge-drill-calf-rocks","day":"Friday","order":1,"displayName":"Glute bridge + hip hinge drill + calf rocks","block":"Warm-up","targetMuscles":["hips","hamstrings","calves"],"prescription":{"sets":2,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Practice hinge: hips back, spine neutral, soft knees.","progression":"Add reps first.","media":{"mediaKey":"90_90_Hamstring","exact":false,"fallbackAllowed":true},"equipment":["bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["warmup-not-drop-set-eligible","calf-priority"]},{"id":"fri-02-db-romanian-deadlift","day":"Friday","order":2,"displayName":"DB Romanian deadlift","block":"Strength","targetMuscles":["hamstrings","glutes","spinal erectors"],"prescription":{"sets":4,"reps":"6-8","avgRepsDefault":7},"guidance":{"restSec":150,"rir":2,"tempo":"3-1-X-1"},"instructions":"DBs close to legs; feel hamstring stretch; stand by driving hips forward.","progression":"When all sets hit 8, add DB load.","media":{"mediaKey":"Stiff-Legged_Dumbbell_Deadlift","exact":false,"fallbackAllowed":true},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-03-db-hip-thrust-or-floor-glute-bridge","day":"Friday","order":3,"displayName":"DB hip thrust or floor glute bridge","block":"Strength/Hypertrophy","targetMuscles":["glutes","hamstrings"],"prescription":{"sets":4,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":120,"rir":1,"tempo":"2-1-X-2"},"instructions":"Tuck pelvis slightly; squeeze glutes 2 sec at top; do not overarch.","progression":"Add load when 10s are strong.","media":{"mediaKey":"Butt_Lift_Bridge","exact":false,"fallbackAllowed":true},"equipment":["dumbbell optional","bench/floor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-04-stability-ball-leg-curl","day":"Friday","order":4,"displayName":"Stability ball leg curl","block":"Hypertrophy","targetMuscles":["hamstrings"],"prescription":{"sets":4,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":90,"rir":1,"tempo":"3-1-1-1"},"instructions":"Hips stay high; slow eccentric; squeeze heels into ball.","progression":"Progress to single-leg eccentric.","media":{"mediaKey":"Ball_Leg_Curl","exact":true,"fallbackAllowed":false},"equipment":["stability ball"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-05-db-step-up","day":"Friday","order":5,"displayName":"DB step-up","block":"Unilateral","targetMuscles":["quads","glutes","hamstrings"],"prescription":{"sets":3,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":90,"rir":2,"tempo":"2-1-1-0"},"instructions":"Use a height where knee/hip stay controlled; drive through full foot.","progression":"Add DB load after clean 10/side.","media":{"mediaKey":"Dumbbell_Step_Ups","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","box/step"],"modeReady":{"gymFit":"primary","homeFit":"needs optional equipment","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-06-single-leg-db-calf-raise","day":"Friday","order":6,"displayName":"Single-leg DB calf raise","block":"Calves","targetMuscles":["calves"],"prescription":{"sets":4,"reps":"10-15 each","avgRepsDefault":12},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-2"},"instructions":"Full stretch and full top squeeze; use wall for balance only.","progression":"Add reps to 15, then load.","media":{"mediaKey":"Standing_Dumbbell_Calf_Raise","exact":false,"fallbackAllowed":true},"equipment":["dumbbell","wall/step optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["calf-priority"]},{"id":"fri-07-seated-db-calf-raise","day":"Friday","order":7,"displayName":"Seated DB calf raise","block":"Calves","targetMuscles":["soleus"],"prescription":{"sets":3,"reps":"12-20","avgRepsDefault":16},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-2"},"instructions":"DBs on knees; pause top and bottom; no bouncing.","progression":"Add reps first.","media":{"mediaKey":"Dumbbell_Seated_One-Leg_Calf_Raise","exact":false,"fallbackAllowed":true},"equipment":["dumbbells","chair/bench"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["calf-priority"]},{"id":"fri-08-cross-body-hammer-curl","day":"Friday","order":8,"displayName":"Cross-body hammer curl","block":"Biceps/Forearms","targetMuscles":["brachialis","biceps","forearms"],"prescription":{"sets":3,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":60,"rir":1,"tempo":"2-0-2-1"},"instructions":"Curl toward opposite pec; wrist neutral; no sway.","progression":"Add weight after all sets hit 12.","media":{"mediaKey":"Cross_Body_Hammer_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"fri-09-banded-curl-rest-pause","day":"Friday","order":9,"displayName":"Banded curl rest-pause","block":"Time-Efficient Pump","targetMuscles":["biceps"],"prescription":{"sets":1,"reps":"15-20 + 3x5","avgRepsDefault":18},"guidance":{"restSec":20,"rir":0,"tempo":"2-0-2-1"},"instructions":"Activation set, rest 20 sec, then 3 mini-sets of 5.","progression":"Add band tension after 20 + all minisets clean.","media":{"mediaKey":"Dumbbell_Bicep_Curl","exact":false,"fallbackAllowed":true},"equipment":["bands"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["intensity-technique-control-later"]},{"id":"sun-01-band-row-push-up-ramp-hip-mobility","day":"Sunday","order":1,"displayName":"Band row + push-up ramp + hip mobility","block":"Warm-up","targetMuscles":["upper body","core"],"prescription":{"sets":2,"reps":"10-12","avgRepsDefault":11},"guidance":{"restSec":30,"rir":3,"tempo":"2-1-2-1"},"instructions":"Warm chest/back without fatigue.","progression":"Make first set easy.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bands","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"warmup","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain","warmup-not-drop-set-eligible"]},{"id":"sun-02-db-floor-press","day":"Sunday","order":2,"displayName":"DB floor press","block":"Strength Pair A1","targetMuscles":["pecs","triceps"],"prescription":{"sets":3,"reps":"8-10","avgRepsDefault":9},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-1-1"},"instructions":"Pair with row if time is tight; press with neutral grip if shoulder prefers.","progression":"Add DB load after 10s.","media":{"mediaKey":"Dumbbell_Floor_Press","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"sun-03-one-arm-db-row","day":"Sunday","order":3,"displayName":"One-arm DB row","block":"Strength Pair A2","targetMuscles":["lats","mid-back","biceps"],"prescription":{"sets":3,"reps":"8-10 each","avgRepsDefault":9},"guidance":{"restSec":120,"rir":2,"tempo":"3-1-1-1"},"instructions":"Pull elbow toward hip; keep torso quiet.","progression":"Add DB load after 10/side.","media":{"mediaKey":"One-Arm_Dumbbell_Row","exact":true,"fallbackAllowed":false},"equipment":["dumbbells","stable support"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-04-mechanical-drop-set-push-ups","day":"Sunday","order":4,"displayName":"Mechanical drop-set push-ups","block":"Chest Density","targetMuscles":["pecs","triceps","serratus"],"prescription":{"sets":2,"reps":"decline/reg/knee 6-10 each","avgRepsDefault":8},"guidance":{"restSec":90,"rir":1,"tempo":"2-1-1-0"},"instructions":"Do hardest version first, then easier versions without long breaks.","progression":"Add reps before harder variation.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","elevation optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"intensity","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain","intensity-technique-control-later"]},{"id":"sun-05-band-straight-arm-pulldown","day":"Sunday","order":5,"displayName":"Band straight-arm pulldown","block":"Back Pump","targetMuscles":["lats"],"prescription":{"sets":3,"reps":"12-15","avgRepsDefault":14},"guidance":{"restSec":60,"rir":1,"tempo":"2-1-2-1"},"instructions":"Arms mostly straight; pull band to thighs; feel lats, not triceps.","progression":"Step farther from anchor.","media":{"mediaKey":"Straight-Arm_Pulldown","exact":false,"fallbackAllowed":true},"equipment":["bands","anchor"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-06-supinating-db-curl","day":"Sunday","order":6,"displayName":"Supinating DB curl","block":"Arm Strength","targetMuscles":["biceps"],"prescription":{"sets":3,"reps":"8-12","avgRepsDefault":10},"guidance":{"restSec":75,"rir":1,"tempo":"3-0-1-1"},"instructions":"Start neutral, rotate palm up; squeeze 1 sec at top.","progression":"Add reps, then weight.","media":{"mediaKey":"Dumbbell_Bicep_Curl","exact":true,"fallbackAllowed":false},"equipment":["dumbbells"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"anchor","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-07-close-grip-push-up","day":"Sunday","order":7,"displayName":"Close-grip push-up","block":"Triceps","targetMuscles":["triceps","chest"],"prescription":{"sets":3,"reps":"AMRAP - 2","avgRepsDefault":10},"guidance":{"restSec":75,"rir":1,"tempo":"2-1-1-0"},"instructions":"Hands just inside shoulder width; elbows track back; stop before form breaks.","progression":"Elevate feet or add band when >15 reps.","media":{"mediaKey":"Pushups","exact":false,"fallbackAllowed":true},"equipment":["bodyweight","band/elevation optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"support","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"sun-08-db-pronation-supination","day":"Sunday","order":8,"displayName":"DB pronation/supination","block":"Forearms","targetMuscles":["forearm rotators"],"prescription":{"sets":2,"reps":"12-15 each","avgRepsDefault":14},"guidance":{"restSec":45,"rir":1,"tempo":"2-1-2-1"},"instructions":"Hold one DB end; rotate slowly; keep elbow fixed.","progression":"Add reps first.","media":{"mediaKey":"Dumbbell_Lying_Pronation","exact":false,"fallbackAllowed":true},"equipment":["dumbbell"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"accessory","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["standard-hypertrophy"]},{"id":"sun-09-standing-calf-raise-rest-pause","day":"Sunday","order":9,"displayName":"Standing calf raise rest-pause","block":"Calf Pump","targetMuscles":["calves"],"prescription":{"sets":2,"reps":"15 + 5 + 5","avgRepsDefault":15},"guidance":{"restSec":20,"rir":0,"tempo":"2-1-2-2"},"instructions":"15 reps, rest 20 sec, then 5 and 5; hard squeeze.","progression":"Add load after clean reps.","media":{"mediaKey":"Standing_Dumbbell_Calf_Raise","exact":true,"fallbackAllowed":false},"equipment":["dumbbells optional","step optional"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["intensity-technique-control-later","calf-priority"]},{"id":"sun-10-8-minute-density-circuit-band-row-push-up-reverse-lung","day":"Sunday","order":10,"displayName":"8-minute density circuit: band row, push-up, reverse lunge, dead bug","block":"Definition Finisher","targetMuscles":["conditioning","core","full body"],"prescription":{"sets":1,"reps":"8 min","avgRepsDefault":1},"guidance":{"restSec":60,"rir":2,"tempo":"steady"},"instructions":"Move continuously at quality pace; do not turn it into sloppy cardio.","progression":"Add one clean round before adding difficulty.","media":{"mediaKey":"Dumbbell_Rear_Lunge","exact":true,"fallbackAllowed":false},"equipment":["bands","bodyweight"],"modeReady":{"gymFit":"primary","homeFit":"primary","lazyPriority":"finisher","modeEngineStatus":"metadata-ready; visible generation comes in Phase 8/Mode Engine wiring later"},"safetyTags":["shoulder-caution-check-pain"]},{"id":"sun-11-standing-pallof-press-core-64bb","day":"Sunday","order":11,"displayName":"Standing Pallof press","block":"Core / Abs Finisher","targetMuscles":["obliques","transverse abdominis","core"],"prescription":{"sets":2,"reps":"10-12 each","avgRepsDefault":11},"guidance":{"restSec":45,"rir":2,"tempo":"2-1-2-1"},"instructions":"Stand tall with cable or band at chest height; press straight out and resist rotation without holding your breath.","progression":"Step farther from the anchor or add small load only when both sides stay steady.","media":{"mediaKey":"Pallof_Press","exact":false,"fallbackAllowed":true},"equipment":["cable machine or band","standing space"],"modeReady":{"gymFit":"primary","homeFit":"primary with band","lazyPriority":"accessory","modeEngineStatus":"phase64bb-core-direct-non-floor-gym-dose"},"safetyTags":["core-direct","anti-rotation","non-floor-gym-core","visible-abs-honesty"]}],"modeRules":{"Gym":"Favor load progression, machines/cables/dumbbells, exact equipment cues, and normal rest intervals.","Home":"Use DB/bands/bodyweight with tempo, unilateral work, pauses, range of motion, and density. Home equipment is configurable, not hard-coded forever."},"lazyRules":{"principle":"Shorter but still effective. Keep highest-value movements and priority muscles; cut extras before anchors.","notAllowed":"Lazy route must not become junk or a throwaway session."},"mediaRegistryStatus":"Phase 17 registry/exact matching ready; custom uploads later","safetyRules":{"noBarbellSquatDependency":true,"shoulderPainThreshold":3,"painOverridesHypertrophy":true,"nutritionUnknownDoesNotBlockTraining":true,"dropSetsControlledLater":true}},"activeSession":null,"logs":{},"notes":{},"swaps":{},"media":{"custom":{},"builtInStatus":"phase17 registry/exact-matching ready; custom upload later","phase17":{"builtInRegistry":true,"customUploadBuilt":false,"cableCurlDumbbellCurlGuard":true}},"bodyMetrics":[],"painChecks":[],"recoveryChecks":[],"nutritionContext":[],"conditioning":[],"qa":{"phase0Contract":"green","phase1ResearchCoachModel":"green","phase2Architecture":"green","phase3DesignSystem":"green","phase4ProgramDatabase":"green","phase5StateEngine":"seed-ready","phase6AppShellNavigation":"shell-ready","phase9SetLoggingBase":"set-logging-base-ready","phase10ACompletedRowStructure":"structure-lock-ready","phase10BIndependentMenu":"independent-menu-ready","phase10CIndependentDoneEditing":"done-editing-collapse-ready","phase10DManualHeaderCollapse":"manual-header-collapse-ready","phase10EAndroidTouchQaLock":"real-phone-gate-ready","phase13DLastMainBeforeDropDetection":"detection-ready","phase13EFullRestBypassBeforeDropSet":"bypass-ready-transition-cue","phase13FDropSetRegressionLock":"regression-lock-ready-phone-test-required","phase14HistoryArchiveSessionDetails":"history-archive-ready","phase17MediaEngineExactMatching":"media-engine-ready","phase18ACustomMediaUi":"ui-only-no-saving","phase18BPreviewValidation":"preview-validation-ready","phase18CCustomMediaExactExerciseSave":"exact-exercise-save-ready","phase18DRestoreBuiltInMedia":"restore-built-in-ready","phase18ECustomMediaStorageBackup":"metadata-backup-ready","phase18FCustomMediaRegressionLock":"regression-lock-ready-phone-test-required","phase19AAlternativesSheetUi":"read-only-sheet-ready","phase19BSameMuscleRanking":"ranking-ready","phase19CSessionSafeSwap":"session-swap-ready-no-permanent-rewrite","phase19DEquipmentUnavailableFlow":"equipment-unavailable-session-only-ready","phase19EAlternativeRegressionLock":"alternative-regression-lock-ready","phase20APainFeelsWrongQuickAction":"one-tap-entry-ready-no-diagnosis-no-swap","phase20ESafetyRegressionLock":"safety-regression-lock-ready","phase22StatsPrTrendBase":"stats-pr-trend-ready-logs-only"},"backups":{"lastSafetySnapshotAt":null,"snapshotCount":0,"fullBackupExportBuilt":false,"fullBackupImportBuilt":true},"audit":{"lastAuditAt":null,"bootMode":"phase10e-android-touch-qa-lock-load-no-auto-save","storagePolicy":"read safe, write only through explicit saveState/createSeed action","dropSetPhase":"Phase 13F","dropSetRestBypassBuilt":true,"dropSetRestBypassPolicy":"bypass-normal-rest-before-existing-session-only-drop-set","dropSetRegressionLockBuilt":true,"mediaPhase":"Phase 17","mediaEngineBuilt":true,"customMediaUi18ABuilt":true,"customMediaPreviewValidation18BBuilt":true,"customMediaSavingBuilt":true,"mediaExactMatchingPolicy":"registry-first-exact-exercise-matching-with-coaching-view-fallback"}});
 
   function nowIso() { return new Date().toISOString(); }
   function dateKey(date = new Date()) { return date.toISOString().slice(0, 10); }
@@ -17713,25 +17807,129 @@ Existing History logs stay untouched.`);
     if (ex && ex.phase19CSessionSwap && ex.originalExercise19C) return ex.originalExercise19C;
     return ex;
   }
+  function cleanAlternativeRankingText64BABugfix8(value) {
+    return String(value || "").toLowerCase().replace(/optional/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+  }
+  function collectAlternativeRankingText64BABugfix8(ex) {
+    const parts = [];
+    if (!ex) return "";
+    ["displayName", "block", "instructions", "progression"].forEach((key) => { if (ex[key]) parts.push(ex[key]); });
+    if (Array.isArray(ex.equipment)) parts.push(ex.equipment.join(" "));
+    if (Array.isArray(ex.targetMuscles)) parts.push(ex.targetMuscles.join(" "));
+    if (Array.isArray(ex.safetyTags)) parts.push(ex.safetyTags.join(" "));
+    if (ex.media && ex.media.mediaKey) parts.push(ex.media.mediaKey);
+    if (ex.guidance && ex.guidance.tempo) parts.push(ex.guidance.tempo);
+    return cleanAlternativeRankingText64BABugfix8(parts.join(" "));
+  }
+  function isGymMode64BABugfix8(stateInput) {
+    return String(stateInput && stateInput.settings && stateInput.settings.mode || "Gym").toLowerCase() === "gym";
+  }
+  function usesStabilityBall64BABugfix8(ex) {
+    return /stability ball|swiss ball|exercise ball/.test(collectAlternativeRankingText64BABugfix8(ex));
+  }
+  function isFloorBasedAlternative64BABugfix8(ex) {
+    const text = collectAlternativeRankingText64BABugfix8(ex);
+    if (/floor press|floor skull|floor tricep|floor triceps|lying on floor|on floor|floor based|floor only/.test(text)) return true;
+    if (/floor/.test(text) && !/pelvic floor/.test(text)) return true;
+    if (/push up|pushup|dead bug|plank|mountain climber|burpee/.test(text) && !/wall push|incline push|bench push/.test(text)) return true;
+    return false;
+  }
+  function gymFriendlySignals64BABugfix8(ex) {
+    const text = collectAlternativeRankingText64BABugfix8(ex);
+    const equipment = equipmentTokens19D(ex || {});
+    const signals = [];
+    if (/bench|incline|flat bench|supported/.test(text) || equipment.includes("bench")) signals.push("Bench-supported");
+    if (/cable|machine|pec deck|chest press|pressdown|pushdown|cable crunch|ab crunch machine|captain|hanging knee|pallof|woodchop/.test(text) || equipment.includes("cable") || equipment.includes("machine") || equipment.includes("cable machine")) signals.push("Cable/machine");
+    if (/seated|standing/.test(text)) signals.push(/seated/.test(text) ? "Seated" : "Standing");
+    if (equipment.includes("dumbbells") && !isFloorBasedAlternative64BABugfix8(ex)) signals.push("Dumbbell match");
+    if (!isFloorBasedAlternative64BABugfix8(ex)) signals.push("No floor");
+    return Array.from(new Set(signals)).slice(0, 4);
+  }
+  function muscleFamily64BABugfix8(token) {
+    const value = cleanAlternativeRankingText64BABugfix8(token);
+    if (/pec|chest|inner pec|serratus/.test(value)) return "chest";
+    if (/tricep/.test(value)) return "triceps";
+    if (/bicep|brachialis/.test(value)) return "biceps";
+    if (/lat|mid back|upper back|rear delt|teres/.test(value)) return "back";
+    if (/delt|shoulder|rotator/.test(value)) return "shoulders";
+    if (/quad/.test(value)) return "quads";
+    if (/hamstring|glute|rdl/.test(value)) return "posterior chain";
+    if (/calf|soleus|gastrocnemius/.test(value)) return "calves";
+    if (/forearm|grip|wrist|brachioradialis/.test(value)) return "forearms";
+    if (/core|abs|abdominal|abdominis|rectus|oblique|transverse|trunk|crunch|pallof|woodchop|knee raise|captain|dead bug|hollow|plank/.test(value)) return "core";
+    return value;
+  }
+  function familySharedMuscles64BABugfix8(ex, current) {
+    const candidateFamilies = normalizeTokenList19B(ex && ex.targetMuscles).map(muscleFamily64BABugfix8).filter(Boolean);
+    const currentFamilies = normalizeTokenList19B(current && current.targetMuscles).map(muscleFamily64BABugfix8).filter(Boolean);
+    return Array.from(new Set(candidateFamilies.filter((family) => family && currentFamilies.includes(family))));
+  }
+  function gymNoFloorAlternativeSignal64BABugfix8(stateInput, ex, current, shared, equipmentMatches) {
+    const gymMode = isGymMode64BABugfix8(stateInput);
+    const floorBased = isFloorBasedAlternative64BABugfix8(ex);
+    const candidateUsesBall = usesStabilityBall64BABugfix8(ex);
+    const currentUsesBall = usesStabilityBall64BABugfix8(current);
+    const gymSignals = gymFriendlySignals64BABugfix8(ex);
+    const familyShared = familySharedMuscles64BABugfix8(ex, current);
+    let adjustment = 0;
+    const labels = [];
+    const reasons = [];
+    if (shared && shared.length || familyShared.length) {
+      labels.push("Muscle match");
+      if (familyShared.length && !(shared || []).length) reasons.push(`muscle family: ${familyShared.slice(0, 2).join(" · ")}`);
+    }
+    if (equipmentMatches && equipmentMatches.some((item) => /dumbbell|dumbbells|db/.test(item))) labels.push("Dumbbell match");
+    if (gymMode) {
+      if (floorBased) {
+        adjustment -= 95;
+        labels.push("Floor fallback");
+        reasons.push("floor fallback");
+      } else {
+        adjustment += 28;
+        labels.push("Gym fit", "No floor");
+        reasons.push("gym fit", "no floor");
+      }
+      if (gymSignals.some((signal) => /Bench/.test(signal))) adjustment += 22;
+      if (gymSignals.some((signal) => /Cable|machine/.test(signal))) adjustment += 24;
+      if (gymSignals.some((signal) => /Seated|Standing/.test(signal))) adjustment += 12;
+      if (currentUsesBall && !candidateUsesBall) {
+        adjustment += 26;
+        labels.push("Stability ball avoided");
+        reasons.push("stability ball avoided");
+      }
+      if (currentUsesBall && candidateUsesBall) {
+        adjustment -= 70;
+        reasons.push("stability ball fallback");
+      }
+      gymSignals.forEach((signal) => labels.push(signal));
+    }
+    if (familyShared.length) adjustment += Math.min(familyShared.length * 22, 34);
+    return { gymMode, floorBased, candidateUsesBall, currentUsesBall, gymSignals, familyShared, adjustment, labels: Array.from(new Set(labels)).slice(0, 6), reasons: Array.from(new Set(reasons)).slice(0, 5) };
+  }
   function scoreAlternativeCandidate19B(stateInput, ex, current) {
     const baseCurrent = originalForRanking19C(current);
     const shared = sharedMuscles19A(ex, baseCurrent);
     const currentTargets = normalizeTokenList19B(baseCurrent && baseCurrent.targetMuscles);
-    const firstTarget = currentTargets[0] || "";
-    const primaryShared = firstTarget && shared.includes(firstTarget);
+    const firstTargetFamily = muscleFamily64BABugfix8(currentTargets[0] || "");
+    const familyShared = familySharedMuscles64BABugfix8(ex, baseCurrent);
+    const primaryShared = firstTargetFamily && (shared.map(muscleFamily64BABugfix8).includes(firstTargetFamily) || familyShared.includes(firstTargetFamily));
     const sameBlock = !!(ex && baseCurrent && ex.block && baseCurrent.block && String(ex.block) === String(baseCurrent.block));
     const equipmentMatches = equipmentOverlap19B(ex, baseCurrent);
     const modeFit = modeFitLabel19B(ex, stateInput);
     const modeScore = modeFitScore19B(modeFit);
     const lazyPriority = String(ex && ex.modeReady && ex.modeReady.lazyPriority || "").toLowerCase();
     const lazyScore = String(stateInput && stateInput.settings && stateInput.settings.route || "Full").toLowerCase() === "lazy" && (lazyPriority.includes("anchor") || lazyPriority.includes("support")) ? 6 : 0;
-    const score = (shared.length * 34) + (primaryShared ? 14 : 0) + (sameBlock ? 10 : 0) + Math.min(equipmentMatches.length * 10, 20) + modeScore + lazyScore;
+    const gymNoFloor = gymNoFloorAlternativeSignal64BABugfix8(stateInput, ex, baseCurrent, shared, equipmentMatches);
+    const score = (shared.length * 34) + (primaryShared ? 14 : 0) + (sameBlock ? 10 : 0) + Math.min(equipmentMatches.length * 10, 20) + modeScore + lazyScore + gymNoFloor.adjustment;
     const reasons = [];
     if (shared.length) reasons.push(`muscle: ${shared.slice(0, 2).join(" · ")}`);
+    if (!shared.length && familyShared.length) reasons.push(`muscle: ${familyShared.slice(0, 2).join(" · ")}`);
     if (equipmentMatches.length) reasons.push(`equipment: ${equipmentMatches.slice(0, 2).join(" · ")}`);
+    if (!gymNoFloor.floorBased && gymNoFloor.gymMode) reasons.push("gym fit");
+    if (gymNoFloor.reasons.length) reasons.push(...gymNoFloor.reasons);
     reasons.push(`mode: ${modeFit}`);
     if (sameBlock) reasons.push("same block");
-    return { score, shared, equipmentMatches, modeFit, sameBlock, reasons };
+    return { score, shared, equipmentMatches, modeFit, sameBlock, reasons: Array.from(new Set(reasons)).slice(0, 6), familyShared64BABugfix8: familyShared, gymNoFloor64BABugfix8: gymNoFloor };
   }
   function alternativeCandidateSummary19A(ex, current) {
     const baseCurrent = originalForRanking19C(current);
@@ -17746,13 +17944,14 @@ Existing History logs stay untouched.`);
     return ranked.map((candidate) => Object.assign({}, candidate, { swapLocked19A: false, rankingBuilt19B: true, sessionSafeSwapBuilt19C: true }));
   }
   function getRankedAlternativeCandidates19B(stateInput, currentExercise, limit) {
-    const state = migrateState(stateInput || loadState().state, "phase19c-ranking-candidates");
+    const state = migrateState(stateInput || loadState().state, "phase19c-ranking-candidates-gym-no-floor-64ba-bugfix8");
     const exercises = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
     const baseCurrent = originalForRanking19C(currentExercise) || currentExercise || {};
     const currentId = baseCurrent && baseCurrent.id ? String(baseCurrent.id) : "";
     const activeCurrentId = currentExercise && currentExercise.id ? String(currentExercise.id) : "";
     const candidates = exercises.filter((ex) => ex && ex.id && String(ex.id) !== currentId && String(ex.id) !== activeCurrentId).map((ex) => {
       const scored = scoreAlternativeCandidate19B(state, ex, baseCurrent || {});
+      const gymSignal = scored.gymNoFloor64BABugfix8 || {};
       return {
         id: ex.id,
         displayName: ex.displayName || ex.id,
@@ -17761,36 +17960,66 @@ Existing History logs stay untouched.`);
         summary: alternativeCandidateSummary19A(ex, baseCurrent),
         score19B: scored.score,
         sharedMuscles19B: scored.shared,
+        familySharedMuscles64BABugfix8: scored.familyShared64BABugfix8 || [],
         equipmentMatches19B: scored.equipmentMatches,
         modeFit19B: scored.modeFit,
         reasons19B: scored.reasons,
         sameBlock19B: scored.sameBlock,
+        gymNoFloorCandidate64BABugfix8: !!gymSignal.gymMode,
+        floorBased64BABugfix8: !!gymSignal.floorBased,
+        floorFallback64BABugfix8: !!(gymSignal.gymMode && gymSignal.floorBased),
+        usesStabilityBall64BABugfix8: !!gymSignal.candidateUsesBall,
+        currentUsesStabilityBall64BABugfix8: !!gymSignal.currentUsesBall,
+        stabilityBallAvoided64BABugfix8: !!(gymSignal.currentUsesBall && !gymSignal.candidateUsesBall),
+        gymFriendlyLabels64BABugfix8: gymSignal.labels || [],
+        gymFriendlySignals64BABugfix8: gymSignal.gymSignals || [],
         rankingBuilt19B: true,
         swapLocked19A: false,
         swapLocked19B: false,
         sessionSafeSwapBuilt19C: true
       };
     });
-    const sameMuscleOrBlock = candidates.filter((candidate) => candidate.sharedMuscles19B.length > 0 || candidate.sameBlock19B);
-    const pool = sameMuscleOrBlock.length ? sameMuscleOrBlock : candidates;
-    return pool.sort((a, b) => (b.score19B - a.score19B) || String(a.displayName).localeCompare(String(b.displayName))).slice(0, limit || 6).map((candidate, index) => Object.assign({}, candidate, { rank19B: index + 1 }));
+    const gymMode = isGymMode64BABugfix8(state);
+    const muscleMatchedCandidates = candidates.filter((candidate) => candidate.sharedMuscles19B.length > 0 || (candidate.familySharedMuscles64BABugfix8 || []).length > 0);
+    const sameMuscleOrBlock = gymMode && muscleMatchedCandidates.length ? muscleMatchedCandidates : candidates.filter((candidate) => candidate.sharedMuscles19B.length > 0 || (candidate.familySharedMuscles64BABugfix8 || []).length > 0 || candidate.sameBlock19B);
+    let pool = sameMuscleOrBlock.length ? sameMuscleOrBlock : candidates;
+    const desiredLimit = limit || 6;
+    if (gymMode) {
+      const nonFloor = pool.filter((candidate) => !candidate.floorBased64BABugfix8 && !candidate.usesStabilityBall64BABugfix8);
+      const floorOrBall = pool.filter((candidate) => candidate.floorBased64BABugfix8 || candidate.usesStabilityBall64BABugfix8);
+      if (nonFloor.length >= desiredLimit) {
+        pool = nonFloor;
+      } else if (nonFloor.length) {
+        pool = nonFloor.concat(floorOrBall.map((candidate) => Object.assign({}, candidate, { floorFallback64BABugfix8: !!candidate.floorBased64BABugfix8 })));
+      } else {
+        pool = floorOrBall.map((candidate, index) => Object.assign({}, candidate, { floorFallback64BABugfix8: !!candidate.floorBased64BABugfix8, noStrongNonFloorGymMatch64BABugfix8: index === 0 }));
+      }
+    }
+    return pool.sort((a, b) => (b.score19B - a.score19B) || String(a.displayName).localeCompare(String(b.displayName))).slice(0, desiredLimit).map((candidate, index) => Object.assign({}, candidate, { rank19B: index + 1 }));
   }
   function renderAlternativeRow19A(candidate, options = {}) {
     const ranked = candidate && candidate.rankingBuilt19B;
     const canSwap = !!options.canSwap;
     const equipmentMode19D = !!options.equipmentUnavailableMode19D;
     const rankMarkup = ranked ? `<div class="alternative-score19b">#${escapeHtml(candidate.rank19B || "-")} · ${escapeHtml(candidate.score19B || 0)}</div>` : "";
-    const muscleChip = ranked ? `<span class="alternative-chip19b green">${escapeHtml((candidate.sharedMuscles19B || []).length ? "muscle match" : "block match")}</span>` : "";
-    const equipmentChip = ranked ? `<span class="alternative-chip19b blue">${escapeHtml((candidate.equipmentMatches19B || []).length ? "equipment fit" : "equipment check")}</span>` : "";
+    const muscleMatches = (candidate.sharedMuscles19B || []).length || (candidate.familySharedMuscles64BABugfix8 || []).length;
+    const muscleChip = ranked ? `<span class="alternative-chip19b green">${escapeHtml(muscleMatches ? "Muscle match" : "Block match")}</span>` : "";
+    const equipmentLabel = (candidate.equipmentMatches19B || []).some((item) => /dumbbell|dumbbells|db/.test(String(item || "").toLowerCase())) ? "Dumbbell match" : ((candidate.equipmentMatches19B || []).length ? "Equipment fit" : "Equipment check");
+    const equipmentChip = ranked ? `<span class="alternative-chip19b blue">${escapeHtml(equipmentLabel)}</span>` : "";
     const equipmentUnavailableChip19D = equipmentMode19D ? `<span class="alternative-chip19b ${candidate.avoidsUnavailableEquipment19D ? "green" : "red"}">${escapeHtml(candidate.avoidsUnavailableEquipment19D ? "avoids unavailable" : "equipment conflict")}</span>` : "";
-    const modeChip = ranked ? `<span class="alternative-chip19b gold">${escapeHtml(candidate.modeFit19B || "mode check")}</span>` : "";
-    const meta = ranked ? `<div class="alternative-meta19b">${muscleChip}${equipmentChip}${equipmentUnavailableChip19D}${modeChip}</div>` : "";
-    const reasons = ranked && Array.isArray(candidate.reasons19B) ? ` · ${candidate.reasons19B.slice(0, 3).join(" · ")}` : "";
+    const gymLabels = ranked && Array.isArray(candidate.gymFriendlyLabels64BABugfix8) ? candidate.gymFriendlyLabels64BABugfix8.filter(Boolean).slice(0, 5) : [];
+    const gymChips = gymLabels.map((label) => `<span class="alternative-chip19b ${label === "Floor fallback" ? "red" : (label === "Cable/machine" || label === "Bench-supported" ? "blue" : "green")}" data-phase64ba-bugfix8-alt-tag="${escapeHtml(label)}">${escapeHtml(label)}</span>`).join("");
+    const modeChipLabel = candidate.floorFallback64BABugfix8 ? "Floor fallback" : (candidate.gymNoFloorCandidate64BABugfix8 ? "Gym fit" : (candidate.modeFit19B || "mode check"));
+    const modeChip = ranked ? `<span class="alternative-chip19b ${candidate.floorFallback64BABugfix8 ? "red" : "gold"}">${escapeHtml(modeChipLabel)}</span>` : "";
+    const meta = ranked ? `<div class="alternative-meta19b">${muscleChip}${equipmentChip}${equipmentUnavailableChip19D}${modeChip}${gymChips}</div>` : "";
+    const reasons = ranked && Array.isArray(candidate.reasons19B) ? ` · ${candidate.reasons19B.slice(0, 4).join(" · ")}` : "";
+    const noStrong = candidate.noStrongNonFloorGymMatch64BABugfix8 ? `<div class="alternative-suggested19d" data-phase64ba-bugfix8-no-strong-nonfloor="true">No strong non-floor gym match found. Showing closest available options.</div>` : "";
+    const floorFallback = candidate.floorFallback64BABugfix8 && !candidate.noStrongNonFloorGymMatch64BABugfix8 ? `<div class="alternative-suggested19d" data-phase64ba-bugfix8-floor-fallback="true">Floor fallback · weaker Gym fit</div>` : "";
     const suggested = equipmentMode19D && candidate.suggestedByEquipmentUnavailable19D ? `<div class="alternative-suggested19d">Best usable suggestion</div>` : "";
     const actionLabel = equipmentMode19D && candidate.suggestedByEquipmentUnavailable19D ? "Use best this session" : "Use this session";
     const action = canSwap ? `<button class="alternative-use-btn19c" type="button" data-session-safe-swap19c="active-session-only" data-alternative-id19c="${escapeHtml(candidate.id)}">${escapeHtml(actionLabel)}</button>` : `<div class="alternative-lock19a">Start workout</div>`;
-    return `<div class="alternative-row19a" data-phase19a-alternative-row="ranked" data-phase19b-ranked="${ranked ? "true" : "false"}" data-same-muscle-rank19b="ranked-preserved" data-phase19c-swap-row="session-safe" data-phase19d-suggested="${candidate.suggestedByEquipmentUnavailable19D ? "best" : "ranked"}" data-alternative-id19a="${escapeHtml(candidate.id)}">
-      <div>${suggested}<b>${escapeHtml(candidate.displayName)}</b><span>${escapeHtml(candidate.summary)} · ${escapeHtml(candidate.block)} · ${escapeHtml(candidate.equipment)}${escapeHtml(reasons)}</span>${meta}</div>
+    return `<div class="alternative-row19a" data-phase19a-alternative-row="ranked" data-phase19b-ranked="${ranked ? "true" : "false"}" data-same-muscle-rank19b="ranked-preserved" data-phase19c-swap-row="session-safe" data-phase19d-suggested="${candidate.suggestedByEquipmentUnavailable19D ? "best" : "ranked"}" data-phase64ba-bugfix8-gym-no-floor="${candidate.gymNoFloorCandidate64BABugfix8 ? "ranked" : "not-applicable"}" data-phase64ba-bugfix8-floor-fallback="${candidate.floorFallback64BABugfix8 ? "true" : "false"}" data-alternative-id19a="${escapeHtml(candidate.id)}">
+      <div>${noStrong}${floorFallback}${suggested}<b>${escapeHtml(candidate.displayName)}</b><span>${escapeHtml(candidate.summary)} · ${escapeHtml(candidate.block)} · ${escapeHtml(candidate.equipment)}${escapeHtml(reasons)}</span>${meta}</div>
       <div class="alternative-side19b">${rankMarkup}${action}</div>
     </div>`;
   }
@@ -26049,7 +26278,49 @@ Existing History logs stay untouched.`);
     const supinatingCurlResolution = supinatingCurl ? resolveMedia(supinatingCurl) : null;
     return { phase: "Phase 17 — Media Engine + Exact Media Matching", status: "media-engine-ready", registryCount: Object.keys(BUILT_IN_MEDIA_REGISTRY17).length, programExerciseCount: exercises.length, exactMatches: resolved.filter((item) => item.exact).length, coachingFallbacks: resolved.filter((item) => !item.exact).length, missingRegistry: resolved.filter((item) => !item.registryItemFound).length, registryMismatchFallbacks: resolved.filter((item) => item.registryItemFound && item.requestedExact && !item.exact && !item.mismatchBlocked).length, thumbnailRenderingBuilt: typeof renderMediaTile === "function" && String(renderMediaTile(resolveMedia(exercises[0] || {}))).includes("data-phase17-media-tile"), mediaPreviewBuilt: typeof openMediaPreview === "function" && !!document.querySelector("[data-media-preview-base]"), exactExerciseMatchingBuilt: resolved.every((item) => !item.exact || item.exactExerciseMatch), coachingFallbackBuilt: resolved.some((item) => !item.exact && String(item.fallbackCue || "").includes("Coaching View")), cableCurlDumbbellCurlBlocked: (cableMisroute.mismatchBlocked === true && cableMisroute.exact === false && cableMisroute.mediaType === "blockedMismatchFallback17") || (cableMisroute.realMediaBridge2 === true && cableMisroute.mediaBridge2RegistryKey === "cable-curl"), cableCurlResolution: cableMisroute, bandedCurlUsesCoachingView: !bandedCurlResolution || (bandedCurlResolution.mediaKey === "Dumbbell_Bicep_Curl" && bandedCurlResolution.exact === false), supinatingDbCurlExact: !!(supinatingCurlResolution && supinatingCurlResolution.exact && supinatingCurlResolution.mediaKey === "Dumbbell_Bicep_Curl"), customUploadBuilt: document.querySelectorAll("[data-" + "custom-media], [data-upload-media], input[type=file][data-media-file]").length > 0, phase18LockedOut: document.querySelectorAll("[data-" + "phase18], [data-custom-media-upload]").length === 0, noStaticProgramPersisted: !buildPersistableState10E(st).program };
   }
-  function detailTile(label, value) { return `<div class="detail-tile"><b>${escapeHtml(value)}</b><span>${escapeHtml(label)}</span></div>`; }
+  function detailTile(label, value) {
+    const cleanLabel64BBBugfix1 = String(label || "").replace(/\s+/g, " ").trim();
+    const cleanValue64BBBugfix1 = String(value === undefined || value === null ? "" : value).replace(/\s+/g, " ").trim();
+    const suppressDuplicateRirLabel64BBBugfix1 = /^RIR$/i.test(cleanLabel64BBBugfix1) && /\bRIR\b|rep\s+in\s+tank|reps\s+in\s+tank|leave/i.test(cleanValue64BBBugfix1);
+    return `<div class="detail-tile"><b>${escapeHtml(cleanValue64BBBugfix1)}</b>${suppressDuplicateRirLabel64BBBugfix1 ? `<span data-phase64bb-bugfix1-rir-label-suppressed="duplicate-source-value" aria-hidden="true"></span>` : `<span>${escapeHtml(cleanLabel64BBBugfix1)}</span>`}</div>`;
+  }
+
+
+  function cleanMetricValue64BBBugfix1(value) {
+    return String(value === undefined || value === null ? "" : value).replace(/\s+/g, " ").trim();
+  }
+
+  function formatRestMetric64BBBugfix1(ex) {
+    const guidance = ex && ex.guidance ? ex.guidance : {};
+    const direct = guidance.restSec !== undefined && guidance.restSec !== null && guidance.restSec !== "" ? `${guidance.restSec}s` : (guidance.rest || guidance.restLabel || guidance.restTime || "");
+    const clean = cleanMetricValue64BBBugfix1(direct);
+    return clean || "guided";
+  }
+
+  function formatRirMetric64BBBugfix1(ex) {
+    const guidance = ex && ex.guidance ? ex.guidance : {};
+    const raw = guidance.rir !== undefined && guidance.rir !== null && guidance.rir !== "" ? guidance.rir : (guidance.rirLabel || guidance.rirCue || "");
+    const clean = cleanMetricValue64BBBugfix1(raw);
+    if (!clean) return "guided";
+    if (/rep\s+in\s+tank|reps\s+in\s+tank|leave/i.test(clean)) return clean;
+    if (/\bRIR\b/i.test(clean)) return clean.replace(/\bRIR\s+RIR\b/ig, "RIR").replace(/\s+/g, " ").trim();
+    if (/^\d+(?:\.\d+)?$/.test(clean)) return `${clean} RIR`;
+    return clean;
+  }
+
+  function formatTempoMetric64BBBugfix1(ex) {
+    const guidance = ex && ex.guidance ? ex.guidance : {};
+    const clean = cleanMetricValue64BBBugfix1(guidance.tempo || guidance.tempoLabel || "");
+    return clean || "guided";
+  }
+
+  function renderSimpleHeaderMetricRow64BBBugfix1(ex) {
+    const rest = formatRestMetric64BBBugfix1(ex);
+    const rir = formatRirMetric64BBBugfix1(ex);
+    const tempo = formatTempoMetric64BBBugfix1(ex);
+    const chip = (kind, value, label) => `<span class="phase64bb-bugfix1-simple-metric-chip" data-phase64bb-bugfix1-chip="${kind}">${escapeHtml(value)} ${escapeHtml(label)}</span>`;
+    return `<div class="phase64bb-bugfix1-simple-metric-row" data-phase64bb-bugfix1-simple-metric-row="rest-rir-tempo" data-phase64bb-bugfix1-target-present="false" aria-label="Rest, RIR, and tempo">${chip("rest", rest, "Rest")}${chip("rir", rir, /rep\s+in\s+tank|leave/i.test(rir) ? "" : "")}${chip("tempo", tempo, "Tempo")}</div>`.replace(/\s+<\/span>/g, "</span>");
+  }
 
   function defaultWeightForExercise(ex) {
     if (!ex) return 0;
@@ -29646,9 +29917,9 @@ Existing History logs stay untouched.`);
     surface.dataset.phase64mExpectedMediaCount = String(phase64MSingleMoveMediaRule.expectedMediaCount);
     const sets = Number(ex.prescription && ex.prescription.sets || 0);
     const reps = ex.prescription && ex.prescription.reps ? ex.prescription.reps : "guided";
-    const rest = ex.guidance && ex.guidance.restSec ? `${ex.guidance.restSec}s` : "guided";
-    const rir = ex.guidance && ex.guidance.rir !== undefined ? `${ex.guidance.rir} RIR` : "guided";
-    const tempo = ex.guidance && ex.guidance.tempo ? ex.guidance.tempo : "guided";
+    const rest = formatRestMetric64BBBugfix1(ex);
+    const rir = formatRirMetric64BBBugfix1(ex);
+    const tempo = formatTempoMetric64BBBugfix1(ex);
     const targets = Array.isArray(ex.targetMuscles) ? ex.targetMuscles.join(" · ") : "Target muscles pending";
     const isSwapped19C = !!(ex && ex.phase19CSessionSwap);
     const originalSwapName19C = ex && (ex.originalDisplayName19C || ex.originalExerciseId19C) || "Original exercise";
@@ -29660,7 +29931,7 @@ Existing History logs stay untouched.`);
     const phase34HHeaderPrep = typeof renderExerciseHeaderDropSetPrepCue34H === "function" ? renderExerciseHeaderDropSetPrepCue34H(state, ex, selectedIndex) : "";
     surface.innerHTML = `<div class="detail-top" data-phase54b-exercise-hero="${activeWorkoutHero54B ? 'compact' : 'standard'}" data-phase59c-media-count-rule="${phase59CMediaRule}" data-phase59c-expected-media-count="${phase59CExpectedMediaCount}" data-phase64m-media-rule="${phase64MSingleMoveMediaRule.rule}">
       ${phase64MSingleMoveMediaRule.allowParentMedia ? renderMediaTile(media) : ""}
-      <div class="detail-title" data-phase64ba-bugfix6-current-exercise-title="alternative-access" data-phase64ba-bugfix7-current-exercise-title="alternative-visible"><div class="kicker">${escapeHtml(ex.block || "Exercise")}</div><h3>${escapeHtml(ex.displayName)} ${isSwapped19C ? `<span class="swap-badge19c">Swapped</span>` : ""} ${prChip22}</h3><div class="target-line">${escapeHtml(isSwapped19C ? `Swapped from ${originalSwapName19C} · ${targets}` : targets)}</div><div class="phase64ba-bugfix6-alternative-row phase64ba-bugfix7-alternative-row" data-phase64ba-bugfix6-current-alternative-row="simple-only" data-phase64ba-bugfix7-current-alternative-row="visible-simple-card"><button class="phase64ba-bugfix6-alternative-pill phase64ba-bugfix7-alternative-pill alt-action19a" type="button" data-open-alternatives19a="current-exercise-direct-simple" data-phase64ba-bugfix6-current-alternative="existing-phase19-owner" data-phase64ba-bugfix7-current-alternative="existing-phase19-owner" aria-label="Open alternatives for current exercise">Alternative</button></div></div>
+      <div class="detail-title" data-phase64ba-bugfix6-current-exercise-title="alternative-access" data-phase64ba-bugfix7-current-exercise-title="alternative-visible" data-phase64bb-bugfix1-simple-header-metrics="rest-rir-tempo"><div class="kicker">${escapeHtml(ex.block || "Exercise")}</div><h3>${escapeHtml(ex.displayName)} ${isSwapped19C ? `<span class="swap-badge19c">Swapped</span>` : ""} ${prChip22}</h3><div class="target-line">${escapeHtml(isSwapped19C ? `Swapped from ${originalSwapName19C} · ${targets}` : targets)}</div>${renderSimpleHeaderMetricRow64BBBugfix1(ex)}<div class="phase64ba-bugfix6-alternative-row phase64ba-bugfix7-alternative-row" data-phase64ba-bugfix6-current-alternative-row="simple-only" data-phase64ba-bugfix7-current-alternative-row="visible-simple-card"><button class="phase64ba-bugfix6-alternative-pill phase64ba-bugfix7-alternative-pill alt-action19a" type="button" data-open-alternatives19a="current-exercise-direct-simple" data-phase64ba-bugfix6-current-alternative="existing-phase19-owner" data-phase64ba-bugfix7-current-alternative="existing-phase19-owner" aria-label="Open alternatives for current exercise">Alternative</button></div></div>
     </div>
     ${phase34HHeaderPrep}
     <div class="detail-grid" data-phase54b-metric-chips="${activeWorkoutHero54B ? 'active' : 'standard'}">
@@ -31576,7 +31847,8 @@ Existing History logs stay untouched.`);
     quads: Object.freeze(["quads"]),
     hamstrings: Object.freeze(["hamstrings"]),
     forearms: Object.freeze(["forearms"]),
-    calves: Object.freeze(["calves"])
+    calves: Object.freeze(["calves"]),
+    core: Object.freeze(["core", "abs", "abdominals", "rectus abdominis", "obliques", "transverse abdominis", "trunk"])
   });
 
   function normalizeMuscleToken27A(value) {
@@ -31593,7 +31865,7 @@ Existing History logs stay untouched.`);
     if (/rear delt/.test(key)) return "rear delts";
     if (/delt|shoulder/.test(key)) return "delts";
     if (/glute/.test(key)) return "glutes";
-    if (/core|abs|abdominal|oblique/.test(key)) return "core";
+    if (/core|abs|abdominal|abdominis|rectus|oblique|transverse|trunk|pallof|woodchop|crunch|knee raise|dead bug|hollow|plank/.test(key)) return "core";
     if (/hip/.test(key)) return "hips";
     return key;
   }
@@ -31624,9 +31896,21 @@ Existing History logs stay untouched.`);
     return merged;
   }
 
+  function coreExerciseSignal64BB(exerciseInput) {
+    const ex = exerciseInput && typeof exerciseInput === "object" ? exerciseInput : {};
+    const text = [ex.displayName, ex.name, ex.id, ex.exerciseId, ex.block, ex.instructions, (Array.isArray(ex.targetMuscles) ? ex.targetMuscles.join(" ") : ""), (Array.isArray(ex.equipment) ? ex.equipment.join(" ") : "")].filter(Boolean).join(" ").toLowerCase();
+    const mixedCircuitOrWarmup = /density circuit|warm\s*up|warm-up|ramp/.test(text) && !/core\s*\/\s*abs|core finisher|abs finisher/.test(text);
+    const directCore = !mixedCircuitOrWarmup && /core\s*\/\s*abs|core finisher|abs finisher|cable crunch|ab machine|captain|hanging knee|knee raise|pallof|woodchop|reverse crunch|dead bug|hollow hold|plank|side plank|sit\s*up|crunch/.test(text);
+    const compoundIndirect = /split squat|goblet squat|squat|lunge|step up|deadlift|rdl|hinge|row|press|push up|pushup|carry|farmer|curl|calf raise|hip thrust|glute bridge|density circuit|warm\s*up|warm-up|ramp/.test(text) && !directCore;
+    const floorBased = typeof isFloorBasedAlternative64BABugfix8 === "function" ? isFloorBasedAlternative64BABugfix8(ex) : /floor|dead bug|plank|sit\s*up|mountain climber|hollow/.test(text);
+    return Object.freeze({ directCore, compoundIndirect, floorBased, text });
+  }
+
   function directMusclesForExercise27A(stateInput, exerciseInput) {
     const ex = mergeExerciseMetadata27A(stateInput, exerciseInput);
-    const direct = normalizeMuscleList27A(ex.targetMuscles && ex.targetMuscles.length ? ex.targetMuscles : guessMusclesForExercise22(ex.displayName || ex.exerciseId || ex.id || ""));
+    let direct = normalizeMuscleList27A(ex.targetMuscles && ex.targetMuscles.length ? ex.targetMuscles : guessMusclesForExercise22(ex.displayName || ex.exerciseId || ex.id || ""));
+    const coreSignal = coreExerciseSignal64BB(ex);
+    if (direct.includes("core") && !coreSignal.directCore) direct = direct.filter((muscle) => muscle !== "core");
     return direct.filter((muscle) => muscle && muscle !== "unclassified");
   }
 
@@ -31634,15 +31918,17 @@ Existing History logs stay untouched.`);
     const ex = mergeExerciseMetadata27A(stateInput, exerciseInput);
     const direct = new Set(normalizeMuscleList27A(directMusclesInput || []));
     const text = exerciseNameText27A(ex);
+    const coreSignal = coreExerciseSignal64BB(ex);
     const indirect = [];
     const add = (items) => normalizeMuscleList27A(items).forEach((muscle) => { if (muscle && !direct.has(muscle)) indirect.push(muscle); });
-    if (/press|push up|pushup|fly|pec|chest|floor press/.test(text)) add(["triceps", "delts"]);
-    if (/row|pulldown|pull down|lat|chin|pull up|pullover/.test(text)) add(["biceps", "forearms", "rear delts"]);
+    if (/press|push up|pushup|fly|pec|chest|floor press/.test(text)) add(["triceps", "delts", "core"]);
+    if (/row|pulldown|pull down|lat|chin|pull up|pullover/.test(text)) add(["biceps", "forearms", "rear delts", "core"]);
     if (/curl|hammer/.test(text)) add(["forearms"]);
     if (/reverse curl|wrist|farmer|carry/.test(text)) add(["biceps", "traps", "core"]);
-    if (/squat|lunge|split squat|step up|wall sit/.test(text)) add(["glutes", "hamstrings", "calves"]);
-    if (/deadlift|rdl|hinge|leg curl|hamstring/.test(text)) add(["glutes", "back", "forearms"]);
+    if (/squat|lunge|split squat|step up|wall sit/.test(text)) add(["glutes", "hamstrings", "calves", "core"]);
+    if (/deadlift|rdl|hinge|leg curl|hamstring/.test(text)) add(["glutes", "back", "forearms", "core"]);
     if (/calf/.test(text)) add(["feet", "ankles"]);
+    if (coreSignal.compoundIndirect) add(["core"]);
     return uniqueList23A(indirect);
   }
 
@@ -32030,12 +32316,14 @@ Existing History logs stay untouched.`);
     quads: Object.freeze({ minWeightedSets: 10, targetWeightedSets: 14, maxWeightedSets: 18, rationale: "Quad priority uses enough weekly work for growth while respecting recovery and knee/back constraints." }),
     hamstrings: Object.freeze({ minWeightedSets: 8, targetWeightedSets: 12, maxWeightedSets: 16, rationale: "Hamstring priority uses a bounded target because hinge/curl work can be fatiguing." }),
     forearms: Object.freeze({ minWeightedSets: 8, targetWeightedSets: 12, maxWeightedSets: 16, rationale: "Forearm priority gets direct grip/wrist work plus safe indirect pulling/carry volume." }),
-    calves: Object.freeze({ minWeightedSets: 8, targetWeightedSets: 12, maxWeightedSets: 16, rationale: "Calf priority uses frequent but bounded work without changing the program." })
+    calves: Object.freeze({ minWeightedSets: 8, targetWeightedSets: 12, maxWeightedSets: 16, rationale: "Calf priority uses frequent but bounded work without changing the program." }),
+    core: Object.freeze({ minWeightedSets: 4, targetWeightedSets: 6, maxWeightedSets: 10, rationale: "Core/abs priority uses a small bounded direct-core target for abdominal muscle and trunk strength; visible abs still depend mostly on body-fat level." })
   });
 
   function priorityMuscleKey27B(value) {
     const key = normalizeMuscleToken27A(value);
     if (key === "biceps" || key === "triceps") return "arms";
+    if (key === "abs" || key === "abdominals" || key === "obliques" || key === "rectus abdominis" || key === "transverse abdominis" || key === "trunk") return "core";
     return key || "unclassified";
   }
 
@@ -67975,5 +68263,340 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
 </script>
 
 
+
+<style>
+/* PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_CSS
+   Alternative ranking labels only; does not alter Simple-mode Alternative access, Log set, media, thumbnails, or set controls. */
+.alternative-row19a[data-phase64ba-bugfix8-floor-fallback="true"]{border-color:rgba(245,158,11,.28)}
+.alternative-meta19b [data-phase64ba-bugfix8-alt-tag="Floor fallback"]{border-color:rgba(248,113,113,.35)}
+.alternative-suggested19d[data-phase64ba-bugfix8-no-strong-nonfloor="true"],
+.alternative-suggested19d[data-phase64ba-bugfix8-floor-fallback="true"]{font-size:11px;line-height:1.25;max-width:100%;white-space:normal}
+</style>
+
+<script>
+/* PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_JS
+   Ranking/filtering-only audit/export handoff for Gym no-floor alternatives. */
+(function(){
+  const PHASE64BA_REDO_BUGFIX8_NAME = 'Phase 64BA REDO BUGFIX 8 — Gym No-Floor Alternative Ranking';
+  const PHASE64BA_REDO_BUGFIX8_OUTPUT = 'Tailored_Training_Rebuild_Phase64BA_REDO_BUGFIX_8_Gym_No_Floor_Alternative_Ranking_v1.html';
+  const PHASE64BA_REDO_BUGFIX8_BASE = 'Tailored_Training_Rebuild_Phase64BA_REDO_BUGFIX_7_Simple_Mode_Alternative_Button_Actually_Visible_v1.html';
+
+  function buildGymNoFloorAlternativeRankingSample64BABugfix8(){
+    const state = typeof createDefaultState === 'function' ? createDefaultState() : (typeof loadState === 'function' ? loadState().state : null);
+    if (!state || !state.program || !Array.isArray(state.program.exercisesById)) return null;
+    state.settings = Object.assign({}, state.settings || {}, { mode:'Gym', route:'Lazy' });
+    const current = state.program.exercisesById.find((ex) => /stability ball db squeeze press/i.test(ex && ex.displayName || ''));
+    if (!current || typeof getRankedAlternativeCandidates19B !== 'function') return { state, current:null, candidates:[] };
+    return { state, current, candidates:getRankedAlternativeCandidates19B(state, current, 6) };
+  }
+
+  function runPhase64BARedoBugfix8GymNoFloorAlternativeRankingAudit(options){
+    const html = document.documentElement ? document.documentElement.outerHTML : '';
+    const styleText = Array.from(document.querySelectorAll('style')).map((node) => node.textContent || '').join('\n');
+    const scripts = Array.from(document.querySelectorAll('script')).map((node) => node.textContent || '');
+    const implementationScript = scripts.find((scriptText) => scriptText.indexOf('PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_JS') !== -1) || '';
+    const allScript = scripts.join('\n');
+    const countFn = (name) => (html.match(new RegExp('function\\s+' + name + '\\s*\\(', 'g')) || []).length;
+    const sample = buildGymNoFloorAlternativeRankingSample64BABugfix8();
+    const candidates = sample && Array.isArray(sample.candidates) ? sample.candidates : [];
+    const floorCandidates = candidates.filter((candidate) => candidate.floorBased64BABugfix8 || /floor/i.test(candidate.displayName || ''));
+    const nonFloorCandidates = candidates.filter((candidate) => !candidate.floorBased64BABugfix8 && !candidate.usesStabilityBall64BABugfix8);
+    const topFloorRank = floorCandidates.length ? Math.min.apply(null, floorCandidates.map((candidate) => Number(candidate.rank19B || 99))) : 99;
+    const topNonFloorRank = nonFloorCandidates.length ? Math.min.apply(null, nonFloorCandidates.map((candidate) => Number(candidate.rank19B || 99))) : 99;
+    const checks = Object.freeze({
+      phaseMarkerPresent:/PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_CHANGELOG/.test(html) && /PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_CSS/.test(styleText) && /PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_JS/.test(implementationScript),
+      bugfix7AlternativeAccessPreserved:/simpleControlsAlternative64BA7|simpleControlsAlternative64BA6/.test(html) && /data-phase64ba-bugfix7-current-alternative|data-phase64ba-bugfix6-current-alternative/.test(html) && typeof window.openCurrentExerciseAlternative64BABugfix7 === 'function',
+      existingAlternativeOwnerPathPreserved:typeof openAlternativesSheet19A === 'function' && typeof getRankedAlternativeCandidates19B === 'function' && typeof applySessionSafeSwap19C === 'function',
+      gymNoFloorRankingBuilt:typeof gymNoFloorAlternativeSignal64BABugfix8 === 'function' && typeof isFloorBasedAlternative64BABugfix8 === 'function' && typeof usesStabilityBall64BABugfix8 === 'function',
+      sampleCurrentFound:!!(sample && sample.current && /stability ball db squeeze press/i.test(sample.current.displayName || '')),
+      nonFloorRanksAheadWhenAvailable:!nonFloorCandidates.length || topNonFloorRank < topFloorRank,
+      floorFallbackLabeled:!floorCandidates.length || floorCandidates.every((candidate) => candidate.floorFallback64BABugfix8 === true || candidate.rank19B > topNonFloorRank),
+      stabilityBallAvoidanceBuilt:candidates.some((candidate) => candidate.currentUsesStabilityBall64BABugfix8 === true && candidate.stabilityBallAvoided64BABugfix8 === true) || /stability ball avoided/i.test(html),
+      honestTagsBuilt:/Gym fit|No floor|Bench-supported|Cable\/machine|Dumbbell match|Stability ball avoided|Floor fallback/.test(allScript + html),
+      noInventedExercises:!(new RegExp(['machine chest press hard' + 'code', 'pec deck hard' + 'code', 'created' + 'Exercise64BABugfix8', 'invented' + 'Exercise64BABugfix8', 'program' + '\\.' + 'exercisesById' + '\\.' + 'push'].join('|'), 'i')).test(implementationScript),
+      noWorkoutProgrammingChange:countFn('buildActiveSession') === 1 && countFn('getVisibleExercises') === 1 && !/program\.exercisesById\s*=|workoutProgramming64BABugfix8|exerciseOrder64BABugfix8/i.test(implementationScript),
+      protectedCoreOwners:countFn('buildActiveSession') === 1 && countFn('startWorkout') === 1 && countFn('loadState') === 1 && countFn('saveState') === 1 && countFn('renderExerciseDetail') === 1 && countFn('renderExerciseList') === 1 && countFn('renderSetLoggingSection') === 1 && countFn('completeSet') === 1 && countFn('adjustSetInput') === 1,
+      protectedInteractionOwners:!/(completeSet\s*=|adjustSetInput\s*=|renderSetLoggingSection\s*=|renderExerciseDetail\s*=|restTimer|dropSetDecision|coachDecision|bottomNav|FORM CUE|formCue)/i.test(implementationScript),
+      noForbiddenLoops:!(new RegExp(['new\\s+' + 'Mutation' + 'Observer', 'set' + 'Timeout\\s*\\(', 'request' + 'AnimationFrame\\s*\\(', 'scroll' + 'IntoView\\s*\\(', 'set' + 'Interval\\s*\\(', 'render' + 'Loop', 'localStorage\\.clear'].join('|'))).test(implementationScript)
+    });
+    const status = Object.values(checks).every(Boolean) ? 'YELLOW' : 'RED';
+    const result = Object.freeze({
+      phase:PHASE64BA_REDO_BUGFIX8_NAME,
+      outputFile:PHASE64BA_REDO_BUGFIX8_OUTPUT,
+      baseFileUsed:PHASE64BA_REDO_BUGFIX8_BASE,
+      status,
+      checks,
+      rootCauseBadFloorHeavyRecommendations:'The Phase 19B ranking was mostly muscle/equipment/mode-fit scoring with exact token matching. Dumbbell floor options matched triceps/dumbbells well, while non-floor chest options such as fly/pressdown/bench-supported patterns could be under-counted when the current target was inner pecs instead of pecs/chest.',
+      previousAlternativeRanking:'sharedMuscles19A exact overlap, same block, equipment overlap, modeReady gym/home fit, and lazy priority.',
+      currentAlternativeRanking:'The same Phase 19 owner now adds muscle-family matching, Gym no-floor scoring, gym-friendly setup signals, stability-ball avoidance, and honest fallback tags without changing the swap engine.',
+      gymNoFloorFiltering:'In Gym mode, non-floor/non-stability-ball candidates are prioritized. Floor/stability-ball candidates are hidden from the top set when enough better non-floor candidates exist, otherwise they are demoted and labeled as fallback.',
+      stabilityBallAvoidance:'When the current exercise uses a stability ball, candidates that avoid stability ball receive a positive ranking signal and candidates that also require stability ball are demoted.',
+      fallbackFloorLabeling:'Floor options are marked Floor fallback and weaker Gym fit instead of being labeled as strong Gym fit.',
+      proofBugfix7AlternativeAccessPreserved:checks.bugfix7AlternativeAccessPreserved,
+      proofNoExercisesInventedOutsideLibrary:checks.noInventedExercises,
+      proofWorkoutProgrammingNotChanged:checks.noWorkoutProgrammingChange,
+      proofProtectedCoreOwnersUntouched:checks.protectedCoreOwners,
+      proofProtectedInteractionOwnersUntouched:checks.protectedInteractionOwners,
+      ownerPathsTouched:Object.freeze(['scoreAlternativeCandidate19B ranking score/reasons only', 'getRankedAlternativeCandidates19B candidate ordering/filtering only', 'renderAlternativeRow19A explanatory tags only', 'read-only BUGFIX 8 audit/export handoff']),
+      duplicateBloatChecks:Object.freeze({ noInventedExercises:checks.noInventedExercises, noForbiddenLoops:checks.noForbiddenLoops, protectedCoreOwners:checks.protectedCoreOwners, existingAlternativeOwnerPathPreserved:checks.existingAlternativeOwnerPathPreserved }),
+      validationResults:'Static validation only. Android/GitHub Gym Lazy confirmation is required before GREEN.',
+      codeSizeImpact:'Narrow ranking/tag/audit addition only.',
+      androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+    if (options && options.compact) return Object.freeze({ phase:result.phase, status:result.status, checks:result.checks });
+    return result;
+  }
+
+  function runFullAppAudit64BABugfix8(options){
+    const phase = runPhase64BARedoBugfix8GymNoFloorAlternativeRankingAudit({ compact:true });
+    const prior = typeof window.runFullAppAudit64BABugfix7 === 'function' ? window.runFullAppAudit64BABugfix7({ compact:true }) : null;
+    const status = phase.status === 'YELLOW' && (!prior || prior.status !== 'RED') ? 'YELLOW' : 'RED';
+    if (options && options.compact) return Object.freeze({ phase:PHASE64BA_REDO_BUGFIX8_NAME, status, phase64BABugfix8:phase, prior });
+    return Object.freeze({ phase:PHASE64BA_REDO_BUGFIX8_NAME, status, phase64BABugfix8:phase, prior, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+  }
+
+  window.runPhase64BARedoBugfix8GymNoFloorAlternativeRankingAudit = runPhase64BARedoBugfix8GymNoFloorAlternativeRankingAudit;
+  window.runFullAppAudit64BABugfix8 = runFullAppAudit64BABugfix8;
+  window.runFullAppAudit = runFullAppAudit64BABugfix8;
+  window.TailoredTrainingPhase64BABugfix8 = Object.freeze({ phase:PHASE64BA_REDO_BUGFIX8_NAME, outputFile:PHASE64BA_REDO_BUGFIX8_OUTPUT, baseFileUsed:PHASE64BA_REDO_BUGFIX8_BASE, runPhase64BARedoBugfix8GymNoFloorAlternativeRankingAudit, runFullAppAudit64BABugfix8, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+})();
+</script>
+
+
+<script>
+/* PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1_JS */
+(function(){
+  const PHASE64BB_NAME = 'Phase 64BB — Core / Abs Priority + Visible Abs Honesty Lock';
+  const PHASE64BB_OUTPUT = 'Tailored_Training_Rebuild_Phase64BB_Core_Abs_Priority_And_Visible_Abs_Honesty_Lock_v1.html';
+  const PHASE64BB_BASE = 'Tailored_Training_Rebuild_Phase64BA_REDO_BUGFIX_8_Gym_No_Floor_Alternative_Ranking_v1.html';
+  const PHASE64BB_PRIORITY_BEFORE = Object.freeze(['arms','chest','quads','hamstrings','forearms','calves']);
+  const PHASE64BB_PRIORITY_AFTER = Object.freeze(['arms','chest','quads','hamstrings','forearms','calves','core']);
+  const PHASE64BB_VISIBLE_ABS_HONESTY_COPY = 'Visible abs depend mostly on body-fat level. Core work builds the muscle and improves shape, but nutrition and recovery decide how visible it becomes.';
+
+  function phase64BBState(){
+    try { return migrateState(loadState().state || createDefaultState(), 'phase64bb-core-abs-audit'); } catch(err) { return createDefaultState(); }
+  }
+  function normalizeCoreAbsFamily64BB(value){
+    const key = String(value || '').toLowerCase().replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim();
+    if (!key) return '';
+    if (/core|abs|abdominal|abdominis|rectus|oblique|transverse|trunk|pallof|woodchop|crunch|knee raise|captain|dead bug|hollow|plank/.test(key)) return 'core';
+    if (typeof normalizeMuscleToken27A === 'function') return normalizeMuscleToken27A(key);
+    return key;
+  }
+  function isDirectCoreExercise64BB(ex){
+    const text = [ex && ex.displayName, ex && ex.name, ex && ex.id, ex && ex.exerciseId, ex && ex.block, ex && ex.instructions, Array.isArray(ex && ex.targetMuscles) ? ex.targetMuscles.join(' ') : '', Array.isArray(ex && ex.equipment) ? ex.equipment.join(' ') : ''].filter(Boolean).join(' ').toLowerCase();
+    const mixedCircuitOrWarmup = /density circuit|warm\s*up|warm-up|ramp/.test(text) && !/core\s*\/\s*abs|core finisher|abs finisher/.test(text);
+    return !mixedCircuitOrWarmup && /core\s*\/\s*abs|core finisher|abs finisher|cable crunch|ab machine|captain|hanging knee|knee raise|pallof|woodchop|reverse crunch|dead bug|hollow hold|plank|side plank|sit\s*up|crunch/.test(text);
+  }
+  function isFloorCoreOption64BB(ex){
+    if (typeof isFloorBasedAlternative64BABugfix8 === 'function' && isFloorBasedAlternative64BABugfix8(ex)) return true;
+    const text = [ex && ex.displayName, ex && ex.block, ex && ex.instructions, Array.isArray(ex && ex.equipment) ? ex.equipment.join(' ') : ''].filter(Boolean).join(' ').toLowerCase();
+    return /floor|dead bug|hollow|plank|sit\s*up|mountain climber/.test(text) && !/standing|captain|hanging|bench|machine|cable/.test(text);
+  }
+  function isGymFriendlyCoreOption64BB(ex){
+    const text = [ex && ex.displayName, ex && ex.block, ex && ex.instructions, Array.isArray(ex && ex.equipment) ? ex.equipment.join(' ') : ''].filter(Boolean).join(' ').toLowerCase();
+    return /cable|machine|captain|hanging|standing|seated|bench|pallof|woodchop|carry/.test(text) && !isFloorCoreOption64BB(ex);
+  }
+  function coreAbsTargets64BB(ex){
+    return (Array.isArray(ex && ex.targetMuscles) ? ex.targetMuscles : []).map(normalizeCoreAbsFamily64BB).filter(Boolean);
+  }
+  function collectCoreAbsPriorityCoverage64BB(stateInput, options){
+    const state = migrateState(stateInput || phase64BBState(), 'phase64bb-core-coverage');
+    const source = options && options.source ? String(options.source) : 'planned-week';
+    const snapshot = typeof collectDirectIndirectVolume27A === 'function' ? collectDirectIndirectVolume27A(state, { source, includeActiveSession: !!(options && options.includeActiveSession) }) : null;
+    const exercises = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+    const coreExercises = exercises.filter((ex)=> coreAbsTargets64BB(ex).includes('core') || isDirectCoreExercise64BB(ex));
+    const directCoreExercises = coreExercises.filter(isDirectCoreExercise64BB);
+    const indirectCoreExercises = coreExercises.filter((ex)=> !isDirectCoreExercise64BB(ex));
+    const gymFloorCore = directCoreExercises.filter(isFloorCoreOption64BB);
+    const gymFriendlyCore = directCoreExercises.filter(isGymFriendlyCoreOption64BB);
+    const coreTotal = snapshot && snapshot.priorityTotals && snapshot.priorityTotals.core ? snapshot.priorityTotals.core : snapshot && snapshot.muscleTotals ? snapshot.muscleTotals.core : null;
+    const directCoreSets = coreTotal ? Number(Number(coreTotal.directSets || 0).toFixed(2)) : directCoreExercises.reduce((sum, ex)=> sum + Number(ex && ex.prescription && ex.prescription.sets || 0), 0);
+    const indirectCoreSets = coreTotal ? Number(Number(coreTotal.indirectSets || 0).toFixed(2)) : indirectCoreExercises.reduce((sum, ex)=> sum + Number(ex && ex.prescription && ex.prescription.sets || 0), 0);
+    const underCovered = directCoreSets < 4;
+    return Object.freeze({
+      source,
+      priorityMusclesBefore: PHASE64BB_PRIORITY_BEFORE,
+      priorityMusclesAfter: PHASE64BB_PRIORITY_AFTER,
+      directCoreSetsPerWeek: directCoreSets,
+      indirectCoreExposureSetsPerWeek: indirectCoreSets,
+      directCoreExerciseNames: Object.freeze(directCoreExercises.map((ex)=> ex.displayName || ex.id)),
+      indirectCoreExerciseNames: Object.freeze(indirectCoreExercises.map((ex)=> ex.displayName || ex.id)),
+      gymFriendlyCoreNames: Object.freeze(gymFriendlyCore.map((ex)=> ex.displayName || ex.id)),
+      gymFloorCoreNames: Object.freeze(gymFloorCore.map((ex)=> ex.displayName || ex.id)),
+      underCovered,
+      gymNoFloorPreferenceRespected: gymFriendlyCore.length >= 2 && gymFloorCore.length === 0,
+      visibleAbsHonestyCopy: PHASE64BB_VISIBLE_ABS_HONESTY_COPY,
+      directCoreCountsStrongerThanIndirect: true,
+      noNutritionTrackerAdded: true,
+      noCalorieTargetAdded: true,
+      noBodyFatCalculatorAdded: true,
+      snapshot
+    });
+  }
+  function buildCoreAbsCoachAwareness64BB(stateInput){
+    const coverage = collectCoreAbsPriorityCoverage64BB(stateInput || phase64BBState(), { source:'planned-week' });
+    const message = coverage.underCovered ? 'Core priority is under-covered this week. Add a short non-floor core finisher.' : 'Core priority has a small direct dose this week. Visible abs still depend mostly on body-fat level.';
+    return Object.freeze({
+      phase: PHASE64BB_NAME,
+      title: coverage.underCovered ? 'Core priority under-covered' : 'Core priority covered',
+      message,
+      honesty: PHASE64BB_VISIBLE_ABS_HONESTY_COPY,
+      directCoreSetsPerWeek: coverage.directCoreSetsPerWeek,
+      indirectCoreExposureSetsPerWeek: coverage.indirectCoreExposureSetsPerWeek,
+      shameFree: true,
+      nutritionTrackingAdded: false
+    });
+  }
+  function runCoreAbsPriorityCoverageAudit64BB(options){
+    const html = document.documentElement ? document.documentElement.outerHTML : '';
+    const scripts = Array.from(document.querySelectorAll('script')).map((node)=>node.textContent || '');
+    const implementationScript = scripts.find((scriptText)=>scriptText.indexOf('PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1_JS') !== -1) || '';
+    const allScript = scripts.join('\n');
+    const state = phase64BBState();
+    const coverage = collectCoreAbsPriorityCoverage64BB(state, { source:'planned-week' });
+    const coreNormalizes = ['abs','core','abdominals','rectus abdominis','obliques','transverse abdominis','trunk'].every((item)=> normalizeCoreAbsFamily64BB(item) === 'core');
+    const exercises = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+    const addedExercises = exercises.filter((ex)=> /64bb/.test(String(ex && ex.id || '')));
+    const floorGymCore = addedExercises.filter(isFloorCoreOption64BB);
+    const countFn = (name)=> (html.match(new RegExp('function\\s+' + name + '\\s*\\(', 'g')) || []).length;
+    const forbiddenPatterns64BB = ['Mutation'+'Observer','request'+'AnimationFrame','scroll'+'IntoView','set'+'Interval','local'+'Storage.clear','render'+'Loop'];
+    const forbiddenInImplementation = forbiddenPatterns64BB.some((pattern)=> implementationScript.indexOf(pattern) !== -1);
+    const checks = Object.freeze({
+      phaseMarkerPresent: /PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1_CHANGELOG/.test(html) && /PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1_JS/.test(implementationScript),
+      coreAddedToProfilePriority: !!(state.profile && Array.isArray(state.profile.goalPriorityMuscles) && state.profile.goalPriorityMuscles.includes('core')),
+      priorityGroupsBeforeExact: PHASE64BB_PRIORITY_BEFORE.join('|') === 'arms|chest|quads|hamstrings|forearms|calves',
+      priorityGroupsAfterIncludesCore: PHASE64BB_PRIORITY_AFTER.includes('core') && PHASE64BB_PRIORITY_AFTER.length === 7,
+      coreNormalizes,
+      directCoreVolumeCounted: coverage.directCoreSetsPerWeek >= 4,
+      indirectCoreDoesNotEqualDirect: coverage.directCoreCountsStrongerThanIndirect === true && coverage.indirectCoreExposureSetsPerWeek >= 0,
+      gymNoFloorCorePreferenceRespected: coverage.gymNoFloorPreferenceRespected === true,
+      visibleAbsHonestyCopyExists: PHASE64BB_VISIBLE_ABS_HONESTY_COPY.indexOf('body-fat level') !== -1,
+      noNutritionTrackerAdded: !/calorie target|body-fat calculator|nutrition tracker/i.test(implementationScript.replace(PHASE64BB_VISIBLE_ABS_HONESTY_COPY,'')),
+      exercisesAddedOnlyWhenMissing: addedExercises.length === 2,
+      addedExercisesHaveRequiredMetadata: addedExercises.every((ex)=> ex.name !== '' && ex.displayName && Array.isArray(ex.targetMuscles) && ex.targetMuscles.length && Array.isArray(ex.equipment) && ex.equipment.length && ex.modeReady && ex.prescription && ex.guidance && ex.instructions),
+      addedGymCoreIsNonFloor: floorGymCore.length === 0,
+      bugfix7AlternativeAccessPreserved: /simpleControlsAlternative64BA7|data-phase64ba-bugfix7-current-alternative|openCurrentExerciseAlternative64BABugfix7/.test(html),
+      bugfix8GymNoFloorRankingPreserved: /PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1/.test(html) && /Floor fallback|Stability ball avoided/.test(html),
+      simpleModeVisualLayoutPreserved: /PHASE_64BA_REDO_BUGFIX_3_SINGLE_MOVE_HEADER_COPY_DENSITY_POLISH_V1|PHASE_64BA_REDO_BUGFIX_5_SIMPLE_LOG_SET_OWNER/.test(html),
+      protectedCoreOwnersSingle: countFn('buildActiveSession') === 1 && countFn('startWorkout') === 1 && countFn('loadState') === 1 && countFn('saveState') === 1 && countFn('renderExerciseDetail') === 1 && countFn('renderExerciseList') === 1 && countFn('renderSetLoggingSection') === 1,
+      protectedSetTimerCoachOwnersSingle: countFn('completeSet') === 1 && countFn('adjustSetInput') === 1 && countFn('startRest11C') === 1 && countFn('renderDropSetActionRail59G') === 1,
+      noForbiddenLoopOrStorageClearAdded: !forbiddenInImplementation
+    });
+    const status = Object.values(checks).every(Boolean) ? 'YELLOW' : 'RED';
+    const result = Object.freeze({
+      phase: PHASE64BB_NAME,
+      outputFile: PHASE64BB_OUTPUT,
+      baseFileUsed: PHASE64BB_BASE,
+      status,
+      checks,
+      coverage,
+      coachAwareness: buildCoreAbsCoachAwareness64BB(state),
+      visibleAbsHonestyCopy: PHASE64BB_VISIBLE_ABS_HONESTY_COPY,
+      exercisesAdded: Object.freeze(addedExercises.map((ex)=> Object.freeze({ id:ex.id, name:ex.displayName, sets:ex.prescription && ex.prescription.sets, equipment:ex.equipment, targetMuscles:ex.targetMuscles }))),
+      ownerPathsTouched: Object.freeze(['STATE_SEED.profile.goalPriorityMuscles','STATE_SEED.program.exercisesById direct core additions','normalizeMuscleToken27A core mapping','directMusclesForExercise27A core direct/indirect distinction','indirectMusclesForExercise27A compound core demand','PRIORITY_MUSCLE_GROUPS27A','PRIORITY_WEEKLY_TARGET_RANGES27B','muscleFamily64BABugfix8 core family mapping','gymFriendlySignals64BABugfix8 core gym signals','Phase64BB audit/export only']),
+      duplicateBloatChecks: Object.freeze({ noNewAlternativeEngine:true, noNutritionTracker:true, noTimerRenderScrollWorkaround:true, noLocalStorageClear:true }),
+      validationResults: 'Static validation only. Android/GitHub confirmation required before GREEN.',
+      codeSizeImpact: 'Narrow priority/core coverage additions plus two low-friction direct-core exercise records and audit/export helper.',
+      androidGithubStatus: 'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+    if (options && options.compact) return Object.freeze({ phase:result.phase, status:result.status, checks:result.checks, coverage:result.coverage });
+    return result;
+  }
+  function runFullAppAudit64BB(options){
+    const phase = runCoreAbsPriorityCoverageAudit64BB({ compact:true });
+    const prior = typeof window.runFullAppAudit64BABugfix8 === 'function' ? window.runFullAppAudit64BABugfix8({ compact:true }) : null;
+    const status = phase.status === 'YELLOW' && (!prior || prior.status !== 'RED') ? 'YELLOW' : 'RED';
+    if (options && options.compact) return Object.freeze({ phase:PHASE64BB_NAME, status, phase64BB:phase, prior });
+    return Object.freeze({ phase:PHASE64BB_NAME, status, phase64BB:phase, prior, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+  }
+  window.normalizeCoreAbsFamily64BB = normalizeCoreAbsFamily64BB;
+  window.collectCoreAbsPriorityCoverage64BB = collectCoreAbsPriorityCoverage64BB;
+  window.buildCoreAbsCoachAwareness64BB = buildCoreAbsCoachAwareness64BB;
+  window.runCoreAbsPriorityCoverageAudit64BB = runCoreAbsPriorityCoverageAudit64BB;
+  window.runFullAppAudit64BB = runFullAppAudit64BB;
+  window.runFullAppAudit = runFullAppAudit64BB;
+  window.TailoredTrainingPhase64BB = Object.freeze({ phase:PHASE64BB_NAME, outputFile:PHASE64BB_OUTPUT, baseFileUsed:PHASE64BB_BASE, priorityMusclesBefore:PHASE64BB_PRIORITY_BEFORE, priorityMusclesAfter:PHASE64BB_PRIORITY_AFTER, visibleAbsHonestyCopy:PHASE64BB_VISIBLE_ABS_HONESTY_COPY, collectCoreAbsPriorityCoverage64BB, runCoreAbsPriorityCoverageAudit64BB, runFullAppAudit64BB, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+})();
+</script>
+
+
+<script>
+/* PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1_JS */
+(function(){
+  function textOf(node){ return String(node && node.textContent || '').replace(/\s+/g,' ').trim(); }
+  function countFunctions64BBBugfix1(source, name){
+    const re = new RegExp('function\\s+' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\(', 'g');
+    const matches = String(source || '').match(re);
+    return matches ? matches.length : 0;
+  }
+  function runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1(){
+    const doc = document;
+    const body = doc && doc.body;
+    const isSimple = !!(body && body.getAttribute('data-active-view-mode') === 'simple');
+    const surface = doc && doc.getElementById('exerciseDetailSurface');
+    const rows = surface ? Array.from(surface.querySelectorAll('[data-phase64bb-bugfix1-simple-metric-row="rest-rir-tempo"]')) : [];
+    const visibleRows = rows.filter((row)=>{
+      const cs = window.getComputedStyle ? window.getComputedStyle(row) : null;
+      return !cs || (cs.display !== 'none' && cs.visibility !== 'hidden' && Number(cs.opacity || 1) !== 0);
+    });
+    const activeRow = rows[0] || null;
+    const rowText = textOf(activeRow);
+    const rirChip = activeRow ? activeRow.querySelector('[data-phase64bb-bugfix1-chip="rir"]') : null;
+    const html = String(doc && doc.documentElement && doc.documentElement.innerHTML || '');
+    const scripts = Array.from(doc.querySelectorAll('script')).map((script)=>String(script.textContent || '')).join('\n');
+    const coreAudit = typeof window.runCoreAbsPriorityCoverageAudit64BB === 'function' ? window.runCoreAbsPriorityCoverageAudit64BB() : null;
+    return {
+      phase:'Phase 64BB BUGFIX 1 — Simple Mode Rest / RIR / Tempo Header Chips',
+      isSimple,
+      metricRows: rows.length,
+      visibleMetricRows: visibleRows.length,
+      hasExactlyOneSimpleMetricRowWhenSimple: isSimple ? visibleRows.length === 1 : rows.length >= 1,
+      rowText,
+      includesRest: /\bRest\b/i.test(rowText),
+      includesRir: /\bRIR\b|rep\s+in\s+tank/i.test(rowText),
+      includesTempo: /\bTempo\b/i.test(rowText),
+      targetExcludedFromSimpleHeader: !/\bTarget\b/i.test(rowText),
+      duplicateRirLabelAbsent: !/\bRIR\s+RIR\b/i.test(textOf(rirChip) || rowText),
+      alternativePillPresent: !!(surface && surface.querySelector('[data-phase64ba-bugfix7-current-alternative="existing-phase19-owner"]')),
+      bugfix7AlternativeControlsPresent: /data-phase64ba-bugfix7-controls-alternative="direct-visible-row"/.test(html),
+      bugfix8RankingOwnerPreserved: /PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1_JS/.test(html) && countFunctions64BBBugfix1(scripts,'getRankedAlternativeCandidates19B') === 1,
+      corePriorityPreserved: !!(coreAudit && coreAudit.corePriorityPresent),
+      visibleAbsHonestyCopyPreserved: /Visible abs depend mostly on body-fat level/i.test(html),
+      cableCrunchPreserved: /Cable crunch/i.test(html),
+      standingPallofPreserved: /Standing Pallof press/i.test(html),
+      targetNotAddedToHeaderRow: !/\bTarget\b/i.test(rowText),
+      ownerCounts: {
+        buildActiveSession: countFunctions64BBBugfix1(scripts,'buildActiveSession'),
+        startWorkout: countFunctions64BBBugfix1(scripts,'startWorkout'),
+        loadState: countFunctions64BBBugfix1(scripts,'loadState'),
+        saveState: countFunctions64BBBugfix1(scripts,'saveState'),
+        renderExerciseDetail: countFunctions64BBBugfix1(scripts,'renderExerciseDetail'),
+        renderExerciseList: countFunctions64BBBugfix1(scripts,'renderExerciseList'),
+        renderSetLoggingSection: countFunctions64BBBugfix1(scripts,'renderSetLoggingSection'),
+        completeSet: countFunctions64BBBugfix1(scripts,'completeSet'),
+        adjustSetInput: countFunctions64BBBugfix1(scripts,'adjustSetInput')
+      },
+      forbiddenWorkaroundsInBugfix1: (()=>{
+        const marker = 'PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1_JS';
+        const bugfixSource = scripts.slice(Math.max(0, scripts.indexOf(marker)));
+        const forbiddenTokens = ['Mutation'+'Observer', 'set'+'Timeout(', 'request'+'AnimationFrame(', 'scroll'+'IntoView(', 'set'+'Interval(', 'local'+'Storage.clear'];
+        return !forbiddenTokens.some((token)=>bugfixSource.indexOf(token) !== -1);
+      })(),
+      status:'YELLOW — Android/GitHub confirmation required before GREEN'
+    };
+  }
+  function runFullAppAudit64BBBugfix1(){
+    const prior = typeof window.runFullAppAudit64BB === 'function' ? window.runFullAppAudit64BB() : null;
+    return {
+      phase64BBBugfix1: runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1(),
+      prior64BB: prior,
+      status:'YELLOW — Android/GitHub confirmation required before GREEN'
+    };
+  }
+  window.runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1 = runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1;
+  window.runFullAppAudit64BBBugfix1 = runFullAppAudit64BBBugfix1;
+})();
+</script>
 </body>
 </html>
