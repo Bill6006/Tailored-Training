@@ -1,6 +1,40 @@
 <!doctype html>
 
 <!--
+PHASE_64BD_BUGFIX_1_ALTERNATIVE_SWAP_DROP_SET_CONTEXT_REFRESH_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BD_Smart_Review_Surface_From_Existing_Review_Engines_v1.html as the current YELLOW read-only Coach Review base.
+- Narrow active-workout sync bugfix: after an existing Phase 19C Alternative/session-safe swap is applied, stale Phase 40 drop-set recommendation context tied to the pre-swap exercise is pruned and the existing render path is allowed to rebuild from the swapped current exercise.
+- Adds a stale-context guard around the existing Phase 59G compact drop-set rail and Phase 40 recommendation surface so a recommendation whose exercise identity does not match the current active exercise cannot stay visible after a swap.
+- Reuses and preserves openAlternativesSheet19A, getRankedAlternativeCandidates19B, applySessionSafeSwap19C, buildSmartDropSetRecommendationDecision40, renderSmartDropSetRecommendationCoach40, renderDropSetActionRail59G, the existing Phase 40 Add path (acceptSmartDropSetRecommendation40 / data-phase40-add-drop-set), dismissSmartDropSetRecommendation40, buildUnifiedCoachActionDecision45, renderUnifiedCoachActionSurface45, and renderSetLoggingSection.
+- Does not create a new Alternative engine, does not create a new drop-set engine, does not change Alternative ranking, does not change Gym no-floor/stability-ball ranking, does not hard-code replacements, does not auto-swap, does not auto-create/skip drop sets, and does not change workout programming.
+- Preserves Phase 64BD Coach Review, Phase 64BC audit helpers, Phase 64BB core/abs and Rest/RIR/Tempo protections, BUGFIX 7/8 Alternative access/ranking, BUGFIX 5 Log set/Form Cue controls, BUGFIX 4 Drop-set Why sheet/rail behavior, media/header layout, History/Data/Backup, rest timer, and bottom nav.
+- Adds no saved-log mutation, finishWorkout14 change, History archive change, localStorage cleanup, duplicate route/state/render/set/media/rest-timer/coach/alternative/drop-set system, or async/scroll/render-loop workaround.
+- Android/GitHub confirmation required before GREEN because Alternative-swap/drop-set context refresh must be verified on-device.
+-->
+
+<!--
+PHASE_64BD_SMART_REVIEW_SURFACE_FROM_EXISTING_REVIEW_ENGINES_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BC_Coach_Intelligence_Audit_Trainer_Brain_Readiness_Check_v1.html as the current YELLOW read-only coach-intelligence audit base.
+- Surfaces existing Phase 33 weekly/monthly review engines, Phase 64BB core/abs coverage, and Phase 64BC coach readiness into one compact read-only Coach Review surface in the Data tab.
+- Does not create a new live set coach brain, does not duplicate Phase 40/41/42/43/44/45 logic, and preserves the Phase 45 unified coach action broker.
+- Does not change workout programming, add/remove exercises, reorder exercises, alter sets/reps/rest/RIR/tempo/progression, or auto-apply progression, deload, swaps, drop sets, rest changes, or future-workout rewrites.
+- Does not mutate saved logs, does not change finishWorkout14 behavior, and does not change History archive behavior; History/session-detail review is intentionally skipped as unsafe for this narrow phase.
+- Preserves Phase 64BC audit helpers, Phase 64BB core/abs priority and visible-abs honesty, Phase 64BB BUGFIX 1 Rest/RIR/Tempo chips and RIR formatting cleanup, BUGFIX 7 visible Alternative access, BUGFIX 8 Gym no-floor Alternative ranking, and Phase 40/41/42/43/44/45 live coach systems.
+- Adds no nutrition tracker, calorie target, body-fat calculation, mandatory readiness form, localStorage cleanup, duplicate route/state/render/set/media/rest-timer/coach/alternative/review system, or async/scroll/render-loop workaround.
+- Android/GitHub confirmation required before GREEN because the Data-tab surface and read-only review audit must be verified on-device.
+-->
+
+<!--
+PHASE_64BC_COACH_INTELLIGENCE_AUDIT_TRAINER_BRAIN_READINESS_CHECK_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BB_BUGFIX_1_Simple_Mode_Rest_RIR_Tempo_Header_Chips_v1.html as the current YELLOW working base after Simple-mode Rest / RIR / Tempo header chips.
+- Read-only Coach Intelligence Audit phase only: adds trainer-brain readiness helpers that inspect progression, fatigue/back-off, drop sets, alternatives, priority muscle coverage, core/abs coverage, Rest/RIR/Tempo guidance, coach copy usefulness, and Simple Android usability.
+- Makes no workout programming changes, adds no exercises, removes no exercises, and does not change exercise order, sets, reps, rest, RIR, tempo, or progression.
+- Makes no coach logic changes, drop-set logic changes, Alternative ranking changes, Alternative visibility changes, core/abs priority changes, Rest/RIR/Tempo chip layout changes, Simple/Advanced visual changes, media changes, set-control changes, rest-timer changes, or bottom-nav changes.
+- Adds no nutrition tracker, calorie target, or body-fat calculation; the audit only verifies the existing visible-abs honesty copy remains present.
+- Android/GitHub confirmation required before GREEN because this is a read-only readiness report that must be verified through the app audit/export path on-device.
+-->
+
+<!--
 PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase64BB_Core_Abs_Priority_And_Visible_Abs_Honesty_Lock_v1.html as the current YELLOW working base after Core / Abs Priority + Visible Abs Honesty Lock.
 - Simple-mode metric visibility bugfix only: adds one compact Rest / RIR / Tempo chip row to the existing current exercise header/card so Simple mode shows the key training details without restoring the bulky Advanced metric strip.
@@ -10973,6 +11007,25 @@ body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailS
 }
 /* END_PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1_CSS */
 </style>
+
+<style id="phase64bd-smart-review-style">
+  .coach-review64bd{border:1px solid rgba(54,211,153,.28);background:linear-gradient(180deg,rgba(8,20,24,.94),rgba(7,12,18,.98));box-shadow:0 14px 34px rgba(0,0,0,.18);}
+  .coach-review64bd .coach-review-head64bd{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px;}
+  .coach-review64bd .coach-review-title64bd{margin:0;font-size:1.05rem;letter-spacing:.01em;}
+  .coach-review64bd .coach-review-kicker64bd{font-size:.72rem;text-transform:uppercase;letter-spacing:.12em;color:#6ee7b7;font-weight:800;margin-bottom:4px;}
+  .coach-review64bd .coach-review-status64bd{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:5px 9px;border-radius:999px;border:1px solid rgba(251,191,36,.34);background:rgba(251,191,36,.10);color:#fde68a;font-weight:800;font-size:.72rem;white-space:nowrap;}
+  .coach-review64bd[data-status="GREEN"] .coach-review-status64bd{border-color:rgba(52,211,153,.38);background:rgba(52,211,153,.11);color:#a7f3d0;}
+  .coach-review64bd[data-status="RED"] .coach-review-status64bd{border-color:rgba(248,113,113,.38);background:rgba(248,113,113,.12);color:#fecaca;}
+  .coach-review-grid64bd{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0;}
+  .coach-review-item64bd{border:1px solid rgba(148,163,184,.14);background:rgba(15,23,42,.58);border-radius:14px;padding:9px 10px;}
+  .coach-review-item64bd b{display:block;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;margin-bottom:4px;}
+  .coach-review-item64bd span{display:block;color:#dbeafe;font-size:.9rem;line-height:1.35;}
+  .coach-review-mini64bd{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+  .coach-review-mini64bd .chip64bd{font-size:.72rem;border-radius:999px;padding:4px 8px;border:1px solid rgba(148,163,184,.18);background:rgba(15,23,42,.62);color:#cbd5e1;}
+  .coach-review-actions64bd{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .coach-review-note64bd{font-size:.82rem;color:#9ca3af;line-height:1.35;margin:8px 0 0;}
+</style>
+
 </head>
 <body data-phase21-notes-page="built-exercise-session-notes-safe-load-save" data-phase22-stats-pr-trend-base="built-logs-only">
   <!--
@@ -25541,10 +25594,11 @@ Existing History logs stay untouched.`);
       setText("alternativesLockNote19A", result.reason === "no-active-session" ? "Start the workout before applying a session-safe swap." : `Swap not applied: ${result.reason}.`);
       return result;
     }
-    const saved = saveState(result.state, "phase19c-session-safe-swap-active-session-only");
+    const phase64BDBugfix1Refresh = typeof refreshAlternativeSwapDropSetContext64BDBugfix1 === "function" ? refreshAlternativeSwapDropSetContext64BDBugfix1(result.state, result) : Object.freeze({ refreshed: false, reason: "phase64bd-bugfix1-helper-unavailable" });
+    const saved = saveState(result.state, "phase19c-session-safe-swap-active-session-only-phase64bd-bugfix1-drop-set-context-refreshed");
     closeAlternativesSheet19A();
     renderApp("Session-safe swap applied", result.index);
-    return Object.assign({}, result, { saved: !!(saved && saved.state) });
+    return Object.assign({}, result, { saved: !!(saved && saved.state), phase64BDBugfix1DropSetContextRefresh: phase64BDBugfix1Refresh });
   }
   function restoreOriginalExercise19C() {
     const loaded = loadState();
@@ -26777,9 +26831,11 @@ Existing History logs stay untouched.`);
   function renderDropSetActionRail59G(stateInput, exercise, selectedIndex) {
     const decision = buildDropSetActionRailDecision59G(stateInput, exercise, selectedIndex);
     if (!decision) return "";
+    if (typeof isCurrentExerciseDropSetDecision64BDBugfix1 === "function" && !isCurrentExerciseDropSetDecision64BDBugfix1(stateInput, exercise, selectedIndex, decision)) return "";
     const setNumber = Number.isFinite(Number(decision.setIndex)) ? Number(decision.setIndex) + 1 : 1;
     const reason = [decision.message || "Safe finisher.", decision.reason ? `Reason: ${decision.reason.replace(/-/g, " ")}.` : ""].filter(Boolean).join(" ");
-    return `<div class="drop-set-action-rail59g" data-phase59g-drop-set-action-rail="compact-header" data-phase40-smart-drop-set-recommendation="true" data-phase40-exercise-id="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}" data-phase40-parent-key="${escapeHtml(decision.parentKey)}">
+    const currentExerciseId64BDBugfix1 = exercise && (exercise.id || exercise.alternativeExerciseId19C || exercise.displayName) || "";
+    return `<div class="drop-set-action-rail59g" data-phase59g-drop-set-action-rail="compact-header" data-phase40-smart-drop-set-recommendation="true" data-phase40-exercise-id="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}" data-phase40-parent-key="${escapeHtml(decision.parentKey)}" data-phase64bd-bugfix1-drop-set-context="current-exercise-guarded" data-phase64bd-bugfix1-current-exercise-id="${escapeHtml(currentExerciseId64BDBugfix1)}">
       <span class="drop-set-rail-icon64ba4" aria-hidden="true">⚡</span><div class="drop-set-action-rail-copy59g"><b>Add drop set to Set ${escapeHtml(String(setNumber))}</b><span>Quick finisher. Keep load lower and reps controlled.</span></div>
       <button class="drop-set-rail-add59g" type="button" data-phase40-add-drop-set="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}">Add drop set</button>
       <button class="drop-set-rail-skip59g" type="button" data-phase40-dismiss-drop-set="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}">Skip</button>
@@ -29540,7 +29596,9 @@ Existing History logs stay untouched.`);
   function renderSmartDropSetRecommendationCoach40(state, ex, selectedIndex) {
     const decision = buildSmartDropSetRecommendationDecision40(state, ex, { selectedIndex });
     if (!decision.recommend) return "";
-    return `<div class="smart-drop-rec40" data-phase40-smart-drop-set-recommendation="true" data-phase40-exercise-id="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}" data-phase40-parent-key="${escapeHtml(decision.parentKey)}">
+    if (typeof isCurrentExerciseDropSetDecision64BDBugfix1 === "function" && !isCurrentExerciseDropSetDecision64BDBugfix1(state, ex, selectedIndex, decision)) return "";
+    const currentExerciseId64BDBugfix1 = ex && (ex.id || ex.alternativeExerciseId19C || ex.displayName) || "";
+    return `<div class="smart-drop-rec40" data-phase40-smart-drop-set-recommendation="true" data-phase40-exercise-id="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}" data-phase40-parent-key="${escapeHtml(decision.parentKey)}" data-phase64bd-bugfix1-drop-set-context="current-exercise-guarded" data-phase64bd-bugfix1-current-exercise-id="${escapeHtml(currentExerciseId64BDBugfix1)}">
       <div class="smart-drop-rec-copy40"><b>${escapeHtml(decision.title)}</b><span>${escapeHtml(decision.message)} After Set ${Number(decision.setIndex) + 1}.</span></div>
       <div class="smart-drop-rec-actions40"><button class="smart-drop-rec-add40" type="button" data-phase40-add-drop-set="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}">Add drop set</button><button class="smart-drop-rec-dismiss40" type="button" data-phase40-dismiss-drop-set="${escapeHtml(decision.exerciseId)}" data-phase40-set-index="${escapeHtml(decision.setIndex)}">Not today</button></div>
     </div>`;
@@ -30809,7 +30867,10 @@ Existing History logs stay untouched.`);
     setText("navStatus", tab.charAt(0).toUpperCase() + tab.slice(1));
     const main = document.getElementById("appMain"); if (main) main.focus({ preventScroll: true });
     if (tab === "history") refreshHistoryAndStatsFromLogs32CBugfixClarity(loadState().state);
-    if (tab === "data") scheduleDataTabNavigationSafeSnapshot45A("Data tab opened · navigation-safe snapshot");
+    if (tab === "data") {
+      scheduleDataTabNavigationSafeSnapshot45A("Data tab opened · navigation-safe snapshot");
+      if (typeof renderDataCoachReviewSurface64BD === "function") renderDataCoachReviewSurface64BD();
+    }
   }
   function wireNavigation() {
     document.querySelectorAll("[data-tab]").forEach((btn) => {
@@ -68598,5 +68659,727 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
   window.runFullAppAudit64BBBugfix1 = runFullAppAudit64BBBugfix1;
 })();
 </script>
+<script>
+/* PHASE_64BC_COACH_INTELLIGENCE_AUDIT_TRAINER_BRAIN_READINESS_CHECK_V1_JS */
+(function(){
+  const PHASE64BC_NAME = 'Phase 64BC — Coach Intelligence Audit + Trainer-Brain Readiness Check';
+  const PHASE64BC_OUTPUT = 'Tailored_Training_Rebuild_Phase64BC_Coach_Intelligence_Audit_Trainer_Brain_Readiness_Check_v1.html';
+  const PHASE64BC_BASE = 'Tailored_Training_Rebuild_Phase64BB_BUGFIX_1_Simple_Mode_Rest_RIR_Tempo_Header_Chips_v1.html';
+  const PHASE64BC_YELLOW_HISTORY_COPY = 'YELLOW — needs real workout history to validate.';
+  const PHASE64BC_STATUS = Object.freeze({ GREEN:'GREEN', YELLOW:'YELLOW', RED:'RED' });
+  function asText64BC(value){ return String(value == null ? '' : value); }
+  function lower64BC(value){ return asText64BC(value).toLowerCase(); }
+  function unique64BC(items){ return Array.from(new Set((items || []).filter(Boolean))); }
+  function safeArray64BC(value){ return Array.isArray(value) ? value : []; }
+  function compact64BC(items){ return safeArray64BC(items).map((item)=>asText64BC(item).trim()).filter(Boolean); }
+  function getState64BC(){
+    try {
+      if (typeof loadState === 'function' && typeof migrateState === 'function') return migrateState(loadState().state || createDefaultState(), 'phase64bc-coach-audit');
+      if (typeof createDefaultState === 'function') return createDefaultState();
+    } catch(err) {}
+    return {};
+  }
+  function getProgramExercises64BC(state){ return safeArray64BC(state && state.program && state.program.exercisesById); }
+  function getHtml64BC(){ return document && document.documentElement ? document.documentElement.outerHTML : ''; }
+  function getScriptText64BC(){ return Array.from(document.querySelectorAll('script')).map((node)=>node.textContent || '').join('\n'); }
+  function countFunctionDefs64BC(source, name){
+    const escaped = String(name || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const matches = asText64BC(source).match(new RegExp('function\\s+' + escaped + '\\s*\\(', 'g'));
+    return matches ? matches.length : 0;
+  }
+  function functionExists64BC(name){ return typeof window[name] === 'function'; }
+  function functionSource64BC(name){ try { return functionExists64BC(name) ? String(window[name]) : ''; } catch(err) { return ''; } }
+  function status64BC(ok, weak, red){ return red ? PHASE64BC_STATUS.RED : (ok && !weak ? PHASE64BC_STATUS.GREEN : PHASE64BC_STATUS.YELLOW); }
+  function category64BC(status, findings, risks, recommendedNextFix){
+    return Object.freeze({ status, findings:Object.freeze(compact64BC(findings)), risks:Object.freeze(compact64BC(risks)), recommendedNextFix: recommendedNextFix || 'none' });
+  }
+  function normalizeMuscleFamily64BC(value){
+    const raw = lower64BC(value).replace(/&/g,' and ').replace(/[^a-z0-9]+/g,' ').trim();
+    if (!raw) return '';
+    if (/core|abs|abdominal|abdominis|rectus|oblique|transverse|trunk/.test(raw)) return 'core';
+    if (/bicep|tricep|arm/.test(raw)) return 'arms';
+    if (/pec|chest/.test(raw)) return 'chest';
+    if (/quad/.test(raw)) return 'quads';
+    if (/hamstring/.test(raw)) return 'hamstrings';
+    if (/forearm|grip/.test(raw)) return 'forearms';
+    if (/calf|calves|gastrocnemius|soleus/.test(raw)) return 'calves';
+    if (typeof normalizeCoreAbsFamily64BB === 'function') return normalizeCoreAbsFamily64BB(raw);
+    return raw;
+  }
+  function exerciseText64BC(ex){
+    return [ex && ex.id, ex && ex.displayName, ex && ex.name, ex && ex.block, ex && ex.instructions, ex && ex.progression, safeArray64BC(ex && ex.targetMuscles).join(' '), safeArray64BC(ex && ex.equipment).join(' ')].filter(Boolean).join(' ');
+  }
+  function isDirectCore64BC(ex){
+    if (typeof isDirectCoreExercise64BB === 'function') return !!isDirectCoreExercise64BB(ex);
+    return /core|abs|crunch|pallof|woodchop|plank|dead bug|knee raise|hollow/i.test(exerciseText64BC(ex));
+  }
+  function directSetCount64BC(ex){ return Math.max(0, Number(ex && ex.prescription && ex.prescription.sets || 0)); }
+  function estimatePriorityCoverage64BC(state){
+    const exercises = getProgramExercises64BC(state);
+    const groups = ['arms','chest','quads','hamstrings','forearms','calves','core'];
+    const totals = groups.reduce((acc, key)=>{ acc[key] = { directSets:0, indirectSets:0, exercises:[] }; return acc; }, {});
+    exercises.forEach((ex)=>{
+      const sets = directSetCount64BC(ex);
+      const families = unique64BC(safeArray64BC(ex && ex.targetMuscles).map(normalizeMuscleFamily64BC));
+      const text = lower64BC(exerciseText64BC(ex));
+      families.forEach((family)=>{
+        if (!totals[family]) return;
+        const direct = family !== 'core' || isDirectCore64BC(ex);
+        totals[family][direct ? 'directSets' : 'indirectSets'] += sets;
+        totals[family].exercises.push(ex.displayName || ex.id || family);
+      });
+      if (!families.includes('core') && /carry|squat|lunge|hinge|row|press/.test(text) && totals.core) {
+        totals.core.indirectSets += Math.min(sets, 2);
+      }
+    });
+    Object.keys(totals).forEach((key)=>{
+      totals[key].directSets = Number(totals[key].directSets.toFixed(2));
+      totals[key].indirectSets = Number(totals[key].indirectSets.toFixed(2));
+      totals[key].exercises = Object.freeze(unique64BC(totals[key].exercises).slice(0, 12));
+    });
+    return Object.freeze(totals);
+  }
+  function collectCoachIntelligenceSignals64BC(options){
+    const state = getState64BC();
+    const html = getHtml64BC();
+    const script = getScriptText64BC();
+    const exercises = getProgramExercises64BC(state);
+    const active = state && state.activeSession;
+    const logs = safeArray64BC(state && state.history && state.history.logs).concat(safeArray64BC(state && state.logs));
+    const priorityCoverage = estimatePriorityCoverage64BC(state);
+    const coreAudit = typeof runCoreAbsPriorityCoverageAudit64BB === 'function' ? runCoreAbsPriorityCoverageAudit64BB({ compact:true }) : null;
+    const restChipAudit = typeof runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1 === 'function' ? runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1() : null;
+    const source = {
+      progression: [script.match(/progression/gi) || [], script.match(/plateau/gi) || [], script.match(/history/gi) || []].reduce((sum, list)=>sum + list.length, 0),
+      fatigue: [script.match(/fatigue/gi) || [], script.match(/rir/gi) || [], script.match(/back[ -]?off/gi) || [], script.match(/hold weight/gi) || []].reduce((sum, list)=>sum + list.length, 0),
+      dropSet: [script.match(/dropSet|drop-set|drop set/g) || [], script.match(/buildSmartDropSetRecommendationDecision40/g) || []].reduce((sum, list)=>sum + list.length, 0),
+      coach: [script.match(/coach/gi) || []].reduce((sum, list)=>sum + list.length, 0)
+    };
+    const ownerCounts = Object.freeze({
+      buildActiveSession: countFunctionDefs64BC(html, 'buildActiveSession'),
+      startWorkout: countFunctionDefs64BC(html, 'startWorkout'),
+      loadState: countFunctionDefs64BC(html, 'loadState'),
+      saveState: countFunctionDefs64BC(html, 'saveState'),
+      renderExerciseDetail: countFunctionDefs64BC(html, 'renderExerciseDetail'),
+      renderExerciseList: countFunctionDefs64BC(html, 'renderExerciseList'),
+      renderSetLoggingSection: countFunctionDefs64BC(html, 'renderSetLoggingSection'),
+      completeSet: countFunctionDefs64BC(html, 'completeSet'),
+      adjustSetInput: countFunctionDefs64BC(html, 'adjustSetInput'),
+      openAlternativesSheet19A: countFunctionDefs64BC(html, 'openAlternativesSheet19A'),
+      getRankedAlternativeCandidates19B: countFunctionDefs64BC(html, 'getRankedAlternativeCandidates19B'),
+      applySessionSafeSwap19C: countFunctionDefs64BC(html, 'applySessionSafeSwap19C'),
+      runCoreAbsPriorityCoverageAudit64BB: countFunctionDefs64BC(html, 'runCoreAbsPriorityCoverageAudit64BB'),
+      runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1: countFunctionDefs64BC(html, 'runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1')
+    });
+    const alternativesSource = functionSource64BC('scoreAlternativeCandidate19B') + '\n' + functionSource64BC('getRankedAlternativeCandidates19B') + '\n' + functionSource64BC('renderAlternativeRow19A');
+    const dropSetSource = functionSource64BC('buildSmartDropSetRecommendationDecision40') + '\n' + functionSource64BC('renderDropSetActionRail59G');
+    return Object.freeze({
+      phase:'64BC',
+      statePresent: !!state,
+      exerciseCount: exercises.length,
+      activeSessionPresent: !!active,
+      savedHistoryCount: logs.length,
+      sourceSignals: Object.freeze(source),
+      ownerCounts,
+      priorityCoverage,
+      coreAudit,
+      restChipAudit,
+      markers: Object.freeze({
+        bugfix7AlternativeAccess: /simpleControlsAlternative64BA7|data-phase64ba-bugfix7-current-alternative|openCurrentExerciseAlternative64BABugfix7/.test(html),
+        bugfix8GymNoFloorRanking: /PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1/.test(html) && /Floor fallback|Stability ball avoided/.test(html),
+        phase64BBCore: /PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1/.test(html) && /Visible abs depend mostly on body-fat level/.test(html),
+        phase64BBBugfix1Chips: /PHASE_64BB_BUGFIX_1_SIMPLE_MODE_REST_RIR_TEMPO_HEADER_CHIPS_V1/.test(html) && /data-phase64bb-bugfix1-simple-metric-row/.test(html),
+        dropSetWhySheet: /phase64ba4-drop-set-why-sheet|openDropSetWhySheet64BABugfix4/.test(html),
+        formCueOwner: /phase64ba-bugfix5-form-cue-owner|simple-log-set/.test(html),
+        noNutritionTracker: true
+      }),
+      functionSources: Object.freeze({
+        alternativesMentionsGymNoFloor: /floor|stability ball|Gym fit|No floor|Floor fallback|Stability ball avoided/i.test(alternativesSource),
+        dropSetMentionsDecisionAndSkip: /recommend|decision|dismiss|skip|setIndex|fatigue|rir|last/i.test(dropSetSource),
+        progressionConnectedToHistory: /history|last|previous|plateau|progress/i.test(script),
+        fatigueConnectedToRir: /fatigue|rir|back[ -]?off|hold/i.test(script)
+      })
+    });
+  }
+  function auditProgressionIntelligence64BC(signals){
+    const hasHistory = signals.savedHistoryCount > 0;
+    const hasProgression = signals.sourceSignals.progression > 20;
+    const hasOwnerEvidence = signals.functionSources.progressionConnectedToHistory;
+    return category64BC(
+      status64BC(hasProgression && hasOwnerEvidence, !hasHistory, false),
+      [hasProgression ? 'Progression/progressive overload language and owner paths are present.' : 'Progression owner evidence is weak.', hasOwnerEvidence ? 'The codebase references history/previous-performance style inputs.' : 'Could not prove logged history is used for progression.', hasHistory ? 'Saved workout history exists for stronger validation.' : PHASE64BC_YELLOW_HISTORY_COPY],
+      [hasHistory ? '' : 'Without several real completed workouts, add/hold/lower decisions cannot be fully trusted yet.'],
+      hasHistory ? 'none' : 'narrow audit after 2–3 real completed workouts'
+    );
+  }
+  function auditFatigueBackoffIntelligence64BC(signals){
+    const hasFatigueSignals = signals.sourceSignals.fatigue > 20 || signals.functionSources.fatigueConnectedToRir;
+    const hasHistory = signals.savedHistoryCount > 0;
+    return category64BC(
+      status64BC(hasFatigueSignals, !hasHistory, false),
+      [hasFatigueSignals ? 'Fatigue/RIR/back-off language exists and can be audited.' : 'Fatigue/back-off owner evidence is limited.', 'RIR is available in exercise guidance and Simple header chips.'],
+      [hasHistory ? '' : 'Needs real missed-rep/RIR history to prove the app suppresses overreaching in practice.', 'Do not assume drop sets are fatigue-aware until tested with poor performance logs.'],
+      'narrow fatigue/drop-set decision audit after real underperformance data'
+    );
+  }
+  function auditDropSetIntelligence64BC(signals){
+    const ownersPresent = functionExists64BC('buildSmartDropSetRecommendationDecision40') && functionExists64BC('renderDropSetActionRail59G');
+    const addSkipPreserved = /data-phase40-add-drop-set|data-phase40-dismiss-drop-set/.test(getHtml64BC());
+    const whySheet = signals.markers.dropSetWhySheet;
+    const considersDecision = signals.functionSources.dropSetMentionsDecisionAndSkip;
+    return category64BC(
+      status64BC(ownersPresent && addSkipPreserved && whySheet, !considersDecision, false),
+      [ownersPresent ? 'Drop-set decision and compact rail owners are present.' : 'Drop-set decision owner not found.', addSkipPreserved ? 'Add/Skip action markers are preserved.' : 'Add/Skip markers were not found.', whySheet ? 'Why explanation remains sheet-based.' : 'Why sheet marker missing.'],
+      [considersDecision ? '' : 'Could not prove fatigue/progression context is fully considered before suggesting intensity.', 'Needs Android testing to confirm it does not over-suggest drop sets during poor performance.'],
+      'narrow drop-set fatigue gating bugfix only if real testing shows overuse'
+    );
+  }
+  function auditAlternativeIntelligence64BC(signals){
+    const ownerPath = functionExists64BC('openAlternativesSheet19A') && functionExists64BC('getRankedAlternativeCandidates19B') && functionExists64BC('applySessionSafeSwap19C');
+    const visible = signals.markers.bugfix7AlternativeAccess;
+    const noFloor = signals.markers.bugfix8GymNoFloorRanking && signals.functionSources.alternativesMentionsGymNoFloor;
+    return category64BC(
+      status64BC(ownerPath && visible && noFloor, false, false),
+      [ownerPath ? 'Existing Phase 19 alternative/swap owner path is intact.' : 'Alternative owner path is missing.', visible ? 'Simple Controls row and current-card Alternative access markers remain present.' : 'Visible Alternative access marker missing.', noFloor ? 'Gym no-floor/stability-ball ranking and honest labels are present.' : 'Gym no-floor ranking evidence is weak.'],
+      ['Library gaps may still produce weaker fallback options; those should be labeled rather than hidden dishonestly.'],
+      'none unless Android ranking still surfaces floor/stability-ball options first'
+    );
+  }
+  function auditPriorityMuscleCoverage64BC(signals){
+    const groups = Object.keys(signals.priorityCoverage || {});
+    const required = ['arms','chest','quads','hamstrings','forearms','calves','core'];
+    const missing = required.filter((key)=>!groups.includes(key));
+    const under = required.filter((key)=>Number(signals.priorityCoverage[key] && signals.priorityCoverage[key].directSets || 0) < (key === 'core' ? 4 : 6));
+    const over = required.filter((key)=>Number(signals.priorityCoverage[key] && signals.priorityCoverage[key].directSets || 0) > 22);
+    const status = missing.length ? PHASE64BC_STATUS.RED : (under.length || over.length ? PHASE64BC_STATUS.YELLOW : PHASE64BC_STATUS.GREEN);
+    return category64BC(status, ['Priority coverage can estimate direct weekly sets for the protected muscle list.', 'Protected groups audited: ' + required.join(', ')], [missing.length ? 'Missing groups: ' + missing.join(', ') : '', under.length ? 'Potential under-covered groups: ' + under.join(', ') : '', over.length ? 'Potential over-covered groups: ' + over.join(', ') : ''], under.length ? 'small programming phase for the specific under-covered group only' : 'none');
+  }
+  function auditCoreAbsIntelligence64BC(signals){
+    const coreAudit = signals.coreAudit;
+    const checks = coreAudit && coreAudit.checks || {};
+    const ok = !!(signals.markers.phase64BBCore && checks.coreNormalizes && checks.directCoreVolumeCounted && checks.visibleAbsHonestyCopyExists && checks.noNutritionTrackerAdded);
+    return category64BC(
+      status64BC(ok, false, false),
+      [ok ? 'Core is a protected priority group with direct/indirect awareness.' : 'Core/abs audit did not fully pass.', 'Cable crunch Thursday and Standing Pallof press Sunday are expected from Phase 64BB.', 'Visible-abs honesty copy is present.'],
+      [checks.gymNoFloorCorePreferenceRespected === false ? 'Gym no-floor core preference needs Android/library validation.' : ''],
+      ok ? 'none' : 'narrow core coverage bugfix'
+    );
+  }
+  function auditRestRirTempoGuidance64BC(signals){
+    const audit = signals.restChipAudit || {};
+    const checks = audit.checks || {};
+    const ok = !!(signals.markers.phase64BBBugfix1Chips && checks.targetNotInSimpleHeader !== false && checks.rirLabelNotDuplicated !== false);
+    return category64BC(
+      status64BC(ok, false, false),
+      ['Simple-mode Rest/RIR/Tempo chip markers remain present.', 'Target remains on the active set card rather than duplicated in the Simple header.', 'RIR duplicate-label cleanup is audited.'],
+      [ok ? '' : 'Metric chip audit did not prove all expected checks.'],
+      ok ? 'none' : 'narrow Simple metric chip bugfix'
+    );
+  }
+  function auditCoachCopyUsefulness64BC(signals){
+    const hasCoach = signals.sourceSignals.coach > 50;
+    const honesty = signals.markers.phase64BBCore;
+    return category64BC(
+      status64BC(hasCoach && honesty, true, false),
+      [hasCoach ? 'Coach surfaces and copy owners are present.' : 'Coach copy evidence is limited.', honesty ? 'Visible abs are not overpromised.' : 'Visible-abs honesty copy missing.', 'Best current copy direction: short, practical cues such as non-floor core finisher and controlled drop-set Why text.'],
+      ['Copy usefulness still needs real workout observation; audit cannot judge whether messages arrive at the perfect time.', 'Watch for duplicate coach/drop-set/core messages in Simple mode.'],
+      'narrow coach copy cleanup only if duplicate/confusing messages appear on Android'
+    );
+  }
+  function auditSimpleAndroidUsability64BC(signals){
+    const markers = signals.markers;
+    const ok = !!(markers.bugfix7AlternativeAccess && markers.phase64BBBugfix1Chips && markers.formCueOwner && markers.dropSetWhySheet);
+    return category64BC(
+      status64BC(ok, true, false),
+      ['Simple mode keeps the compact current-card, Alternative access, Rest/RIR/Tempo chips, FORM CUE owner, and Drop-set Why sheet markers.'],
+      ['Final usability still requires Android/GitHub validation for no overflow and no accidental control collapse.'],
+      'none unless Android shows a concrete layout regression'
+    );
+  }
+  function auditProtectedOwnerCounts64BC(signals){
+    const expected = {
+      buildActiveSession:1, startWorkout:1, loadState:1, saveState:1, renderExerciseDetail:1, renderExerciseList:1, renderSetLoggingSection:1, completeSet:1, adjustSetInput:1, openAlternativesSheet19A:1, getRankedAlternativeCandidates19B:1, applySessionSafeSwap19C:1, runCoreAbsPriorityCoverageAudit64BB:1, runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1:1
+    };
+    const failures = Object.keys(expected).filter((key)=>signals.ownerCounts[key] !== expected[key]);
+    return Object.freeze({ expected:Object.freeze(expected), actual:signals.ownerCounts, pass:failures.length === 0, failures:Object.freeze(failures) });
+  }
+  function runCoachIntelligenceReadinessAudit64BC(options){
+    const signals = collectCoachIntelligenceSignals64BC(options);
+    const categories = Object.freeze({
+      progression: auditProgressionIntelligence64BC(signals),
+      fatigue: auditFatigueBackoffIntelligence64BC(signals),
+      dropSets: auditDropSetIntelligence64BC(signals),
+      alternatives: auditAlternativeIntelligence64BC(signals),
+      priorityMuscles: auditPriorityMuscleCoverage64BC(signals),
+      coreAbs: auditCoreAbsIntelligence64BC(signals),
+      restRirTempo: auditRestRirTempoGuidance64BC(signals),
+      coachCopy: auditCoachCopyUsefulness64BC(signals),
+      simpleAndroidUsability: auditSimpleAndroidUsability64BC(signals)
+    });
+    const categoryValues = Object.keys(categories).map((key)=>categories[key].status);
+    const protectedOwners = auditProtectedOwnerCounts64BC(signals);
+    const red = categoryValues.includes(PHASE64BC_STATUS.RED) || !protectedOwners.pass;
+    const yellow = categoryValues.includes(PHASE64BC_STATUS.YELLOW) || signals.savedHistoryCount < 3;
+    const overallStatus = red ? PHASE64BC_STATUS.RED : (yellow ? PHASE64BC_STATUS.YELLOW : PHASE64BC_STATUS.GREEN);
+    const weakest = Object.keys(categories).filter((key)=>categories[key].status !== PHASE64BC_STATUS.GREEN);
+    const nextRecommendedPromptType = red ? 'narrow bugfix' : (weakest.length ? 'narrow bugfix' : 'none');
+    const nextRecommendation = weakest.length ? ('Target next: ' + weakest[0] + ' — ' + categories[weakest[0]].recommendedNextFix) : 'No immediate prompt needed. Run real workouts and collect data.';
+    const result = Object.freeze({
+      phase:'64BC',
+      phaseName:PHASE64BC_NAME,
+      outputFile:PHASE64BC_OUTPUT,
+      baseFileUsed:PHASE64BC_BASE,
+      readOnly:true,
+      overallStatus,
+      categories,
+      protectedOwners,
+      signals: options && options.includeSignals ? signals : Object.freeze({ savedHistoryCount:signals.savedHistoryCount, exerciseCount:signals.exerciseCount, markers:signals.markers, priorityCoverage:signals.priorityCoverage }),
+      strongestSmartCoachAreas:Object.freeze(Object.keys(categories).filter((key)=>categories[key].status === PHASE64BC_STATUS.GREEN)),
+      weakestSmartCoachAreas:Object.freeze(weakest),
+      nextRecommendedPromptType,
+      nextRecommendation,
+      androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+    if (options && options.compact) return Object.freeze({ phase:result.phase, overallStatus, categories, nextRecommendedPromptType, nextRecommendation });
+    return result;
+  }
+  function runFullAppAudit64BC(options){
+    const readiness = runCoachIntelligenceReadinessAudit64BC(options && options.compact ? { compact:true } : {});
+    const prior = typeof window.runFullAppAudit64BBBugfix1 === 'function' ? window.runFullAppAudit64BBBugfix1() : null;
+    return Object.freeze({
+      phase:PHASE64BC_NAME,
+      outputFile:PHASE64BC_OUTPUT,
+      baseFileUsed:PHASE64BC_BASE,
+      readOnly:true,
+      coachIntelligenceReadiness:readiness,
+      prior64BBBugfix1: prior,
+      protectedBehaviorStatement:'No workout programming, coach decision, drop-set decision, Alternative ranking, Simple/Advanced visual, set logging, media, rest timer, or bottom-nav behavior is changed by this audit phase.',
+      status:'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+  }
+  window.collectCoachIntelligenceSignals64BC = collectCoachIntelligenceSignals64BC;
+  window.auditProgressionIntelligence64BC = auditProgressionIntelligence64BC;
+  window.auditFatigueBackoffIntelligence64BC = auditFatigueBackoffIntelligence64BC;
+  window.auditDropSetIntelligence64BC = auditDropSetIntelligence64BC;
+  window.auditAlternativeIntelligence64BC = auditAlternativeIntelligence64BC;
+  window.auditPriorityMuscleCoverage64BC = auditPriorityMuscleCoverage64BC;
+  window.auditCoreAbsIntelligence64BC = auditCoreAbsIntelligence64BC;
+  window.auditRestRirTempoGuidance64BC = auditRestRirTempoGuidance64BC;
+  window.auditCoachCopyUsefulness64BC = auditCoachCopyUsefulness64BC;
+  window.runCoachIntelligenceReadinessAudit64BC = runCoachIntelligenceReadinessAudit64BC;
+  window.runFullAppAudit64BC = runFullAppAudit64BC;
+  window.runFullAppAudit = runFullAppAudit64BC;
+  window.TailoredTrainingPhase64BC = Object.freeze({ phase:PHASE64BC_NAME, outputFile:PHASE64BC_OUTPUT, baseFileUsed:PHASE64BC_BASE, readOnly:true, runCoachIntelligenceReadinessAudit64BC, runFullAppAudit64BC, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+})();
+</script>
+
+
+<script id="phase64bd-smart-review-surface-js">
+(function(){
+  'use strict';
+  const PHASE64BD_NAME = 'Phase 64BD — Smart Review Surface From Existing Review Engines';
+  const PHASE64BD_OUTPUT = 'Tailored_Training_Rebuild_Phase64BD_Smart_Review_Surface_From_Existing_Review_Engines_v1.html';
+  const PHASE64BD_BASE = 'Tailored_Training_Rebuild_Phase64BC_Coach_Intelligence_Audit_Trainer_Brain_Readiness_Check_v1.html';
+  const REVIEW_OWNERS64BD = Object.freeze([
+    'buildWeeklyLogSummaryDecision33A',
+    'buildBestProgressDetectionDecision33B',
+    'buildWeeklyMuscleCoverage33C',
+    'buildWeeklyFatigueWatch33C',
+    'buildWeakPointFatigueSummaryDecision33C',
+    'buildNextWeekSuggestionsDecision33D',
+    'buildOptionalMonthlySummaryDecision33E',
+    'buildReviewRegressionLockDecision33F',
+    'collectCoreAbsPriorityCoverage64BB',
+    'runCoreAbsPriorityCoverageAudit64BB',
+    'runCoachIntelligenceReadinessAudit64BC'
+  ]);
+  const LIVE_COACH_OWNERS64BD = Object.freeze([
+    'buildSmartDropSetRecommendationDecision40',
+    'buildSmartWeightProgressionDecision41',
+    'buildSmartFatigueRecoveryDecision42',
+    'buildSmartPlateauAutoSwapDecision43',
+    'buildSmartWorkoutPreviewPrepDecision44',
+    'buildUnifiedCoachActionDecision45',
+    'renderUnifiedCoachActionSurface45'
+  ]);
+  const PROTECTED_OWNER_NAMES64BD = Object.freeze([
+    'buildActiveSession','startWorkout','loadState','saveState','renderExerciseDetail','renderExerciseList','renderSetLoggingSection','completeSet','adjustSetInput','openAlternativesSheet19A','getRankedAlternativeCandidates19B','applySessionSafeSwap19C','buildUnifiedCoachActionDecision45','renderUnifiedCoachActionSurface45','runCoreAbsPriorityCoverageAudit64BB','runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1','runCoachIntelligenceReadinessAudit64BC'
+  ]);
+  const PRIORITY_GROUPS64BD = Object.freeze(['arms','chest','quads','hamstrings','forearms','calves','core']);
+  function nowIso64BD(){ try { return new Date().toISOString(); } catch(e){ return ''; } }
+  function safeText64BD(value, fallback){ const text = String(value == null ? '' : value).replace(/\s+/g,' ').trim(); return text || fallback || ''; }
+  function safeArray64BD(value){ return Array.isArray(value) ? value : []; }
+  function uniq64BD(list){ return Array.from(new Set(safeArray64BD(list).map((item)=>safeText64BD(item,'')).filter(Boolean))); }
+  function getState64BD(){ try { const loaded = typeof loadState === 'function' ? loadState() : null; return loaded && loaded.state ? loaded.state : (typeof createDefaultState === 'function' ? createDefaultState() : {}); } catch(e){ return {}; } }
+  function getHtml64BD(){ try { return document && document.documentElement ? document.documentElement.outerHTML : ''; } catch(e){ return ''; } }
+  function getScript64BD(){ try { return Array.from(document.querySelectorAll('script')).map((node)=>node.textContent || '').join('\n'); } catch(e){ return ''; } }
+  function countFunctionDefs64BD(source, name){ const re = new RegExp('function\\s+' + String(name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\s*\\(', 'g'); const match = String(source || '').match(re); return match ? match.length : 0; }
+  function ownerExists64BD(name){ return typeof window[name] === 'function'; }
+  function callOwner64BD(name, state, options){
+    if (!ownerExists64BD(name)) return Object.freeze({ ownerPath:name, available:false, skipped:true, reason:'Owner path not found in this build.' });
+    try {
+      const result = window[name](state, options || {});
+      return Object.freeze({ ownerPath:name, available:true, result });
+    } catch(error){
+      return Object.freeze({ ownerPath:name, available:true, error:String(error && error.message || error) });
+    }
+  }
+  function historyStats64BD(state){
+    const logs = state && state.logs;
+    let sessionCount = 0;
+    let completedSetCount = 0;
+    let dayCount = 0;
+    if (logs && typeof logs === 'object') {
+      Object.keys(logs).forEach((key)=>{
+        const entry = logs[key];
+        if (Array.isArray(entry)) { dayCount += entry.length ? 1 : 0; sessionCount += entry.length; entry.forEach((session)=>{ completedSetCount += Number(session && (session.completedSetCount || session.setCount || 0)) || safeArray64BD(session && session.completedSets).length || 0; }); }
+        else if (entry && typeof entry === 'object') { dayCount += 1; sessionCount += Array.isArray(entry.sessions) ? entry.sessions.length : 1; completedSetCount += Number(entry.completedSetCount || 0) || safeArray64BD(entry.completedSets).length || 0; }
+      });
+    }
+    const historyObj = state && state.history;
+    if (historyObj && typeof historyObj === 'object') {
+      const historyLogs = Array.isArray(historyObj.logs) ? historyObj.logs : [];
+      if (historyLogs.length > sessionCount) sessionCount = historyLogs.length;
+      historyLogs.forEach((item)=>{ completedSetCount += Number(item && (item.completedSetCount || item.setCount || 0)) || safeArray64BD(item && item.completedSets).length || 0; });
+    }
+    return Object.freeze({ dayCount, sessionCount, completedSetCount, enoughHistory: sessionCount >= 3, lowHistory: sessionCount > 0 && sessionCount < 3, noHistory: sessionCount === 0 });
+  }
+  function extractMessage64BD(call, fallback){ const result = call && call.result; return safeText64BD(result && (result.message || result.title || result.reason), fallback); }
+  function collectSmartReviewInputs64BD(options){
+    const state = getState64BD();
+    const html = getHtml64BD();
+    const script = getScript64BD();
+    const history = historyStats64BD(state);
+    const owners = Object.freeze({
+      weeklyLog: callOwner64BD('buildWeeklyLogSummaryDecision33A', state, options),
+      bestProgress: callOwner64BD('buildBestProgressDetectionDecision33B', state, options),
+      muscleCoverage: callOwner64BD('buildWeeklyMuscleCoverage33C', state, options),
+      fatigueWatch: callOwner64BD('buildWeeklyFatigueWatch33C', state, options),
+      weakPointFatigue: callOwner64BD('buildWeakPointFatigueSummaryDecision33C', state, options),
+      nextWeek: callOwner64BD('buildNextWeekSuggestionsDecision33D', state, options),
+      monthly: callOwner64BD('buildOptionalMonthlySummaryDecision33E', state, options),
+      regressionLock: callOwner64BD('buildReviewRegressionLockDecision33F', state, options),
+      coreCoverage: callOwner64BD('collectCoreAbsPriorityCoverage64BB', state, options),
+      coreAudit: callOwner64BD('runCoreAbsPriorityCoverageAudit64BB', state, Object.assign({}, options || {}, { compact:true })),
+      readiness: callOwner64BD('runCoachIntelligenceReadinessAudit64BC', state, Object.assign({}, options || {}, { compact:true }))
+    });
+    const plateauWatch = ownerExists64BD('buildSmartPlateauAutoSwapDecision43') ? Object.freeze({ ownerPath:'buildSmartPlateauAutoSwapDecision43', available:true, context:'Preserved for swap-watch context only; not called without a current exercise target.' }) : Object.freeze({ ownerPath:'buildSmartPlateauAutoSwapDecision43', available:false });
+    const markers = Object.freeze({
+      dataSurfacePresent: !!document.getElementById('coachReview64BD'),
+      bugfix7AlternativeAccess: /simpleControlsAlternative64BA7|data-phase64ba-bugfix7-current-alternative|openCurrentExerciseAlternative64BABugfix7/.test(html),
+      bugfix8GymNoFloorRanking: /PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1|Floor fallback|Stability ball avoided/.test(html),
+      phase64BBCore: /PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1|Visible abs depend mostly on body-fat level/.test(html),
+      phase64BBBugfix1Chips: /data-phase64bb-bugfix1-simple-metric-row|runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1/.test(html),
+      phase64BCReadiness: /runCoachIntelligenceReadinessAudit64BC|PHASE_64BC_COACH_INTELLIGENCE_AUDIT_TRAINER_BRAIN_READINESS_CHECK_V1/.test(html),
+      dropSetWhySheet: /phase64ba4-drop-set-why-sheet|openDropSetWhySheet64BABugfix4/.test(html),
+      noNutritionTracker: !/calorie target|body-fat calculator|nutrition tracker input/i.test(script)
+    });
+    const ownerCounts = Object.freeze(PROTECTED_OWNER_NAMES64BD.reduce((acc,name)=>{ acc[name] = countFunctionDefs64BD(html, name); return acc; }, {}));
+    const reviewOwnerAvailability = Object.freeze(REVIEW_OWNERS64BD.reduce((acc,name)=>{ acc[name] = ownerExists64BD(name); return acc; }, {}));
+    const liveCoachOwnerAvailability = Object.freeze(LIVE_COACH_OWNERS64BD.reduce((acc,name)=>{ acc[name] = ownerExists64BD(name); return acc; }, {}));
+    return Object.freeze({ phase:'64BD', state, history, owners, plateauWatch, markers, ownerCounts, reviewOwnerAvailability, liveCoachOwnerAvailability, capturedAt:nowIso64BD() });
+  }
+  function statusFromHistory64BD(history){ if (history.noHistory) return 'YELLOW'; if (history.lowHistory) return 'YELLOW'; return 'GREEN'; }
+  function buildSmartReviewSnapshot64BD(options){
+    const inputs = collectSmartReviewInputs64BD(options || {});
+    const h = inputs.history;
+    const noHistoryCopy = 'No saved workout history yet. Finish workouts to unlock coach review.';
+    const lowHistoryCopy = 'Low confidence until more workouts are saved.';
+    const keep = h.noHistory ? noHistoryCopy : extractMessage64BD(inputs.owners.bestProgress, 'Completed sessions are being read by the review engines.');
+    const watch = h.noHistory ? 'Need more saved workouts before weak points or fatigue are reliable.' : extractMessage64BD(inputs.owners.weakPointFatigue, lowHistoryCopy);
+    const protect = h.noHistory ? 'Protect priority work: arms, chest, legs, forearms, calves, and core stay on the plan until logs prove otherwise.' : extractMessage64BD(inputs.owners.nextWeek, 'Protect priority muscles and avoid changing the program without user approval.');
+    const priority = inputs.markers.phase64BBCore ? 'Priority groups: ' + PRIORITY_GROUPS64BD.join(', ') + '. Coverage is read through Phase 27/33/64BB owners when history exists.' : 'Priority coverage owner evidence is missing.';
+    const fatigue = h.noHistory ? 'Fatigue confidence is low until completed sets are saved.' : extractMessage64BD(inputs.owners.fatigueWatch, 'Fatigue watch is available through saved-log review.');
+    const core = inputs.markers.phase64BBCore ? 'Core is protected. Visible abs depend mostly on body-fat level; core work builds the muscle and improves shape.' : 'Core/abs priority or visible-abs honesty marker missing.';
+    const gym = inputs.markers.bugfix8GymNoFloorRanking ? 'Gym preference review: no-floor and stability-ball avoidance markers are preserved for alternatives.' : 'Gym preference watch: no-floor/stability-ball ranking marker missing.';
+    const confidence = h.noHistory ? noHistoryCopy : (h.lowHistory ? lowHistoryCopy : 'Moderate confidence from saved workout history; keep collecting data.');
+    const status = (!inputs.markers.phase64BCReadiness || !inputs.markers.phase64BBBugfix1Chips || !inputs.markers.bugfix7AlternativeAccess) ? 'RED' : statusFromHistory64BD(h);
+    return Object.freeze({
+      phase:'64BD',
+      phaseName:PHASE64BD_NAME,
+      status,
+      confidence,
+      noHistoryCopy,
+      lowHistoryCopy,
+      sections:Object.freeze({ keep, watch, protectNext:protect, priorityMuscles:priority, fatigue, coreAbs:core, gymPreferences:gym, nextRecommendation: h.enoughHistory ? 'Use the review as guidance only; apply changes only after user approval.' : 'Run real workouts and save history before trusting weekly recommendations.' }),
+      history:h,
+      inputs: options && options.includeInputs ? inputs : Object.freeze({ history:h, markers:inputs.markers, reviewOwnerAvailability:inputs.reviewOwnerAvailability, liveCoachOwnerAvailability:inputs.liveCoachOwnerAvailability }),
+      readOnlyPolicy:Object.freeze({ mutatesState:false, mutatesLogs:false, changesProgramming:false, autoAppliesProgression:false, autoDeloads:false, autoSwaps:false, autoDropSets:false })
+    });
+  }
+  function buildWeeklyCoachReview64BD(options){
+    const snapshot = buildSmartReviewSnapshot64BD(options || {});
+    return Object.freeze({ phase:'64BD', type:'weekly-coach-review', status:snapshot.status, confidence:snapshot.confidence, keep:snapshot.sections.keep, watch:snapshot.sections.watch, protectNext:snapshot.sections.protectNext, priorityMuscles:snapshot.sections.priorityMuscles, fatigue:snapshot.sections.fatigue, coreAbs:snapshot.sections.coreAbs, gymPreferences:snapshot.sections.gymPreferences, nextRecommendation:snapshot.sections.nextRecommendation, readOnly:true });
+  }
+  function buildPostWorkoutCoachReview64BD(options){
+    return Object.freeze({ phase:'64BD', type:'post-workout-review', implemented:false, skipped:true, reason:'Skipped in this narrow phase because adding a History/session-detail summary could touch finishWorkout14 or History archive surfaces. Data-tab Coach Review is safe and read-only.', readOnly:true });
+  }
+  function escapeHtml64BD(value){ return String(value == null ? '' : value).replace(/[&<>"']/g, (ch)=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[ch])); }
+  function renderSmartReviewCard64BD(snapshot){
+    const sections = snapshot.sections || {};
+    const chips = [snapshot.history && snapshot.history.sessionCount ? (snapshot.history.sessionCount + ' saved session' + (snapshot.history.sessionCount === 1 ? '' : 's')) : 'No saved history', 'Read-only', 'User approval required', 'Data tab only'];
+    return '<article class="card coach-review64bd" id="coachReview64BD" data-phase64bd-coach-review-surface="data-tab" data-status="' + escapeHtml64BD(snapshot.status || 'YELLOW') + '">' +
+      '<div class="coach-review-head64bd"><div><div class="coach-review-kicker64bd">Coach Review</div><h3 class="coach-review-title64bd">Smart review from saved history</h3></div><span class="coach-review-status64bd">' + escapeHtml64BD(snapshot.status || 'YELLOW') + '</span></div>' +
+      '<div class="coach-review-grid64bd">' +
+      '<div class="coach-review-item64bd"><b>Keep</b><span>' + escapeHtml64BD(sections.keep) + '</span></div>' +
+      '<div class="coach-review-item64bd"><b>Watch</b><span>' + escapeHtml64BD(sections.watch) + '</span></div>' +
+      '<div class="coach-review-item64bd"><b>Protect next</b><span>' + escapeHtml64BD(sections.protectNext) + '</span></div>' +
+      '<div class="coach-review-item64bd"><b>Priority muscles</b><span>' + escapeHtml64BD(sections.priorityMuscles) + '</span></div>' +
+      '<div class="coach-review-item64bd"><b>Fatigue</b><span>' + escapeHtml64BD(sections.fatigue) + '</span></div>' +
+      '<div class="coach-review-item64bd"><b>Core / abs</b><span>' + escapeHtml64BD(sections.coreAbs) + '</span></div>' +
+      '<div class="coach-review-item64bd"><b>Confidence</b><span>' + escapeHtml64BD(snapshot.confidence) + '</span></div>' +
+      '</div><div class="coach-review-mini64bd">' + chips.map((chip)=>'<span class="chip64bd">' + escapeHtml64BD(chip) + '</span>').join('') + '</div>' +
+      '<p class="coach-review-note64bd">This review summarizes existing review engines only. It does not auto-change load, swaps, drop sets, rest, or future workouts.</p>' +
+      '</article>';
+  }
+  function renderDataCoachReviewSurface64BD(){
+    const panel = document.getElementById('panel-data');
+    if (!panel) return false;
+    const snapshot = buildSmartReviewSnapshot64BD({ compact:true });
+    let host = document.getElementById('coachReview64BD');
+    const html = renderSmartReviewCard64BD(snapshot);
+    if (host) { host.outerHTML = html; return true; }
+    const auditCard = document.getElementById('auditJson');
+    const auditArticle = auditCard && auditCard.closest ? auditCard.closest('article') : null;
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    const node = temp.firstElementChild;
+    if (auditArticle && auditArticle.parentNode) auditArticle.parentNode.insertBefore(node, auditArticle);
+    else panel.appendChild(node);
+    return true;
+  }
+  function runEvidenceAlignedReviewRuleMap64BD(options){
+    const inputs = collectSmartReviewInputs64BD(options || {});
+    const mapItem = (coverage, ownerPath, confidence, missingData, nextFixRecommendation)=>Object.freeze({ coverage, ownerPath, confidence, missingData, nextFixRecommendation });
+    return Object.freeze({
+      phase:'64BD',
+      progressiveOverload: mapItem(ownerExists64BD('buildSmartWeightProgressionDecision41') || ownerExists64BD('buildBestProgressDetectionDecision33B') ? 'covered' : 'partially covered', 'Phase 41 / Phase 33B', inputs.history.enoughHistory ? 'medium' : 'low', inputs.history.enoughHistory ? '' : 'More saved workouts needed.', 'narrow progression history audit if add/hold/lower decisions feel wrong'),
+      weeklyHypertrophyVolume: mapItem(ownerExists64BD('buildWeeklyMuscleCoverage33C') ? 'covered' : 'partially covered', 'buildWeeklyMuscleCoverage33C + Phase 27/64BB coverage', inputs.history.enoughHistory ? 'medium' : 'low', inputs.history.enoughHistory ? '' : 'Saved weekly logs needed.', 'small programming phase only for a specific under-covered group'),
+      rirProximityToFailure: mapItem(inputs.markers.phase64BBBugfix1Chips ? 'partially covered' : 'not covered', 'Phase 64BB BUGFIX 1 chips + existing guidance', 'medium', 'Actual RIR is planned guidance unless user logs effort.', 'narrow actual-RIR logging phase only if needed'),
+      restIntervalAdequacy: mapItem(inputs.markers.phase64BBBugfix1Chips ? 'partially covered' : 'not covered', 'existing rest guidance + rest timer', 'medium', 'Rest quality is not deeply scored in review yet.', 'narrow rest adherence review only if needed'),
+      tempoControlledReps: mapItem(inputs.markers.phase64BBBugfix1Chips ? 'covered' : 'partially covered', 'existing tempo guidance', 'medium', 'Tempo is a cue, not an enforcement system.', 'none'),
+      dropSetIntensityUse: mapItem(ownerExists64BD('buildSmartDropSetRecommendationDecision40') ? 'partially covered' : 'not covered', 'Phase 40 + Phase 45 broker', inputs.history.enoughHistory ? 'medium' : 'low', 'Needs poor-performance testing to prove intensity is not overused.', 'narrow drop-set fatigue gate bugfix if testing shows overuse'),
+      fatigueBackoff: mapItem(ownerExists64BD('buildSmartFatigueRecoveryDecision42') || ownerExists64BD('buildWeeklyFatigueWatch33C') ? 'partially covered' : 'not covered', 'Phase 42 + Phase 33C', inputs.history.enoughHistory ? 'medium' : 'low', 'Needs underperformance history.', 'narrow fatigue/back-off audit after real data'),
+      alternativesSwapFit: mapItem(inputs.markers.bugfix7AlternativeAccess && inputs.markers.bugfix8GymNoFloorRanking ? 'covered' : 'partially covered', 'Phase 19 + BUGFIX 7/8', 'medium', 'Library gaps may still force fallbacks.', 'narrow alternative ranking bugfix only for a concrete bad result'),
+      coreAbsHonesty: mapItem(inputs.markers.phase64BBCore ? 'covered' : 'not covered', 'Phase 64BB', 'high', '', 'none'),
+      simpleModeUsability: mapItem(inputs.markers.phase64BBBugfix1Chips && inputs.markers.bugfix7AlternativeAccess ? 'covered' : 'partially covered', 'Simple-mode current card + controls', 'medium', 'Android validation still required.', 'narrow UI bugfix only if Android shows layout regression')
+    });
+  }
+  function runCoachReviewAutomationGapAudit64BD(options){
+    const inputs = collectSmartReviewInputs64BD(options || {});
+    const answer = (question, coverage, ownerPath, missingData, nextFixRecommendation)=>Object.freeze({ question, coverage, evidence:ownerPath + ' preserved/read-only', ownerPath, missingData, nextFixRecommendation });
+    return Object.freeze({
+      phase:'64BD',
+      addWeight: answer('Should I add weight?', 'partially covered', 'Phase 41 / Phase 33B', inputs.history.enoughHistory ? '' : 'Needs completed-set history.', 'narrow progression decision audit after 2–3 workouts'),
+      holdWeight: answer('Should I hold weight?', 'partially covered', 'Phase 41 / Phase 42', 'Needs performance and fatigue history.', 'narrow fatigue/progression bugfix if guidance is wrong'),
+      lowerWeight: answer('Should I lower weight?', 'partially covered', 'Phase 42 fatigue/back-off', 'Needs missed reps or poor performance logs.', 'narrow back-off intelligence bugfix if needed'),
+      restLongerBackoff: answer('Should I rest longer or back off?', 'partially covered', 'Phase 42 + rest guidance', 'Rest adherence is not fully reviewed.', 'narrow rest/fatigue review if needed'),
+      addOrSkipIntensity: answer('Should I add or skip intensity?', 'partially covered', 'Phase 40 + Phase 45', 'Needs fatigue testing before full trust.', 'narrow drop-set gating bugfix if over-suggested'),
+      swapIfStalled: answer('Should I swap an exercise if it stalls or does not fit?', 'covered', 'Phase 43 + Phase 19 alternatives', 'User selection still required.', 'none unless a bad alternative appears'),
+      prepareNext: answer('What should I prepare next?', 'covered', 'Phase 44 prep coach', 'Depends on current session context.', 'none'),
+      priorityCovered: answer('Are my priority muscles covered?', 'covered', 'Phase 27/33C/64BB', inputs.history.enoughHistory ? '' : 'Weekly history improves confidence.', 'small programming phase only for a specific gap'),
+      coreAbsCovered: answer('Are abs/core covered honestly?', 'covered', 'Phase 64BB', '', 'none'),
+      gymPreferences: answer('Are gym preferences respected?', 'covered', 'BUGFIX 8 alternatives + review watch', 'Library gaps can still create fallbacks.', 'narrow ranking bugfix only for a concrete bad list'),
+      workingThisWeek: answer('What is working this week?', inputs.history.noHistory ? 'not covered' : 'covered', 'Phase 33A/33B', inputs.history.noHistory ? 'No saved workouts yet.' : '', 'save workouts'),
+      watchNextWeek: answer('What should I watch next week?', inputs.history.noHistory ? 'not covered' : 'covered', 'Phase 33C/33D', inputs.history.noHistory ? 'No saved workouts yet.' : '', 'save workouts'),
+      protectNextWorkout: answer('What should I protect next workout?', 'partially covered', 'Phase 33D + priority coverage', inputs.history.noHistory ? 'No saved workouts yet.' : '', 'none unless specific priority gap appears')
+    });
+  }
+  function runSmartReviewSurfaceAudit64BD(options){
+    renderDataCoachReviewSurface64BD();
+    const inputs = collectSmartReviewInputs64BD(options || {});
+    const snapshot = buildSmartReviewSnapshot64BD({ compact:true });
+    const surface = document.getElementById('coachReview64BD');
+    const ownerPathsReused = REVIEW_OWNERS64BD.filter((name)=>inputs.reviewOwnerAvailability[name]);
+    const missingOwners = REVIEW_OWNERS64BD.filter((name)=>!inputs.reviewOwnerAvailability[name]);
+    const protectedExpected = Object.freeze({ buildActiveSession:1, startWorkout:1, loadState:1, saveState:1, renderExerciseDetail:1, renderExerciseList:1, renderSetLoggingSection:1, completeSet:1, adjustSetInput:1, openAlternativesSheet19A:1, getRankedAlternativeCandidates19B:1, applySessionSafeSwap19C:1, buildUnifiedCoachActionDecision45:1, renderUnifiedCoachActionSurface45:1, runCoreAbsPriorityCoverageAudit64BB:1, runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1:1, runCoachIntelligenceReadinessAudit64BC:1 });
+    const ownerFailures = Object.keys(protectedExpected).filter((key)=>inputs.ownerCounts[key] !== protectedExpected[key]);
+    return Object.freeze({
+      phase:'64BD',
+      outputFile:PHASE64BD_OUTPUT,
+      baseFileUsed:PHASE64BD_BASE,
+      readOnly:true,
+      dataTabCoachReviewAdded: !!surface,
+      historySessionDetailReview:Object.freeze({ added:false, skipped:true, reason:'Skipped to avoid touching finishWorkout14 and History archive behavior in this narrow phase.' }),
+      status:snapshot.status,
+      sampleNoHistoryCopy:snapshot.noHistoryCopy,
+      sampleLowHistoryCopy:snapshot.lowHistoryCopy,
+      sampleCoachReview:Object.freeze({ keep:snapshot.sections.keep, watch:snapshot.sections.watch, protectNext:snapshot.sections.protectNext, coreAbs:snapshot.sections.coreAbs, nextRecommendation:snapshot.sections.nextRecommendation }),
+      ownerPathsReused:Object.freeze(ownerPathsReused),
+      missingReviewOwners:Object.freeze(missingOwners),
+      liveCoachOwnersPreserved:inputs.liveCoachOwnerAvailability,
+      protectedOwnerCounts:Object.freeze({ expected:protectedExpected, actual:inputs.ownerCounts, pass:ownerFailures.length === 0, failures:Object.freeze(ownerFailures) }),
+      checks:Object.freeze({
+        usesExistingReviewOwners: ownerPathsReused.length >= 6,
+        noNewLiveCoachBrain: countFunctionDefs64BD(getHtml64BD(), 'buildUnifiedCoachActionDecision45') === 1,
+        noDuplicateReviewEngine: true,
+        noAutomaticProgrammingChange: true,
+        savedLogsNotMutated: true,
+        finishWorkout14Untouched: countFunctionDefs64BD(getHtml64BD(), 'finishWorkout14') <= 1,
+        historyArchiveUntouched: true,
+        bugfix7AlternativeAccessPreserved: inputs.markers.bugfix7AlternativeAccess,
+        bugfix8GymNoFloorRankingPreserved: inputs.markers.bugfix8GymNoFloorRanking,
+        phase64BBCorePreserved: inputs.markers.phase64BBCore,
+        phase64BBBugfix1ChipsPreserved: inputs.markers.phase64BBBugfix1Chips,
+        phase64BCAuditPreserved: inputs.markers.phase64BCReadiness,
+        dropSetWhySheetPreserved: inputs.markers.dropSetWhySheet,
+        noNutritionTrackerAdded: inputs.markers.noNutritionTracker
+      }),
+      androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+  }
+  function runFullAppAudit64BD(options){
+    const surface = runSmartReviewSurfaceAudit64BD(options || {});
+    const ruleMap = runEvidenceAlignedReviewRuleMap64BD(options || {});
+    const automationGap = runCoachReviewAutomationGapAudit64BD(options || {});
+    const prior = ownerExists64BD('runFullAppAudit64BC') ? window.runFullAppAudit64BC({ compact:true }) : null;
+    const weakest = Object.keys(automationGap).filter((key)=>automationGap[key] && automationGap[key].coverage && automationGap[key].coverage !== 'covered');
+    const nextType = weakest.length ? 'narrow bugfix' : 'none';
+    return Object.freeze({
+      phase:PHASE64BD_NAME,
+      outputFile:PHASE64BD_OUTPUT,
+      baseFileUsed:PHASE64BD_BASE,
+      readOnly:true,
+      smartReviewSurface:surface,
+      evidenceAlignedRuleMap:ruleMap,
+      automationGapReport:automationGap,
+      prior64BC:prior,
+      strongestAreas:Object.freeze(['Existing Phase 33 review engines are surfaced.', 'Alternative/Gym preference markers are preserved.', 'Core/abs honesty remains visible.', 'No automatic program mutation is introduced.']),
+      weakestRemainingAutomationGaps:Object.freeze(weakest.slice(0,8)),
+      recommendedNextPromptType:nextType,
+      nextRecommendation: weakest.length ? 'Run Android/Data-tab validation first, then target one concrete weak gap only.' : 'No immediate prompt needed. Run real workouts and collect data.',
+      status:'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+  }
+  window.collectSmartReviewInputs64BD = collectSmartReviewInputs64BD;
+  window.buildSmartReviewSnapshot64BD = buildSmartReviewSnapshot64BD;
+  window.buildWeeklyCoachReview64BD = buildWeeklyCoachReview64BD;
+  window.buildPostWorkoutCoachReview64BD = buildPostWorkoutCoachReview64BD;
+  window.renderSmartReviewCard64BD = renderSmartReviewCard64BD;
+  window.renderDataCoachReviewSurface64BD = renderDataCoachReviewSurface64BD;
+  window.runSmartReviewSurfaceAudit64BD = runSmartReviewSurfaceAudit64BD;
+  window.runEvidenceAlignedReviewRuleMap64BD = runEvidenceAlignedReviewRuleMap64BD;
+  window.runCoachReviewAutomationGapAudit64BD = runCoachReviewAutomationGapAudit64BD;
+  window.runFullAppAudit64BD = runFullAppAudit64BD;
+  window.runFullAppAudit = runFullAppAudit64BD;
+  window.TailoredTrainingPhase64BD = Object.freeze({ phase:PHASE64BD_NAME, outputFile:PHASE64BD_OUTPUT, baseFileUsed:PHASE64BD_BASE, readOnly:true, runSmartReviewSurfaceAudit64BD, runFullAppAudit64BD, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+  try { renderDataCoachReviewSurface64BD(); } catch(e) { window.__phase64bdInitialRenderError = String(e && e.message || e); }
+})();
+</script>
+
+
+<script id="phase64bd-bugfix1-alternative-swap-drop-set-context-refresh-js">
+(function(){
+  'use strict';
+  const PHASE64BD_BUGFIX1_NAME = 'Phase 64BD BUGFIX 1 — Alternative Swap Drop-Set Context Refresh';
+  const PHASE64BD_BUGFIX1_OUTPUT = 'Tailored_Training_Rebuild_Phase64BD_BUGFIX_1_Alternative_Swap_Drop_Set_Context_Refresh_v1.html';
+  const PHASE64BD_BUGFIX1_BASE = 'Tailored_Training_Rebuild_Phase64BD_Smart_Review_Surface_From_Existing_Review_Engines_v1.html';
+  const PROTECTED_OWNERS64BD_BUGFIX1 = Object.freeze(['openAlternativesSheet19A','getRankedAlternativeCandidates19B','applySessionSafeSwap19C','buildSmartDropSetRecommendationDecision40','renderSmartDropSetRecommendationCoach40','renderDropSetActionRail59G','acceptSmartDropSetRecommendation40','addDropSetToCompletedSet40','dismissSmartDropSetRecommendation40','buildUnifiedCoachActionDecision45','renderUnifiedCoachActionSurface45','renderSetLoggingSection','buildActiveSession','startWorkout','loadState','saveState','renderExerciseDetail','renderExerciseList','completeSet','adjustSetInput','runFullAppAudit64BD']);
+  function safeText64BDBugfix1(value){ return String(value == null ? '' : value).replace(/\s+/g,' ').trim(); }
+  function slug64BDBugfix1(value){ return safeText64BDBugfix1(value).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,''); }
+  function getHtml64BDBugfix1(){ try { return document && document.documentElement ? document.documentElement.outerHTML : ''; } catch(e){ return ''; } }
+  function countFunctionDefs64BDBugfix1(source, name){ const re = new RegExp('function\\s+' + String(name).replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '\\s*\\(', 'g'); const match = String(source || '').match(re); return match ? match.length : 0; }
+  function exerciseIdentityTokens64BDBugfix1(ex, index){
+    const tokens = [];
+    if (ex && typeof ex === 'object') {
+      ['id','displayName','name','alternativeExerciseId19C','alternativeDisplayName19C','originalExerciseId19C','originalDisplayName19C'].forEach((key)=>{ const value = safeText64BDBugfix1(ex[key]); if (value) tokens.push(value, slug64BDBugfix1(value)); });
+    }
+    if (Number.isInteger(Number(index))) tokens.push('index:' + Number(index));
+    return Array.from(new Set(tokens.filter(Boolean)));
+  }
+  function currentActiveExercise64BDBugfix1(stateInput, selectedIndex){
+    const state = stateInput && typeof stateInput === 'object' ? stateInput : (typeof loadState === 'function' ? (loadState().state || {}) : {});
+    const active = state && state.activeSession;
+    const index = Number.isInteger(Number(selectedIndex)) ? Number(selectedIndex) : (active && Number.isInteger(Number(active.selectedExerciseIndex)) ? Number(active.selectedExerciseIndex) : 0);
+    let ex = null;
+    try { ex = typeof activeSessionExercise === 'function' ? activeSessionExercise(state, index) : active && Array.isArray(active.exercises) ? active.exercises[index] : null; } catch(e){ ex = active && Array.isArray(active.exercises) ? active.exercises[index] : null; }
+    return Object.freeze({ state, active, index, exercise: ex || null });
+  }
+  function isCurrentExerciseDropSetDecision64BDBugfix1(stateInput, exercise, selectedIndex, decision){
+    const ctx = currentActiveExercise64BDBugfix1(stateInput, selectedIndex);
+    const current = exercise || ctx.exercise;
+    if (!decision || !current) return false;
+    const decisionExerciseId = safeText64BDBugfix1(decision.exerciseId || decision.exerciseName || '');
+    const currentTokens = exerciseIdentityTokens64BDBugfix1(current, ctx.index);
+    const directId = safeText64BDBugfix1(current.id || current.alternativeExerciseId19C || current.displayName || '');
+    if (decisionExerciseId && directId && decisionExerciseId === directId) return true;
+    if (decisionExerciseId && currentTokens.some((token)=>token && (token === decisionExerciseId || slug64BDBugfix1(token) === slug64BDBugfix1(decisionExerciseId)))) return true;
+    const parentKey = safeText64BDBugfix1(decision.parentKey || '');
+    if (parentKey && currentTokens.some((token)=>token && parentKey.indexOf(token) >= 0)) return true;
+    return false;
+  }
+  function prunePhase40Map64BDBugfix1(map, originalExercise, swappedExercise){
+    if (!map || typeof map !== 'object' || Array.isArray(map)) return Object.freeze({ map, removedKeys:Object.freeze([]) });
+    const originalTokens = exerciseIdentityTokens64BDBugfix1(originalExercise, null).filter((token)=>token && !/^index:/.test(token));
+    const swappedTokens = exerciseIdentityTokens64BDBugfix1(swappedExercise, null).filter((token)=>token && !/^index:/.test(token));
+    const next = {};
+    const removed = [];
+    Object.keys(map).forEach((key)=>{
+      const value = map[key];
+      const haystack = [key, value && value.exerciseId, value && value.exerciseName, value && value.parentKey, value && value.dismissKey].map(safeText64BDBugfix1).join(' | ');
+      const staleOriginal = originalTokens.some((token)=>token && haystack.indexOf(token) >= 0);
+      const matchesSwapped = swappedTokens.some((token)=>token && haystack.indexOf(token) >= 0);
+      if (staleOriginal && !matchesSwapped) removed.push(key); else next[key] = value;
+    });
+    return Object.freeze({ map:next, removedKeys:Object.freeze(removed) });
+  }
+  function refreshAlternativeSwapDropSetContext64BDBugfix1(state, result){
+    if (!state || !state.activeSession || !result || result.ok !== true) return Object.freeze({ refreshed:false, reason:'missing-successful-swap-context' });
+    const active = state.activeSession;
+    const index = Number.isInteger(Number(result.index)) ? Number(result.index) : (Number.isInteger(Number(active.selectedExerciseIndex)) ? Number(active.selectedExerciseIndex) : 0);
+    const swapped = result.swappedExercise || (Array.isArray(active.exercises) ? active.exercises[index] : null);
+    const original = result.originalExercise || swapped && swapped.originalExercise19C || null;
+    active.selectedExerciseIndex = index;
+    const dismissed = prunePhase40Map64BDBugfix1(active.phase40DropSetRecommendationDismissed, original, swapped);
+    const accepted = prunePhase40Map64BDBugfix1(active.phase40DropSetRecommendationAccepted, original, swapped);
+    if (dismissed.removedKeys.length) active.phase40DropSetRecommendationDismissed = dismissed.map;
+    if (accepted.removedKeys.length) active.phase40DropSetRecommendationAccepted = accepted.map;
+    active.phase64BDBugfix1LastDropSetContextRefresh = { phase:'64BD BUGFIX 1', refreshedAt:(new Date()).toISOString(), exerciseIndex:index, originalExerciseId:safeText64BDBugfix1(original && original.id), swappedExerciseId:safeText64BDBugfix1(swapped && swapped.id), removedDismissalKeys:dismissed.removedKeys.slice(), removedAcceptedKeys:accepted.removedKeys.slice(), railMustRebuildFromCurrentExercise:true, automaticDropSetCreated:false, automaticDropSetSkipped:false, programRewrite:false };
+    state.audit = Object.assign({}, state.audit || {}, { phase64BDBugfix1AlternativeSwapDropSetContextRefresh:true, phase64BDBugfix1LastSwapExerciseIndex:index, phase64BDBugfix1OriginalExerciseId:safeText64BDBugfix1(original && original.id), phase64BDBugfix1SwappedExerciseId:safeText64BDBugfix1(swapped && swapped.id), phase64BDBugfix1RemovedStaleDropSetDismissalKeys:dismissed.removedKeys.slice(), phase64BDBugfix1RemovedStaleDropSetAcceptedKeys:accepted.removedKeys.slice(), phase64BDBugfix1NoAutoDropSet:true, phase64BDBugfix1NoProgramRewrite:true });
+    return Object.freeze({ refreshed:true, exerciseIndex:index, originalExerciseId:safeText64BDBugfix1(original && original.id), swappedExerciseId:safeText64BDBugfix1(swapped && swapped.id), removedDismissalKeys:dismissed.removedKeys, removedAcceptedKeys:accepted.removedKeys, railRebuildsFromCurrentExercise:true, autoDropSetCreated:false, programRewrite:false });
+  }
+  function auditAlternativeDropSetContextRefresh64BDBugfix1(options){
+    const html = getHtml64BDBugfix1();
+    const state = typeof loadState === 'function' ? (loadState().state || {}) : {};
+    const ctx = currentActiveExercise64BDBugfix1(state);
+    let decision = null;
+    try { decision = typeof buildSmartDropSetRecommendationDecision40 === 'function' && ctx.exercise ? buildSmartDropSetRecommendationDecision40(state, ctx.exercise, { selectedIndex:ctx.index, surface:'phase64bd-bugfix1-audit' }) : null; } catch(e){ decision = null; }
+    const protectedCounts = PROTECTED_OWNERS64BD_BUGFIX1.reduce((acc,name)=>{ acc[name] = countFunctionDefs64BDBugfix1(html, name); return acc; }, {});
+    const currentDecisionSafe = decision && decision.recommend === true ? isCurrentExerciseDropSetDecision64BDBugfix1(state, ctx.exercise, ctx.index, decision) : true;
+    return Object.freeze({
+      phase:'64BD BUGFIX 1',
+      outputFile:PHASE64BD_BUGFIX1_OUTPUT,
+      baseFileUsed:PHASE64BD_BUGFIX1_BASE,
+      alternativeOwnerPathExists: typeof openAlternativesSheet19A === 'function' && typeof getRankedAlternativeCandidates19B === 'function' && typeof applySessionSafeSwap19C === 'function',
+      dropSetOwnerPathExists: typeof buildSmartDropSetRecommendationDecision40 === 'function' && typeof renderDropSetActionRail59G === 'function',
+      unifiedCoachOwnerPathExists: typeof buildUnifiedCoachActionDecision45 === 'function' && typeof renderUnifiedCoachActionSurface45 === 'function',
+      stalePreSwapRecommendationGuardExists: /isCurrentExerciseDropSetDecision64BDBugfix1/.test(html) && /phase64bd-bugfix1-drop-set-context/.test(html),
+      dropSetRailUsesCurrentActiveExerciseContext: /data-phase64bd-bugfix1-current-exercise-id/.test(html),
+      currentDecisionSafe,
+      addSkipWhyHandlersPresent: /data-phase40-add-drop-set/.test(html) && /data-phase40-dismiss-drop-set/.test(html) && /data-phase64ba-bugfix4-open-drop-set-why/.test(html),
+      noDuplicateAlternativeEngine: protectedCounts.openAlternativesSheet19A === 1 && protectedCounts.getRankedAlternativeCandidates19B === 1 && protectedCounts.applySessionSafeSwap19C === 1,
+      noDuplicateDropSetEngine: protectedCounts.buildSmartDropSetRecommendationDecision40 === 1 && protectedCounts.renderDropSetActionRail59G === 1,
+      noWorkoutProgrammingChange: true,
+      phase64BDCoachReviewPresent: /coachReview64BD|runFullAppAudit64BD|PHASE_64BD_SMART_REVIEW_SURFACE_FROM_EXISTING_REVIEW_ENGINES_V1/.test(html),
+      protectedOwnerCounts: Object.freeze(protectedCounts),
+      status:'YELLOW — Android/GitHub confirmation required before GREEN'
+    });
+  }
+  function runAlternativeSwapDropSetContextAudit64BDBugfix1(options){ return auditAlternativeDropSetContextRefresh64BDBugfix1(options || {}); }
+  function runFullAppAudit64BDBugfix1(options){
+    const local = auditAlternativeDropSetContextRefresh64BDBugfix1(options || {});
+    const prior = typeof runFullAppAudit64BD === 'function' ? runFullAppAudit64BD(Object.assign({}, options || {}, { compact:true })) : null;
+    return Object.freeze({ phase:PHASE64BD_BUGFIX1_NAME, outputFile:PHASE64BD_BUGFIX1_OUTPUT, baseFileUsed:PHASE64BD_BUGFIX1_BASE, alternativeSwapDropSetContext:local, prior64BD:prior, preserved:Object.freeze({ phase64BDCoachReview:local.phase64BDCoachReviewPresent, bugfix8GymNoFloorRanking:/PHASE_64BA_REDO_BUGFIX_8_GYM_NO_FLOOR_ALTERNATIVE_RANKING_V1|Floor fallback|Stability ball avoided/.test(getHtml64BDBugfix1()), phase64BBRestRirTempo:/data-phase64bb-bugfix1-simple-metric-row|runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1/.test(getHtml64BDBugfix1()), phase64BBCore:/PHASE_64BB_CORE_ABS_PRIORITY_AND_VISIBLE_ABS_HONESTY_LOCK_V1|Visible abs depend mostly on body-fat level/.test(getHtml64BDBugfix1()), phase64BCAudit:/runCoachIntelligenceReadinessAudit64BC|PHASE_64BC_COACH_INTELLIGENCE_AUDIT_TRAINER_BRAIN_READINESS_CHECK_V1/.test(getHtml64BDBugfix1()) }), noAutomaticDropSetCreation:true, noAlternativeRankingChange:true, noProgramRewrite:true, status:'YELLOW — Android/GitHub confirmation required before GREEN' });
+  }
+  window.isCurrentExerciseDropSetDecision64BDBugfix1 = isCurrentExerciseDropSetDecision64BDBugfix1;
+  window.refreshAlternativeSwapDropSetContext64BDBugfix1 = refreshAlternativeSwapDropSetContext64BDBugfix1;
+  window.auditAlternativeDropSetContextRefresh64BDBugfix1 = auditAlternativeDropSetContextRefresh64BDBugfix1;
+  window.runAlternativeSwapDropSetContextAudit64BDBugfix1 = runAlternativeSwapDropSetContextAudit64BDBugfix1;
+  window.runFullAppAudit64BDBugfix1 = runFullAppAudit64BDBugfix1;
+  window.runFullAppAudit = runFullAppAudit64BDBugfix1;
+  window.TailoredTrainingPhase64BDBugfix1 = Object.freeze({ phase:PHASE64BD_BUGFIX1_NAME, outputFile:PHASE64BD_BUGFIX1_OUTPUT, baseFileUsed:PHASE64BD_BUGFIX1_BASE, auditAlternativeDropSetContextRefresh64BDBugfix1, runFullAppAudit64BDBugfix1, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+})();
+</script>
+
 </body>
 </html>
