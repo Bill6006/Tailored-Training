@@ -1,6 +1,18 @@
 <!doctype html>
 
 <!--
+PHASE_64BD_BUGFIX_2_HISTORY_CARRY_FORWARD_FIRST_SET_WEIGHT_REPS_AUTOFILL_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BD_BUGFIX_1_One_Move_Superset_Label_And_Component_Integrity_v1.html as the current YELLOW working base after the one-move superset label/component-integrity fix.
+- Narrow silent set-input hydration bugfix: auto-populates Set 1 Weight/Reps from the most recent completed saved History set for the same exercise before the user edits the current session.
+- Preserves same-session carry-forward for Sets 2+, manual plus/minus and number-entry behavior, completed-set values, refresh/reopen active-session values, and saved History archives.
+- Alternative/session-safe swaps now use the swapped exercise identity for history carry-forward and do not pull first-set values from the pre-swap exercise; Phase 64BD BUGFIX 1 Alternative swap/drop-set context refresh remains preserved.
+- One-move grouped/component-rendered exercises use the same normalized exercise identity lookup without reintroducing confusing “SUPERSET · 1 MOVE” copy.
+- Does not add visible UI, banners, Last Time copy, coach cards, modals, confirmation prompts, progression logic, automatic load increases/decreases, workout programming changes, saved-history mutation, finishWorkout14 changes, or History archive changes.
+- Preserves Phase 64BD Coach Review, Phase 64BC audits, Phase 64BB core/abs and Rest/RIR/Tempo work, BUGFIX 7/8 Alternative access/ranking, FORM CUE/control locks, Drop-set Why sheet/rail, media behavior, Simple/Advanced toggle, and bottom nav.
+- Android/GitHub confirmation required before GREEN because first-set history autofill and active-session overwrite protections must be verified on-device.
+-->
+
+<!--
 PHASE_64BD_BUGFIX_1_ONE_MOVE_SUPERSET_LABEL_AND_COMPONENT_INTEGRITY_V1_CHANGELOG
 - Used Tailored_Training_Rebuild_Phase64BD_BUGFIX_1_Alternative_Swap_Drop_Set_Context_Refresh_v1.html as the current YELLOW working base after Alternative swap/drop-set context refresh.
 - Narrow grouped-exercise display bugfix: cleans confusing one-component grouped labels such as “Superset · 1 move” / “SUPERSET · 1 MOVE” without changing media sizing, component thumbnail layout, Log set behavior, or workout programming.
@@ -14344,6 +14356,219 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     nextLogs[key] = daySessions;
     return nextLogs;
   }
+
+
+  const PHASE64BD_BUGFIX2_HISTORY_CARRY_FORWARD_FIRST_SET_AUTOFILL = "phase64bd-bugfix2-history-carry-forward-first-set-weight-reps-autofill-v1";
+  function normalizeExerciseHistoryKey64BDBugfix2(value) {
+    return String(value || "")
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, " ")
+      .replace(/\b(dumbbell|dumbbells)\b/g, "db")
+      .replace(/\b(pressdowns)\b/g, "pressdown")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  function exerciseHistoryIdentityValues64BDBugfix2(ex, options = {}) {
+    if (!ex || typeof ex !== "object") return [];
+    const values = [];
+    ["id", "exerciseId", "sourceExerciseId", "programExerciseId", "displayName", "name", "title", "alternativeExerciseId19C", "alternativeDisplayName19C"].forEach((key) => {
+      if (ex[key]) values.push(ex[key]);
+    });
+    if (ex.sessionSwap19C && typeof ex.sessionSwap19C === "object") {
+      values.push(ex.sessionSwap19C.alternativeExerciseId, ex.sessionSwap19C.alternativeDisplayName);
+      if (options.includeOriginal === true) values.push(ex.sessionSwap19C.originalExerciseId, ex.sessionSwap19C.originalDisplayName);
+    }
+    if (options.includeOriginal === true) {
+      values.push(ex.originalExerciseId19C, ex.originalDisplayName19C);
+    }
+    const componentSources = [ex.components, ex.moves, ex.componentExercises, ex.comboComponents, ex.children].filter(Array.isArray);
+    componentSources.forEach((list) => {
+      if (list.length === 1 && list[0] && typeof list[0] === "object") {
+        values.push(list[0].id, list[0].exerciseId, list[0].displayName, list[0].name, list[0].title);
+      }
+    });
+    return values.filter((value) => value !== null && value !== undefined && String(value).trim());
+  }
+  function exerciseHistoryKeySet64BDBugfix2(ex, options = {}) {
+    const set = new Set();
+    exerciseHistoryIdentityValues64BDBugfix2(ex, options).forEach((value) => {
+      const normalized = normalizeExerciseHistoryKey64BDBugfix2(value);
+      if (normalized) set.add(normalized);
+    });
+    return set;
+  }
+  function exerciseHistoryKeysOverlap64BDBugfix2(currentEx, historyEx) {
+    const currentKeys = exerciseHistoryKeySet64BDBugfix2(currentEx, { includeOriginal: false });
+    const historyKeys = exerciseHistoryKeySet64BDBugfix2(historyEx, { includeOriginal: false });
+    if (!currentKeys.size || !historyKeys.size) return false;
+    for (const key of currentKeys) if (historyKeys.has(key)) return true;
+    return false;
+  }
+  function completedMainHistorySets64BDBugfix2(historyExercise) {
+    const sets = Array.isArray(historyExercise && historyExercise.setLogs) ? historyExercise.setLogs : [];
+    return sets
+      .filter((set) => set && set.completed === true && String(set.type || "main").toLowerCase() !== "drop")
+      .filter((set) => Number.isFinite(Number(set.weight)) || Number.isFinite(Number(set.reps)))
+      .sort((a, b) => {
+        const dateCompare = String(b.completedAt || "").localeCompare(String(a.completedAt || ""));
+        if (dateCompare) return dateCompare;
+        return Number(b.setIndex || 0) - Number(a.setIndex || 0);
+      });
+  }
+  function findLastCompletedExerciseSetHistory64BDBugfix2(stateInput, exercise) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    if (!state || !exercise) return Object.freeze({ found: false, reason: "missing-state-or-exercise" });
+    const sessions = typeof historyAllSessions14 === "function" ? historyAllSessions14(state.logs || {}) : [];
+    const currentKeys = Array.from(exerciseHistoryKeySet64BDBugfix2(exercise, { includeOriginal: false }));
+    if (!currentKeys.length) return Object.freeze({ found: false, reason: "missing-exercise-key", currentKeys });
+    for (const session of sessions) {
+      const exercises = Array.isArray(session && session.exercises) ? session.exercises : [];
+      for (const historyExercise of exercises) {
+        if (!exerciseHistoryKeysOverlap64BDBugfix2(exercise, historyExercise)) continue;
+        const completed = completedMainHistorySets64BDBugfix2(historyExercise);
+        const sourceSet = completed[0];
+        if (!sourceSet) continue;
+        const weight = Number(sourceSet.weight);
+        const reps = Number(sourceSet.reps);
+        if (!Number.isFinite(weight) && !Number.isFinite(reps)) continue;
+        return Object.freeze({
+          found: true,
+          weight: Number.isFinite(weight) ? weight : 0,
+          reps: Number.isFinite(reps) ? reps : 0,
+          sourceSessionId: session.id || null,
+          sourceFinishedAt: session.finishedAt || session.startedAt || null,
+          sourceExerciseId: historyExercise.exerciseId || historyExercise.id || null,
+          sourceExerciseName: historyExercise.displayName || historyExercise.name || null,
+          sourceSetIndex: Number(sourceSet.setIndex || 0),
+          currentKeys,
+          sourceKeys: Array.from(exerciseHistoryKeySet64BDBugfix2(historyExercise, { includeOriginal: false }))
+        });
+      }
+    }
+    return Object.freeze({ found: false, reason: "no-completed-history-for-exercise", currentKeys });
+  }
+  function getHistoryCarryForwardInputs64BDBugfix2(stateInput, exercise) {
+    const result = findLastCompletedExerciseSetHistory64BDBugfix2(stateInput, exercise);
+    if (!result || result.found !== true) return Object.freeze({ found: false, reason: result && result.reason || "not-found", lookup: result || null });
+    return Object.freeze({ found: true, weight: result.weight, reps: result.reps, lookup: result });
+  }
+  function hasManualOrCompletedSetInput64BDBugfix2(setLog) {
+    if (!setLog || typeof setLog !== "object") return false;
+    return setLog.completed === true ||
+      setLog.phase49CManualNumericEntry === true ||
+      setLog.phase41ManualWeightAdjusted === true ||
+      setLog.phase41NextSetWeightManual === true ||
+      setLog.phase64BDBugfix2ManualOrSessionProtected === true;
+  }
+  function resetPristineFirstSetDefaults64BDBugfix2(ex, setLog) {
+    if (!ex || !setLog || hasManualOrCompletedSetInput64BDBugfix2(setLog)) return false;
+    setLog.weight = defaultWeightForExercise(ex);
+    setLog.reps = defaultRepsForExercise(ex);
+    delete setLog.phase64BDBugfix2HistoryCarryForwardAutofill;
+    delete setLog.phase64BDBugfix2HistoryCarryForwardAt;
+    delete setLog.phase64BDBugfix2HistoryCarryForwardSourceExerciseKey;
+    delete setLog.phase64BDBugfix2HistoryCarryForwardSourceSessionId;
+    delete setLog.phase64BDBugfix2HistoryCarryForwardSourceExerciseId;
+    return true;
+  }
+  function hydrateFirstSetInputsFromHistory64BDBugfix2(stateInput, exerciseInput, exerciseIndexInput, options = {}) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    const active = state && state.activeSession;
+    if (!active || !Array.isArray(active.exercises)) return Object.freeze({ hydrated: 0, skipped: 0, reason: "missing-active-session" });
+    const indexes = exerciseInput ? [Number.isInteger(Number(exerciseIndexInput)) ? Number(exerciseIndexInput) : active.exercises.indexOf(exerciseInput)] : active.exercises.map((_, index) => index);
+    const details = [];
+    let hydrated = 0;
+    let skipped = 0;
+    indexes.forEach((rawIndex) => {
+      const index = Number(rawIndex);
+      if (!Number.isInteger(index) || index < 0 || index >= active.exercises.length) { skipped += 1; details.push({ index: rawIndex, hydrated: false, reason: "invalid-index" }); return; }
+      const ex = exerciseInput || active.exercises[index];
+      if (!ex) { skipped += 1; details.push({ index, hydrated: false, reason: "missing-exercise" }); return; }
+      const setLogs = normalizeSessionExerciseSets(ex);
+      const first = setLogs[0];
+      if (!first) { skipped += 1; details.push({ index, exerciseId: ex.id || null, hydrated: false, reason: "missing-first-set" }); return; }
+      const anyCompleted = setLogs.some((set) => set && set.completed === true);
+      if (anyCompleted || first.completed === true) { skipped += 1; details.push({ index, exerciseId: ex.id || null, hydrated: false, reason: "current-session-has-completed-sets" }); return; }
+      const manualProtected = hasManualOrCompletedSetInput64BDBugfix2(first);
+      const previousHistoryHydration = first.phase64BDBugfix2HistoryCarryForwardAutofill === true;
+      const allowReplacePreviousHistory = options.allowReplacePreviousHistoryHydration === true;
+      if (manualProtected) { skipped += 1; details.push({ index, exerciseId: ex.id || null, hydrated: false, reason: "manual-or-completed-protected" }); return; }
+      if (previousHistoryHydration && !allowReplacePreviousHistory) { skipped += 1; details.push({ index, exerciseId: ex.id || null, hydrated: false, reason: "already-history-hydrated" }); return; }
+      if (options.resetPristineToDefaultBeforeHistory === true) resetPristineFirstSetDefaults64BDBugfix2(ex, first);
+      const carry = getHistoryCarryForwardInputs64BDBugfix2(state, ex);
+      if (!carry.found) { skipped += 1; details.push({ index, exerciseId: ex.id || null, hydrated: false, reason: carry.reason || "no-history", resetToDefault: options.resetPristineToDefaultBeforeHistory === true }); return; }
+      first.weight = carry.weight;
+      first.reps = carry.reps;
+      first.phase64BDBugfix2HistoryCarryForwardAutofill = true;
+      first.phase64BDBugfix2HistoryCarryForwardAt = nowIso();
+      first.phase64BDBugfix2HistoryCarryForwardSourceExerciseKey = (carry.lookup && carry.lookup.sourceExerciseName) || (carry.lookup && carry.lookup.sourceExerciseId) || null;
+      first.phase64BDBugfix2HistoryCarryForwardSourceSessionId = carry.lookup && carry.lookup.sourceSessionId || null;
+      first.phase64BDBugfix2HistoryCarryForwardSourceExerciseId = carry.lookup && carry.lookup.sourceExerciseId || null;
+      first.phase64BDBugfix2HistoryCarryForwardSourceSetIndex = carry.lookup && carry.lookup.sourceSetIndex;
+      first.phase64BDBugfix2SilentAutofillNoUi = true;
+      hydrated += 1;
+      details.push({ index, exerciseId: ex.id || null, exerciseName: ex.displayName || null, hydrated: true, weight: first.weight, reps: first.reps, sourceExerciseId: first.phase64BDBugfix2HistoryCarryForwardSourceExerciseId, sourceSessionId: first.phase64BDBugfix2HistoryCarryForwardSourceSessionId });
+    });
+    active.phase64BDBugfix2HistoryCarryForwardAutofill = Object.assign({}, active.phase64BDBugfix2HistoryCarryForwardAutofill || {}, { phase: "64BD BUGFIX 2", source: options.source || "active-session-hydration", lastRunAt: nowIso(), hydrated, skipped, silentAutofillOnly: true, details });
+    state.audit = Object.assign({}, state.audit || {}, { phase64BDBugfix2HistoryCarryForwardAutofill: true, phase64BDBugfix2LastHydratedCount: hydrated, phase64BDBugfix2SilentAutofillOnly: true, phase64BDBugfix2NoHistoryMutation: true, phase64BDBugfix2NoProgrammingChange: true });
+    return Object.freeze({ hydrated, skipped, details });
+  }
+  function auditHistoryCarryForwardAutofill64BDBugfix2(stateInput) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    const active = state && state.activeSession;
+    const exercises = active && Array.isArray(active.exercises) ? active.exercises : [];
+    const firstSetSummaries = exercises.map((ex, index) => {
+      const sets = Array.isArray(ex && ex.setLogs) ? ex.setLogs : [];
+      const first = sets[0] || null;
+      const lookup = getHistoryCarryForwardInputs64BDBugfix2(state, ex);
+      return { index, exerciseId: ex && ex.id || null, exerciseName: ex && ex.displayName || null, historyFound: !!lookup.found, firstSetHydrated: !!(first && first.phase64BDBugfix2HistoryCarryForwardAutofill), firstSetCompleted: !!(first && first.completed), manualProtected: !!(first && hasManualOrCompletedSetInput64BDBugfix2(first)), weight: first ? first.weight : null, reps: first ? first.reps : null };
+    });
+    const bodyText = typeof document !== "undefined" && document.body ? document.body.innerText || "" : "";
+    return Object.freeze({
+      phase: "64BD BUGFIX 2 — History Carry-Forward First-Set Weight/Reps Autofill",
+      status: "YELLOW",
+      silentAutofillOnly: true,
+      noVisibleLastTimeCopy: !new RegExp(["last"," time"].join("") + "|" + ["previous"," set"].join("") + "|" + ["history"," autofill"].join(""), "i").test(bodyText),
+      activeSessionPresent: !!active,
+      exerciseCount: exercises.length,
+      firstSetSummaries,
+      hasHistoryLookupHelper: typeof findLastCompletedExerciseSetHistory64BDBugfix2 === "function",
+      hasHydrationHelper: typeof hydrateFirstSetInputsFromHistory64BDBugfix2 === "function",
+      sameSessionCarryForwardPreserved: typeof applyNextSetWeightCarryForward41 === "function",
+      manualEntryPreserved: typeof persistManualSetInputProgress49C === "function",
+      savedHistoryMutationAdded: false,
+      workoutProgrammingChanged: false,
+      alternativeSwapDropSetRefreshPreserved: typeof refreshAlternativeSwapDropSetContext64BDBugfix1 === "function",
+      oneMoveSupersetLabelFixPreserved: typeof runOneMoveSupersetLabelAudit64BDBugfix1 === "function"
+    });
+  }
+  function runHistoryCarryForwardAutofillAudit64BDBugfix2() {
+    return auditHistoryCarryForwardAutofill64BDBugfix2(typeof loadState === "function" ? loadState().state : null);
+  }
+  function runFullAppAudit64BDBugfix2() {
+    const prior = typeof runFullAppAudit64BDBugfix1 === "function" ? runFullAppAudit64BDBugfix1() : null;
+    return Object.freeze({
+      phase: "64BD BUGFIX 2",
+      status: "YELLOW",
+      historyCarryForwardAutofill: runHistoryCarryForwardAutofillAudit64BDBugfix2(),
+      priorAudit: prior,
+      protectedOwners: {
+        finishWorkout14: typeof finishWorkout14 === "function",
+        completeSet: typeof completeSet === "function",
+        adjustSetInput: typeof adjustSetInput === "function",
+        openAlternativesSheet19A: typeof openAlternativesSheet19A === "function",
+        getRankedAlternativeCandidates19B: typeof getRankedAlternativeCandidates19B === "function",
+        applySessionSafeSwap19C: typeof applySessionSafeSwap19C === "function",
+        renderDropSetActionRail59G: typeof renderDropSetActionRail59G === "function"
+      },
+      noExtraUi: true,
+      noHistoryMutation: true,
+      noWorkoutProgrammingChange: true,
+      androidGithubRequiredBeforeGreen: true
+    });
+  }
+
   function clearPendingActiveWorkoutPersists32CBugfixFinish() {
     if (startWorkoutPersistTimer25FBugfix) {
       try {
@@ -15599,7 +15824,11 @@ Existing History logs stay untouched.`);
     const dayName = selectedWorkoutDay32CBugfix(next);
     const mode = next.settings.mode || "Gym";
     const route = next.settings.route || "Full";
+    const phase64BDBugfix2StartedNewSession = !next.activeSession;
     if (!next.activeSession) next.activeSession = buildActiveSession(next, dayName, mode, route);
+    if (phase64BDBugfix2StartedNewSession && typeof hydrateFirstSetInputsFromHistory64BDBugfix2 === "function") {
+      hydrateFirstSetInputsFromHistory64BDBugfix2(next, null, null, { source: "start-workout-new-active-session" });
+    }
     if (typeof recordInvisibleEvent35D === "function") recordInvisibleEvent35D("workout-started", { dayName, mode, route, exerciseCount: Array.isArray(next.activeSession.exercises) ? next.activeSession.exercises.length : 0 }, { source: "start-workout-owner" });
     next.activeSession.selectedExerciseIndex = clampExerciseIndex25FBugfix(next.activeSession.selectedExerciseIndex || 0, Array.isArray(next.activeSession.exercises) ? next.activeSession.exercises.length : 0);
     const startEx32CBugfix = activeSessionExercise(next, next.activeSession.selectedExerciseIndex);
@@ -25560,6 +25789,9 @@ Existing History logs stay untouched.`);
     normalizeSessionExerciseSets(swapped);
     state.activeSession.exercises[index] = swapped;
     state.activeSession.selectedExerciseIndex = index;
+    if (typeof hydrateFirstSetInputsFromHistory64BDBugfix2 === "function") {
+      hydrateFirstSetInputsFromHistory64BDBugfix2(state, swapped, index, { source: "alternative-swap-current-exercise", allowReplacePreviousHistoryHydration: true, resetPristineToDefaultBeforeHistory: true });
+    }
     state.activeSession.sessionSafeSwaps19C = state.activeSession.sessionSafeSwaps19C && typeof state.activeSession.sessionSafeSwaps19C === "object" && !Array.isArray(state.activeSession.sessionSafeSwaps19C) ? state.activeSession.sessionSafeSwaps19C : {};
     state.activeSession.sessionSafeSwaps19C[String(index)] = { phase: "Phase 19C — Session-Safe Swap", originalExerciseId: swapped.originalExerciseId19C, originalDisplayName: swapped.originalDisplayName19C, alternativeExerciseId: swapped.alternativeExerciseId19C, alternativeDisplayName: swapped.alternativeDisplayName19C, appliedAt: swapped.swapAppliedAt19C, activeSessionOnly: true, permanentRewrite: false, equipmentUnavailableFlow19D: !!swapped.equipmentUnavailableAppliedVia19D };
     state.activeSession.sessionOnlyChanges = Array.isArray(state.activeSession.sessionOnlyChanges) ? state.activeSession.sessionOnlyChanges : [];
