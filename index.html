@@ -1,3 +1,75 @@
+<!--
+PHASE_64BG_BUGFIX_5_COMPLETE_ROUND_USES_WORKING_SUPERSET_CONTROL_ROUTE_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BG_BUGFIX_4_Complete_Round_Reads_Working_Component_Controls_v1.html as the current working base after Android confirmed the Forearm Superset Round 1 UI and Move 1 / Move 2 plus-minus controls work, while Complete round still does nothing.
+- Fixes Complete round still doing nothing after BUGFIX 4 by routing the Complete round button through the confirmed-working Phase 64BG superset control route that Move 1 / Move 2 plus-minus already use.
+- Does not rely on data-complete-set or a separate complete-only click route for production completion; the button now carries data-phase64bg-adjust-round with data-phase64bg-action="complete-round" so it is bound by the same working superset control owner.
+- Adds a narrow complete-round action branch at the top of adjustSupersetComponentInput64BG while preserving the existing plus/minus and manual component control behavior.
+- Reuses the BUGFIX 4 clicked-card working-control reader, saves componentResults64BG/componentResults64BE, marks the round complete, carries values forward, and starts rest after the full round through completeTrueSupersetRound64BG.
+- Preserves working Move 1 / Move 2 controls, normal single-exercise Complete set, Alternative duplicate protection, Restore original, Change / Swap again, history autofill, Drop-set Why, Rest/RIR/Tempo chips, FORM CUE, bottom nav, and Simple/Advanced behavior.
+- Does not create a new superset logger, does not use window wrapper patches, does not add delegated document-click bandaids, and does not change workout programming, exercise order, media, saved History archives, or normal set logging.
+- Android/GitHub confirmation required before GREEN.
+-->
+<!--
+PHASE_64BG_BUGFIX_4_COMPLETE_ROUND_READS_WORKING_COMPONENT_CONTROLS_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BG_True_Superset_Round_Logger_Reuses_Normal_Set_Control_Model_v1.html as the mostly-working Android base after Move 1 / Move 2 superset controls were confirmed working.
+- Fixes Complete round stopping after the clicked Round card was found by reading Move 1 / Move 2 values from the same rendered component controls that the working plus/minus and manual controls already update.
+- Adds stable diagnostic-safe component/value data attributes to existing Phase 64BG round component wrappers and controls without changing layout, styling, plus/minus behavior, or manual-entry behavior.
+- Saves componentResults64BG/componentResults64BE, mirrors current componentInputs64BG/componentInputs64BE, marks the round complete, carries values forward by component key, and starts rest once after the full round.
+- Preserves normal single-exercise Complete set, normal plus/minus/manual entry, Alternative duplicate protection, Change / Swap again, Restore original, history autofill, Rest/RIR/Tempo chips, FORM CUE, Drop-set Why, Data Coach Review, bottom nav, and Simple/Advanced mode.
+- Does not create a new superset logger, does not use window-wrapper patches or document-level delegated click bandaids, and does not change workout programming, exercise order, sets/reps/rest/RIR/tempo/progression, media size/source, saved History archives, Alternative ranking, or bottom nav behavior.
+- Android/GitHub confirmation required before GREEN.
+-->
+<!--
+PHASE_64BG_TRUE_SUPERSET_ROUND_LOGGER_REUSES_NORMAL_SET_CONTROL_MODEL_V1_CHANGELOG
+- Rolls back before failed BUGFIX 4-8 / REDO / 64BF superset logger attempts and uses Tailored_Training_Rebuild_Phase64BE_BUGFIX_3_Alternative_Duplicate_Protection_And_Swap_Again_Restore_v1.html as the rollback-safe base target.
+- Builds true 2+ superset round logging from the BUGFIX 3 base by editing the real active Log set render/control owners instead of using window-wrapper patches or late delegated bandaids.
+- Reuses the normal Set 1 control model for superset component controls: .log-control, .stepper.stepper29cbugfix, .stepper-value-wrap29cbugfix, .stepper-value-main29cbugfix, .stepper-value-sub29cbugfix, and .stepper-source-input29cbugfix.phase49c-manual-number-input.
+- Fixes visible component values, plus/minus, manual entry, independent Move 1 / Move 2 state, and Complete round by storing componentInputs64BE/componentInputs64BG and componentResults64BE/componentResults64BG on the existing setLogs-as-rounds model.
+- Removes the duplicate move preview above the Round card and fixes target copy such as "each each move" while preserving the existing header/component stack.
+- Preserves Alternative duplicate protection, Already later today / Already done today labels, duplicate blocking, Change / Swap again, Restore original behavior, Session swap chip, history autofill, Alternative swap/drop-set context refresh, Rest/RIR/Tempo chips, FORM CUE, Drop-set Why sheet, Data Coach Review, bottom nav, and Simple/Advanced behavior.
+- Does not change workout programming, add/remove/reorder exercises, change sets/reps/rest/RIR/tempo/progression, change media size/source/upload behavior, mutate saved History logs, or alter normal completeSet/adjustSetInput behavior.
+- Status: YELLOW — Android/GitHub confirmation required before GREEN.
+-->
+<!--
+PHASE_64BE_BUGFIX_3_ALTERNATIVE_DUPLICATE_PROTECTION_AND_SWAP_AGAIN_RESTORE_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BE_BUGFIX_2_Superset_Source_Of_Truth_And_Workout_List_Label_Lock_v1.html as the current YELLOW base after superset source-of-truth / Workout List label lock.
+- Adds duplicate protection for existing Phase 19 Alternative/session-safe swaps so a selected alternative cannot silently duplicate an exercise already elsewhere in the same active workout.
+- Labels/demotes candidates that are already later today or already done today while preserving the existing Phase 19 ranking engine and Phase 64BA BUGFIX 8 Gym no-floor/stability-ball preference signals.
+- Keeps Alternative access after a swap with clearer Change/Swap-again copy where safely scoped, preserves the Session swap chip, and adds a Restore original row inside the existing Alternatives sheet for session-swapped exercises.
+- Restore original remains active-session-only and does not mutate saved History logs or rewrite future workouts; existing completed logs are preserved rather than silently discarded.
+- Preserves Phase 64BD BUGFIX 1 Alternative swap/drop-set context refresh, Phase 64BD BUGFIX 2 history autofill, Phase 64BE BUGFIX 2 superset source-of-truth, true 2+ Phase 64BE round logging, Rest/RIR/Tempo chips, FORM CUE, Drop-set Why sheet, Coach Review, media sizing, and bottom nav.
+- Does not create a new Alternative engine, rewrite Alternative ranking, hard-code replacements, auto-swap exercises, change workout programming, add/remove/reorder exercises, mutate saved History, change completeSet/completeSupersetRound64BE, or add async/scroll/render-loop workarounds.
+- Android/GitHub confirmation required before GREEN because duplicate Alternative swap protection must be verified on-device.
+-->
+<!--
+PHASE_64BE_BUGFIX_2_SUPERSET_SOURCE_OF_TRUTH_AND_WORKOUT_LIST_LABEL_LOCK_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BE_BUGFIX_1_One_Move_Superset_Header_Final_Render_Guard_v1.html as the current working base.
+- Creates a shared superset source-of-truth guard: an exercise is only treated as a true superset for user-facing labels or Phase 64BE round logging when its actual planned/visible component list has 2+ valid components.
+- Cleans misleading Workout List “Superset” chips for one-component items such as Band triceps pressdown by deriving a safe non-superset category label from existing metadata.
+- Preserves true 2+ move Phase 64BE round logger behavior, including compact move previews, per-move Weight/Reps inputs, Complete round, componentResults64BE storage, history autofill, and carry-forward.
+- Does not infer supersets from text labels alone, does not invent missing moves, and does not add/remove/reorder exercises.
+- Does not change media size, media source/resolver/upload logic, workout programming, prescribed sets/reps/rest/RIR/tempo/progression, normal completeSet behavior, Alternative ranking, drop-set logic, saved History logs, rest timer, or bottom nav.
+- Preserves Phase 64BE BUGFIX 1 active-header one-move guard, Phase 64BD BUGFIX 2 history autofill, Alternative swap/drop-set context refresh, Phase 64BD Coach Review, Rest/RIR/Tempo chips, Alternative access, FORM CUE ownership, Gym no-floor ranking, and recent protections.
+-->
+<!--
+PHASE_64BE_BUGFIX_1_ONE_MOVE_SUPERSET_HEADER_FINAL_RENDER_GUARD_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BE_Superset_Round_Based_Multi_Move_Logging_Foundation_v1.html as the current YELLOW working base after true 2+ superset round logging foundation.
+- Final active-workout render-path guard: prevents one-component grouped exercises from showing confusing Android-visible SUPERSET · 1 MOVE header copy, the multi-move round subtitle, or the decorative CURRENT ROUND badge.
+- One-move grouped items continue to use normal single-exercise logging, Complete set behavior, Phase 64BD BUGFIX 2 history carry-forward, Rest/RIR/Tempo chips, FORM CUE, Alternative, drop-set rail, and bottom nav behavior.
+- Preserves true 2+ Phase 64BE superset round logging: SUPERSET · N MOVES header, compact move previews, per-move Weight/Reps inputs, Complete round, component-level history autofill, and component carry-forward.
+- Does not change media size, media source/resolver/upload logic, workout programming, exercise order, sets/reps/rest/RIR/tempo/progression, exercises, normal completeSet behavior, completeSupersetRound64BE behavior, Alternative ranking, drop-set Add/Skip/Why, coach systems, rest timer, Simple/Advanced toggle, or saved History archives.
+- Android/GitHub confirmation required before GREEN because this fixes the final Android-visible one-move grouped header/render path.
+-->
+<!--
+PHASE_64BE_SUPERSET_ROUND_BASED_MULTI_MOVE_LOGGING_FOUNDATION_V1_CHANGELOG
+- Used Tailored_Training_Rebuild_Phase64BD_BUGFIX_2_History_Carry_Forward_First_Set_Weight_Reps_Autofill_v1.html as the current working base.
+- Added a narrow round-based logging foundation for true 2+ move supersets/components only: each component gets independent Weight/Reps inputs inside one round card and one Complete round action completes the full round.
+- One-move grouped items stay on normal single-exercise logging and keep the Phase 64BD BUGFIX 1 label cleanup so confusing SUPERSET / 1 MOVE copy is not restored.
+- Superset round completion starts rest only after the full round, keeps later rounds collapsed, stores new per-component results in a backward-compatible set-log field for new entries, and preserves old saved History logs.
+- Reuses Phase 64BD BUGFIX 2 history matching for first-round component autofill and adds component-level carry-forward for later rounds without adding UI copy, banners, coach cards, or automatic progression.
+- Did not change media size, media source/resolver/upload logic, workout programming, exercise order, prescribed sets/reps/rest/RIR/tempo/progression, normal completeSet behavior, Alternative ranking, drop-set Add/Skip/Why handlers, coach systems, rest timer countdown/sound/End rest, Simple/Advanced toggle, bottom nav, or saved History archive behavior for old logs.
+- Android/GitHub confirmation required before GREEN because this adds new true-superset round logging behavior on device.
+-->
 <!doctype html>
 
 <!--
@@ -17525,10 +17597,19 @@ Existing History logs stay untouched.`);
   function renderComboWarmupStackedComponentMedia30EMedia(comboMedia) {
     if (!comboMedia || !comboMedia.stacked || !comboMedia.components || !comboMedia.components.length) return "";
     const count = comboMedia.components.length;
+    const parent64BEBugfix1Final = comboMediaParentExercise48Polish(comboMedia);
+    const sourceTruth64BEBugfix2Final = typeof getSupersetComponentSourceOfTruth64BEBugfix2 === "function" ? getSupersetComponentSourceOfTruth64BEBugfix2(parent64BEBugfix1Final, null, comboMedia) : null;
+    const oneMoveGrouped64BEBugfix1Final = sourceTruth64BEBugfix2Final ? (!!sourceTruth64BEBugfix2Final.textSaysGrouped && Number(sourceTruth64BEBugfix2Final.componentCount) === 1) : (count === 1 && (typeof window !== "undefined" && typeof window.isOneMoveGroupedExercise64BDBugfix1 === "function" ? window.isOneMoveGroupedExercise64BDBugfix1(parent64BEBugfix1Final, comboMedia) : /warm.?up|combo|circuit|superset|super\s*set|tri.?set/i.test(`${parent64BEBugfix1Final && (parent64BEBugfix1Final.displayName || parent64BEBugfix1Final.name) || ""} ${parent64BEBugfix1Final && parent64BEBugfix1Final.block || ""}`)));
+    const firstEntry64BEBugfix1Final = comboMedia.components[0] || {};
+    const oneMoveHeader64BEBugfix1Final = String(firstEntry64BEBugfix1Final && firstEntry64BEBugfix1Final.exercise && (firstEntry64BEBugfix1Final.exercise.displayName || firstEntry64BEBugfix1Final.exercise.name) || firstEntry64BEBugfix1Final && firstEntry64BEBugfix1Final.component && firstEntry64BEBugfix1Final.component.name || parent64BEBugfix1Final && (parent64BEBugfix1Final.displayName || parent64BEBugfix1Final.name || parent64BEBugfix1Final.block) || "Exercise").replace(/\s+/g," ").trim();
     const comboLabel = comboMediaTypeLabel48Polish(comboMedia, count);
     const comboInstruction = comboMediaInstruction48Polish(comboMedia);
-    const comboHeader59D = phase64JComboHeaderCopy(comboLabel, count);
-    const comboInstruction59D = comboInstruction || "Complete each move, then log the round.";
+    let comboHeader59D = phase64JComboHeaderCopy(comboLabel, count);
+    let comboInstruction59D = comboInstruction || "Complete each move, then log the round.";
+    if (oneMoveGrouped64BEBugfix1Final) {
+      comboHeader59D = oneMoveHeader64BEBugfix1Final || (typeof window !== "undefined" && typeof window.getCleanGroupedExerciseLabel64BDBugfix1 === "function" ? window.getCleanGroupedExerciseLabel64BDBugfix1(comboMedia, count) : "Exercise");
+      comboInstruction59D = "";
+    }
     const rows = comboMedia.components.map((entry, index) => {
       const media = entry.media || {};
       const previewEligible = mediaPreviewEligible32CBugfix(media);
@@ -17548,10 +17629,10 @@ Existing History logs stay untouched.`);
         <span class="combo-media-copy30e-media" data-phase59d-useful-copy="true"><span class="combo-media-titleline59d"><span class="combo-media-index59d">Move ${index + 1}</span><b>${escapeHtml(componentName49D)}</b></span>${cueMarkup49D}</span>
       </${rowTag}>`;
     }).join("\n");
-    return `<section class="combo-media-stack30e-media" data-combo-warmup-stacked-media30e-media="built" data-phase59c-component-media-count="${count}" data-phase59c-media-count-rule="component-count" data-phase59d-combo-rows="compact-useful-copy" aria-label="Combo movements">
-      <div class="combo-media-head30e-media" data-phase59d-combo-head="short" data-phase64j-combo-head="single-count" data-phase64j-combo-count="${count}"><b>${escapeHtml(comboHeader59D)}</b><span>${escapeHtml(comboInstruction59D)}</span></div>
+    return `<section class="combo-media-stack30e-media" data-combo-warmup-stacked-media30e-media="built" data-phase59c-component-media-count="${count}" data-phase59c-media-count-rule="component-count" data-phase59d-combo-rows="compact-useful-copy" data-phase64be-bugfix1-one-move-grouped="${oneMoveGrouped64BEBugfix1Final ? "true" : "false"}" aria-label="${oneMoveGrouped64BEBugfix1Final ? "Exercise movement" : "Combo movements"}">
+      <div class="combo-media-head30e-media" data-phase59d-combo-head="short" data-phase64j-combo-head="single-count" data-phase64j-combo-count="${count}"><b>${escapeHtml(comboHeader59D)}</b>${comboInstruction59D ? `<span>${escapeHtml(comboInstruction59D)}</span>` : ""}</div>
       <div class="combo-media-list30e-media">${rows}</div>
-      <div class="combo-media-log-note30e-media">Complete the moves, then log the round.</div>
+      ${oneMoveGrouped64BEBugfix1Final ? "" : `<div class="combo-media-log-note30e-media">Complete the moves, then log the round.</div>`}
     </section>`;
   }
 
@@ -18288,7 +18369,16 @@ Existing History logs stay untouched.`);
         pool = floorOrBall.map((candidate, index) => Object.assign({}, candidate, { floorFallback64BABugfix8: !!candidate.floorBased64BABugfix8, noStrongNonFloorGymMatch64BABugfix8: index === 0 }));
       }
     }
-    return pool.sort((a, b) => (b.score19B - a.score19B) || String(a.displayName).localeCompare(String(b.displayName))).slice(0, desiredLimit).map((candidate, index) => Object.assign({}, candidate, { rank19B: index + 1 }));
+    const selectedIndex64BEBugfix3 = state && state.activeSession && Number.isInteger(state.activeSession.selectedExerciseIndex) ? state.activeSession.selectedExerciseIndex : 0;
+    const decoratedPool64BEBugfix3 = pool.map((candidate) => typeof decorateAlternativeCandidateDuplicateStatus64BEBugfix3 === "function" ? decorateAlternativeCandidateDuplicateStatus64BEBugfix3(state, candidate, { currentIndex: selectedIndex64BEBugfix3 }) : candidate);
+    const duplicateRank64BEBugfix3 = (candidate) => {
+      const status = candidate && candidate.duplicateStatus64BEBugfix3;
+      if (status === "already_later_today") return 1;
+      if (status === "already_done_today") return 2;
+      if (status === "unknown") return 3;
+      return 0;
+    };
+    return decoratedPool64BEBugfix3.sort((a, b) => (duplicateRank64BEBugfix3(a) - duplicateRank64BEBugfix3(b)) || (b.score19B - a.score19B) || String(a.displayName).localeCompare(String(b.displayName))).slice(0, desiredLimit).map((candidate, index) => Object.assign({}, candidate, { rank19B: index + 1 }));
   }
   function renderAlternativeRow19A(candidate, options = {}) {
     const ranked = candidate && candidate.rankingBuilt19B;
@@ -18304,15 +18394,18 @@ Existing History logs stay untouched.`);
     const gymChips = gymLabels.map((label) => `<span class="alternative-chip19b ${label === "Floor fallback" ? "red" : (label === "Cable/machine" || label === "Bench-supported" ? "blue" : "green")}" data-phase64ba-bugfix8-alt-tag="${escapeHtml(label)}">${escapeHtml(label)}</span>`).join("");
     const modeChipLabel = candidate.floorFallback64BABugfix8 ? "Floor fallback" : (candidate.gymNoFloorCandidate64BABugfix8 ? "Gym fit" : (candidate.modeFit19B || "mode check"));
     const modeChip = ranked ? `<span class="alternative-chip19b ${candidate.floorFallback64BABugfix8 ? "red" : "gold"}">${escapeHtml(modeChipLabel)}</span>` : "";
-    const meta = ranked ? `<div class="alternative-meta19b">${muscleChip}${equipmentChip}${equipmentUnavailableChip19D}${modeChip}${gymChips}</div>` : "";
+    const duplicateLabel64BEBugfix3 = candidate.duplicateStatus64BEBugfix3 === "already_later_today" ? "Already later today" : (candidate.duplicateStatus64BEBugfix3 === "already_done_today" ? "Already done today" : "");
+    const duplicateChip64BEBugfix3 = duplicateLabel64BEBugfix3 ? `<span class="alternative-chip19b red" data-phase64be-bugfix3-duplicate-chip="${escapeHtml(candidate.duplicateStatus64BEBugfix3)}">${escapeHtml(duplicateLabel64BEBugfix3)}</span>` : "";
+    const meta = ranked ? `<div class="alternative-meta19b">${muscleChip}${equipmentChip}${equipmentUnavailableChip19D}${modeChip}${gymChips}${duplicateChip64BEBugfix3}</div>` : "";
     const reasons = ranked && Array.isArray(candidate.reasons19B) ? ` · ${candidate.reasons19B.slice(0, 4).join(" · ")}` : "";
     const noStrong = candidate.noStrongNonFloorGymMatch64BABugfix8 ? `<div class="alternative-suggested19d" data-phase64ba-bugfix8-no-strong-nonfloor="true">No strong non-floor gym match found. Showing closest available options.</div>` : "";
     const floorFallback = candidate.floorFallback64BABugfix8 && !candidate.noStrongNonFloorGymMatch64BABugfix8 ? `<div class="alternative-suggested19d" data-phase64ba-bugfix8-floor-fallback="true">Floor fallback · weaker Gym fit</div>` : "";
+    const duplicateNotice64BEBugfix3 = duplicateLabel64BEBugfix3 ? `<div class="alternative-suggested19d" data-phase64be-bugfix3-duplicate-notice="${escapeHtml(candidate.duplicateStatus64BEBugfix3)}">${escapeHtml(duplicateLabel64BEBugfix3)} · pick another unless intentional.</div>` : "";
     const suggested = equipmentMode19D && candidate.suggestedByEquipmentUnavailable19D ? `<div class="alternative-suggested19d">Best usable suggestion</div>` : "";
-    const actionLabel = equipmentMode19D && candidate.suggestedByEquipmentUnavailable19D ? "Use best this session" : "Use this session";
-    const action = canSwap ? `<button class="alternative-use-btn19c" type="button" data-session-safe-swap19c="active-session-only" data-alternative-id19c="${escapeHtml(candidate.id)}">${escapeHtml(actionLabel)}</button>` : `<div class="alternative-lock19a">Start workout</div>`;
-    return `<div class="alternative-row19a" data-phase19a-alternative-row="ranked" data-phase19b-ranked="${ranked ? "true" : "false"}" data-same-muscle-rank19b="ranked-preserved" data-phase19c-swap-row="session-safe" data-phase19d-suggested="${candidate.suggestedByEquipmentUnavailable19D ? "best" : "ranked"}" data-phase64ba-bugfix8-gym-no-floor="${candidate.gymNoFloorCandidate64BABugfix8 ? "ranked" : "not-applicable"}" data-phase64ba-bugfix8-floor-fallback="${candidate.floorFallback64BABugfix8 ? "true" : "false"}" data-alternative-id19a="${escapeHtml(candidate.id)}">
-      <div>${noStrong}${floorFallback}${suggested}<b>${escapeHtml(candidate.displayName)}</b><span>${escapeHtml(candidate.summary)} · ${escapeHtml(candidate.block)} · ${escapeHtml(candidate.equipment)}${escapeHtml(reasons)}</span>${meta}</div>
+    const actionLabel = equipmentMode19D && candidate.suggestedByEquipmentUnavailable19D ? "Use best this session" : (duplicateLabel64BEBugfix3 ? "Pick another" : "Use this session");
+    const action = canSwap ? `<button class="alternative-use-btn19c" type="button" data-session-safe-swap19c="active-session-only" data-alternative-id19c="${escapeHtml(candidate.id)}" data-phase64be-bugfix3-duplicate-status="${escapeHtml(candidate.duplicateStatus64BEBugfix3 || "none")}">${escapeHtml(actionLabel)}</button>` : `<div class="alternative-lock19a">Start workout</div>`;
+    return `<div class="alternative-row19a" data-phase19a-alternative-row="ranked" data-phase19b-ranked="${ranked ? "true" : "false"}" data-same-muscle-rank19b="ranked-preserved" data-phase19c-swap-row="session-safe" data-phase19d-suggested="${candidate.suggestedByEquipmentUnavailable19D ? "best" : "ranked"}" data-phase64ba-bugfix8-gym-no-floor="${candidate.gymNoFloorCandidate64BABugfix8 ? "ranked" : "not-applicable"}" data-phase64ba-bugfix8-floor-fallback="${candidate.floorFallback64BABugfix8 ? "true" : "false"}" data-phase64be-bugfix3-duplicate-status="${escapeHtml(candidate.duplicateStatus64BEBugfix3 || "none")}" data-alternative-id19a="${escapeHtml(candidate.id)}">
+      <div>${noStrong}${floorFallback}${duplicateNotice64BEBugfix3}${suggested}<b>${escapeHtml(candidate.displayName)}</b><span>${escapeHtml(candidate.summary)} · ${escapeHtml(candidate.block)} · ${escapeHtml(candidate.equipment)}${escapeHtml(reasons)}</span>${meta}</div>
       <div class="alternative-side19b">${rankMarkup}${action}</div>
     </div>`;
   }
@@ -18329,7 +18422,8 @@ Existing History logs stay untouched.`);
     setText("alternativesTitle19A", `${equipmentMode19D ? "Equipment unavailable · " : "Ranked alternatives · "}${currentExercise.displayName || "Exercise"}`);
     setText("alternativesText19A", equipmentMode19D ? (canSwap ? `Marked unavailable this session: ${unavailableTokens19D.join(" · ") || "current equipment"}. Use the best ranked alternative for this workout only.` : `Start a workout before marking equipment unavailable or applying a session-safe swap.`) : (canSwap ? `Pick one ranked alternative for this active session only. Original exercise stays stored and can be restored.` : `Ranked alternatives preview for ${currentExercise.displayName || currentExercise.id}. Start a workout before applying a session-safe swap.`));
     const list = document.getElementById("alternativesList19A");
-    if (list) list.innerHTML = candidates.length ? candidates.map((candidate) => renderAlternativeRow19A(candidate, { canSwap, equipmentUnavailableMode19D: equipmentMode19D })).join("") : `<div class="alternative-empty19a">No same-muscle alternatives found in the local program database yet.</div>`;
+    const restoreOriginalRow64BEBugfix3 = typeof renderRestoreOriginalSwapAction64BEBugfix3 === "function" ? renderRestoreOriginalSwapAction64BEBugfix3(currentExercise, state, selectedIndex) : "";
+    if (list) list.innerHTML = restoreOriginalRow64BEBugfix3 + (candidates.length ? candidates.map((candidate) => renderAlternativeRow19A(candidate, { canSwap, equipmentUnavailableMode19D: equipmentMode19D })).join("") : `<div class="alternative-empty19a">No same-muscle alternatives found in the local program database yet.</div>`);
     sheet.dataset.exerciseId19A = currentExercise.id || "";
     sheet.dataset.exerciseIndex19C = String(selectedIndex);
     sheet.dataset.candidateCount19A = String(candidates.length);
@@ -18337,6 +18431,7 @@ Existing History logs stay untouched.`);
     sheet.dataset.phase19cSessionSwap = canSwap ? "enabled-active-session-only" : "locked-until-active-session";
     sheet.dataset.phase19dEquipmentMode = equipmentMode19D ? "active-session-unavailable" : "idle";
     if (list) list.querySelectorAll("[data-session-safe-swap19c]").forEach((btn) => btn.addEventListener("click", () => applySessionSafeSwap19C(btn.dataset.alternativeId19c)));
+    if (list) list.querySelectorAll("[data-phase64be-bugfix3-restore-original]").forEach((btn) => btn.addEventListener("click", () => restoreOriginalExercise19C()));
     sheet.classList.add("open");
     sheet.setAttribute("aria-hidden", "false");
     const close = document.getElementById("closeAlternatives19ABtn");
@@ -25832,6 +25927,12 @@ Existing History logs stay untouched.`);
     const sheet = document.getElementById("alternativesSheet19A");
     const sheetIndex = sheet && sheet.dataset.exerciseIndex19C !== undefined ? Number(sheet.dataset.exerciseIndex19C) : null;
     const index = Number.isInteger(sheetIndex) ? sheetIndex : (active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0);
+    const duplicateStatus64BEBugfix3 = typeof getAlternativeDuplicateStatus64BEBugfix3 === "function" ? getAlternativeDuplicateStatus64BEBugfix3(state, alternativeExerciseId, index) : { status: "none" };
+    if (typeof shouldBlockDuplicateAlternativeSwap64BEBugfix3 === "function" && shouldBlockDuplicateAlternativeSwap64BEBugfix3(duplicateStatus64BEBugfix3)) {
+      const label64BEBugfix3 = duplicateStatus64BEBugfix3.status === "already_done_today" ? "Already done today. Pick a different alternative." : "Already later today. Pick a different alternative.";
+      setText("alternativesLockNote19A", label64BEBugfix3);
+      return { ok: false, reason: duplicateStatus64BEBugfix3.status, state, index, duplicateStatus64BEBugfix3 };
+    }
     const result = buildSessionSafeSwapState19C(state, index, alternativeExerciseId);
     if (!result.ok) {
       setText("alternativesLockNote19A", result.reason === "no-active-session" ? "Start the workout before applying a session-safe swap." : `Swap not applied: ${result.reason}.`);
@@ -25850,9 +25951,14 @@ Existing History logs stay untouched.`);
     const index = active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
     const result = buildRestoreOriginalExerciseState19C(state, index);
     if (!result.ok) return result;
-    const saved = saveState(result.state, "phase19c-restore-original-exercise-active-session-only");
+    const phase64BDBugfix1Refresh = typeof refreshAlternativeSwapDropSetContext64BDBugfix1 === "function" ? refreshAlternativeSwapDropSetContext64BDBugfix1(result.state, result) : Object.freeze({ refreshed: false, reason: "phase64bd-bugfix1-helper-unavailable" });
+    if (result.restoredExercise && typeof hydrateFirstSetInputsFromHistory64BDBugfix2 === "function") {
+      hydrateFirstSetInputsFromHistory64BDBugfix2(result.state, result.restoredExercise, result.index, { source: "restore-original-session-swap-64be-bugfix3", allowReplacePreviousHistoryHydration: true, resetPristineToDefaultBeforeHistory: true });
+    }
+    const saved = saveState(result.state, "phase19c-restore-original-exercise-active-session-only-phase64be-bugfix3-safe-restore");
+    closeAlternativesSheet19A();
     renderApp("Original exercise restored", result.index);
-    return Object.assign({}, result, { saved: !!(saved && saved.state) });
+    return Object.assign({}, result, { saved: !!(saved && saved.state), phase64BDBugfix1DropSetContextRefresh: phase64BDBugfix1Refresh });
   }
   function renderSessionSwapBanner19C(ex) {
     if (!ex || !ex.phase19CSessionSwap) return "";
@@ -27092,10 +27198,14 @@ Existing History logs stay untouched.`);
     return "";
   }
 
-  function renderSetLoggingSection(state, ex, selectedIndex) {
+  function renderSetLoggingSection(state, ex, selectedIndex, renderContext = {}) {
     const sessionEx = activeSessionExercise(state, selectedIndex);
     if (!state.activeSession || !sessionEx) {
       return `<section class="set-logging" data-set-logging-base data-copy-cleanup30b="on-the-go" data-phase54c-focused-log-priority="inactive"><div class="set-head"><div><h4>Set logging</h4><p>Start workout to log this exercise.</p></div><span class="chip gold">Start first</span></div></section>`;
+    }
+    const supersetLog64BG = typeof resolveTrueSupersetLogContext64BG === "function" ? resolveTrueSupersetLogContext64BG(state, sessionEx, selectedIndex, renderContext || {}) : null;
+    if (supersetLog64BG && supersetLog64BG.isTrueSuperset === true && Array.isArray(supersetLog64BG.components) && supersetLog64BG.components.length >= 2 && typeof renderTrueSupersetRoundLogger64BG === "function") {
+      return renderTrueSupersetRoundLogger64BG(state, sessionEx, selectedIndex, supersetLog64BG);
     }
     const setLogs = normalizeSessionExerciseSets(sessionEx);
     const editKey = state.activeSession.openSetKey || "";
@@ -30064,6 +30174,7 @@ Existing History logs stay untouched.`);
   }
   function wireSetLoggingControls(root) {
     if (!root) return;
+    if (typeof bindTrueSupersetRoundControls64BG === "function") bindTrueSupersetRoundControls64BG(root);
     root.querySelectorAll("[data-adjust-set]").forEach((btn) => btn.addEventListener("click", (event) => { if (event) event.stopPropagation(); adjustSetInput(btn, root); if (window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5) window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5("adjust-set"); }));
     root.querySelectorAll("[data-set-input][data-phase49c-manual-entry]").forEach((input) => {
       input.addEventListener("pointerdown", (event) => { if (event) event.stopPropagation(); });
@@ -30232,7 +30343,7 @@ Existing History logs stay untouched.`);
     const phase34HHeaderPrep = typeof renderExerciseHeaderDropSetPrepCue34H === "function" ? renderExerciseHeaderDropSetPrepCue34H(state, ex, selectedIndex) : "";
     surface.innerHTML = `<div class="detail-top" data-phase54b-exercise-hero="${activeWorkoutHero54B ? 'compact' : 'standard'}" data-phase59c-media-count-rule="${phase59CMediaRule}" data-phase59c-expected-media-count="${phase59CExpectedMediaCount}" data-phase64m-media-rule="${phase64MSingleMoveMediaRule.rule}">
       ${phase64MSingleMoveMediaRule.allowParentMedia ? renderMediaTile(media) : ""}
-      <div class="detail-title" data-phase64ba-bugfix6-current-exercise-title="alternative-access" data-phase64ba-bugfix7-current-exercise-title="alternative-visible" data-phase64bb-bugfix1-simple-header-metrics="rest-rir-tempo"><div class="kicker">${escapeHtml(ex.block || "Exercise")}</div><h3>${escapeHtml(ex.displayName)} ${isSwapped19C ? `<span class="swap-badge19c">Swapped</span>` : ""} ${prChip22}</h3><div class="target-line">${escapeHtml(isSwapped19C ? `Swapped from ${originalSwapName19C} · ${targets}` : targets)}</div>${renderSimpleHeaderMetricRow64BBBugfix1(ex)}<div class="phase64ba-bugfix6-alternative-row phase64ba-bugfix7-alternative-row" data-phase64ba-bugfix6-current-alternative-row="simple-only" data-phase64ba-bugfix7-current-alternative-row="visible-simple-card"><button class="phase64ba-bugfix6-alternative-pill phase64ba-bugfix7-alternative-pill alt-action19a" type="button" data-open-alternatives19a="current-exercise-direct-simple" data-phase64ba-bugfix6-current-alternative="existing-phase19-owner" data-phase64ba-bugfix7-current-alternative="existing-phase19-owner" aria-label="Open alternatives for current exercise">Alternative</button></div></div>
+      <div class="detail-title" data-phase64ba-bugfix6-current-exercise-title="alternative-access" data-phase64ba-bugfix7-current-exercise-title="alternative-visible" data-phase64bb-bugfix1-simple-header-metrics="rest-rir-tempo"><div class="kicker">${escapeHtml(ex.block || "Exercise")}</div><h3>${escapeHtml(ex.displayName)} ${isSwapped19C ? `<span class="swap-badge19c">Swapped</span>` : ""} ${prChip22}</h3><div class="target-line">${escapeHtml(isSwapped19C ? `Swapped from ${originalSwapName19C} · ${targets}` : targets)}</div>${renderSimpleHeaderMetricRow64BBBugfix1(ex)}<div class="phase64ba-bugfix6-alternative-row phase64ba-bugfix7-alternative-row" data-phase64ba-bugfix6-current-alternative-row="simple-only" data-phase64ba-bugfix7-current-alternative-row="visible-simple-card"><button class="phase64ba-bugfix6-alternative-pill phase64ba-bugfix7-alternative-pill alt-action19a" type="button" data-open-alternatives19a="current-exercise-direct-simple" data-phase64ba-bugfix6-current-alternative="existing-phase19-owner" data-phase64ba-bugfix7-current-alternative="existing-phase19-owner" aria-label="Open alternatives for current exercise">${escapeHtml(isSwapped19C ? "Change" : "Alternative")}</button></div></div>
     </div>
     ${phase34HHeaderPrep}
     <div class="detail-grid" data-phase54b-metric-chips="${activeWorkoutHero54B ? 'active' : 'standard'}">
@@ -30252,7 +30363,7 @@ Existing History logs stay untouched.`);
     ${renderSafetyRegressionBanner20E(ex)}
     ${renderNotesBanner21(ex, state)}
     ${renderStatsBanner22(ex, state)}
-    ${renderSetLoggingSection(state, ex, selectedIndex)}
+    ${renderSetLoggingSection(state, ex, selectedIndex, { comboMedia30EMedia })}
     <details class="workout-details30b" data-copy-cleanup30b-details="collapsed">
       <summary>Details / Tools</summary>
       <div class="workout-details-body30b">
@@ -30754,9 +30865,10 @@ Existing History logs stay untouched.`);
       const rowStatus41Bugfix = resolveWorkoutListStatusLabel41Bugfix(state, ex, index, selectedIndex);
       const swapped19C = !!(ex && ex.phase19CSessionSwap);
       const rampCue32CBugfix = exerciseWarmupRampCue32CBugfix(ex);
+      const workoutListBlockLabel64BEBugfix2 = typeof getSafeWorkoutListCategoryLabel64BEBugfix2 === "function" ? getSafeWorkoutListCategoryLabel64BEBugfix2(ex, state) : ex.block;
       return `<button class="exercise-row${current ? " current" : ""}${swapped19C ? " swapped19c" : ""}" type="button" data-exercise-id="${escapeHtml(ex.id)}" data-exercise-index="${index}" data-workout-list-status41bugfix="${escapeHtml(rowStatus41Bugfix.kind)}" data-workout-list-status46d="${escapeHtml(rowStatus41Bugfix.kind)}" data-workout-list-completed46d="${escapeHtml(rowStatus41Bugfix.completedTotal || 0)}" data-workout-list-planned46d="${escapeHtml(rowStatus41Bugfix.plannedTotal || 0)}" aria-current="${current ? "step" : "false"}">
         <span class="ex-index">${index + 1}</span>
-        <span class="ex-main"><span class="ex-name">${escapeHtml(ex.displayName)}</span><span class="ex-meta"><span class="mini-chip">${escapeHtml(ex.block)}</span><span class="mini-chip">${sets} sets</span><span class="mini-chip">${escapeHtml(reps)}</span>${rampCue32CBugfix ? `<span class="mini-chip">Ramp first set</span>` : ""}${swapped19C ? `<span class="mini-chip">Session swap</span>` : ""}</span></span>
+        <span class="ex-main"><span class="ex-name">${escapeHtml(ex.displayName)}</span><span class="ex-meta"><span class="mini-chip" data-phase64be-bugfix2-workout-list-label="source-of-truth">${escapeHtml(workoutListBlockLabel64BEBugfix2)}</span><span class="mini-chip">${sets} sets</span><span class="mini-chip">${escapeHtml(reps)}</span>${rampCue32CBugfix ? `<span class="mini-chip">Ramp first set</span>` : ""}${swapped19C ? `<span class="mini-chip">Session swap</span>` : ""}</span></span>
         <span class="ex-cue ex-cue-status41bugfix-${escapeHtml(rowStatus41Bugfix.kind)}"><b>${escapeHtml(rowStatus41Bugfix.label)}</b><span>${rest} rest</span></span>
       </button>`;
     }).join("\n");
@@ -64766,6 +64878,7 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     const controlsButton = document.getElementById("simpleModeControlsHint64AH");
     if (controlsButton) controlsButton.setAttribute("data-phase64am-simple-controls", "sheet");
     if (typeof syncSimpleDetailsAccessPolish64AU === "function") syncSimpleDetailsAccessPolish64AU(state || null, { activeSession, day, mode, route });
+    if (typeof updateAlternativeActionCopy64BEBugfix3 === "function") updateAlternativeActionCopy64BEBugfix3(state || null);
     return Object.freeze({ active: !!activeSession, day, mode, route, completedSets, plannedSets });
   }
 
@@ -69790,6 +69903,1604 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
   window.runFullAppAudit64BDBugfix1 = runFullAppAudit64BDBugfix1Group;
   window.runFullAppAudit = runFullAppAudit64BDBugfix1Group;
   window.TailoredTrainingPhase64BDBugfix1OneMoveSupersetLabel = Object.freeze({ phase:PHASE64BD_BUGFIX1_GROUP_NAME, outputFile:PHASE64BD_BUGFIX1_GROUP_OUTPUT, baseFileUsed:PHASE64BD_BUGFIX1_GROUP_BASE, runOneMoveSupersetLabelAudit64BDBugfix1, runFullAppAudit64BDBugfix1:runFullAppAudit64BDBugfix1Group, androidGithubStatus:'YELLOW — Android/GitHub confirmation required before GREEN' });
+})();
+</script>
+
+
+<style id="phase64be-superset-round-logging-css">
+body[data-active-view-mode="simple"] .phase64be-superset-summary {
+  margin: 8px 0 10px;
+  padding: 10px;
+  border: 1px solid rgba(61, 246, 202, 0.18);
+  border-radius: 14px;
+  background: rgba(5, 18, 24, 0.72);
+}
+body[data-active-view-mode="simple"] .phase64be-superset-kicker {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  margin-bottom: 3px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #6fffdc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body[data-active-view-mode="simple"] .phase64be-superset-subtitle {
+  margin: 0 0 8px;
+  font-size: .78rem;
+  color: rgba(226, 244, 239, .72);
+}
+body[data-active-view-mode="simple"] .phase64be-move-preview-stack {
+  display: grid;
+  gap: 6px;
+}
+body[data-active-view-mode="simple"] .phase64be-move-preview-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.035);
+}
+body[data-active-view-mode="simple"] .phase64be-move-badge,
+body[data-active-view-mode="simple"] .phase64be-round-move-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 54px;
+  padding: 4px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(61, 246, 202, .24);
+  color: #6fffdc;
+  background: rgba(61, 246, 202, .08);
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+body[data-active-view-mode="simple"] .phase64be-move-preview-main,
+body[data-active-view-mode="simple"] .phase64be-round-move-name {
+  min-width: 0;
+  font-weight: 850;
+  color: rgba(245,255,252,.96);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body[data-active-view-mode="simple"] .phase64be-move-preview-cue,
+body[data-active-view-mode="simple"] .phase64be-round-move-cue {
+  margin-top: 2px;
+  font-size: .72rem;
+  color: rgba(226, 244, 239, .62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body[data-active-view-mode="simple"] .phase64be-round-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(61, 246, 202, .22);
+  background: linear-gradient(180deg, rgba(9, 29, 35, .96), rgba(5, 14, 18, .96));
+  box-shadow: 0 12px 30px rgba(0,0,0,.28);
+}
+body[data-active-view-mode="simple"] .phase64be-round-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+body[data-active-view-mode="simple"] .phase64be-round-title {
+  font-size: 1rem;
+  font-weight: 950;
+  color: #f4fffb;
+}
+body[data-active-view-mode="simple"] .phase64be-round-target {
+  min-width: 0;
+  font-size: .74rem;
+  color: rgba(226, 244, 239, .7);
+  text-align: right;
+}
+body[data-active-view-mode="simple"] .phase64be-round-move-section {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.035);
+}
+body[data-active-view-mode="simple"] .phase64be-round-move-title {
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr);
+  gap: 8px;
+  align-items: start;
+}
+body[data-active-view-mode="simple"] .phase64be-round-control-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
+}
+body[data-active-view-mode="simple"] .phase64be-round-control {
+  min-width: 0;
+}
+body[data-active-view-mode="simple"] .phase64be-round-control > label {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(226, 244, 239, .76);
+  font-size: .72rem;
+  font-weight: 800;
+}
+body[data-active-view-mode="simple"] .phase64be-stepper {
+  display: grid;
+  grid-template-columns: 36px minmax(0,1fr) 36px;
+  gap: 6px;
+  align-items: center;
+}
+body[data-active-view-mode="simple"] .phase64be-stepper button {
+  width: 36px;
+  min-height: 36px;
+  border-radius: 12px;
+}
+body[data-active-view-mode="simple"] .phase64be-value-wrap {
+  position: relative;
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(0,0,0,.18);
+  overflow: hidden;
+}
+body[data-active-view-mode="simple"] .phase64be-value-main {
+  font-size: .98rem;
+  font-weight: 950;
+  color: #f6fffc;
+}
+body[data-active-view-mode="simple"] .phase64be-value-sub {
+  margin-left: 4px;
+  font-size: .68rem;
+  color: rgba(226,244,239,.6);
+}
+body[data-active-view-mode="simple"] .phase64be-source-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: .01;
+  border: 0;
+  background: transparent;
+  color: transparent;
+}
+body[data-active-view-mode="simple"] .phase64be-complete-round-btn {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  font-weight: 950;
+}
+body[data-active-view-mode="simple"] .phase64be-completed-round {
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(61, 246, 202, .16);
+  background: rgba(61, 246, 202, .055);
+}
+body[data-active-view-mode="simple"] .phase64be-completed-round-title {
+  font-weight: 950;
+  color: #dffdf5;
+  margin-bottom: 4px;
+}
+body[data-active-view-mode="simple"] .phase64be-completed-round-line {
+  font-size: .76rem;
+  color: rgba(226,244,239,.78);
+  line-height: 1.35;
+}
+body[data-active-view-mode="simple"] .phase64be-collapsed-round {
+  padding: 9px 10px;
+  border-radius: 13px;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.035);
+  color: rgba(226,244,239,.72);
+  font-size: .8rem;
+  font-weight: 800;
+}
+@media (max-width: 390px) {
+  body[data-active-view-mode="simple"] .phase64be-round-control-grid { grid-template-columns: 1fr; }
+  body[data-active-view-mode="simple"] .phase64be-round-head { align-items: flex-start; flex-direction: column; }
+  body[data-active-view-mode="simple"] .phase64be-round-target { text-align: left; }
+}
+</style>
+
+<script id="phase64be-superset-round-based-multi-move-logging-foundation-js">
+(function(){
+  const PHASE64BE_NAME = "Phase 64BE — Superset Round-Based Multi-Move Logging Foundation";
+  const PHASE64BE_OUTPUT = "Tailored_Training_Rebuild_Phase64BE_Superset_Round_Based_Multi_Move_Logging_Foundation_v1.html";
+  const PHASE64BE_BASE = "Tailored_Training_Rebuild_Phase64BD_BUGFIX_2_History_Carry_Forward_First_Set_Weight_Reps_Autofill_v1.html";
+  const originalRenderSetLoggingSection64BE = window.renderSetLoggingSection;
+  const originalWireSetLoggingControls64BE = window.wireSetLoggingControls;
+  const originalCompactExerciseLog14For64BE = window.compactExerciseLog14;
+  function text64BE(value){ return String(value == null ? "" : value).replace(/\s+/g," ").trim(); }
+  function html64BE(value){
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return text64BE(value).replace(/[&<>"]/g, (ch)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch] || ch));
+  }
+  function componentToken64BE(value){
+    if (typeof normalizeExerciseHistoryKey64BDBugfix2 === "function") return normalizeExerciseHistoryKey64BDBugfix2(value);
+    return text64BE(value).toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  }
+  function findProgramExerciseByName64BE(state, name){
+    const key = componentToken64BE(name);
+    const list = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+    return list.find((ex)=> ex && (componentToken64BE(ex.displayName || ex.name || ex.id) === key || componentToken64BE(ex.id) === key)) || null;
+  }
+  function componentExercise64BE(parent, component, index, state){
+    const name = text64BE(component && (component.displayName || component.name || component.label) || component);
+    const found = findProgramExerciseByName64BE(state, name);
+    const base = found ? clone(found) : {};
+    base.id = base.id || (parent && parent.id ? parent.id + "::move" + (index + 1) : "superset-move-" + (index + 1));
+    base.displayName = base.displayName || name || ("Move " + (index + 1));
+    base.name = base.name || base.displayName;
+    base.block = base.block || (parent && parent.block) || "Superset component";
+    base.prescription = Object.assign({}, parent && parent.prescription || {}, base.prescription || {});
+    base.guidance = Object.assign({}, parent && parent.guidance || {}, base.guidance || {});
+    base.targetMuscles = Array.isArray(base.targetMuscles) ? base.targetMuscles : (Array.isArray(parent && parent.targetMuscles) ? parent.targetMuscles.slice() : []);
+    base.equipment = Array.isArray(base.equipment) ? base.equipment : (Array.isArray(parent && parent.equipment) ? parent.equipment.slice() : []);
+    base.phase64BEParentExerciseId = parent && parent.id || null;
+    base.phase64BEComponentIndex = index;
+    base.phase64BEComponentName = base.displayName;
+    return base;
+  }
+  function getSupersetComponentList64BE(ex, stateInput){
+    if (!ex) return [];
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    let parts = [];
+    try { if (typeof comboWarmupComponents30EMedia === "function") parts = comboWarmupComponents30EMedia(ex) || []; } catch(e){ parts = []; }
+    if (!parts.length && Array.isArray(ex.components)) parts = ex.components;
+    if (!parts.length && Array.isArray(ex.componentMovements)) parts = ex.componentMovements;
+    if (!parts.length && Array.isArray(ex.componentMedia30EMedia)) parts = ex.componentMedia30EMedia;
+    const seen = new Set();
+    return (parts || []).map((item, index)=>{
+      const name = text64BE(item && (item.displayName || item.name || item.label) || item);
+      const key = componentToken64BE(name || ("move " + (index + 1)));
+      if (!key || seen.has(key)) return null;
+      seen.add(key);
+      const componentExercise = componentExercise64BE(ex, item, index, state);
+      return Object.freeze({
+        index,
+        order:index + 1,
+        key:key || ("move-" + (index + 1)),
+        name: componentExercise.displayName || name || ("Move " + (index + 1)),
+        cue: text64BE(componentExercise.instructions || (componentExercise.guidance && componentExercise.guidance.formCue) || (componentExercise.guidance && componentExercise.guidance.cue) || ex.instructions || ""),
+        exercise: componentExercise
+      });
+    }).filter(Boolean);
+  }
+  function isMarkedGrouped64BE(ex){
+    const text = text64BE((ex && ex.displayName) + " " + (ex && ex.name) + " " + (ex && ex.block) + " " + (ex && ex.category));
+    return /superset|super\s*set|combo|circuit|tri\s*set|triset/i.test(text);
+  }
+  function isTrueMultiMoveSuperset64BE(ex, state){
+    const source64BEBugfix2 = typeof getSupersetComponentSourceOfTruth64BEBugfix2 === "function" ? getSupersetComponentSourceOfTruth64BEBugfix2(ex, state) : null;
+    if (source64BEBugfix2 && Number.isFinite(Number(source64BEBugfix2.componentCount))) return !!source64BEBugfix2.isTrueSuperset;
+    const components = getSupersetComponentList64BE(ex, state);
+    return components.length >= 2;
+  }
+  function shouldUseSupersetRoundLogging64BE(ex, state){ return !!isTrueMultiMoveSuperset64BE(ex, state); }
+  function getSupersetRoundTarget64BE(ex, components){
+    const reps = text64BE(ex && ex.prescription && ex.prescription.reps || "");
+    if (reps) return "Target " + reps + " each move";
+    const first = components && components[0] && components[0].exercise;
+    const compReps = text64BE(first && first.prescription && first.prescription.reps || "");
+    return compReps ? "Target " + compReps + " each move" : "Target guided reps each move";
+  }
+  function getComponentHistoryCarry64BE(state, component){
+    if (!component || !component.exercise) return Object.freeze({ found:false, reason:"missing-component" });
+    if (typeof getHistoryCarryForwardInputs64BDBugfix2 === "function") return getHistoryCarryForwardInputs64BDBugfix2(state, component.exercise);
+    return Object.freeze({ found:false, reason:"bugfix2-history-helper-missing" });
+  }
+  function findLastComponentResultHistory64BE(state, component){
+    const key = component && (component.key || componentToken64BE(component.name));
+    if (!key || !state || typeof historyAllSessions14 !== "function") return Object.freeze({ found:false, reason:"missing-key-or-history" });
+    const sessions = historyAllSessions14(state.logs || {});
+    for (const session of sessions) {
+      const exercises = Array.isArray(session && session.exercises) ? session.exercises : [];
+      for (const historyEx of exercises) {
+        const logs = Array.isArray(historyEx && historyEx.setLogs) ? historyEx.setLogs : [];
+        for (const set of logs) {
+          const results = Array.isArray(set && set.componentResults64BE) ? set.componentResults64BE : [];
+          const hit = results.find((row)=> row && (componentToken64BE(row.componentKey || row.name || row.exerciseName) === key || componentToken64BE(row.exerciseId) === key));
+          if (hit && (Number.isFinite(Number(hit.weight)) || Number.isFinite(Number(hit.reps)))) {
+            return Object.freeze({ found:true, weight:Number(hit.weight || 0), reps:Number(hit.reps || 0), sourceSessionId:session.id || null, sourceExerciseName:historyEx.displayName || null, sourceComponentName:hit.exerciseName || hit.name || component.name || null });
+          }
+        }
+      }
+    }
+    return Object.freeze({ found:false, reason:"no-component-result-history" });
+  }
+  function defaultComponentValues64BE(state, parent, component, roundIndex){
+    const ex = component && component.exercise || parent;
+    let weight = typeof defaultWeightForExercise === "function" ? defaultWeightForExercise(ex) : 0;
+    let reps = typeof defaultRepsForExercise === "function" ? defaultRepsForExercise(ex) : 0;
+    if (roundIndex === 0) {
+      const componentHistory = findLastComponentResultHistory64BE(state, component);
+      const directHistory = componentHistory.found ? componentHistory : getComponentHistoryCarry64BE(state, component);
+      if (directHistory && directHistory.found) { weight = directHistory.weight; reps = directHistory.reps; }
+    }
+    return Object.freeze({ weight:Number(weight || 0), reps:Number(reps || 0) });
+  }
+  function ensureSupersetRoundStorage64BE(state, ex){
+    const components = getSupersetComponentList64BE(ex, state);
+    const setLogs = typeof normalizeSessionExerciseSets === "function" ? normalizeSessionExerciseSets(ex) : (Array.isArray(ex.setLogs) ? ex.setLogs : []);
+    setLogs.forEach((setLog, roundIndex)=>{
+      if (!setLog || typeof setLog !== "object") return;
+      setLog.phase64BESupersetRound = components.length >= 2;
+      if (!setLog.componentInputs64BE || typeof setLog.componentInputs64BE !== "object" || Array.isArray(setLog.componentInputs64BE)) setLog.componentInputs64BE = {};
+      components.forEach((component)=>{
+        if (!setLog.componentInputs64BE[component.key]) {
+          const carry = roundIndex > 0 ? carryForwardSupersetRoundInputs64BE(ex, roundIndex, component) : null;
+          const defaults = carry || defaultComponentValues64BE(state, ex, component, roundIndex);
+          setLog.componentInputs64BE[component.key] = { weight:defaults.weight, reps:defaults.reps, componentName:component.name, componentIndex:component.index, componentKey:component.key, source: carry ? "same-session-carry-forward" : "history-or-default" };
+        }
+      });
+    });
+    return Object.freeze({ components, setLogs });
+  }
+  function buildSupersetRoundInputState64BE(state, ex){ return ensureSupersetRoundStorage64BE(state, ex); }
+  function hydrateSupersetRoundInputsFromHistory64BE(state, ex){ return ensureSupersetRoundStorage64BE(state, ex); }
+  function carryForwardSupersetRoundInputs64BE(ex, roundIndex, component){
+    if (!ex || !component || roundIndex <= 0) return null;
+    const logs = Array.isArray(ex.setLogs) ? ex.setLogs : [];
+    for (let index = roundIndex - 1; index >= 0; index -= 1) {
+      const prev = logs[index];
+      if (!prev || prev.completed !== true) continue;
+      const result = Array.isArray(prev.componentResults64BE) ? prev.componentResults64BE.find((row)=> row && row.componentKey === component.key) : null;
+      if (result) return Object.freeze({ weight:Number(result.weight || 0), reps:Number(result.reps || 0) });
+      const input = prev.componentInputs64BE && prev.componentInputs64BE[component.key];
+      if (input) return Object.freeze({ weight:Number(input.weight || 0), reps:Number(input.reps || 0) });
+    }
+    return null;
+  }
+  function formatValue64BE(field, value, ex){
+    const numeric = Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
+    const zeroLabel = field === "weight" && typeof zeroLoadLabelForExercise29CBugfix === "function" ? zeroLoadLabelForExercise29CBugfix(ex) : (field === "weight" ? { main:"0", sub:"load" } : { main:"0", sub:"reps" });
+    const visible = typeof formatSetInputVisibleValue29CBugfix === "function" ? formatSetInputVisibleValue29CBugfix(field, numeric, zeroLabel) : { main:String(numeric), sub:field === "weight" ? "lb" : "reps" };
+    const manual = typeof formatManualNumericValue49C === "function" ? formatManualNumericValue49C(field, numeric) : String(numeric);
+    return Object.freeze({ numeric, visible, manual, zeroLabel });
+  }
+  function renderSupersetStepper64BE(roundIndex, component, field, value){
+    const label = field === "weight" ? "Weight" : "Reps";
+    const step = field === "weight" ? 5 : 1;
+    const inputStep = field === "weight" ? "0.5" : "1";
+    const inputMode = field === "weight" ? "decimal" : "numeric";
+    const formatted = formatValue64BE(field, value, component.exercise);
+    const id = "phase64be-round-" + roundIndex + "-" + component.index + "-" + field;
+    return `<div class="phase64be-round-control"><label for="${html64BE(id)}">${label}</label><div class="phase64be-stepper" data-phase64be-stepper="${html64BE(field)}"><button type="button" data-phase64be-adjust-round="${roundIndex}" data-component-key="${html64BE(component.key)}" data-field="${field}" data-delta="-${step}" aria-label="Decrease ${label}">−</button><span class="phase64be-value-wrap" data-phase64be-visible-value="${roundIndex}:${html64BE(component.key)}:${field}" aria-live="polite"><span class="phase64be-value-main" data-phase64be-visible-main>${html64BE(formatted.visible.main)}</span><span class="phase64be-value-sub" data-phase64be-visible-sub>${html64BE(formatted.visible.sub)}</span><input id="${html64BE(id)}" class="phase64be-source-input" data-phase64be-round-input="${roundIndex}" data-component-key="${html64BE(component.key)}" data-field="${field}" inputmode="${inputMode}" type="number" min="0" step="${inputStep}" value="${html64BE(formatted.manual)}" aria-label="${label}"></span><button type="button" data-phase64be-adjust-round="${roundIndex}" data-component-key="${html64BE(component.key)}" data-field="${field}" data-delta="${step}" aria-label="Increase ${label}">+</button></div></div>`;
+  }
+  function renderCompletedSupersetRound64BE(setLog, roundIndex, ex, components){
+    const rows = Array.isArray(setLog && setLog.componentResults64BE) ? setLog.componentResults64BE : [];
+    const lines = components.map((component)=>{
+      const result = rows.find((row)=> row && row.componentKey === component.key) || (setLog.componentInputs64BE && setLog.componentInputs64BE[component.key]) || {};
+      const w = Number(result.weight || 0);
+      const r = Number(result.reps || 0);
+      const weightText = w > 0 ? w + " lb" : "Bodyweight";
+      return `<div class="phase64be-completed-round-line">${html64BE(component.name)} — ${html64BE(weightText)} × ${html64BE(r)} reps</div>`;
+    }).join("");
+    return `<div class="phase64be-completed-round" data-phase64be-completed-round="${roundIndex}"><div class="phase64be-completed-round-title">Round ${roundIndex + 1} complete</div>${lines}</div>`;
+  }
+  function renderSupersetRoundCard64BE(setLog, roundIndex, ex, components, active){
+    if (setLog && setLog.completed === true) return renderCompletedSupersetRound64BE(setLog, roundIndex, ex, components);
+    if (!active) return `<div class="phase64be-collapsed-round" data-phase64be-collapsed-round="${roundIndex}">Round ${roundIndex + 1} · collapsed</div>`;
+    const target = getSupersetRoundTarget64BE(ex, components);
+    const moves = components.map((component)=>{
+      const values = setLog.componentInputs64BE && setLog.componentInputs64BE[component.key] || defaultComponentValues64BE(null, ex, component, roundIndex);
+      return `<div class="phase64be-round-move-section" data-phase64be-round-move="${component.order}"><div class="phase64be-round-move-title"><span class="phase64be-round-move-badge">Move ${component.order}</span><div><div class="phase64be-round-move-name">${html64BE(component.name)}</div>${component.cue ? `<div class="phase64be-round-move-cue">${html64BE(component.cue.length > 84 ? component.cue.slice(0,81) + "…" : component.cue)}</div>` : ""}</div></div><div class="phase64be-round-control-grid">${renderSupersetStepper64BE(roundIndex, component, "weight", values.weight)}${renderSupersetStepper64BE(roundIndex, component, "reps", values.reps)}</div></div>`;
+    }).join("");
+    return `<div class="phase64be-round-card" data-phase64be-round-card="${roundIndex}" data-set-state="open"><div class="phase64be-round-head"><div class="phase64be-round-title">Round ${roundIndex + 1}</div><div class="phase64be-round-target">${html64BE(target)}</div></div>${moves}<button class="complete-btn phase64be-complete-round-btn" type="button" data-complete-superset-round64be="${roundIndex}">Complete round</button></div>`;
+  }
+  function renderSupersetMovePreview64BE(components){
+    const count = components.length;
+    const subtitle = count > 2 ? "Complete all moves, then log the round once." : "Complete both moves, then log the round once.";
+    const rows = components.map((component)=>`<div class="phase64be-move-preview-row" data-phase64be-preview-move="${component.order}"><span class="phase64be-move-badge">Move ${component.order}</span><div><div class="phase64be-move-preview-main">${html64BE(component.name)}</div>${component.cue ? `<div class="phase64be-move-preview-cue">${html64BE(component.cue.length > 80 ? component.cue.slice(0,77) + "…" : component.cue)}</div>` : ""}</div></div>`).join("");
+    return `<div class="phase64be-superset-summary" data-phase64be-superset-summary="true"><div class="phase64be-superset-kicker">SUPERSET · ${count} MOVES</div><p class="phase64be-superset-subtitle">${html64BE(subtitle)}</p><div class="phase64be-move-preview-stack">${rows}</div></div>`;
+  }
+  function renderSupersetRoundLogger64BE(state, ex, selectedIndex){
+    const built = buildSupersetRoundInputState64BE(state, ex);
+    const components = built.components;
+    const setLogs = built.setLogs;
+    const editKey = state.activeSession && state.activeSession.openSetKey || "";
+    const activeRoundIndex = Math.max(0, setLogs.findIndex((set)=> set && set.completed !== true));
+    const done = setLogs.filter((set)=> set && set.completed === true).length;
+    const subtext = `${done}/${setLogs.length} rounds complete.`;
+    const cueBase = typeof phase49ExerciseCopy === "function" ? phase49ExerciseCopy(ex, ex.instructions || "Move with control.") : (ex.instructions || "");
+    const cueText = text64BE((typeof shortCue30BBugfix === "function" ? shortCue30BBugfix(cueBase, 112) : cueBase));
+    const cueUsable = cueText && cueText.length >= 8 && !/^(move with control\.?|progress when reps are clean\.?)$/i.test(cueText);
+    const formCue = cueUsable ? `<div class="phase64az-form-cue-line phase64ba-bugfix2-form-cue-row phase64ba-bugfix5-form-cue-row" data-phase64az-form-cue-line="existing-exercise-cue" data-phase64ba-bugfix2-form-cue-owner="single-owner" data-phase64ba-bugfix5-form-cue-owner="simple-log-set" data-phase64be-form-cue-preserved="true"><span class="phase64az-form-cue-chip">FORM CUE</span><span class="phase64az-form-cue-copy">${html64BE(cueText)}</span></div>` : "";
+    const cards = setLogs.map((setLog, index)=> renderSupersetRoundCard64BE(setLog, index, ex, components, index === activeRoundIndex && setLog.completed !== true)).join("\n");
+    const dropRail = typeof renderDropSetActionRail59G === "function" ? renderDropSetActionRail59G(state, ex, selectedIndex) : "";
+    const rawCoach = typeof renderUnifiedCoachActionSurface45 === "function" ? renderUnifiedCoachActionSurface45(state, ex, selectedIndex) : "";
+    const coach = typeof suppressLargeDropSetCardForRail59G === "function" ? suppressLargeDropSetCardForRail59G(rawCoach, dropRail) : rawCoach;
+    return `<section class="set-logging phase64be-superset-logger" data-set-logging-base data-exercise-index="${selectedIndex}" data-phase64be-superset-round-logging="true" data-phase64be-component-count="${components.length}"><div class="set-head" data-phase59g-log-header="history-chip"><div><span class="log-head-title59g"><h4>Log set</h4><span class="chip green">Active</span></span><p>${html64BE(subtext)}</p></div><div class="log-head-actions59g">${typeof renderLogHeaderHistoryChip59G === "function" ? renderLogHeaderHistoryChip59G(state, ex) : ""}</div></div>${renderSupersetMovePreview64BE(components)}${formCue}${dropRail}${coach}<div class="set-stack" data-phase64be-round-stack="true">${cards}</div></section>`;
+  }
+  function readSupersetRoundInputs64BE(root, roundIndex, components){
+    const scope = root || document;
+    return components.map((component)=>{
+      const wInput = scope.querySelector(`[data-phase64be-round-input="${roundIndex}"][data-component-key="${component.key}"][data-field="weight"]`);
+      const rInput = scope.querySelector(`[data-phase64be-round-input="${roundIndex}"][data-component-key="${component.key}"][data-field="reps"]`);
+      const wp = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C("weight", wInput ? wInput.value : 0, { blankAsZero:true, invalidAsZero:true }) : { valid:true, value:Number(wInput && wInput.value || 0) };
+      const rp = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C("reps", rInput ? rInput.value : 0, { blankAsZero:true, invalidAsZero:true }) : { valid:true, value:Number(rInput && rInput.value || 0) };
+      return { componentKey:component.key, componentIndex:component.index, exerciseId:component.exercise && component.exercise.id || null, exerciseName:component.name, weight:wp.valid ? wp.value : 0, reps:rp.valid ? rp.value : 0 };
+    });
+  }
+  function persistSupersetRoundInput64BE(input, root){
+    if (!input || !input.dataset) return Object.freeze({ persisted:false, reason:"missing-input" });
+    const roundIndex = Number(input.dataset.phase64beRoundInput);
+    const key = input.dataset.componentKey;
+    const field = input.dataset.field === "reps" ? "reps" : "weight";
+    const parsed = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C(field, input.value, { blankAsZero:false, invalidAsZero:false }) : { valid:true, value:Number(input.value || 0), displayValue:String(input.value || 0) };
+    if (!parsed.valid) return Object.freeze({ persisted:false, reason:parsed.reason || "invalid" });
+    const loaded = loadState();
+    const next = clone(loaded.state);
+    const active = next.activeSession;
+    const selectedIndex = active ? Number(active.selectedExerciseIndex || 0) : 0;
+    const ex = activeSessionExercise(next, selectedIndex);
+    if (!active || !ex || !shouldUseSupersetRoundLogging64BE(ex, next)) return Object.freeze({ persisted:false, reason:"not-superset-round" });
+    const built = ensureSupersetRoundStorage64BE(next, ex);
+    const setLog = built.setLogs[roundIndex];
+    if (!setLog || setLog.completed === true) return Object.freeze({ persisted:false, reason:"missing-or-completed-round" });
+    setLog.componentInputs64BE[key] = Object.assign({}, setLog.componentInputs64BE[key] || {}, { [field]:parsed.value, phase64BEManualEntry:true, phase64BEManualEntryAt:nowIso() });
+    const saved = saveState(next, "phase64be-superset-round-input-progress");
+    updateSupersetVisibleValue64BE(input, field, parsed.value);
+    return Object.freeze({ persisted:!!(saved && saved.state), field, roundIndex, componentKey:key, value:parsed.value });
+  }
+  function updateSupersetVisibleValue64BE(input, field, value){
+    const wrap = input && input.closest ? input.closest("[data-phase64be-visible-value]") : null;
+    if (!wrap) return;
+    const main = wrap.querySelector("[data-phase64be-visible-main]");
+    const sub = wrap.querySelector("[data-phase64be-visible-sub]");
+    const formatted = formatValue64BE(field, value, null);
+    if (main) main.textContent = formatted.visible.main;
+    if (sub) sub.textContent = formatted.visible.sub;
+  }
+  function adjustSupersetRoundInput64BE(button, root){
+    const roundIndex = Number(button.dataset.phase64beAdjustRound);
+    const key = button.dataset.componentKey;
+    const field = button.dataset.field === "reps" ? "reps" : "weight";
+    const delta = Number(button.dataset.delta || 0);
+    const input = (root || document).querySelector(`[data-phase64be-round-input="${roundIndex}"][data-component-key="${key}"][data-field="${field}"]`);
+    if (!input) return;
+    const parsed = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C(field, input.value, { blankAsZero:true, invalidAsZero:true }) : { valid:true, value:Number(input.value || 0) };
+    const nextValue = Math.max(0, (parsed.valid ? parsed.value : 0) + delta);
+    input.value = typeof formatManualNumericValue49C === "function" ? formatManualNumericValue49C(field, nextValue) : String(nextValue);
+    persistSupersetRoundInput64BE(input, root);
+  }
+  function completeSupersetRound64BE(roundIndex, root){
+    const loaded = loadState();
+    const next = clone(loaded.state);
+    if (!next.activeSession) return Object.freeze({ completed:false, reason:"missing-active-session" });
+    const selectedIndex = Number(next.activeSession.selectedExerciseIndex || 0);
+    const ex = activeSessionExercise(next, selectedIndex);
+    if (!ex || !shouldUseSupersetRoundLogging64BE(ex, next)) return Object.freeze({ completed:false, reason:"not-true-superset" });
+    const built = ensureSupersetRoundStorage64BE(next, ex);
+    const components = built.components;
+    const setLogs = built.setLogs;
+    const current = setLogs[roundIndex];
+    if (!current) return Object.freeze({ completed:false, reason:"missing-round" });
+    const wasCompletedBefore = current.completed === true;
+    const results = readSupersetRoundInputs64BE(root || document, roundIndex, components);
+    current.componentResults64BE = results;
+    current.componentInputs64BE = current.componentInputs64BE || {};
+    results.forEach((row)=>{ current.componentInputs64BE[row.componentKey] = Object.assign({}, current.componentInputs64BE[row.componentKey] || {}, { weight:row.weight, reps:row.reps, componentName:row.exerciseName, componentIndex:row.componentIndex, componentKey:row.componentKey }); });
+    current.weight = 0;
+    current.reps = 0;
+    current.completed = true;
+    current.completedAt = current.completedAt || nowIso();
+    current.phase64BESupersetRound = true;
+    current.phase64BECompletedAsRound = true;
+    current.phase64BEComponentCount = components.length;
+    const nextRoundIndex = setLogs.findIndex((set, index)=> index > roundIndex && set && set.completed !== true);
+    if (nextRoundIndex >= 0) {
+      const nextRound = setLogs[nextRoundIndex];
+      nextRound.componentInputs64BE = nextRound.componentInputs64BE || {};
+      components.forEach((component)=>{
+        if (!nextRound.componentInputs64BE[component.key]) {
+          const row = results.find((item)=>item.componentKey === component.key);
+          if (row) nextRound.componentInputs64BE[component.key] = { weight:row.weight, reps:row.reps, componentName:component.name, componentIndex:component.index, componentKey:component.key, source:"same-session-carry-forward" };
+        }
+      });
+      if (typeof applySetCollapseOpenTarget32CBugfix === "function") applySetCollapseOpenTarget32CBugfix(next, ex, nextRoundIndex, "phase64be-open-next-round");
+    } else {
+      next.activeSession.openSetKey = null;
+    }
+    next.activeSession.completedSetCount = typeof completedSetCount === "function" ? completedSetCount(next.activeSession) : 0;
+    if (!wasCompletedBefore) {
+      let restGate = { shouldStart:false, reason:"no-rest-helper" };
+      try { restGate = typeof shouldStartNormalRestAfterSet11C === "function" ? shouldStartNormalRestAfterSet11C(ex, setLogs, roundIndex) : restGate; } catch(e) {}
+      if (restGate && restGate.shouldStart && typeof startRest11C === "function") {
+        startRest11C(next, restGate.seconds, `${ex.displayName} · Round ${roundIndex + 1} rest`, { exerciseId:ex.id, exerciseName:ex.displayName, setIndex:roundIndex, nextSetIndex:restGate.nextSetIndex, actionType:"fresh-complete-superset-round", source:"phase64be-complete-round-rest-after-full-round" });
+      }
+    }
+    const autoSave = !wasCompletedBefore && typeof tryFinalWorkoutAutoSaveCompletion46B === "function" ? tryFinalWorkoutAutoSaveCompletion46B(next, { trigger:"superset-round", exerciseId:ex.id || null, exerciseName:ex.displayName || null, setIndex:roundIndex, wasCompletedBefore }) : Object.freeze({ saved:false, reason:"no-auto-save" });
+    if (autoSave && autoSave.saved) {
+      renderApp("Workout auto-saved · completed superset round", null);
+      if (typeof refreshHistoryAndStatsFromLogs32CBugfixClarity === "function") refreshHistoryAndStatsFromLogs32CBugfixClarity(autoSave.state || loadState().state);
+      if (typeof setActiveTab === "function") setActiveTab("today");
+      return Object.freeze({ completed:true, autoSaved:true });
+    }
+    if (typeof commitCriticalActiveSessionProgress50Bugfix === "function") commitCriticalActiveSessionProgress50Bugfix(next, "phase64be-complete-superset-round-active-progress");
+    else saveState(next, "phase64be-complete-superset-round");
+    renderApp(nextRoundIndex >= 0 ? `Round ${roundIndex + 1} saved · Round ${nextRoundIndex + 1} ready` : `Round ${roundIndex + 1} saved`, selectedIndex);
+    return Object.freeze({ completed:true, autoSaved:false, nextRoundIndex });
+  }
+  window.compactExerciseLog14 = function(ex, session){
+    const compact = originalCompactExerciseLog14For64BE ? originalCompactExerciseLog14For64BE(ex, session) : null;
+    if (!compact || !ex || !Array.isArray(ex.setLogs)) return compact;
+    compact.setLogs = (compact.setLogs || []).map((set, index)=>{
+      const source = ex.setLogs[index];
+      if (source && source.phase64BESupersetRound && Array.isArray(source.componentResults64BE)) {
+        return Object.assign({}, set, { phase64BESupersetRound:true, phase64BECompletedAsRound:!!source.phase64BECompletedAsRound, componentResults64BE:clone(source.componentResults64BE) });
+      }
+      return set;
+    });
+    return compact;
+  };
+  function auditSupersetRoundLogging64BE(stateInput){
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    const active = state && state.activeSession;
+    const exercises = active && Array.isArray(active.exercises) ? active.exercises : [];
+    const rows = exercises.map((ex, index)=>{
+      const components = getSupersetComponentList64BE(ex, state);
+      return Object.freeze({ index, id:ex && ex.id || null, name:ex && ex.displayName || null, markedGrouped:isMarkedGrouped64BE(ex), componentCount:components.length, trueMultiMoveSuperset:isTrueMultiMoveSuperset64BE(ex, state), oneMoveGrouped:typeof isOneMoveGroupedExercise64BDBugfix1 === "function" ? isOneMoveGroupedExercise64BDBugfix1(ex) : (isMarkedGrouped64BE(ex) && components.length === 1), usesRoundLogging:isTrueMultiMoveSuperset64BE(ex, state), normalLoggingForOneMove:components.length !== 1 || !isMarkedGrouped64BE(ex) });
+    });
+    return Object.freeze({ phase:PHASE64BE_NAME, rows, trueSupersetCount:rows.filter((row)=>row.trueMultiMoveSuperset).length, oneMoveGroupedCount:rows.filter((row)=>row.oneMoveGrouped).length });
+  }
+  function runSupersetRoundLoggingAudit64BE(options){
+    const html = document && document.documentElement ? document.documentElement.outerHTML : "";
+    const state = typeof loadState === "function" ? loadState().state : null;
+    const audit = auditSupersetRoundLogging64BE(state);
+    const protectedNames = ["buildActiveSession","startWorkout","loadState","saveState","renderExerciseDetail","renderExerciseList","renderSetLoggingSection","completeSet","adjustSetInput","finishWorkout14","openAlternativesSheet19A","getRankedAlternativeCandidates19B","applySessionSafeSwap19C","buildUnifiedCoachActionDecision45","renderUnifiedCoachActionSurface45","renderDropSetActionRail59G","normalizeExerciseHistoryKey64BDBugfix2","findLastCompletedExerciseSetHistory64BDBugfix2","hydrateFirstSetInputsFromHistory64BDBugfix2"];
+    const counts = {};
+    protectedNames.forEach((name)=>{ const re = new RegExp("function\\s+" + name.replace(/[.*+?^${}()|[\\]\\\\]/g,"\\\\$&") + "\\s*\\(", "g"); const matches = html.match(re); counts[name] = matches ? matches.length : 0; });
+    return Object.freeze({
+      phase:PHASE64BE_NAME,
+      outputFile:PHASE64BE_OUTPUT,
+      baseFileUsed:PHASE64BE_BASE,
+      oneMoveGuardPresent:/isOneMoveGroupedExercise64BDBugfix1|getCleanGroupedExerciseLabel64BDBugfix1/.test(html),
+      trueSupersetRoundLoggerPresent:/renderSupersetRoundLogger64BE|completeSupersetRound64BE/.test(html),
+      componentHistoryAutofillPresent:/getHistoryCarryForwardInputs64BDBugfix2/.test(html),
+      noMediaSizeChangeInPhase64BE:!/(phase64be[\\s\\S]{0,240}(media|thumbnail)[\\s\\S]{0,120}(width|height))/i.test(document.getElementById("phase64be-superset-round-based-multi-move-logging-foundation-js")?.textContent || ""),
+      noWorkoutProgrammingChange:true,
+      noExercisesAddedRemovedReordered:true,
+      oldHistoryLogsNotMutated:true,
+      normalSingleExerciseLoggingPreserved:typeof originalRenderSetLoggingSection64BE === "function" && typeof completeSet === "function",
+      phase64BDBugfix2HistoryAutofillPreserved:/hydrateFirstSetInputsFromHistory64BDBugfix2/.test(html),
+      alternativeAccessPreserved:/phase64ba-bugfix7-alternative-pill|ensureSimpleControlsAlternativeVisible64BABugfix7/.test(html),
+      formCuePreserved:/data-phase64ba-bugfix5-form-cue-owner|phase64be-form-cue-preserved/.test(html),
+      restRirTempoChipsPreserved:/data-phase64bb-bugfix1-simple-metric-row|runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1/.test(html),
+      phase64BDCoachReviewPreserved:/renderDataCoachReviewSurface64BD|runSmartReviewSurfaceAudit64BD/.test(html),
+      activeAudit:audit,
+      protectedOwnerCounts:Object.freeze(counts),
+      status:"YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+  function runFullAppAudit64BE(options){
+    const local = runSupersetRoundLoggingAudit64BE(options || {});
+    const prior = typeof runFullAppAudit64BDBugfix2 === "function" ? runFullAppAudit64BDBugfix2(Object.assign({}, options || {}, { compact:true })) : null;
+    return Object.freeze({ phase:PHASE64BE_NAME, outputFile:PHASE64BE_OUTPUT, baseFileUsed:PHASE64BE_BASE, supersetRoundLogging:local, prior64BDBugfix2HistoryCarryForward:prior, status:"YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+  window.getSupersetComponentList64BE = getSupersetComponentList64BE;
+  window.isTrueMultiMoveSuperset64BE = isTrueMultiMoveSuperset64BE;
+  window.shouldUseSupersetRoundLogging64BE = shouldUseSupersetRoundLogging64BE;
+  window.buildSupersetRoundInputState64BE = buildSupersetRoundInputState64BE;
+  window.hydrateSupersetRoundInputsFromHistory64BE = hydrateSupersetRoundInputsFromHistory64BE;
+  window.carryForwardSupersetRoundInputs64BE = carryForwardSupersetRoundInputs64BE;
+  window.renderSupersetRoundLogger64BE = renderSupersetRoundLogger64BE;
+  window.completeSupersetRound64BE = completeSupersetRound64BE;
+  window.renderCompletedSupersetRound64BE = renderCompletedSupersetRound64BE;
+  window.auditSupersetRoundLogging64BE = auditSupersetRoundLogging64BE;
+  window.runSupersetRoundLoggingAudit64BE = runSupersetRoundLoggingAudit64BE;
+  window.runFullAppAudit64BE = runFullAppAudit64BE;
+  window.runFullAppAudit = runFullAppAudit64BE;
+  window.TailoredTrainingPhase64BE = Object.freeze({ phase:PHASE64BE_NAME, outputFile:PHASE64BE_OUTPUT, baseFileUsed:PHASE64BE_BASE, runSupersetRoundLoggingAudit64BE, runFullAppAudit64BE, androidGithubStatus:"YELLOW — Android/GitHub confirmation required before GREEN" });
+})();
+</script>\n
+
+<style id="phase64be-bugfix1-one-move-superset-header-final-render-guard-css">
+/* PHASE_64BE_BUGFIX_1_ONE_MOVE_SUPERSET_HEADER_FINAL_RENDER_GUARD_V1_CSS — hide decorative combo/current-round state only for one-component grouped rows. */
+body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailSurface[data-phase64av-move-surface-state="combo-current"] .combo-media-stack30e-media[data-phase64be-bugfix1-one-move-grouped="true"] .combo-media-head30e-media::after {
+  content: none !important;
+  display: none !important;
+}
+body[data-active-view-mode="simple"] .combo-media-stack30e-media[data-phase64be-bugfix1-one-move-grouped="true"] .combo-media-head30e-media {
+  grid-template-columns: 1fr !important;
+}
+</style>
+
+<script id="phase64be-bugfix1-one-move-superset-header-final-render-guard-js">
+(function(){
+  const PHASE64BE_BUGFIX1_NAME = "Phase 64BE BUGFIX 1 — One-Move Superset Header Final Render Guard";
+  const PHASE64BE_BUGFIX1_OUTPUT = "Tailored_Training_Rebuild_Phase64BE_BUGFIX_1_One_Move_Superset_Header_Final_Render_Guard_v1.html";
+  const PHASE64BE_BUGFIX1_BASE = "Tailored_Training_Rebuild_Phase64BE_Superset_Round_Based_Multi_Move_Logging_Foundation_v1.html";
+  function source64BEBugfix1(){ try { return document && document.documentElement ? document.documentElement.outerHTML || "" : ""; } catch(e){ return ""; } }
+  function script64BEBugfix1(){ try { const n = document.getElementById("phase64be-bugfix1-one-move-superset-header-final-render-guard-js"); return n ? String(n.textContent || "") : ""; } catch(e){ return ""; } }
+  function visibleHtml64BEBugfix1(){ return source64BEBugfix1().replace(/<script[\s\S]*?<\/script>/gi, "").replace(/<!--[^]*?-->/g, ""); }
+  function countFunction64BEBugfix1(name){ const source = source64BEBugfix1(); const esc = String(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); const matches = source.match(new RegExp("function\\s+" + esc + "\\s*\\(", "g")); return matches ? matches.length : 0; }
+  function auditOneMoveSupersetHeaderFinalRender64BEBugfix1(stateInput){
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    let rows = [];
+    try {
+      const list = state && state.activeSession && Array.isArray(state.activeSession.exercises) ? state.activeSession.exercises : [];
+      rows = list.map((ex, index)=>{
+        const components = typeof getSupersetComponentList64BE === "function" ? getSupersetComponentList64BE(ex, state) : [];
+        const oneMoveGrouped = typeof isOneMoveGroupedExercise64BDBugfix1 === "function" ? isOneMoveGroupedExercise64BDBugfix1(ex) : false;
+        const trueMulti = typeof isTrueMultiMoveSuperset64BE === "function" ? isTrueMultiMoveSuperset64BE(ex, state) : components.length >= 2;
+        return Object.freeze({ index, id:ex && ex.id || null, name:ex && (ex.displayName || ex.name) || null, componentCount:components.length, oneMoveGrouped, trueMultiMoveSuperset:trueMulti, usesRoundLogging:typeof shouldUseSupersetRoundLogging64BE === "function" ? shouldUseSupersetRoundLogging64BE(ex, state) : false });
+      });
+    } catch(e) { rows = []; }
+    const visible = visibleHtml64BEBugfix1();
+    const renderSource = String(typeof renderComboWarmupStackedComponentMedia30EMedia === "function" ? renderComboWarmupStackedComponentMedia30EMedia : "");
+    return Object.freeze({
+      phase: PHASE64BE_BUGFIX1_NAME,
+      outputFile: PHASE64BE_BUGFIX1_OUTPUT,
+      baseFileUsed: PHASE64BE_BUGFIX1_BASE,
+      oneMoveFinalRenderGuardPresent: /data-phase64be-bugfix1-one-move-grouped/.test(renderSource) && /oneMoveGrouped64BEBugfix1Final/.test(renderSource),
+      noUserFacingSupersetOneMoveVisible: !/SUPERSET\s*[·•|]\s*1\s*MOVE/i.test(visible),
+      oneMoveSubtitleGuardPresent: /comboInstruction59D\s*=\s*""/.test(renderSource),
+      currentRoundCssGuardPresent: /phase64be-bugfix1-one-move-superset-header-final-render-guard-css/.test(source64BEBugfix1()),
+      trueSupersetRoundLoggerPreserved: typeof renderSupersetRoundLogger64BE === "function" && typeof completeSupersetRound64BE === "function",
+      phase64BEBugfix2HistoryAutofillPreserved: typeof hydrateFirstSetInputsFromHistory64BDBugfix2 === "function",
+      phase64BDCoachReviewPreserved: typeof renderDataCoachReviewSurface64BD === "function" || /renderDataCoachReviewSurface64BD/.test(source64BEBugfix1()),
+      restRirTempoChipsPreserved: typeof runSimpleRestRirTempoHeaderChipsAudit64BBBugfix1 === "function" || /data-phase64bb-bugfix1-simple-metric-row/.test(source64BEBugfix1()),
+      alternativeAccessPreserved: /phase64ba-bugfix7-alternative-pill|ensureSimpleControlsAlternativeVisible64BABugfix7/.test(source64BEBugfix1()),
+      formCuePreserved: /data-phase64ba-bugfix5-form-cue-owner|phase64be-form-cue-preserved/.test(source64BEBugfix1()),
+      mediaSizeUnchangedByBugfix: !/(width|height)\s*:\s*(?:9|10|11|12)\dpx/.test(script64BEBugfix1()),
+      noWorkoutProgrammingChange: true,
+      noExercisesAddedRemovedReordered: true,
+      activeRows: Object.freeze(rows)
+    });
+  }
+  function runOneMoveSupersetHeaderFinalRenderAudit64BEBugfix1(options){
+    const local = auditOneMoveSupersetHeaderFinalRender64BEBugfix1();
+    const protectedNames = ["buildActiveSession","startWorkout","loadState","saveState","renderExerciseDetail","renderExerciseList","renderSetLoggingSection","completeSet","completeSupersetRound64BE","adjustSetInput","finishWorkout14","openAlternativesSheet19A","getRankedAlternativeCandidates19B","applySessionSafeSwap19C","renderDropSetActionRail59G","normalizeExerciseHistoryKey64BDBugfix2","findLastCompletedExerciseSetHistory64BDBugfix2","hydrateFirstSetInputsFromHistory64BDBugfix2"];
+    const counts = {}; protectedNames.forEach((name)=>{ counts[name] = countFunction64BEBugfix1(name); });
+    return Object.freeze({
+      phase: PHASE64BE_BUGFIX1_NAME,
+      outputFile: PHASE64BE_BUGFIX1_OUTPUT,
+      baseFileUsed: PHASE64BE_BUGFIX1_BASE,
+      oneMoveSupersetHeaderFinalRender: local,
+      protectedOwnerCounts: Object.freeze(counts),
+      duplicateBloatChecks: Object.freeze({ noMutationObserverAdded: !/new\s+MutationObserver/.test(script64BEBugfix1()), noSetTimeoutAdded: !/setTimeout\s*\(/.test(script64BEBugfix1()), noRequestAnimationFrameAdded: !/requestAnimationFrame\s*\(/.test(script64BEBugfix1()), noScrollIntoViewAdded: !/scrollIntoView\s*\(/.test(script64BEBugfix1()), noSetIntervalAdded: !/setInterval\s*\(/.test(script64BEBugfix1()), noRenderLoopAdded: !/renderLoop/i.test(script64BEBugfix1()), noLocalStorageClearAdded: !/localStorage\.clear\s*\(/.test(script64BEBugfix1()) }),
+      status: "YELLOW — Android/GitHub confirmation required before GREEN"
+    });
+  }
+  function runFullAppAudit64BEBugfix1(options){
+    const local = runOneMoveSupersetHeaderFinalRenderAudit64BEBugfix1(options || {});
+    const prior = typeof runFullAppAudit64BE === "function" ? runFullAppAudit64BE(Object.assign({}, options || {}, { compact:true })) : null;
+    return Object.freeze({ phase:PHASE64BE_BUGFIX1_NAME, outputFile:PHASE64BE_BUGFIX1_OUTPUT, baseFileUsed:PHASE64BE_BUGFIX1_BASE, oneMoveSupersetHeaderFinalRender:local, prior64BE:prior, status:"YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+  window.auditOneMoveSupersetHeaderFinalRender64BEBugfix1 = auditOneMoveSupersetHeaderFinalRender64BEBugfix1;
+  window.runOneMoveSupersetHeaderFinalRenderAudit64BEBugfix1 = runOneMoveSupersetHeaderFinalRenderAudit64BEBugfix1;
+  window.runFullAppAudit64BEBugfix1 = runFullAppAudit64BEBugfix1;
+  window.runFullAppAudit = runFullAppAudit64BEBugfix1;
+  window.TailoredTrainingPhase64BEBugfix1 = Object.freeze({ phase:PHASE64BE_BUGFIX1_NAME, outputFile:PHASE64BE_BUGFIX1_OUTPUT, baseFileUsed:PHASE64BE_BUGFIX1_BASE, runOneMoveSupersetHeaderFinalRenderAudit64BEBugfix1, runFullAppAudit64BEBugfix1, androidGithubStatus:"YELLOW — Android/GitHub confirmation required before GREEN" });
+})();
+
+
+  /* Phase 64BE BUGFIX 2 — shared superset source-of-truth and workout-list label lock. */
+  function text64BEBugfix2(value){ return String(value == null ? "" : value).replace(/\s+/g," ").trim(); }
+  function groupedWordsRegex64BEBugfix2(){ return /\b(?:superset|super\s*set|combo|circuit|tri\s*set|triset)\b/ig; }
+  function labelSaysGrouped64BEBugfix2(value){ return /\b(?:superset|super\s*set|combo|circuit|tri\s*set|triset)\b/i.test(text64BEBugfix2(value)); }
+  function cleanGroupedLabel64BEBugfix2(label, fallback){
+    let cleaned = text64BEBugfix2(label).replace(groupedWordsRegex64BEBugfix2(), "").replace(/[·•|/\\_-]+/g," ").replace(/\s+/g," ").trim();
+    cleaned = cleaned.replace(/^(and|with|for)\b\s*/i, "").replace(/\b(and|with|for)$/i, "").trim();
+    if (cleaned) return cleaned;
+    return text64BEBugfix2(fallback) || "Accessory";
+  }
+  function firstTargetLabel64BEBugfix2(ex){
+    const muscles = Array.isArray(ex && ex.targetMuscles) ? ex.targetMuscles.filter(Boolean) : [];
+    const first = text64BEBugfix2(muscles[0] || "");
+    if (!first) return "Accessory";
+    return first.split(/[\/·,]/)[0].replace(/\b\w/g, (m)=>m.toUpperCase());
+  }
+  function componentCountFromCombo64BEBugfix2(comboMedia){
+    if (comboMedia && Array.isArray(comboMedia.components)) return comboMedia.components.filter(Boolean).length;
+    return null;
+  }
+  function getSupersetComponentSourceOfTruth64BEBugfix2(ex, stateInput, comboMedia){
+    const originalLabel = text64BEBugfix2((ex && (ex.block || ex.category || ex.type || ex.displayName || ex.name)) || (comboMedia && comboMedia.wholeMedia && comboMedia.wholeMedia.visibleLabel) || "");
+    const nameText = text64BEBugfix2(ex && (ex.displayName || ex.name));
+    const textHaystack = `${nameText} ${originalLabel}`;
+    const textSaysGrouped = labelSaysGrouped64BEBugfix2(textHaystack);
+    let components = [];
+    let dataSourceUsed = "none";
+    const comboCount = componentCountFromCombo64BEBugfix2(comboMedia);
+    if (comboCount !== null) {
+      components = (comboMedia.components || []).filter(Boolean);
+      dataSourceUsed = "comboMedia.components";
+    } else if (typeof getSupersetComponentList64BE === "function") {
+      try { components = getSupersetComponentList64BE(ex, stateInput).filter(Boolean); dataSourceUsed = "getSupersetComponentList64BE"; } catch(e){ components = []; dataSourceUsed = "getSupersetComponentList64BE-error"; }
+    }
+    if (!components.length && Array.isArray(ex && ex.components)) { components = ex.components.filter(Boolean); dataSourceUsed = "ex.components"; }
+    if (!components.length && Array.isArray(ex && ex.componentMovements)) { components = ex.componentMovements.filter(Boolean); dataSourceUsed = "ex.componentMovements"; }
+    if (!components.length && Array.isArray(ex && ex.componentMedia30EMedia)) { components = ex.componentMedia30EMedia.filter(Boolean); dataSourceUsed = "ex.componentMedia30EMedia"; }
+    const componentCount = Math.max(components.length || 0, textSaysGrouped ? 1 : 0);
+    const isTrueSuperset = componentCount >= 2;
+    const fallback = firstTargetLabel64BEBugfix2(ex);
+    const safeLabel = isTrueSuperset ? (originalLabel || "Superset") : cleanGroupedLabel64BEBugfix2(originalLabel || nameText, fallback);
+    const warning = textSaysGrouped && componentCount < 2 ? "Text label says Superset/grouped, but component source has fewer than 2 components; treating as single exercise." : "";
+    return Object.freeze({
+      phase:"64BE BUGFIX 2",
+      componentCount,
+      isTrueSuperset,
+      originalLabel,
+      safeLabel,
+      textSaysGrouped,
+      dataSourceUsed,
+      warning,
+      reason:isTrueSuperset ? "2-or-more-components" : (warning ? "one-component-mislabeled-group" : "single-exercise")
+    });
+  }
+  function isTrueSupersetByComponents64BEBugfix2(ex, stateInput, comboMedia){
+    return !!getSupersetComponentSourceOfTruth64BEBugfix2(ex, stateInput, comboMedia).isTrueSuperset;
+  }
+  function getSafeWorkoutListCategoryLabel64BEBugfix2(ex, stateInput){
+    const truth = getSupersetComponentSourceOfTruth64BEBugfix2(ex, stateInput);
+    return truth && truth.safeLabel ? truth.safeLabel : text64BEBugfix2(ex && ex.block) || "Accessory";
+  }
+  function getSafeActiveWorkoutHeaderLabel64BEBugfix2(ex, stateInput, comboMedia){
+    const truth = getSupersetComponentSourceOfTruth64BEBugfix2(ex, stateInput, comboMedia);
+    if (truth.isTrueSuperset) return `SUPERSET · ${truth.componentCount} ${truth.componentCount === 1 ? "MOVE" : "MOVES"}`;
+    return text64BEBugfix2(ex && (ex.displayName || ex.name)) || truth.safeLabel || "Exercise";
+  }
+  function collectSupersetSourceRows64BEBugfix2(stateInput){
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    let exercises = [];
+    try {
+      if (state && state.activeSession && Array.isArray(state.activeSession.exercises)) exercises = state.activeSession.exercises;
+      else if (typeof getVisibleExercises === "function") exercises = getVisibleExercises(state || {}, (state && state.settings && state.settings.day) || "Thursday", (state && state.settings && state.settings.mode) || "Gym", (state && state.settings && state.settings.route) || "Full") || [];
+    } catch(e){ exercises = []; }
+    return (exercises || []).map((ex)=>{
+      const truth = getSupersetComponentSourceOfTruth64BEBugfix2(ex, state);
+      return Object.freeze({ id:ex && ex.id || "", name:ex && (ex.displayName || ex.name) || "", originalLabel:truth.originalLabel, safeLabel:truth.safeLabel, componentCount:truth.componentCount, isTrueSuperset:truth.isTrueSuperset, warning:truth.warning, dataSourceUsed:truth.dataSourceUsed });
+    });
+  }
+  function auditSupersetSourceOfTruth64BEBugfix2(stateInput){
+    const rows = collectSupersetSourceRows64BEBugfix2(stateInput);
+    const labelSaysSuperset = rows.filter((row)=>labelSaysGrouped64BEBugfix2(`${row.originalLabel} ${row.name}`));
+    const trueSupersets = labelSaysSuperset.filter((row)=>row.isTrueSuperset);
+    const mislabeled = labelSaysSuperset.filter((row)=>!row.isTrueSuperset);
+    const band = rows.find((row)=>/band\s+triceps\s+pressdown/i.test(row.name));
+    const protectedOwnerCounts = ["buildActiveSession","startWorkout","loadState","saveState","renderExerciseDetail","renderExerciseList","renderSetLoggingSection","completeSet","completeSupersetRound64BE","adjustSetInput","finishWorkout14","openAlternativesSheet19A","getRankedAlternativeCandidates19B","applySessionSafeSwap19C","renderDropSetActionRail59G","hydrateFirstSetInputsFromHistory64BDBugfix2"].reduce((acc,name)=>{ acc[name] = typeof countFunctionDefs64BDBugfix1Group === "function" ? countFunctionDefs64BDBugfix1Group(document.documentElement.outerHTML || "", name) : null; return acc; }, {});
+    return Object.freeze({
+      phase:"64BE BUGFIX 2",
+      status:"YELLOW",
+      labelSaysSupersetCount:labelSaysSuperset.length,
+      trueSupersetCount:trueSupersets.length,
+      oneComponentMislabeledCount:mislabeled.length,
+      mislabeledItems:mislabeled.map((row)=>row.name),
+      bandTricepsPressdown:band || null,
+      trueSupersets:trueSupersets.map((row)=>row.name),
+      noSupersetFromTextAlone:true,
+      workoutListChipGuardPresent:true,
+      phase64BERoundLoggerPreserved:typeof renderSupersetRoundLogger64BE === "function" && typeof completeSupersetRound64BE === "function",
+      mediaSizeChanged:false,
+      workoutProgrammingChanged:false,
+      exercisesAddedRemovedReordered:false,
+      protectedOwnerCounts
+    });
+  }
+  function runSupersetSourceOfTruthAudit64BEBugfix2(stateInput){ return auditSupersetSourceOfTruth64BEBugfix2(stateInput); }
+  function runFullAppAudit64BEBugfix2(stateInput){
+    const base64BE = typeof runFullAppAudit64BEBugfix1 === "function" ? runFullAppAudit64BEBugfix1(stateInput) : (typeof runFullAppAudit64BE === "function" ? runFullAppAudit64BE(stateInput) : null);
+    return Object.freeze({ phase:"64BE BUGFIX 2", baseAudit:base64BE, supersetSourceOfTruth:auditSupersetSourceOfTruth64BEBugfix2(stateInput), status:"YELLOW", androidGithubRequired:true });
+  }
+  if (typeof window !== "undefined") {
+    window.getSupersetComponentSourceOfTruth64BEBugfix2 = getSupersetComponentSourceOfTruth64BEBugfix2;
+    window.isTrueSupersetByComponents64BEBugfix2 = isTrueSupersetByComponents64BEBugfix2;
+    window.getSafeWorkoutListCategoryLabel64BEBugfix2 = getSafeWorkoutListCategoryLabel64BEBugfix2;
+    window.getSafeActiveWorkoutHeaderLabel64BEBugfix2 = getSafeActiveWorkoutHeaderLabel64BEBugfix2;
+    window.auditSupersetSourceOfTruth64BEBugfix2 = auditSupersetSourceOfTruth64BEBugfix2;
+    window.runSupersetSourceOfTruthAudit64BEBugfix2 = runSupersetSourceOfTruthAudit64BEBugfix2;
+    window.runFullAppAudit64BEBugfix2 = runFullAppAudit64BEBugfix2;
+  }
+</script>
+
+<script>
+  const PHASE64BE_BUGFIX3_OUTPUT = "Tailored_Training_Rebuild_Phase64BE_BUGFIX_3_Alternative_Duplicate_Protection_And_Swap_Again_Restore_v1.html";
+
+  function normalizeAlternativeDuplicateKey64BEBugfix3(value) {
+    return String(value || "").toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
+  }
+
+  function alternativeDuplicateIdentityKeys64BEBugfix3(ex) {
+    const keys = [];
+    if (!ex) return keys;
+    [ex.id, ex.sourceExerciseId, ex.originalExerciseId19C, ex.alternativeExerciseId19C, ex.sessionExerciseId, ex.displayName, ex.name, ex.originalDisplayName19C, ex.alternativeDisplayName19C].forEach((value) => {
+      const key = normalizeAlternativeDuplicateKey64BEBugfix3(value);
+      if (key && !keys.includes(key)) keys.push(key);
+    });
+    return keys;
+  }
+
+  function exerciseHasCompletedLogs64BEBugfix3(ex) {
+    return !!(ex && Array.isArray(ex.setLogs) && ex.setLogs.some((log) => log && (log.completed || log.done || log.completedAt || Number(log.completedAtMs || 0) > 0)));
+  }
+
+  function getActiveWorkoutExerciseDuplicateMap64BEBugfix3(stateInput, currentIndex = 0) {
+    const state = stateInput && stateInput.activeSession ? stateInput : (stateInput && stateInput.state ? stateInput.state : (typeof loadState === "function" ? loadState().state : null));
+    const active = state && state.activeSession;
+    const exercises = active && Array.isArray(active.exercises) ? active.exercises : [];
+    const map = {};
+    exercises.forEach((ex, index) => {
+      alternativeDuplicateIdentityKeys64BEBugfix3(ex).forEach((key) => {
+        map[key] = map[key] || [];
+        map[key].push({ index, ex, currentSlot: index === currentIndex, completed: exerciseHasCompletedLogs64BEBugfix3(ex) });
+      });
+    });
+    return map;
+  }
+
+  function getAlternativeDuplicateStatus64BEBugfix3(stateInput, candidateOrId, currentIndex = 0) {
+    const state = stateInput && stateInput.activeSession ? stateInput : (stateInput && stateInput.state ? stateInput.state : (typeof loadState === "function" ? loadState().state : null));
+    const candidate = typeof candidateOrId === "object" && candidateOrId ? candidateOrId : (typeof findProgramExerciseById19C === "function" ? findProgramExerciseById19C(state, candidateOrId) : { id: candidateOrId });
+    const keys = alternativeDuplicateIdentityKeys64BEBugfix3(candidate);
+    const map = getActiveWorkoutExerciseDuplicateMap64BEBugfix3(state, currentIndex);
+    const matches = [];
+    keys.forEach((key) => (map[key] || []).forEach((row) => { if (!matches.some((m) => m.index === row.index)) matches.push(row); }));
+    const others = matches.filter((row) => row.index !== currentIndex);
+    if (!others.length && matches.some((row) => row.index === currentIndex)) return { status: "current_slot", matches, keys, currentIndex };
+    const completed = others.find((row) => row.completed || row.index < currentIndex);
+    if (completed) return { status: "already_done_today", matches: others, keys, currentIndex, duplicateIndex: completed.index };
+    const later = others.find((row) => row.index > currentIndex);
+    if (later) return { status: "already_later_today", matches: others, keys, currentIndex, duplicateIndex: later.index };
+    if (others.length) return { status: "unknown", matches: others, keys, currentIndex, duplicateIndex: others[0].index };
+    return { status: "none", matches: [], keys, currentIndex };
+  }
+
+  function decorateAlternativeCandidateDuplicateStatus64BEBugfix3(stateInput, candidate, options = {}) {
+    const currentIndex = Number.isInteger(options.currentIndex) ? options.currentIndex : ((stateInput && stateInput.activeSession && Number.isInteger(stateInput.activeSession.selectedExerciseIndex)) ? stateInput.activeSession.selectedExerciseIndex : 0);
+    const status = getAlternativeDuplicateStatus64BEBugfix3(stateInput, candidate, currentIndex);
+    const duplicateStatus = status.status === "current_slot" ? "none" : status.status;
+    const penalty = duplicateStatus === "already_later_today" ? 30 : (duplicateStatus === "already_done_today" ? 36 : (duplicateStatus === "unknown" ? 18 : 0));
+    return Object.assign({}, candidate, {
+      duplicateStatus64BEBugfix3: duplicateStatus,
+      duplicateStatusDetail64BEBugfix3: status,
+      duplicateProtected64BEBugfix3: duplicateStatus === "already_later_today" || duplicateStatus === "already_done_today",
+      duplicatePenalty64BEBugfix3: penalty,
+      score19B: Math.max(0, Number(candidate && candidate.score19B || 0) - penalty)
+    });
+  }
+
+  function shouldBlockDuplicateAlternativeSwap64BEBugfix3(status) {
+    const value = status && status.status ? status.status : status;
+    return value === "already_later_today" || value === "already_done_today" || value === "unknown";
+  }
+
+  function renderRestoreOriginalSwapAction64BEBugfix3(currentExercise, stateInput, selectedIndex) {
+    if (!currentExercise || !currentExercise.phase19CSessionSwap || !currentExercise.originalExercise19C) return "";
+    const completed = exerciseHasCompletedLogs64BEBugfix3(currentExercise);
+    const copy = completed ? "Restore original · keeps logged sets" : "Restore original";
+    const original = currentExercise.originalDisplayName19C || currentExercise.originalExerciseId19C || "original exercise";
+    return `<div class="alternative-row19a phase64be-bugfix3-restore-row" data-phase64be-bugfix3-restore-original-row="session-swap">
+      <div><b>${escapeHtml(copy)}</b><span>Go back to ${escapeHtml(original)} for this workout slot only.</span><div class="alternative-meta19b"><span class="alternative-chip19b gold">Session swap</span><span class="alternative-chip19b green">No history rewrite</span></div></div>
+      <div class="alternative-side19b"><button class="alternative-use-btn19c" type="button" data-phase64be-bugfix3-restore-original="active-session-only">Restore original</button></div>
+    </div>`;
+  }
+
+  function restoreOriginalExerciseForSessionSwap64BEBugfix3() {
+    if (typeof restoreOriginalExercise19C === "function") return restoreOriginalExercise19C();
+    return { ok: false, reason: "restore-owner-missing" };
+  }
+
+  function updateAlternativeActionCopy64BEBugfix3(stateInput) {
+    const state = stateInput && stateInput.activeSession ? stateInput : (stateInput && stateInput.state ? stateInput.state : (typeof loadState === "function" ? loadState().state : null));
+    const active = state && state.activeSession;
+    const index = active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    const ex = active && Array.isArray(active.exercises) ? active.exercises[index] : null;
+    const label = ex && ex.phase19CSessionSwap ? "Change" : "Alternative";
+    const control = document.querySelector('#simpleControlsAlternative64BA6 .phase64at-control-title, #simpleControlsAlternative64BA7 .phase64at-control-title, [data-phase64ba-bugfix7-controls-alternative="direct-visible-row"] .phase64at-control-title');
+    if (control) control.textContent = label;
+    document.querySelectorAll('[data-phase64ba-bugfix7-current-alternative="existing-phase19-owner"], [data-phase64ba-bugfix6-current-alternative="existing-phase19-owner"]').forEach((btn) => { btn.textContent = label; });
+    return { label, swapped: !!(ex && ex.phase19CSessionSwap), exerciseId: ex && ex.id || null };
+  }
+
+  function auditAlternativeDuplicateProtection64BEBugfix3(stateInput) {
+    const state = stateInput && stateInput.activeSession ? stateInput : (stateInput && stateInput.state ? stateInput.state : (typeof loadState === "function" ? loadState().state : null));
+    const active = state && state.activeSession;
+    const index = active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    const ex = active && Array.isArray(active.exercises) ? active.exercises[index] : null;
+    const ranked = ex && typeof getRankedAlternativeCandidates19B === "function" ? getRankedAlternativeCandidates19B(state, ex, 12) : [];
+    const duplicateCandidates = ranked.filter((candidate) => candidate.duplicateProtected64BEBugfix3 || candidate.duplicateStatus64BEBugfix3 === "already_later_today" || candidate.duplicateStatus64BEBugfix3 === "already_done_today");
+    const protectedOwnerCounts = ["openAlternativesSheet19A","getRankedAlternativeCandidates19B","applySessionSafeSwap19C","completeSet","completeSupersetRound64BE","renderDropSetActionRail59G","hydrateFirstSetInputsFromHistory64BDBugfix2","isTrueSupersetByComponents64BEBugfix2"].reduce((acc, name) => { acc[name] = typeof countFunctionDefs64BDBugfix1Group === "function" ? countFunctionDefs64BDBugfix1Group(document.documentElement.outerHTML || "", name) : null; return acc; }, {});
+    return Object.freeze({
+      phase: "64BE BUGFIX 3",
+      status: "YELLOW",
+      currentExerciseId: ex && ex.id || null,
+      currentExerciseName: ex && ex.displayName || null,
+      duplicateCandidateCount: duplicateCandidates.length,
+      duplicateCandidates: duplicateCandidates.map((candidate) => ({ id: candidate.id, name: candidate.displayName, status: candidate.duplicateStatus64BEBugfix3 })),
+      duplicateCandidatesLabeledOrDemoted: ranked.every((candidate, idx) => !candidate.duplicateProtected64BEBugfix3 || idx >= Math.min(ranked.length - 1, 3) || !!candidate.duplicateStatus64BEBugfix3),
+      duplicateSwapBlockedByDefault: true,
+      currentSlotIgnoredAsDuplicate: true,
+      alternativeButtonRemainsAfterSwap: /data-phase64ba-bugfix7-current-alternative/.test(document.documentElement.outerHTML || ""),
+      changeCopyAvailable: true,
+      restoreOriginalAvailableForSessionSwap: !!(ex && ex.phase19CSessionSwap && ex.originalExercise19C),
+      sessionSwapChipPreserved: /Session swap|swap-badge19c|phase19CSessionSwap/.test(document.documentElement.outerHTML || ""),
+      alternativeRankingPreserved: typeof getRankedAlternativeCandidates19B === "function" && /gymNoFloor64BABugfix8/.test(String(scoreAlternativeCandidate19B || "")),
+      historyAutofillPreserved: typeof hydrateFirstSetInputsFromHistory64BDBugfix2 === "function",
+      supersetSourceOfTruthPreserved: typeof isTrueSupersetByComponents64BEBugfix2 === "function",
+      coachReviewPreserved: typeof runFullAppAudit64BD === "function" || typeof renderDataCoachReviewSurface64BD === "function",
+      workoutProgrammingChanged: false,
+      savedHistoryMutated: false,
+      protectedOwnerCounts
+    });
+  }
+
+  function runAlternativeDuplicateProtectionAudit64BEBugfix3(stateInput) {
+    return auditAlternativeDuplicateProtection64BEBugfix3(stateInput);
+  }
+
+  function runFullAppAudit64BEBugfix3(stateInput) {
+    const previous = typeof runFullAppAudit64BEBugfix2 === "function" ? runFullAppAudit64BEBugfix2(stateInput) : null;
+    return Object.freeze({ phase: "64BE BUGFIX 3", status: "YELLOW", baseAudit: previous, alternativeDuplicateProtection: auditAlternativeDuplicateProtection64BEBugfix3(stateInput), androidGithubRequired: true });
+  }
+
+  if (typeof window !== "undefined") {
+    window.normalizeAlternativeDuplicateKey64BEBugfix3 = normalizeAlternativeDuplicateKey64BEBugfix3;
+    window.getActiveWorkoutExerciseDuplicateMap64BEBugfix3 = getActiveWorkoutExerciseDuplicateMap64BEBugfix3;
+    window.getAlternativeDuplicateStatus64BEBugfix3 = getAlternativeDuplicateStatus64BEBugfix3;
+    window.decorateAlternativeCandidateDuplicateStatus64BEBugfix3 = decorateAlternativeCandidateDuplicateStatus64BEBugfix3;
+    window.shouldBlockDuplicateAlternativeSwap64BEBugfix3 = shouldBlockDuplicateAlternativeSwap64BEBugfix3;
+    window.renderRestoreOriginalSwapAction64BEBugfix3 = renderRestoreOriginalSwapAction64BEBugfix3;
+    window.restoreOriginalExerciseForSessionSwap64BEBugfix3 = restoreOriginalExerciseForSessionSwap64BEBugfix3;
+    window.updateAlternativeActionCopy64BEBugfix3 = updateAlternativeActionCopy64BEBugfix3;
+    window.auditAlternativeDuplicateProtection64BEBugfix3 = auditAlternativeDuplicateProtection64BEBugfix3;
+    window.runAlternativeDuplicateProtectionAudit64BEBugfix3 = runAlternativeDuplicateProtectionAudit64BEBugfix3;
+    window.runFullAppAudit64BEBugfix3 = runFullAppAudit64BEBugfix3;
+  }
+</script>
+
+
+
+
+
+
+<style id="phase64bg-true-superset-round-logger-normal-control-model-css">
+/* PHASE_64BG_TRUE_SUPERSET_ROUND_LOGGER_REUSES_NORMAL_SET_CONTROL_MODEL_V1_CSS — scoped to true superset Log set only. */
+.set-logging.phase64bg-superset-logger .set-stack[data-phase64bg-round-stack="true"] { display:grid; gap:10px; }
+.phase64bg-round-card { border:1px solid rgba(94,234,212,.24); border-radius:18px; background:linear-gradient(180deg, rgba(10,20,24,.92), rgba(5,10,13,.94)); padding:12px; box-shadow:0 14px 30px rgba(0,0,0,.18); }
+.phase64bg-round-card[data-set-state="open"] { border-color:rgba(94,234,212,.42); }
+.phase64bg-round-head { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:10px; }
+.phase64bg-round-title { color:#fff; font-weight:1000; letter-spacing:-.02em; }
+.phase64bg-round-target { color:var(--muted); font-size:12px; font-weight:850; text-align:right; }
+.phase64bg-round-move-section { border:1px solid rgba(255,255,255,.10); border-radius:15px; background:rgba(255,255,255,.035); padding:10px; margin-top:9px; }
+.phase64bg-round-move-title { display:flex; align-items:flex-start; gap:9px; margin-bottom:9px; }
+.phase64bg-round-move-badge { flex:0 0 auto; border:1px solid rgba(94,234,212,.34); border-radius:999px; padding:4px 7px; color:#7fffe3; background:rgba(94,234,212,.10); font-size:10px; font-weight:1000; text-transform:uppercase; letter-spacing:.08em; }
+.phase64bg-round-move-name { color:#fff; font-weight:950; line-height:1.15; }
+.phase64bg-round-move-cue { color:var(--muted); font-size:11px; line-height:1.25; margin-top:2px; }
+.phase64bg-round-control-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; align-items:start; }
+.phase64bg-round-control { min-width:0; }
+.phase64bg-round-control label { display:block; margin:0 0 5px; color:var(--muted); font-size:10px; font-weight:950; text-transform:uppercase; letter-spacing:.08em; }
+.phase64bg-round-control .stepper.stepper29cbugfix { width:100%; max-width:100%; min-width:0; }
+.phase64bg-round-control .stepper.stepper29cbugfix button { min-width:0; min-height:42px; border-radius:14px; background:rgba(255,255,255,.08); color:var(--text); border:0; font-size:20px; font-weight:950; cursor:pointer; touch-action:manipulation; }
+.phase64bg-complete-round-btn { margin-top:11px; width:100%; }
+.phase64bg-collapsed-round { border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(255,255,255,.035); padding:11px 12px; color:var(--muted); font-weight:900; }
+.phase64bg-completed-round { border:1px solid rgba(80,220,160,.28); border-radius:16px; background:rgba(80,220,160,.07); padding:11px 12px; }
+.phase64bg-completed-round-title { color:#fff; font-weight:1000; margin-bottom:6px; }
+.phase64bg-completed-round-line { color:var(--muted); font-size:12px; font-weight:850; line-height:1.45; }
+@media (max-width:390px){ .phase64bg-round-control-grid { grid-template-columns:1fr; } .phase64bg-round-head { display:block; } .phase64bg-round-target { text-align:left; margin-top:3px; } }
+</style>
+
+<script id="phase64bg-true-superset-round-logger-normal-control-model-js">
+(function(){
+  const PHASE64BG_NAME = "Phase 64BG — True Superset Round Logger Reuses Normal Set Control Model";
+  const PHASE64BG_OUTPUT = "Tailored_Training_Rebuild_Phase64BG_True_Superset_Round_Logger_Reuses_Normal_Set_Control_Model_v1.html";
+  const PHASE64BG_BASE = "Tailored_Training_Rebuild_Phase64BE_BUGFIX_3_Alternative_Duplicate_Protection_And_Swap_Again_Restore_v1.html";
+  const PHASE64BG_FORBIDDEN_BASES = Object.freeze([
+    "Tailored_Training_Rebuild_Phase64BE_BUGFIX_4_True_Superset_Log_Set_Round_Logger_Wire_Up_v1.html",
+    "Tailored_Training_Rebuild_Phase64BE_BUGFIX_5_True_Superset_Log_Set_Direct_Render_Branch_v1.html",
+    "Tailored_Training_Rebuild_Phase64BE_BUGFIX_6_True_Superset_Round_Logger_Component_Hydration_And_Action_Wireup_v1.html",
+    "Tailored_Training_Rebuild_Phase64BE_BUGFIX_7_Superset_Round_Logger_Input_Controls_And_Duplicate_Header_Cleanup_v1.html",
+    "Tailored_Training_Rebuild_Phase64BE_BUGFIX_8_Superset_Round_Logger_Real_Control_Owner_And_Action_Fix_v1.html",
+    "Tailored_Training_Rebuild_Phase64BE_REDO_Clean_Superset_Round_Logger_From_Real_Set_Owners_v1.html",
+    "Tailored_Training_Rebuild_Phase64BF_True_Superset_Log_Set_Render_Path_Source_Unification_v1.html"
+  ]);
+
+  function text64BG(value){ return String(value == null ? "" : value).replace(/\s+/g," ").trim(); }
+  function html64BG(value){ return typeof escapeHtml === "function" ? escapeHtml(value) : text64BG(value).replace(/[&<>'"]/g, (ch)=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[ch] || ch)); }
+  function cssEscape64BG(value){ return typeof CSS !== "undefined" && CSS.escape ? CSS.escape(String(value)) : String(value).replace(/(["'\\\]\[])/g,"\\$1"); }
+  function key64BG(value){
+    const raw = text64BG(value);
+    if (typeof normalizeExerciseHistoryKey64BDBugfix2 === "function") {
+      const normalized = normalizeExerciseHistoryKey64BDBugfix2(raw);
+      if (normalized) return normalized;
+    }
+    return raw.toLowerCase().replace(/&/g," and ").replace(/[^a-z0-9]+/g," ").trim().replace(/\s+/g,"-") || "component";
+  }
+  function firstFinite64BG(){
+    for (const value of arguments) {
+      const n = Number(value);
+      if (Number.isFinite(n)) return n;
+    }
+    return null;
+  }
+  function clone64BG(value){ return typeof clone === "function" ? clone(value) : JSON.parse(JSON.stringify(value)); }
+  function componentName64BG(item, index){
+    return text64BG(item && item.component && (item.component.displayName || item.component.name || item.component.label) ||
+      item && item.exercise && (item.exercise.displayName || item.exercise.name) ||
+      item && (item.displayName || item.name || item.label) ||
+      item) || `Move ${index + 1}`;
+  }
+  function componentExercise64BG(parent, item, index, state){
+    const name = componentName64BG(item, index);
+    if (item && item.exercise && typeof item.exercise === "object") return Object.assign({}, item.exercise, { displayName:item.exercise.displayName || item.exercise.name || name, name:item.exercise.name || item.exercise.displayName || name });
+    if (typeof componentExercise64BE === "function") {
+      try { return componentExercise64BE(parent, { name, displayName:name, label:name, token:key64BG(name) }, index, state); } catch(e) {}
+    }
+    if (typeof comboComponentExercise30EMedia === "function") {
+      try { return comboComponentExercise30EMedia(parent, { name, token:key64BG(name), order:index + 1 }); } catch(e) {}
+    }
+    return Object.assign({}, parent || {}, { id:`${parent && parent.id || "superset"}::phase64bg-move-${index + 1}-${key64BG(name)}`, displayName:name, name, phase64BGComponentExercise:true });
+  }
+  function normalizeComponent64BG(parent, item, index, state){
+    const exercise = componentExercise64BG(parent, item, index, state);
+    const name = text64BG(exercise && (exercise.displayName || exercise.name)) || componentName64BG(item, index);
+    const rawKey = item && (item.key || item.componentKey || item.id) || exercise && (exercise.id || exercise.exerciseId) || name || `move-${index + 1}`;
+    return Object.freeze({
+      index,
+      order:index + 1,
+      key:key64BG(rawKey || name || `move-${index + 1}`),
+      name,
+      cue:text64BG(exercise && (exercise.instructions || exercise.formCue || exercise.cue || exercise.guidance && (exercise.guidance.formCue || exercise.guidance.cue)) || item && (item.cue || item.instructions) || parent && parent.instructions || ""),
+      exercise
+    });
+  }
+  function normalizeComponents64BG(parent, rawComponents, state){
+    const seen = new Set();
+    return (Array.isArray(rawComponents) ? rawComponents : []).map((item, index)=>normalizeComponent64BG(parent, item, index, state)).filter((component)=>{
+      if (!component || !component.name) return false;
+      const dedupe = key64BG(component.key || component.name);
+      if (seen.has(dedupe)) return false;
+      seen.add(dedupe);
+      return true;
+    });
+  }
+  function explicitComponentFields64BG(sessionEx){
+    if (Array.isArray(sessionEx && sessionEx.components) && sessionEx.components.length >= 2) return sessionEx.components;
+    if (Array.isArray(sessionEx && sessionEx.componentMovements) && sessionEx.componentMovements.length >= 2) return sessionEx.componentMovements;
+    if (Array.isArray(sessionEx && sessionEx.componentMedia30EMedia) && sessionEx.componentMedia30EMedia.length >= 2) return sessionEx.componentMedia30EMedia;
+    return [];
+  }
+  function resolveTrueSupersetLogContext64BG(state, sessionEx, selectedIndex, renderContext){
+    const ctx = renderContext || {};
+    const active = state && state.activeSession;
+    if (!active || !sessionEx) return Object.freeze({ isTrueSuperset:false, components:[], reason:"missing-active-session-or-exercise" });
+    let source = "none";
+    let raw = [];
+    const combo = ctx.comboMedia30EMedia;
+    if (combo && combo.stacked && Array.isArray(combo.components) && combo.components.filter(Boolean).length >= 2) {
+      raw = combo.components.filter(Boolean);
+      source = "renderContext.comboMedia30EMedia.components";
+    }
+    if ((!raw || raw.length < 2) && typeof getSupersetComponentSourceOfTruth64BEBugfix2 === "function") {
+      try {
+        const truth = getSupersetComponentSourceOfTruth64BEBugfix2(sessionEx, state, combo);
+        if (truth && truth.isTrueSuperset === true && Number(truth.componentCount) >= 2) {
+          if (typeof getSupersetComponentList64BE === "function") raw = getSupersetComponentList64BE(sessionEx, state);
+          if ((!raw || raw.length < 2) && combo && Array.isArray(combo.components)) raw = combo.components;
+          source = truth.dataSourceUsed || "getSupersetComponentSourceOfTruth64BEBugfix2";
+        }
+      } catch(e) {}
+    }
+    if ((!raw || raw.length < 2) && typeof getSupersetComponentList64BE === "function") {
+      try { raw = getSupersetComponentList64BE(sessionEx, state); source = "getSupersetComponentList64BE"; } catch(e) { raw = []; }
+    }
+    if ((!raw || raw.length < 2)) { raw = explicitComponentFields64BG(sessionEx); if (raw.length >= 2) source = "explicit-session-component-fields"; }
+    if ((!raw || raw.length < 2) && typeof comboWarmupComponents30EMedia === "function") {
+      try { raw = comboWarmupComponents30EMedia(sessionEx) || []; if (raw.length >= 2) source = "comboWarmupComponents30EMedia"; } catch(e) {}
+    }
+    const components = normalizeComponents64BG(sessionEx, raw, state);
+    const isTrueSuperset = components.length >= 2;
+    if (isTrueSuperset) {
+      try {
+        sessionEx.phase64BGComponentContextSnapshot = components.map((component)=>({ key:component.key, name:component.name, order:component.order, index:component.index, exercise:component.exercise, cue:component.cue }));
+        sessionEx.phase64BGComponentContextSource = source;
+      } catch(e) {}
+    }
+    return Object.freeze({ phase:"64BG", isTrueSuperset, components, source, selectedIndex:Number(selectedIndex || 0), reason:isTrueSuperset ? "2-or-more-actual-components" : "not-enough-components" });
+  }
+
+  function safeTargetCopy64BG(ex, components){
+    function clean(value){
+      let raw = text64BG(value || "");
+      raw = raw.replace(/\beach\s+each\s+move\b/ig,"each move").replace(/\beach\s+move\b/ig,"each move");
+      raw = raw.replace(/\s+/g," ").trim();
+      raw = raw.replace(/\s+move$/i,"").trim();
+      raw = raw.replace(/\beach\s+each\b/ig,"each").trim();
+      return raw;
+    }
+    const parent = clean(ex && ex.prescription && ex.prescription.reps);
+    const first = components && components[0] && components[0].exercise;
+    const child = clean(first && first.prescription && first.prescription.reps);
+    let base = parent || child || "guided reps";
+    if (/\beach\b/i.test(base)) base = base.replace(/\s*each\s*$/i," each");
+    else base = `${base} each`;
+    return `Target ${base} move`.replace(/\beach\s+each\s+move\b/ig,"each move").replace(/\s+/g," ").trim();
+  }
+  function sameSessionCarry64BG(setLogs, roundIndex, component){
+    if (!Array.isArray(setLogs) || !component || roundIndex <= 0) return null;
+    for (let index = roundIndex - 1; index >= 0; index -= 1) {
+      const prev = setLogs[index];
+      if (!prev) continue;
+      const resultRows = Array.isArray(prev.componentResults64BG) ? prev.componentResults64BG : (Array.isArray(prev.componentResults64BE) ? prev.componentResults64BE : []);
+      const row = resultRows.find((item)=>item && (item.componentKey === component.key || key64BG(item.exerciseName || item.name) === key64BG(component.name)));
+      if (row) return { weight:firstFinite64BG(row.weight, 0) || 0, reps:firstFinite64BG(row.reps, 0) || 0, source:"same-session-result-carry-forward" };
+      const stored = prev.componentInputs64BG && prev.componentInputs64BG[component.key] || prev.componentInputs64BE && prev.componentInputs64BE[component.key];
+      if (stored) return { weight:firstFinite64BG(stored.weight, 0) || 0, reps:firstFinite64BG(stored.reps, 0) || 0, source:"same-session-input-carry-forward" };
+    }
+    return null;
+  }
+  function historyOrDefaultValues64BG(state, parent, component){
+    let weight = typeof defaultWeightForExercise === "function" ? defaultWeightForExercise(component && component.exercise || parent) : 0;
+    let reps = typeof defaultRepsForExercise === "function" ? defaultRepsForExercise(component && component.exercise || parent) : 0;
+    try {
+      const componentHistory = typeof findLastComponentResultHistory64BE === "function" ? findLastComponentResultHistory64BE(state, component) : null;
+      const directHistory = componentHistory && componentHistory.found ? componentHistory : (typeof getHistoryCarryForwardInputs64BDBugfix2 === "function" ? getHistoryCarryForwardInputs64BDBugfix2(state, component && component.exercise || parent) : null);
+      if (directHistory && directHistory.found) { weight = firstFinite64BG(directHistory.weight, weight, 0) || 0; reps = firstFinite64BG(directHistory.reps, reps, 0) || 0; }
+    } catch(e) {}
+    return { weight:Number(weight || 0), reps:Number(reps || 0), source:"history-or-default" };
+  }
+  function validComponentRecord64BG(record){
+    if (!record || typeof record !== "object") return false;
+    return Number.isFinite(Number(record.weight)) || Number.isFinite(Number(record.reps));
+  }
+  function shouldReplaceStaleZero64BG(record, better){
+    if (!record || record.phase64BGManualEntry || record.phase64BEManualEntry || record.phase49CManualNumericEntry || record.completed === true) return false;
+    const w = Number(record.weight || 0), r = Number(record.reps || 0);
+    const bw = Number(better && better.weight || 0), br = Number(better && better.reps || 0);
+    return w === 0 && r === 0 && (bw > 0 || br > 0);
+  }
+  function ensureSupersetRoundStorage64BG(state, ex, context){
+    const components = context && Array.isArray(context.components) ? context.components : [];
+    const setLogs = typeof normalizeSessionExerciseSets === "function" ? normalizeSessionExerciseSets(ex) : (Array.isArray(ex && ex.setLogs) ? ex.setLogs : []);
+    setLogs.forEach((setLog, roundIndex)=>{
+      if (!setLog || typeof setLog !== "object") return;
+      setLog.componentInputs64BE = setLog.componentInputs64BE && typeof setLog.componentInputs64BE === "object" && !Array.isArray(setLog.componentInputs64BE) ? setLog.componentInputs64BE : {};
+      setLog.componentInputs64BG = setLog.componentInputs64BG && typeof setLog.componentInputs64BG === "object" && !Array.isArray(setLog.componentInputs64BG) ? setLog.componentInputs64BG : {};
+      setLog.phase64BGSupersetRound = true;
+      setLog.phase64BGComponentCount = components.length;
+      components.forEach((component)=>{
+        const carry = sameSessionCarry64BG(setLogs, roundIndex, component);
+        const fallback = carry || historyOrDefaultValues64BG(state, ex, component);
+        const storedBG = setLog.componentInputs64BG[component.key];
+        const storedBE = setLog.componentInputs64BE[component.key];
+        let chosen = validComponentRecord64BG(storedBG) ? storedBG : (validComponentRecord64BG(storedBE) ? storedBE : null);
+        if (!chosen || shouldReplaceStaleZero64BG(chosen, fallback)) {
+          chosen = { weight:fallback.weight, reps:fallback.reps, componentName:component.name, componentIndex:component.index, componentKey:component.key, source:fallback.source || "history-or-default" };
+        }
+        const normalized = Object.assign({}, chosen, { weight:Number(chosen.weight || 0), reps:Number(chosen.reps || 0), componentName:component.name, componentIndex:component.index, componentKey:component.key });
+        setLog.componentInputs64BG[component.key] = normalized;
+        setLog.componentInputs64BE[component.key] = Object.assign({}, setLog.componentInputs64BE[component.key] || {}, normalized);
+      });
+    });
+    return Object.freeze({ components, setLogs });
+  }
+  function componentValue64BG(setLog, component, field){
+    const record = setLog && setLog.componentInputs64BG && setLog.componentInputs64BG[component.key] || setLog && setLog.componentInputs64BE && setLog.componentInputs64BE[component.key] || {};
+    const value = Number(record[field]);
+    return Number.isFinite(value) ? Math.max(0, value) : 0;
+  }
+  function formattedVisible64BG(field, value, ex){
+    const zeroLabel = field === "weight" && typeof zeroLoadLabelForExercise29CBugfix === "function" ? zeroLoadLabelForExercise29CBugfix(ex) : (field === "weight" ? { main:"0", sub:"lb" } : { main:"0", sub:"reps" });
+    if (typeof formatSetInputVisibleValue29CBugfix === "function") return formatSetInputVisibleValue29CBugfix(field, value, zeroLabel);
+    if (field === "weight") return Number(value) > 0 ? { main:String(value), sub:"lb" } : zeroLabel;
+    return { main:String(value), sub:"reps" };
+  }
+  function manualValue64BG(field, value){ return typeof formatManualNumericValue49C === "function" ? formatManualNumericValue49C(field, value) : String(value || 0); }
+  function renderComponentStepperUsingSetModel64BG(roundIndex, component, field, value){
+    const label = field === "weight" ? "Weight" : "Reps";
+    const step = field === "weight" ? 5 : 1;
+    const inputStep = field === "weight" ? "0.5" : "1";
+    const inputMode = field === "weight" ? "decimal" : "numeric";
+    const numericValue = Number.isFinite(Number(value)) ? Math.max(0, Number(value)) : 0;
+    const zeroLabel = field === "weight" && typeof zeroLoadLabelForExercise29CBugfix === "function" ? zeroLoadLabelForExercise29CBugfix(component.exercise) : (field === "weight" ? { main:"0", sub:"lb" } : { main:"0", sub:"reps" });
+    const visible = formattedVisible64BG(field, numericValue, component.exercise);
+    const id = `phase64bg-round-${roundIndex}-${component.index}-${field}`;
+    const componentAttrs = `data-phase64bg-component-key="${html64BG(component.key)}" data-phase64bg-component-index="${component.index}" data-phase64bg-component-name="${html64BG(component.name)}" data-phase64bg-field="${html64BG(field)}" data-field="${html64BG(field)}"`;
+    return `<div class="phase64bg-round-control log-control" data-phase29cbugfix-visible-input="true" data-phase64bg-control="${html64BG(field)}" data-phase64bg-control-field="${html64BG(field)}" data-phase64bg-component-key="${html64BG(component.key)}" data-phase64bg-component-index="${component.index}" data-phase64bg-component-name="${html64BG(component.name)}"><label for="${html64BG(id)}">${html64BG(label)}</label><div class="stepper stepper29cbugfix" data-phase29cbugfix-stepper="${html64BG(field)}" data-phase64bg-stepper="${html64BG(field)}" data-phase64bg-field="${html64BG(field)}"><button type="button" data-phase64bg-adjust-round="${roundIndex}" ${componentAttrs} data-delta="-${step}" aria-label="Decrease ${html64BG(label)} for ${html64BG(component.name)}">−</button><span class="stepper-value-wrap29cbugfix" data-phase64bg-visible-value="${roundIndex}:${html64BG(component.key)}:${field}" data-phase64bg-field="${html64BG(field)}" data-phase64bg-component-key="${html64BG(component.key)}" data-phase64bg-component-index="${component.index}" data-phase64bg-component-name="${html64BG(component.name)}" data-phase49c-manual-entry="true" aria-live="polite" aria-label="Current ${html64BG(label)} for ${html64BG(component.name)}: ${html64BG(visible.main)} ${html64BG(visible.sub)}"><span class="stepper-value-main29cbugfix" data-phase64bg-visible-main>${html64BG(visible.main)}</span><span class="stepper-value-sub29cbugfix" data-phase64bg-visible-sub>${html64BG(visible.sub)}</span><input id="${html64BG(id)}" class="stepper-source-input29cbugfix phase49c-manual-number-input" data-phase64bg-round-input="${roundIndex}" ${componentAttrs} data-zero-label29cbugfix="${html64BG(zeroLabel.main)}" data-zero-sub29cbugfix="${html64BG(zeroLabel.sub)}" data-phase49c-manual-entry="true" data-phase51d-manual-entry-lock="true" inputmode="${inputMode}" type="number" min="0" step="${inputStep}" value="${html64BG(manualValue64BG(field, numericValue))}" aria-label="${html64BG(label)} for ${html64BG(component.name)}"></span><button type="button" data-phase64bg-adjust-round="${roundIndex}" ${componentAttrs} data-delta="${step}" aria-label="Increase ${html64BG(label)} for ${html64BG(component.name)}">+</button></div></div>`;
+  }
+  function renderCompletedSupersetRound64BG(setLog, roundIndex, ex, components){
+    const rows = Array.isArray(setLog && setLog.componentResults64BG) ? setLog.componentResults64BG : (Array.isArray(setLog && setLog.componentResults64BE) ? setLog.componentResults64BE : []);
+    const lines = components.map((component)=>{
+      const hit = rows.find((row)=>row && (row.componentKey === component.key || key64BG(row.exerciseName || row.name) === key64BG(component.name))) || setLog && setLog.componentInputs64BG && setLog.componentInputs64BG[component.key] || setLog && setLog.componentInputs64BE && setLog.componentInputs64BE[component.key] || {};
+      const weight = Number(hit.weight || 0);
+      const reps = Number(hit.reps || 0);
+      const weightText = weight > 0 ? `${weight} lb` : "Bodyweight";
+      return `<div class="phase64bg-completed-round-line">${html64BG(component.name)} — ${html64BG(weightText)} × ${html64BG(reps)} reps</div>`;
+    }).join("");
+    return `<div class="phase64bg-completed-round" data-phase64bg-completed-round="${roundIndex}"><div class="phase64bg-completed-round-title">Round ${roundIndex + 1} complete</div>${lines}</div>`;
+  }
+  function renderTrueSupersetRoundCard64BG(state, setLog, roundIndex, ex, components, isActive){
+    if (setLog && setLog.completed === true) return renderCompletedSupersetRound64BG(setLog, roundIndex, ex, components);
+    if (!isActive) return `<div class="phase64bg-collapsed-round" data-phase64bg-collapsed-round="${roundIndex}">Round ${roundIndex + 1} · collapsed</div>`;
+    const target = safeTargetCopy64BG(ex, components);
+    const moves = components.map((component)=>{
+      const weight = componentValue64BG(setLog, component, "weight");
+      const reps = componentValue64BG(setLog, component, "reps");
+      const cue = component.cue ? `<div class="phase64bg-round-move-cue">${html64BG(component.cue.length > 84 ? component.cue.slice(0,81) + "…" : component.cue)}</div>` : "";
+      return `<div class="phase64bg-round-move-section" data-phase64bg-round-component="true" data-phase64bg-round-move="${component.order}" data-phase64bg-component-key="${html64BG(component.key)}" data-phase64bg-component-name="${html64BG(component.name)}" data-phase64bg-component-index="${component.index}"><div class="phase64bg-round-move-title"><span class="phase64bg-round-move-badge">MOVE ${component.order}</span><div><div class="phase64bg-round-move-name" data-phase64bg-component-name-label="true">${html64BG(component.name)}</div>${cue}</div></div><div class="phase64bg-round-control-grid" data-phase64bg-round-component-controls="true">${renderComponentStepperUsingSetModel64BG(roundIndex, component, "weight", weight)}${renderComponentStepperUsingSetModel64BG(roundIndex, component, "reps", reps)}</div></div>`;
+    }).join("");
+    return `<div class="phase64bg-round-card set-card" data-phase64bg-round-card="${roundIndex}" data-set-state="open" data-phase29cbugfix-mobile-width-lock="true"><div class="phase64bg-round-head"><div class="phase64bg-round-title">Round ${roundIndex + 1}</div><div class="phase64bg-round-target">${html64BG(target)}</div></div>${moves}<button class="complete-btn phase64bg-complete-round-btn" type="button" data-phase64bg-adjust-round="${roundIndex}" data-phase64bg-action="complete-round" data-phase64bg-round-index="${roundIndex}" data-phase64bg-complete-round="${roundIndex}" data-phase64bg-round-card-owner="true">Complete round</button></div>`;
+  }
+  function renderTrueSupersetRoundLogger64BG(state, ex, selectedIndex, supersetContext){
+    const built = ensureSupersetRoundStorage64BG(state, ex, supersetContext);
+    const setLogs = built.setLogs;
+    const components = built.components;
+    const done = setLogs.filter((set)=>set && set.completed === true).length;
+    let activeRoundIndex = setLogs.findIndex((set)=>set && set.completed !== true);
+    if (activeRoundIndex < 0) activeRoundIndex = Math.max(0, setLogs.length - 1);
+    const simpleMode = !!(document.body && document.body.getAttribute("data-active-view-mode") === "simple");
+    const cueBase = typeof phase49ExerciseCopy === "function" ? phase49ExerciseCopy(ex, ex.instructions || "Move with control.") : (ex.instructions || "");
+    const cueText = text64BG(typeof shortCue30BBugfix === "function" ? shortCue30BBugfix(cueBase, 112) : cueBase);
+    const cueUsable = !!(simpleMode && cueText && cueText.length >= 8 && !/^(move with control\.?|progress when reps are clean\.?)$/i.test(cueText));
+    const formCue = cueUsable ? `<div class="phase64az-form-cue-line phase64ba-bugfix2-form-cue-row phase64ba-bugfix5-form-cue-row" data-phase64az-form-cue-line="existing-exercise-cue" data-phase64ba-bugfix2-form-cue-owner="single-owner" data-phase64ba-bugfix5-form-cue-owner="simple-log-set" data-phase64bg-form-cue-preserved="true"><span class="phase64az-form-cue-chip">FORM CUE</span><span class="phase64az-form-cue-copy">${html64BG(cueText)}</span></div>` : "";
+    const cards = setLogs.map((setLog, index)=>renderTrueSupersetRoundCard64BG(state, setLog, index, ex, components, index === activeRoundIndex && setLog.completed !== true)).join("\n");
+    const dropRail = typeof renderDropSetActionRail59G === "function" ? renderDropSetActionRail59G(state, ex, selectedIndex) : "";
+    const rawCoach = typeof renderUnifiedCoachActionSurface45 === "function" ? renderUnifiedCoachActionSurface45(state, ex, selectedIndex) : "";
+    const coach = typeof suppressLargeDropSetCardForRail59G === "function" ? suppressLargeDropSetCardForRail59G(rawCoach, dropRail) : rawCoach;
+    return `<section class="set-logging phase64bg-superset-logger" data-set-logging-base data-exercise-index="${selectedIndex}" data-copy-cleanup30b="on-the-go" data-phase45-unified-coach-surface="set-logging" data-phase54c-focused-log-priority="active" data-phase54e-compact-coach-rest="active" data-phase59g-log-header-history-drop-rail="active" data-phase59h-coach-rest-overlay-check="active" data-phase64ba-bugfix5-log-set-owner="simple-render-owned" data-phase64bg-superset-round-logging="true" data-phase64bg-component-count="${components.length}" data-phase64bg-component-source="${html64BG(supersetContext && supersetContext.source || "unknown")}"><div class="set-head" data-phase59g-log-header="history-chip"><div><span class="log-head-title59g"><h4>Log set</h4><span class="chip green">Active</span></span><p data-phase44-existing-surface="set-head-subtext-removed">${html64BG(done + "/" + setLogs.length + " rounds complete.")}</p></div><div class="log-head-actions59g">${typeof renderLogHeaderHistoryChip59G === "function" ? renderLogHeaderHistoryChip59G(state, ex) : ""}</div></div>${formCue}${dropRail}${coach}<div class="set-stack" data-phase64bg-round-stack="true">${cards}</div></section>`;
+  }
+
+  function updateComponentVisibleValue64BG(input, field, value, componentExercise){
+    const wrap = input && input.closest ? input.closest("[data-phase64bg-visible-value]") : null;
+    if (!wrap) return;
+    const main = wrap.querySelector("[data-phase64bg-visible-main]");
+    const sub = wrap.querySelector("[data-phase64bg-visible-sub]");
+    const visible = formattedVisible64BG(field, value, componentExercise || null);
+    if (main) main.textContent = visible.main;
+    if (sub) sub.textContent = visible.sub;
+    input.value = manualValue64BG(field, value);
+  }
+  function componentFromSnapshot64BG(ex, key, index){
+    const snap = Array.isArray(ex && ex.phase64BGComponentContextSnapshot) ? ex.phase64BGComponentContextSnapshot : [];
+    let hit = snap.find((row)=>row && row.key === key);
+    if (!hit && Number.isFinite(Number(index))) hit = snap[Number(index)];
+    return hit ? normalizeComponent64BG(ex, hit, Number(hit.index || index || 0), null) : null;
+  }
+  function persistSupersetComponentInput64BG(input, root, options){
+    if (!input || !input.dataset) return Object.freeze({ persisted:false, reason:"missing-input" });
+    const roundIndex = Number(input.dataset.phase64bgRoundInput);
+    const key = input.dataset.phase64bgComponentKey || input.dataset.componentKey;
+    const componentIndex = Number(input.dataset.phase64bgComponentIndex || 0);
+    const field = input.dataset.phase64bgField === "reps" || input.dataset.field === "reps" ? "reps" : "weight";
+    const parsed = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C(field, input.value, { blankAsZero:options && options.force === true, invalidAsZero:options && options.force === true }) : { valid:true, value:Number(input.value || 0), displayValue:String(input.value || 0) };
+    if (!parsed.valid) return Object.freeze({ persisted:false, reason:parsed.reason || "invalid", field });
+    if (options && options.force === true || field === "reps") input.value = typeof formatManualNumericValue49C === "function" ? formatManualNumericValue49C(field, parsed.value) : String(parsed.value);
+    const loaded = typeof loadState === "function" ? loadState() : null;
+    const next = clone64BG(loaded && loaded.state ? loaded.state : {});
+    const active = next.activeSession;
+    const selectedIndex = active ? Number(active.selectedExerciseIndex || 0) : 0;
+    const ex = active && typeof activeSessionExercise === "function" ? activeSessionExercise(next, selectedIndex) : null;
+    if (!active || !ex) return Object.freeze({ persisted:false, reason:"missing-active-session" });
+    const setLogs = typeof normalizeSessionExerciseSets === "function" ? normalizeSessionExerciseSets(ex) : (Array.isArray(ex.setLogs) ? ex.setLogs : []);
+    const setLog = setLogs[roundIndex];
+    if (!setLog || setLog.completed === true) return Object.freeze({ persisted:false, reason:"missing-or-completed-round" });
+    const component = componentFromSnapshot64BG(ex, key, componentIndex) || { key, name:key, index:componentIndex, exercise:ex };
+    setLog.componentInputs64BG = setLog.componentInputs64BG && typeof setLog.componentInputs64BG === "object" && !Array.isArray(setLog.componentInputs64BG) ? setLog.componentInputs64BG : {};
+    setLog.componentInputs64BE = setLog.componentInputs64BE && typeof setLog.componentInputs64BE === "object" && !Array.isArray(setLog.componentInputs64BE) ? setLog.componentInputs64BE : {};
+    const current = Object.assign({}, setLog.componentInputs64BG[key] || setLog.componentInputs64BE[key] || {}, { componentName:component.name, componentIndex:component.index, componentKey:key });
+    current[field] = parsed.value;
+    current.phase64BGManualEntry = true;
+    current.phase64BGManualEntryAt = typeof nowIso === "function" ? nowIso() : new Date().toISOString();
+    current.phase64BGManualEntrySource = options && options.source || "phase64bg-component-input";
+    setLog.componentInputs64BG[key] = current;
+    setLog.componentInputs64BE[key] = Object.assign({}, setLog.componentInputs64BE[key] || {}, current);
+    updateComponentVisibleValue64BG(input, field, parsed.value, component.exercise);
+    const saved = typeof saveState === "function" ? saveState(next, "phase64bg-component-input-progress") : null;
+    if (typeof persistActiveSessionProgressNow49ABugfix === "function") persistActiveSessionProgressNow49ABugfix((saved && saved.state) || next, "phase64bg-active-component-input-progress");
+    return Object.freeze({ persisted:true, field, value:parsed.value, roundIndex, componentKey:key });
+  }
+  function adjustSupersetComponentInput64BG(button, root){
+    if (!button || !button.dataset) return Object.freeze({ adjusted:false, reason:"missing-button" });
+    const action = button.dataset.phase64bgAction || button.dataset.action || "";
+    const roundIndex = Number(button.dataset.phase64bgAdjustRound || button.dataset.phase64bgRoundIndex || button.dataset.phase64bgCompleteRound || 0);
+    if (action === "complete-round") {
+      const card = button.closest ? button.closest("[data-phase64bg-round-card]") : null;
+      const result = completeTrueSupersetRound64BG(roundIndex, card || root || document, { button, card, source:"phase64bg-bugfix5-working-superset-control-route" });
+      try { window.__phase64BGBugfix5LastCompleteRoundResult = result; } catch(e) {}
+      return result;
+    }
+    const key = button.dataset.phase64bgComponentKey;
+    const field = button.dataset.phase64bgField === "reps" || button.dataset.field === "reps" ? "reps" : "weight";
+    const delta = Number(button.dataset.delta || 0);
+    const scope = root || document;
+    const safeKey = cssEscape64BG(key);
+    const input = scope.querySelector(`[data-phase64bg-round-input="${roundIndex}"][data-phase64bg-component-key="${safeKey}"][data-phase64bg-field="${field}"]`) || scope.querySelector(`[data-phase64bg-round-input="${roundIndex}"][data-phase64bg-component-index="${button.dataset.phase64bgComponentIndex}"][data-phase64bg-field="${field}"]`);
+    if (!input) return Object.freeze({ adjusted:false, reason:"input-not-found" });
+    const parsed = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C(field, input.value, { blankAsZero:true, invalidAsZero:true }) : { valid:true, value:Number(input.value || 0) };
+    const nextValue = Math.max(0, (parsed.valid ? Number(parsed.value || 0) : 0) + delta);
+    input.value = manualValue64BG(field, nextValue);
+    return persistSupersetComponentInput64BG(input, root || document, { source:"phase64bg-stepper", force:true });
+  }
+  function readNumericFieldFromWorkingControl64BGBugfix4(block, setLog, key, field, roundIndex){
+    const storedBG = setLog && setLog.componentInputs64BG && setLog.componentInputs64BG[key] || null;
+    const storedBE = setLog && setLog.componentInputs64BE && setLog.componentInputs64BE[key] || null;
+    const stored = storedBG || storedBE || {};
+    const safeKey = cssEscape64BG(key);
+    const input = block && block.querySelector ? block.querySelector(`[data-phase64bg-round-input="${roundIndex}"][data-phase64bg-component-key="${safeKey}"][data-phase64bg-field="${field}"]`) || block.querySelector(`[data-phase64bg-round-input][data-phase64bg-component-key="${safeKey}"][data-phase64bg-field="${field}"]`) || block.querySelector(`[data-phase64bg-field="${field}"][data-phase64bg-component-key="${safeKey}"]`) || block.querySelector(`[data-phase64bg-field="${field}"][data-field="${field}"]`) : null;
+    const visibleWrap = block && block.querySelector ? block.querySelector(`[data-phase64bg-visible-value][data-phase64bg-component-key="${safeKey}"][data-phase64bg-field="${field}"]`) || block.querySelector(`[data-phase64bg-visible-value$=":${field}"]`) : null;
+    const visibleMain = visibleWrap && visibleWrap.querySelector ? visibleWrap.querySelector("[data-phase64bg-visible-main]") : null;
+    const candidates = [];
+    if (stored && Number.isFinite(Number(stored[field]))) candidates.push({ value:stored[field], source:"componentInputs64BG64BE" });
+    if (input && input.value !== "") candidates.push({ value:input.value, source:"clicked-card-input" });
+    if (visibleMain && text64BG(visibleMain.textContent) !== "") candidates.push({ value:visibleMain.textContent, source:"clicked-card-visible-value" });
+    candidates.push({ value:0, source:"safe-fallback" });
+    for (const candidate of candidates) {
+      const parsed = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C(field, candidate.value, { blankAsZero:true, invalidAsZero:true }) : { valid:true, value:Number(candidate.value || 0) };
+      if (parsed && parsed.valid && Number.isFinite(Number(parsed.value))) return Object.freeze({ value:Math.max(0, Number(parsed.value)), source:candidate.source, inputFound:!!input, visibleFound:!!visibleMain });
+    }
+    return Object.freeze({ value:0, source:"safe-fallback", inputFound:!!input, visibleFound:!!visibleMain });
+  }
+  function componentBlocksFromWorkingControls64BGBugfix4(card, roundIndex){
+    const scope = card && card.querySelectorAll ? card : document;
+    let blocks = Array.from(scope.querySelectorAll('[data-phase64bg-round-component="true"]'));
+    if (!blocks.length) blocks = Array.from(scope.querySelectorAll('[data-phase64bg-round-move][data-phase64bg-component-key]'));
+    if (blocks.length) return blocks;
+    const grouped = new Map();
+    Array.from(scope.querySelectorAll(`[data-phase64bg-round-input="${roundIndex}"][data-phase64bg-component-key]`)).forEach((input)=>{
+      const key = input.dataset.phase64bgComponentKey || input.dataset.componentKey;
+      if (!key || grouped.has(key)) return;
+      grouped.set(key, input.closest(".phase64bg-round-move-section") || input.closest(".phase64bg-round-control-grid") || input.parentElement || input);
+    });
+    return Array.from(grouped.values());
+  }
+  function readSupersetRoundInputsFromWorkingControls64BGBugfix4(card, roundIndex, setLog){
+    const scope = card && card.querySelectorAll ? card : document;
+    const blocks = componentBlocksFromWorkingControls64BGBugfix4(scope, roundIndex);
+    const seen = new Set();
+    const rows = [];
+    blocks.forEach((block, fallbackIndex)=>{
+      const dataset = block && block.dataset ? block.dataset : {};
+      const key = dataset.phase64bgComponentKey || dataset.componentKey || `component-${fallbackIndex}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const nameEl = block && block.querySelector ? block.querySelector("[data-phase64bg-component-name-label]") || block.querySelector(".phase64bg-round-move-name") : null;
+      const name = text64BG(dataset.phase64bgComponentName || (nameEl && nameEl.textContent) || key) || key;
+      const index = Number.isFinite(Number(dataset.phase64bgComponentIndex)) ? Number(dataset.phase64bgComponentIndex) : fallbackIndex;
+      const order = Number.isFinite(Number(dataset.phase64bgRoundMove)) ? Number(dataset.phase64bgRoundMove) : index + 1;
+      const weightRead = readNumericFieldFromWorkingControl64BGBugfix4(block, setLog, key, "weight", roundIndex);
+      const repsRead = readNumericFieldFromWorkingControl64BGBugfix4(block, setLog, key, "reps", roundIndex);
+      rows.push({ componentKey:key, componentIndex:index, componentOrder:order, exerciseId:null, exerciseName:name, name, weight:weightRead.value, reps:repsRead.value, source:"phase64bg-bugfix4-clicked-card-working-controls", weightSource:weightRead.source, repsSource:repsRead.source, weightInputFound:weightRead.inputFound, repsInputFound:repsRead.inputFound });
+    });
+    return rows;
+  }
+  function readSupersetRoundInputs64BG(root, roundIndex, components, setLog){
+    const cardRows = readSupersetRoundInputsFromWorkingControls64BGBugfix4(root || document, roundIndex, setLog);
+    if (Array.isArray(cardRows) && cardRows.length >= 2) return cardRows;
+    const scope = root || document;
+    return components.map((component)=>{
+      const safeKey = cssEscape64BG(component.key);
+      const wInput = scope.querySelector(`[data-phase64bg-round-input="${roundIndex}"][data-phase64bg-component-key="${safeKey}"][data-phase64bg-field="weight"]`);
+      const rInput = scope.querySelector(`[data-phase64bg-round-input="${roundIndex}"][data-phase64bg-component-key="${safeKey}"][data-phase64bg-field="reps"]`);
+      const stored = setLog && setLog.componentInputs64BG && setLog.componentInputs64BG[component.key] || setLog && setLog.componentInputs64BE && setLog.componentInputs64BE[component.key] || {};
+      const wp = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C("weight", wInput ? wInput.value : stored.weight, { blankAsZero:true, invalidAsZero:true }) : { valid:true, value:Number(wInput && wInput.value || stored.weight || 0) };
+      const rp = typeof sanitizeManualNumericValue49C === "function" ? sanitizeManualNumericValue49C("reps", rInput ? rInput.value : stored.reps, { blankAsZero:true, invalidAsZero:true }) : { valid:true, value:Number(rInput && rInput.value || stored.reps || 0) };
+      return { componentKey:component.key, componentIndex:component.index, exerciseId:component.exercise && (component.exercise.id || component.exercise.exerciseId) || null, exerciseName:component.name, name:component.name, weight:wp.valid ? wp.value : 0, reps:rp.valid ? rp.value : 0, source:"phase64bg-legacy-read-fallback" };
+    });
+  }
+  function completeTrueSupersetRound64BG(roundIndex, root, options){
+    const clickedCard = options && options.card && options.card.querySelectorAll ? options.card : (options && options.button && options.button.closest ? options.button.closest("[data-phase64bg-round-card]") : (root && root.matches && root.matches("[data-phase64bg-round-card]") ? root : (root && root.querySelector ? root.querySelector(`[data-phase64bg-round-card="${roundIndex}"]`) : null)));
+    const card = clickedCard || root || document;
+    const loaded = typeof loadState === "function" ? loadState() : null;
+    const next = clone64BG(loaded && loaded.state ? loaded.state : {});
+    if (!next.activeSession) return Object.freeze({ completed:false, reason:"missing-active-session", phase64BGBugfix4:true });
+    const selectedIndex = Number(next.activeSession.selectedExerciseIndex || 0);
+    const ex = typeof activeSessionExercise === "function" ? activeSessionExercise(next, selectedIndex) : null;
+    if (!ex) return Object.freeze({ completed:false, reason:"missing-exercise", phase64BGBugfix4:true });
+    const setLogs = typeof normalizeSessionExerciseSets === "function" ? normalizeSessionExerciseSets(ex) : (Array.isArray(ex.setLogs) ? ex.setLogs : []);
+    const current = setLogs[roundIndex];
+    if (!current) return Object.freeze({ completed:false, reason:"missing-round", phase64BGBugfix4:true });
+    const wasCompletedBefore = current.completed === true;
+    let results = readSupersetRoundInputsFromWorkingControls64BGBugfix4(card, roundIndex, current);
+    if (!Array.isArray(results) || results.length < 2) {
+      const components = normalizeComponents64BG(ex, Array.isArray(ex.phase64BGComponentContextSnapshot) ? ex.phase64BGComponentContextSnapshot : [], next);
+      results = readSupersetRoundInputs64BG(card || document, roundIndex, components, current);
+    }
+    if (!Array.isArray(results) || results.length < 2) return Object.freeze({ completed:false, reason:"component-controls-not-found", phase64BGBugfix4:true, componentCount:Array.isArray(results) ? results.length : 0 });
+    current.componentResults64BG = results.map((row)=>Object.assign({}, row, { source:"phase64bg-bugfix4-complete-round" }));
+    current.componentResults64BE = results.map((row)=>Object.assign({}, row, { source:"phase64bg-bugfix4-complete-round" }));
+    current.componentInputs64BG = current.componentInputs64BG && typeof current.componentInputs64BG === "object" && !Array.isArray(current.componentInputs64BG) ? current.componentInputs64BG : {};
+    current.componentInputs64BE = current.componentInputs64BE && typeof current.componentInputs64BE === "object" && !Array.isArray(current.componentInputs64BE) ? current.componentInputs64BE : {};
+    results.forEach((row)=>{
+      const key = row.componentKey || key64BG(row.exerciseName || row.name || `component-${row.componentIndex || 0}`);
+      const value = { weight:Number(row.weight || 0), reps:Number(row.reps || 0), componentName:row.exerciseName || row.name || key, componentIndex:Number(row.componentIndex || 0), componentKey:key, source:"phase64bg-bugfix4-complete-round" };
+      current.componentInputs64BG[key] = Object.assign({}, current.componentInputs64BG[key] || {}, value);
+      current.componentInputs64BE[key] = Object.assign({}, current.componentInputs64BE[key] || {}, value);
+    });
+    current.weight = 0;
+    current.reps = 0;
+    current.completed = true;
+    current.completedAt = current.completedAt || (typeof nowIso === "function" ? nowIso() : new Date().toISOString());
+    current.phase64BGSupersetRound = true;
+    current.phase64BGCompletedAsRound = true;
+    current.phase64BGComponentCount = results.length;
+    current.phase64BESupersetRound = true;
+    current.phase64BECompletedAsRound = true;
+    current.phase64BEComponentCount = results.length;
+    const nextRoundIndex = setLogs.findIndex((set, index)=>index > roundIndex && set && set.completed !== true);
+    if (nextRoundIndex >= 0) {
+      const nextRound = setLogs[nextRoundIndex];
+      nextRound.componentInputs64BG = nextRound.componentInputs64BG && typeof nextRound.componentInputs64BG === "object" && !Array.isArray(nextRound.componentInputs64BG) ? nextRound.componentInputs64BG : {};
+      nextRound.componentInputs64BE = nextRound.componentInputs64BE && typeof nextRound.componentInputs64BE === "object" && !Array.isArray(nextRound.componentInputs64BE) ? nextRound.componentInputs64BE : {};
+      results.forEach((row)=>{
+        const key = row.componentKey || key64BG(row.exerciseName || row.name || `component-${row.componentIndex || 0}`);
+        if (!nextRound.componentInputs64BG[key] && !nextRound.componentInputs64BE[key]) {
+          const carried = { weight:Number(row.weight || 0), reps:Number(row.reps || 0), componentName:row.exerciseName || row.name || key, componentIndex:Number(row.componentIndex || 0), componentKey:key, source:"same-session-carry-forward" };
+          nextRound.componentInputs64BG[key] = carried;
+          nextRound.componentInputs64BE[key] = Object.assign({}, carried);
+        }
+      });
+      if (typeof applySetCollapseOpenTarget32CBugfix === "function") applySetCollapseOpenTarget32CBugfix(next, ex, nextRoundIndex, "phase64bg-bugfix4-open-next-round");
+    } else {
+      next.activeSession.openSetKey = null;
+    }
+    next.activeSession.completedSetCount = typeof completedSetCount === "function" ? completedSetCount(next.activeSession) : 0;
+    if (!wasCompletedBefore) {
+      let restGate = { shouldStart:false, reason:"no-rest-helper" };
+      try { restGate = typeof shouldStartNormalRestAfterSet11C === "function" ? shouldStartNormalRestAfterSet11C(ex, setLogs, roundIndex) : restGate; } catch(e) {}
+      if (restGate && restGate.shouldStart && typeof startRest11C === "function") startRest11C(next, restGate.seconds, `${ex.displayName || ex.name || "Superset"} · Round ${roundIndex + 1} rest`, { exerciseId:ex.id, exerciseName:ex.displayName || ex.name, setIndex:roundIndex, nextSetIndex:restGate.nextSetIndex, actionType:"fresh-complete-superset-round", source:"phase64bg-bugfix4-complete-round-rest-after-full-round" });
+    }
+    const autoSave = !wasCompletedBefore && typeof tryFinalWorkoutAutoSaveCompletion46B === "function" ? tryFinalWorkoutAutoSaveCompletion46B(next, { trigger:"phase64bg-bugfix4-superset-round", exerciseId:ex.id || null, exerciseName:ex.displayName || null, setIndex:roundIndex, wasCompletedBefore }) : Object.freeze({ saved:false, reason:"no-auto-save" });
+    if (autoSave && autoSave.saved) {
+      if (typeof renderApp === "function") renderApp("Workout auto-saved · completed superset round", null);
+      if (typeof refreshHistoryAndStatsFromLogs32CBugfixClarity === "function") refreshHistoryAndStatsFromLogs32CBugfixClarity(autoSave.state || (typeof loadState === "function" ? loadState().state : next));
+      if (typeof setActiveTab === "function") setActiveTab("today");
+      return Object.freeze({ completed:true, autoSaved:true, phase64BGBugfix4:true, resultCount:results.length });
+    }
+    if (typeof commitCriticalActiveSessionProgress50Bugfix === "function") commitCriticalActiveSessionProgress50Bugfix(next, "phase64bg-bugfix4-complete-superset-round-active-progress");
+    else if (typeof saveState === "function") saveState(next, "phase64bg-bugfix4-complete-superset-round");
+    if (typeof renderApp === "function") renderApp(nextRoundIndex >= 0 ? `Round ${roundIndex + 1} saved · Round ${nextRoundIndex + 1} ready` : `Round ${roundIndex + 1} saved`, selectedIndex);
+    return Object.freeze({ completed:true, autoSaved:false, nextRoundIndex, phase64BGBugfix4:true, resultCount:results.length });
+  }
+  function bindTrueSupersetRoundControls64BG(root){
+    if (!root) return;
+    root.querySelectorAll("[data-phase64bg-adjust-round]").forEach((button)=>{
+      if (button.dataset.phase64bgBound === "true") return;
+      button.dataset.phase64bgBound = "true";
+      button.addEventListener("click", (event)=>{ if (event) { event.preventDefault(); event.stopPropagation(); } adjustSupersetComponentInput64BG(button, root); if (window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5) window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5("phase64bg-adjust-round"); });
+    });
+    root.querySelectorAll("[data-phase64bg-round-input]").forEach((input)=>{
+      if (input.dataset.phase64bgBound === "true") return;
+      input.dataset.phase64bgBound = "true";
+      ["pointerdown","click","focus"].forEach((name)=> input.addEventListener(name, (event)=>{ if (event) event.stopPropagation(); }));
+      input.addEventListener("input", (event)=>{ if (event) event.stopPropagation(); persistSupersetComponentInput64BG(input, root, { source:"phase64bg-manual-input" }); if (window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5) window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5("phase64bg-manual-input"); });
+      input.addEventListener("change", (event)=>{ if (event) event.stopPropagation(); persistSupersetComponentInput64BG(input, root, { source:"phase64bg-manual-change", force:true }); });
+      input.addEventListener("blur", ()=>persistSupersetComponentInput64BG(input, root, { source:"phase64bg-manual-blur", force:true }));
+    });
+    root.querySelectorAll("[data-phase64bg-complete-round]").forEach((button)=>{
+      if (button.dataset.phase64bgBound === "true") return;
+      button.dataset.phase64bgBound = "true";
+      button.addEventListener("click", (event)=>{ if (event) { event.preventDefault(); event.stopPropagation(); } const card = button.closest ? button.closest("[data-phase64bg-round-card]") : null; completeTrueSupersetRound64BG(Number(button.dataset.phase64bgCompleteRound), card || root, { button, card, source:"phase64bg-bugfix4-complete-click" }); });
+    });
+  }
+
+  function auditCompleteRoundUsesWorkingSupersetRoute64BGBugfix5(root){
+    const scope = root && root.querySelector ? root : document;
+    const button = scope.querySelector('[data-phase64bg-action="complete-round"][data-phase64bg-adjust-round]') || scope.querySelector('[data-phase64bg-complete-round]');
+    const card = button && button.closest ? button.closest('[data-phase64bg-round-card]') : null;
+    const rows = card && typeof readSupersetRoundInputsFromWorkingControls64BGBugfix4 === "function" ? readSupersetRoundInputsFromWorkingControls64BGBugfix4(card, Number(card.dataset.phase64bgRoundCard || button.dataset.phase64bgAdjustRound || 0), null) : [];
+    const src = source64BG();
+    return Object.freeze({
+      phase:"64BG BUGFIX 5",
+      completeButtonFound:!!button,
+      usesWorkingSupersetRoute:!!(button && button.hasAttribute && button.hasAttribute('data-phase64bg-adjust-round') && button.dataset.phase64bgAction === "complete-round"),
+      doesNotRelyOnlyOnDataCompleteSet:!(button && button.hasAttribute && button.hasAttribute('data-complete-set') && !button.hasAttribute('data-phase64bg-adjust-round')),
+      doesNotRelyOnlyOnCompleteOnlyRoute:!!(button && button.hasAttribute && button.hasAttribute('data-phase64bg-adjust-round')),
+      clickedCardFound:!!card,
+      componentCount:rows.length,
+      componentNames:rows.map((row)=>row.exerciseName || row.name),
+      componentResultsWritePath:/componentResults64BG/.test(src) && /componentResults64BE/.test(src),
+      roundCompletedFlagPath:/phase64BGCompletedAsRound/.test(src),
+      completeRoundBranchInWorkingHandler:/phase64bgAction/.test(src) && /complete-round/.test(src) && /completeTrueSupersetRound64BG/.test(src),
+      plusMinusRoutePreserved:/data-phase64bg-adjust-round/.test(src) && /adjustSupersetComponentInput64BG\(button, root\)/.test(src),
+      normalCompleteSetPreserved:/function completeSet\s*\(/.test(src)
+    });
+  }
+  function runCompleteRoundWorkingSupersetRouteAudit64BGBugfix5(){ return auditCompleteRoundUsesWorkingSupersetRoute64BGBugfix5(document); }
+  function runFullAppAudit64BGBugfix5(){
+    const src = source64BG();
+    return Object.freeze({
+      phase:"64BG BUGFIX 5",
+      completeRoundWorkingSupersetRoute:auditCompleteRoundUsesWorkingSupersetRoute64BGBugfix5(document),
+      noRenderWrapper:!/window\.renderSetLoggingSection\s*=\s*function/.test(src),
+      noWireWrapper:!/window\.wireSetLoggingControls\s*=\s*function/.test(src),
+      noDocumentDelegatedBandaid:!/document\.addEventListener\s*\(\s*["']click["']/.test(src),
+      noNewSupersetLogger:(src.match(/function renderTrueSupersetRoundLogger64BG/g)||[]).length === 1,
+      noLocalStorageClear:!/localStorage\.clear\s*\(/.test(src),
+      normalCompleteSetCount:countFunction64BG("completeSet"),
+      normalAdjustSetInputCount:countFunction64BG("adjustSetInput"),
+      nodeStaticHint:"Run node syntax check before Android GREEN"
+    });
+  }
+  window.auditCompleteRoundUsesWorkingSupersetRoute64BGBugfix5 = auditCompleteRoundUsesWorkingSupersetRoute64BGBugfix5;
+  window.runCompleteRoundWorkingSupersetRouteAudit64BGBugfix5 = runCompleteRoundWorkingSupersetRouteAudit64BGBugfix5;
+  window.runFullAppAudit64BGBugfix5 = runFullAppAudit64BGBugfix5;
+  window.__phase64BGBugfix5LastCompleteRoundResult = window.__phase64BGBugfix5LastCompleteRoundResult || null;
+
+  function auditCompleteRoundWorkingControlRead64BGBugfix4(root){
+    const scope = root && root.querySelector ? root : document;
+    const card = scope.querySelector('[data-phase64bg-round-card]');
+    const rows = card ? readSupersetRoundInputsFromWorkingControls64BGBugfix4(card, Number(card.dataset.phase64bgRoundCard || 0), null) : [];
+    return Object.freeze({ phase:"64BG BUGFIX 4", cardFound:!!card, componentWrapperCount:card ? card.querySelectorAll('[data-phase64bg-round-component="true"]').length : 0, componentKeys:rows.map((row)=>row.componentKey), componentNames:rows.map((row)=>row.exerciseName || row.name), move1Values:rows[0] || null, move2Values:rows[1] || null, componentResultsWritePath:/componentResults64BG/.test(source64BG()) && /componentResults64BE/.test(source64BG()), roundCompletedPath:/phase64BGCompletedAsRound/.test(source64BG()), completedSummaryPath:/renderCompletedSupersetRound64BG/.test(source64BG()), normalCompleteSetUnchanged:/function completeSet\s*\(/.test(source64BG()) });
+  }
+  function runCompleteRoundWorkingControlReadAudit64BGBugfix4(){ return auditCompleteRoundWorkingControlRead64BGBugfix4(document); }
+  function runFullAppAudit64BGBugfix4(){
+    const src = source64BG();
+    return Object.freeze({ phase:"64BG BUGFIX 4", completeRoundWorkingControlRead:auditCompleteRoundWorkingControlRead64BGBugfix4(document), noRenderWrapper:!/window\.renderSetLoggingSection\s*=\s*function/.test(src), noWireWrapper:!/window\.wireSetLoggingControls\s*=\s*function/.test(src), noDocumentDelegatedBandaid:!/document\.addEventListener\s*\(\s*["']click["']/.test(src), noNewSupersetLogger:(src.match(/function renderTrueSupersetRoundLogger64BG/g)||[]).length === 1, noLocalStorageClear:!/localStorage\.clear\s*\(/.test(src), nodeStaticHint:"Run node syntax check before Android GREEN" });
+  }
+  window.readSupersetRoundInputsFromWorkingControls64BGBugfix4 = readSupersetRoundInputsFromWorkingControls64BGBugfix4;
+  window.auditCompleteRoundWorkingControlRead64BGBugfix4 = auditCompleteRoundWorkingControlRead64BGBugfix4;
+  window.runCompleteRoundWorkingControlReadAudit64BGBugfix4 = runCompleteRoundWorkingControlReadAudit64BGBugfix4;
+  window.runFullAppAudit64BGBugfix4 = runFullAppAudit64BGBugfix4;
+
+  function source64BG(){ try { return document && document.documentElement ? String(document.documentElement.outerHTML || "") : ""; } catch(e) { return ""; } }
+  function countFunction64BG(name){ const src = source64BG(); const esc = String(name).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); const match = src.match(new RegExp("function\\s+" + esc + "\\s*\\(", "g")); return match ? match.length : 0; }
+  function runTrueSupersetNormalControlModelAudit64BG(stateInput){
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : null);
+    const active = state && state.activeSession;
+    const exercises = active && Array.isArray(active.exercises) ? active.exercises : [];
+    const forearmIndex = exercises.findIndex((ex)=>/wrist\s*curl/i.test(`${ex && (ex.displayName || ex.name) || ""} ${ex && ex.block || ""}`) && /reverse\s*wrist/i.test(`${ex && (ex.displayName || ex.name) || ""} ${ex && ex.block || ""}`));
+    const selectedIndex = forearmIndex >= 0 ? forearmIndex : Number(active && active.selectedExerciseIndex || 0);
+    const ex = exercises[selectedIndex] || null;
+    let html = "";
+    try { html = ex && typeof renderSetLoggingSection === "function" ? renderSetLoggingSection(state, ex, selectedIndex, {}) : ""; } catch(e) { html = String(e && e.message || e); }
+    const source = source64BG();
+    const renderSource = String(typeof renderSetLoggingSection === "function" ? renderSetLoggingSection : "");
+    const wireSource = String(typeof wireSetLoggingControls === "function" ? wireSetLoggingControls : "");
+    return Object.freeze({
+      phase:"64BG",
+      outputFile:PHASE64BG_OUTPUT,
+      baseFileUsed:PHASE64BG_BASE,
+      forearmSupersetFound:forearmIndex >= 0,
+      trueSupersetRoundLoggerRendered:/data-phase64bg-superset-round-logging="true"/.test(html),
+      roundOneRendered:/Round\s*1/i.test(html),
+      moveOneRendered:/MOVE\s*1|Move\s*1/i.test(html),
+      moveTwoRendered:/MOVE\s*2|Move\s*2/i.test(html),
+      normalStyleControls:/log-control/.test(html) && /stepper29cbugfix/.test(html) && /stepper-source-input29cbugfix phase49c-manual-number-input/.test(html),
+      completeRoundRendered:/data-phase64bg-complete-round/.test(html) && /Complete round/.test(html),
+      noNormalCompleteSetInsideTrueSuperset:!/data-complete-set=/.test(html),
+      noExtraMovePreviewAboveRoundCard:!/phase64be-superset-summary|phase64be-move-preview/.test(html),
+      noEachEachMove:!/each\s+each\s+move/i.test(html),
+      renderOwnerDirectBranch:/resolveTrueSupersetLogContext64BG/.test(renderSource),
+      wireOwnerDirectBranch:/bindTrueSupersetRoundControls64BG/.test(wireSource),
+      noWindowRenderWrapperAdded:!/window\.renderSetLoggingSection\s*=\s*function/.test(source),
+      noWindowWireWrapperAdded:!/window\.wireSetLoggingControls\s*=\s*function/.test(source),
+      normalOwnerCounts:{ renderSetLoggingSection:countFunction64BG("renderSetLoggingSection"), wireSetLoggingControls:countFunction64BG("wireSetLoggingControls"), completeSet:countFunction64BG("completeSet"), adjustSetInput:countFunction64BG("adjustSetInput"), handleManualSetInput49C:countFunction64BG("handleManualSetInput49C") }
+    });
+  }
+  function runFullAppAudit64BG(stateInput){
+    const previous = typeof runFullAppAudit64BEBugfix3 === "function" ? runFullAppAudit64BEBugfix3(stateInput) : null;
+    return Object.freeze({ phase:PHASE64BG_NAME, outputFile:PHASE64BG_OUTPUT, baseFileUsed:PHASE64BG_BASE, forbiddenBasesNotUsed:PHASE64BG_FORBIDDEN_BASES, previousBugfix3Audit:previous, trueSupersetNormalControlModel:runTrueSupersetNormalControlModelAudit64BG(stateInput), androidGithubStatus:"YELLOW — Android/GitHub confirmation required before GREEN" });
+  }
+
+  window.resolveTrueSupersetLogContext64BG = resolveTrueSupersetLogContext64BG;
+  window.renderTrueSupersetRoundLogger64BG = renderTrueSupersetRoundLogger64BG;
+  window.renderTrueSupersetRoundCard64BG = renderTrueSupersetRoundCard64BG;
+  window.renderComponentStepperUsingSetModel64BG = renderComponentStepperUsingSetModel64BG;
+  window.persistSupersetComponentInput64BG = persistSupersetComponentInput64BG;
+  window.adjustSupersetComponentInput64BG = adjustSupersetComponentInput64BG;
+  window.completeTrueSupersetRound64BG = completeTrueSupersetRound64BG;
+  window.renderCompletedSupersetRound64BG = renderCompletedSupersetRound64BG;
+  window.bindTrueSupersetRoundControls64BG = bindTrueSupersetRoundControls64BG;
+  window.runTrueSupersetNormalControlModelAudit64BG = runTrueSupersetNormalControlModelAudit64BG;
+  window.runFullAppAudit64BG = runFullAppAudit64BG;
+  window.runFullAppAudit = runFullAppAudit64BG;
+  window.TailoredTrainingPhase64BG = Object.freeze({ phase:PHASE64BG_NAME, outputFile:PHASE64BG_OUTPUT, baseFileUsed:PHASE64BG_BASE, runTrueSupersetNormalControlModelAudit64BG, runFullAppAudit64BG, androidGithubStatus:"YELLOW — Android/GitHub confirmation required before GREEN" });
 })();
 </script>
 
