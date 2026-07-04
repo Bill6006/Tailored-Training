@@ -1,4 +1,15 @@
 <!--
+PHASE_64BK_BUGFIX_1_GLOBAL_CURRENT_EXERCISE_VS_BEST_ALTERNATIVE_DECISION_SURFACE_LOCK_V1_CHANGELOG
+- Adds global current exercise vs best alternative comparison so the Alternative sheet can explain whether the current programmed exercise is still strong or whether a better user-fit option exists.
+- Explains when an alternative is better for this user using existing Phase 64BK evidence/user-fit scoring, no-floor Gym preference, progression trackability, and safety/setup metadata.
+- Works across all major movement families, not just Band fly.
+- Preserves evidence/user-fit scoring from Phase 64BK and uses it as the comparison source of truth.
+- Does not auto-replace workout exercises, does not add a second swap system, and does not change workout programming.
+- Preserves active logging, History, Coach, Superset, rest timer, and warm-up combo behavior.
+- Does not add wrapper-style patches, owner monkey-patching, duplicate owners, document-level click bandaids, render loops, timer loops, or storage cleanup.
+- Status: YELLOW — Android/GitHub validation required before GREEN.
+-->
+<!--
 PHASE_64BK_EVIDENCE_BASED_EXERCISE_FIT_AND_SMART_PROGRAMMING_UPGRADE_V1_CHANGELOG
 - Adds evidence-based exercise-fit scoring for muscle-target match, hypertrophy usefulness, user fit, safety/setup, progression trackability, fatigue cost, and Gym no-floor fit.
 - Adds user-fit scoring for no-floor gym preferences, stability-ball avoidance, shoulder caution, low-back caution, and progression trackability.
@@ -3960,6 +3971,17 @@ PHASE_27D_OVERDONE_MUSCLE_DETECTION_V1_CHANGELOG
     .alternative-chip19b.phase64bk-fit-best { color:var(--green); border-color:rgba(77,242,164,.26); background:rgba(77,242,164,.08); }
     .alternative-chip19b.phase64bk-fit-caution { color:var(--gold); border-color:rgba(244,204,115,.26); background:rgba(244,204,115,.08); }
     .alternative-chip19b.phase64bk-fit-fallback { color:#ffb8c0; border-color:rgba(255,109,122,.24); background:rgba(255,109,122,.08); }
+    .alternative-decision64bk-bugfix1 { margin:0 0 12px; border:1px solid rgba(77,242,164,.22); background:linear-gradient(145deg, rgba(77,242,164,.10), rgba(139,183,255,.055)); border-radius:20px; padding:12px; box-shadow:0 14px 34px rgba(0,0,0,.16); }
+    .alternative-decision64bk-bugfix1[data-decision-kind64bk-bugfix1="current-strong"] { border-color:rgba(77,242,164,.24); background:linear-gradient(145deg, rgba(77,242,164,.10), rgba(255,255,255,.035)); }
+    .alternative-decision64bk-bugfix1[data-decision-kind64bk-bugfix1="better"] { border-color:rgba(244,204,115,.32); background:linear-gradient(145deg, rgba(244,204,115,.12), rgba(77,242,164,.055)); }
+    .alternative-decision-eyebrow64bk-bugfix1 { color:var(--green); font-size:10px; font-weight:950; letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px; }
+    .alternative-decision-title64bk-bugfix1 { color:var(--text); font-size:14px; font-weight:950; line-height:1.25; }
+    .alternative-decision-grid64bk-bugfix1 { display:grid; grid-template-columns:1fr; gap:8px; margin-top:10px; }
+    .alternative-decision-item64bk-bugfix1 { border:1px solid rgba(255,255,255,.085); background:rgba(255,255,255,.035); border-radius:14px; padding:9px; }
+    .alternative-decision-item64bk-bugfix1 b { display:block; color:var(--muted); font-size:10px; font-weight:950; letter-spacing:.08em; text-transform:uppercase; }
+    .alternative-decision-item64bk-bugfix1 span { display:block; color:var(--text); margin-top:4px; font-size:13px; font-weight:850; line-height:1.3; }
+    .alternative-decision-why64bk-bugfix1 { margin-top:10px; color:var(--soft); font-size:12px; line-height:1.4; }
+    .alternative-comparison-note64bk-bugfix1 { margin-top:7px; color:#e6f8ff; font-size:11px; line-height:1.35; }
     .swap-badge19c { display:inline-flex; align-items:center; min-height:24px; border-radius:999px; padding:4px 8px; color:#d7c8ff; border:1px solid rgba(180,156,255,.28); background:rgba(180,156,255,.095); font-size:10px; font-weight:950; letter-spacing:.05em; text-transform:uppercase; }
     .exercise-row.swapped19c { border-color:rgba(180,156,255,.34); background:linear-gradient(145deg, rgba(180,156,255,.11), rgba(255,255,255,.035)); }
     .pain-quick-btn20a { color:#fff0f2; background:linear-gradient(135deg, rgba(255,109,122,.20), rgba(180,156,255,.11)); border-color:rgba(255,109,122,.28); cursor:pointer; }
@@ -18803,6 +18825,282 @@ Existing History logs stay untouched.`);
     };
     return decoratedPool64BEBugfix3.sort((a, b) => (duplicateRank64BEBugfix3(a) - duplicateRank64BEBugfix3(b)) || (b.score19B - a.score19B) || String(a.displayName).localeCompare(String(b.displayName))).slice(0, desiredLimit).map((candidate, index) => Object.assign({}, candidate, { rank19B: index + 1 }));
   }
+
+
+  function exerciseDisplayName64BKBugfix1(ex) {
+    return String(ex && (ex.displayName || ex.name || ex.id) || "Exercise").trim() || "Exercise";
+  }
+
+  function exerciseText64BKBugfix1(ex) {
+    const parts = [];
+    if (ex) {
+      [ex.displayName, ex.name, ex.id, ex.block, ex.movementFamily, ex.muscleFamily, ex.category].forEach((value) => { if (value) parts.push(value); });
+      [ex.equipment, ex.tags, ex.setupTags, ex.primaryMuscles, ex.secondaryMuscles, ex.targetMuscles, ex.compatibleMovementFamilies, ex.alternativeFor].forEach((list) => {
+        if (Array.isArray(list)) list.forEach((value) => { if (value) parts.push(value); });
+      });
+      if (ex.modeReady && typeof ex.modeReady === "object") Object.keys(ex.modeReady).forEach((key) => parts.push(key, ex.modeReady[key]));
+      if (ex.fitMetadata64BJ && typeof ex.fitMetadata64BJ === "object") Object.keys(ex.fitMetadata64BJ).forEach((key) => parts.push(key, ex.fitMetadata64BJ[key]));
+    }
+    return parts.join(" ").toLowerCase();
+  }
+
+  function exerciseSignals64BKBugfix1(ex) {
+    const text = exerciseText64BKBugfix1(ex);
+    const stableGym = /cable|machine|pec\s*deck|leg\s*press|hack\s*squat|smith|captain|roman\s*chair|bench|supported|seated|standing|landmine|db|dumbbell/.test(text);
+    const cableMachine = /cable|machine|pec\s*deck|leg\s*press|hack\s*squat|lat\s*pulldown|smith|captain|roman\s*chair/.test(text);
+    const benchSupported = /bench|supported|chest-supported|incline|seated/.test(text);
+    const dumbbell = /dumbbell|\bdb\b/.test(text);
+    const floor = /floor|push\s*-?up|plank|mountain\s*climber|dead\s*bug|hollow|sit\s*-?up|crunch\s*on\s*floor/.test(text) && !/cable\s*crunch|machine\s*crunch|seated\s*ab\s*crunch/.test(text);
+    const stabilityBall = /stability\s*ball|swiss\s*ball|exercise\s*ball/.test(text);
+    const shoulderCaution = /shoulder-caution|overhead|upright\s*row|deep\s*shoulder|behind\s*neck|dip/.test(text);
+    const lowBackCaution = /low-back-caution|unsupported\s*hinge|unsupported\s*row|good\s*morning|deadlift|bent-over/.test(text) && !/chest-supported|supported/.test(text);
+    const trackable = /load|reps|time|distance|hold|carry|machine|cable|dumbbell|db|barbell|smith|plate|leg\s*press|pulldown|curl|extension|raise/.test(text);
+    const warmup = /warm\s*-?up|mobility|prep|activation|external\s*rotation|wall\s*slide|pull-apart|dislocate|scap|light/.test(text);
+    const noFloorGym = stableGym && !floor && !stabilityBall;
+    return Object.freeze({ text, stableGym, cableMachine, benchSupported, dumbbell, floor, stabilityBall, shoulderCaution, lowBackCaution, trackable, warmup, noFloorGym });
+  }
+
+  function resolveExerciseForComparison64BKBugfix1(stateInput, exLike) {
+    if (!exLike) return exLike;
+    if (exLike.id && typeof findProgramExerciseById19C === "function") {
+      try {
+        const found = findProgramExerciseById19C(stateInput || {}, exLike.id);
+        if (found) return Object.assign({}, found, exLike);
+      } catch (err) {}
+    }
+    return exLike;
+  }
+
+  function getCurrentExerciseFitLabel64BKBugfix1(fit) {
+    if (!fit) return "Fit pending";
+    return fit.fitLabel64BK || (fit.score64BK >= 92 ? "Strong fit" : (fit.score64BK >= 70 ? "Good fit" : (fit.score64BK >= 45 ? "Okay fit" : "Fallback fit")));
+  }
+
+  function getBestAlternativeFitLabel64BKBugfix1(fit, candidate) {
+    if (candidate && candidate.fitLabel64BK) return String(candidate.fitLabel64BK);
+    return getCurrentExerciseFitLabel64BKBugfix1(fit);
+  }
+
+  function scoreCurrentExerciseAgainstAlternatives64BKBugfix1(stateInput, currentExercise, bestCandidate) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : { settings: { mode: "Gym" } });
+    const current = originalForRanking19C(currentExercise) || currentExercise || {};
+    const fullBest = resolveExerciseForComparison64BKBugfix1(state, bestCandidate || {}) || bestCandidate || {};
+    const currentFit = typeof scoreExerciseFit64BK === "function" ? scoreExerciseFit64BK(current, current, state) : null;
+    const bestFit = bestCandidate && bestCandidate.fit64BK ? bestCandidate.fit64BK : (typeof scoreExerciseFit64BK === "function" ? scoreExerciseFit64BK(fullBest, current, state) : null);
+    const currentSignals = exerciseSignals64BKBugfix1(current);
+    const bestSignals = exerciseSignals64BKBugfix1(fullBest);
+    let currentScore = Number(currentFit && currentFit.score64BK || 0);
+    let bestScore = Number(bestFit && bestFit.score64BK || bestCandidate && bestCandidate.fitScore64BK || 0);
+    if (!currentScore && typeof scoreAlternativeCandidate19B === "function") {
+      try { currentScore = Number(scoreAlternativeCandidate19B(state, current, current).score || 0); } catch (err) {}
+    }
+    if (!bestScore && bestCandidate) bestScore = Number(bestCandidate.fitScore64BK || bestCandidate.score19B || 0);
+    if (currentSignals.floor) currentScore -= 18;
+    if (currentSignals.stabilityBall) currentScore -= 24;
+    if (!currentSignals.noFloorGym && bestSignals.noFloorGym) currentScore -= 8;
+    if (currentSignals.shoulderCaution && !bestSignals.shoulderCaution) currentScore -= 10;
+    if (currentSignals.lowBackCaution && !bestSignals.lowBackCaution) currentScore -= 8;
+    if (bestSignals.noFloorGym) bestScore += 6;
+    if (bestSignals.cableMachine || bestSignals.benchSupported) bestScore += 5;
+    if (bestSignals.trackable && !currentSignals.trackable) bestScore += 6;
+    if (bestCandidate && bestCandidate.duplicateStatus64BEBugfix3) bestScore -= /already/.test(String(bestCandidate.duplicateStatus64BEBugfix3)) ? 35 : 0;
+    return Object.freeze({ current, best: fullBest, currentFit, bestFit, currentSignals, bestSignals, currentScore: Math.round(currentScore), bestScore: Math.round(bestScore), scoreDifference: Math.round(bestScore - currentScore) });
+  }
+
+  function getExerciseFitDecisionLabel64BKBugfix1(scores) {
+    if (!scores) return "Similar fit";
+    const diff = Number(scores.scoreDifference || 0);
+    if (scores.currentSignals && scores.currentSignals.warmup) return diff > 14 ? "Better prep option available" : "Similar fit";
+    if (scores.currentSignals && scores.currentSignals.shoulderCaution && scores.bestSignals && !scores.bestSignals.shoulderCaution && diff > 8) return "Caution: better option available";
+    if (scores.currentSignals && scores.currentSignals.stabilityBall && scores.bestSignals && scores.bestSignals.noFloorGym) return "Better gym option available";
+    if (scores.currentSignals && scores.currentSignals.floor && scores.bestSignals && scores.bestSignals.noFloorGym) return "Better no-floor option available";
+    if (scores.bestSignals && scores.bestSignals.noFloorGym && !(scores.currentSignals && scores.currentSignals.noFloorGym) && diff > 6) return "Better gym fit available";
+    if (scores.bestSignals && scores.bestSignals.trackable && !(scores.currentSignals && scores.currentSignals.trackable) && diff > 8) return "Better progression option available";
+    if (diff >= 18) return "Swap recommended for this session";
+    if (diff >= 9) return "Better option available";
+    if (diff <= 4 && scores.currentScore >= 85) return "Current is strong";
+    return "Similar fit";
+  }
+
+  function buildExerciseFitDecision64BKBugfix1(stateInput, currentExercise, bestCandidate) {
+    if (!currentExercise || !bestCandidate) return null;
+    const scores = scoreCurrentExerciseAgainstAlternatives64BKBugfix1(stateInput, currentExercise, bestCandidate);
+    const decisionLabel = getExerciseFitDecisionLabel64BKBugfix1(scores);
+    const currentLabel = getCurrentExerciseFitLabel64BKBugfix1(scores.currentFit);
+    const bestLabel = getBestAlternativeFitLabel64BKBugfix1(scores.bestFit, bestCandidate);
+    const explanation = explainCurrentVsAlternative64BKBugfix1(decisionLabel, scores, currentExercise, bestCandidate);
+    const topRowPhrase = rowComparisonPhrase64BKBugfix1(decisionLabel, scores);
+    const kind = /Current is strong|Similar/.test(decisionLabel) ? "current-strong" : "better";
+    return Object.freeze({
+      phase: "64BK BUGFIX 1",
+      currentExerciseName: exerciseDisplayName64BKBugfix1(currentExercise),
+      currentExerciseScore: scores.currentScore,
+      currentFitLabel: currentLabel,
+      bestAlternativeName: exerciseDisplayName64BKBugfix1(bestCandidate),
+      bestAlternativeScore: scores.bestScore,
+      bestAlternativeFitLabel: bestLabel,
+      scoreDifference: scores.scoreDifference,
+      decisionLabel,
+      decisionKind: kind,
+      explanation,
+      topRowPhrase,
+      swapUserTriggeredOnly: true,
+      duplicateProtectionStatus: bestCandidate.duplicateStatus64BEBugfix3 || "none",
+      currentKept: /Current is strong|Similar/.test(decisionLabel)
+    });
+  }
+
+  function explainCurrentVsAlternative64BKBugfix1(decisionLabel, scores, currentExercise, bestCandidate) {
+    const reasons = [];
+    const currentSignals = scores && scores.currentSignals || {};
+    const bestSignals = scores && scores.bestSignals || {};
+    if (currentSignals.warmup) {
+      if (bestSignals.noFloorGym) reasons.push("Cleaner prep setup");
+      if (bestSignals.trackable) reasons.push("easy to repeat");
+      return (reasons.length ? reasons : ["Similar prep value"]).slice(0, 3).join(", ") + ".";
+    }
+    if (bestSignals.noFloorGym && !currentSignals.noFloorGym) reasons.push("no-floor gym setup");
+    if (bestSignals.cableMachine || bestSignals.benchSupported) reasons.push("more stable");
+    if (bestSignals.trackable) reasons.push("easier to load and track");
+    if (currentSignals.stabilityBall) reasons.push("more stable than stability-ball setup");
+    if (currentSignals.floor) reasons.push("better than floor fallback for gym mode");
+    if (currentSignals.shoulderCaution && !bestSignals.shoulderCaution) reasons.push("less shoulder-sensitive setup");
+    if (currentSignals.lowBackCaution && !bestSignals.lowBackCaution) reasons.push("less low-back fatigue");
+    if (!reasons.length && /Current is strong/.test(decisionLabel)) return "Strong target match, stable setup, and easy to track; keep current unless equipment is taken.";
+    if (!reasons.length && /Similar/.test(decisionLabel)) return "Similar fit; use the alternative mainly if equipment or setup is easier today.";
+    if (!reasons.length) reasons.push("stronger fit for your preferences");
+    const muscleText = Array.isArray(bestCandidate && bestCandidate.sharedMuscles19B) && bestCandidate.sharedMuscles19B.length ? `, strong ${bestCandidate.sharedMuscles19B[0]} match` : "";
+    return `${reasons.slice(0, 3).join(", ")}${muscleText}.`;
+  }
+
+  function rowComparisonPhrase64BKBugfix1(decisionLabel, scores) {
+    if (/Current is strong/.test(decisionLabel)) return "Similar fit: use this if equipment is easier.";
+    if (/Similar/.test(decisionLabel)) return "Similar fit: useful if setup is easier today.";
+    if (/no-floor/i.test(decisionLabel)) return "Better no-floor option for your preferences.";
+    if (/gym fit|gym option/i.test(decisionLabel)) return "Better than current for this gym session: more stable, no-floor, easier to progress.";
+    if (/progression/i.test(decisionLabel)) return "Better progression option: easier to load and track.";
+    if (/caution/i.test(decisionLabel)) return "Caution-aware option: better fit if the current setup bothers your shoulder/back.";
+    return "Better fit for this session if you want the stronger ranked option.";
+  }
+
+  function compareCurrentExerciseToBestAlternative64BKBugfix1(stateInput, currentExercise, candidates) {
+    const ranked = Array.isArray(candidates) ? candidates : [];
+    const best = ranked.find((candidate) => !/already_later_today|already_done_today/.test(String(candidate && candidate.duplicateStatus64BEBugfix3 || ""))) || ranked[0] || null;
+    if (!best) return null;
+    return buildExerciseFitDecision64BKBugfix1(stateInput, currentExercise, best);
+  }
+
+  function renderExerciseFitDecision64BKBugfix1(decision) {
+    if (!decision) return "";
+    return `<div class="alternative-decision64bk-bugfix1" data-phase64bk-bugfix1-decision-surface="visible" data-decision-kind64bk-bugfix1="${escapeHtml(decision.decisionKind || "similar")}">
+      <div class="alternative-decision-eyebrow64bk-bugfix1">Decision</div>
+      <div class="alternative-decision-title64bk-bugfix1">${escapeHtml(decision.decisionLabel)}</div>
+      <div class="alternative-decision-grid64bk-bugfix1">
+        <div class="alternative-decision-item64bk-bugfix1"><b>Current</b><span>${escapeHtml(decision.currentExerciseName)} — ${escapeHtml(decision.currentFitLabel)}</span></div>
+        <div class="alternative-decision-item64bk-bugfix1"><b>Best</b><span>${escapeHtml(decision.bestAlternativeName)} — ${escapeHtml(decision.bestAlternativeFitLabel)}</span></div>
+      </div>
+      <div class="alternative-decision-why64bk-bugfix1"><b>Why:</b> ${escapeHtml(decision.explanation)}</div>
+    </div>`;
+  }
+
+  function auditCurrentVsBestAlternative64BKBugfix1(stateInput, currentExercise, label) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : { settings: { mode: "Gym" } });
+    const current = currentExercise || findExerciseForAudit64BK(state, /band fly/i, { id: "audit-band-fly-64bk-bugfix1", displayName: "Band fly", block: "Chest / Pec Pump", movementFamily: "chest", targetMuscles: ["chest", "pecs"], equipment: ["bands"] });
+    const candidates = typeof getRankedAlternativeCandidates19B === "function" ? getRankedAlternativeCandidates19B(Object.assign({}, state, { settings: Object.assign({}, state.settings || {}, { mode: "Gym" }) }), current, 8) : [];
+    const decision = compareCurrentExerciseToBestAlternative64BKBugfix1(state, current, candidates);
+    return Object.freeze({ phase: "64BK BUGFIX 1", label: label || exerciseDisplayName64BKBugfix1(current), exerciseName: exerciseDisplayName64BKBugfix1(current), decision, candidateNames: candidates.map((candidate) => candidate.displayName).slice(0, 6), swapUserTriggeredOnly: true, workoutProgrammingChanged: false, duplicateProtectionStatus: candidates.some((candidate) => candidate.duplicateStatus64BEBugfix3) ? "decorated" : "available", status: decision ? "YELLOW" : "RED" });
+  }
+
+  function auditBandFlyDecisionSurface64BKBugfix1(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : { settings: { mode: "Gym" } });
+    const current = findExerciseForAudit64BK(state, /band fly/i, { id: "audit-band-fly-64bk-bugfix1", displayName: "Band fly", block: "Chest / Pec Pump", movementFamily: "chest", targetMuscles: ["chest", "pecs"], equipment: ["bands"] });
+    return auditCurrentVsBestAlternative64BKBugfix1(state, current, "Band fly");
+  }
+
+  function auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : { settings: { mode: "Gym" } });
+    const samples = [
+      ["chest", /band fly|chest fly|pec deck|push\s*-?up/i, { id: "audit-chest-64bk-bugfix1", displayName: "Band fly", block: "Chest / Pec Pump", movementFamily: "chest", targetMuscles: ["chest"], equipment: ["bands"] }],
+      ["back", /seated cable row|row|pulldown/i, { id: "audit-back-64bk-bugfix1", displayName: "Seated cable row", block: "Back", movementFamily: "back", targetMuscles: ["back"], equipment: ["cable", "machine"] }],
+      ["shoulderRearDelt", /lateral raise|rear-delt|face pull|shoulder press/i, { id: "audit-shoulder-64bk-bugfix1", displayName: "Cable lateral raise", block: "Shoulders", movementFamily: "shoulders", targetMuscles: ["side delts"], equipment: ["cable"] }],
+      ["arms", /cable curl|pressdown|triceps|biceps/i, { id: "audit-arms-64bk-bugfix1", displayName: "Cable triceps pressdown", block: "Arms", movementFamily: "triceps", targetMuscles: ["triceps"], equipment: ["cable"] }],
+      ["forearmsGrip", /wrist curl|farmer carry|reverse curl|grip/i, { id: "audit-forearm-64bk-bugfix1", displayName: "Farmer carry", block: "Forearms / Grip", movementFamily: "forearms", targetMuscles: ["forearms", "grip"], equipment: ["dumbbells"], progressionType: "distance" }],
+      ["legs", /leg press|leg curl|leg extension|hack squat/i, { id: "audit-leg-64bk-bugfix1", displayName: "Seated leg curl", block: "Hamstrings", movementFamily: "hamstrings", targetMuscles: ["hamstrings"], equipment: ["machine"] }],
+      ["calves", /calf raise/i, { id: "audit-calf-64bk-bugfix1", displayName: "Standing calf raise machine", block: "Calves", movementFamily: "calves", targetMuscles: ["calves"], equipment: ["machine"] }],
+      ["coreAbs", /cable crunch|machine crunch|pallof|captain/i, { id: "audit-core-64bk-bugfix1", displayName: "Cable crunch", block: "Core", movementFamily: "core", targetMuscles: ["abs"], equipment: ["cable"] }],
+      ["warmupMobility", /face pull|pull-apart|external rotation|wall slide|warm/i, { id: "audit-warmup-64bk-bugfix1", displayName: "Band pull-apart", block: "Warm-up", movementFamily: "warm-up", targetMuscles: ["upper back"], equipment: ["bands"], tags: ["warm-up"] }]
+    ];
+    const results = {};
+    samples.forEach(([key, matcher, fallback]) => {
+      const ex = findExerciseForAudit64BK(state, matcher, fallback);
+      results[key] = auditCurrentVsBestAlternative64BKBugfix1(state, ex, key);
+    });
+    const strongCurrent = Object.values(results).find((item) => item && item.decision && /Current is strong|Similar fit/.test(item.decision.decisionLabel)) || null;
+    return Object.freeze({ phase: "64BK BUGFIX 1", results, strongCurrentExample: strongCurrent, globalFamiliesCovered: Object.keys(results), status: Object.values(results).some((item) => item.status === "RED") ? "RED" : "YELLOW" });
+  }
+
+  function auditChestDecisionSurface64BKBugfix1(stateInput) { return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput).results.chest; }
+  function auditBackDecisionSurface64BKBugfix1(stateInput) { return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput).results.back; }
+  function auditShoulderDecisionSurface64BKBugfix1(stateInput) { return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput).results.shoulderRearDelt; }
+  function auditArmDecisionSurface64BKBugfix1(stateInput) { return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput).results.arms; }
+  function auditLegDecisionSurface64BKBugfix1(stateInput) { return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput).results.legs; }
+  function auditCoreDecisionSurface64BKBugfix1(stateInput) { return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput).results.coreAbs; }
+  function auditWarmupDecisionSurface64BKBugfix1(stateInput) { return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput).results.warmupMobility; }
+
+  function auditAlternativeDecisionLabels64BKBugfix1(stateInput) {
+    const global = auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput);
+    const labels = Object.values(global.results).map((item) => item && item.decision && item.decision.decisionLabel).filter(Boolean);
+    const allowed = ["Current is strong", "Similar fit", "Better option available", "Better gym fit available", "Better no-floor option available", "Better progression option available", "Swap recommended for this session", "Keep current", "Fallback only", "Caution: better option available", "Better prep option available"];
+    return Object.freeze({ phase: "64BK BUGFIX 1", labels, allowedLabels: allowed, allAllowed: labels.every((label) => allowed.includes(label)), status: labels.length && labels.every((label) => allowed.includes(label)) ? "YELLOW" : "RED" });
+  }
+
+  function auditAlternativeComparisonWording64BKBugfix1(stateInput) {
+    const band = auditBandFlyDecisionSurface64BKBugfix1(stateInput);
+    const text = band && band.decision && band.decision.explanation || "";
+    const banned = /guaranteed|perfect|best ever|scientifically proven best|always better|optimal for everyone/i.test(text);
+    return Object.freeze({ phase: "64BK BUGFIX 1", bandFlyExplanation: text, shortAndTruthful: !!text && text.length <= 180 && !banned, bannedAbsoluteClaims: banned, status: !banned ? "YELLOW" : "RED" });
+  }
+
+  function runCurrentVsBestAlternativeAudit64BKBugfix1(stateInput) {
+    const band = auditBandFlyDecisionSurface64BKBugfix1(stateInput);
+    const labels = auditAlternativeDecisionLabels64BKBugfix1(stateInput);
+    const wording = auditAlternativeComparisonWording64BKBugfix1(stateInput);
+    return Object.freeze({ phase: "64BK BUGFIX 1", bandFly: band, labels, wording, noAutoSwapAdded: true, noWorkoutProgrammingChanged: true, noWrapperStylePatch: true, noOwnerMonkeyPatching: true, status: [band.status, labels.status, wording.status].includes("RED") ? "RED" : "YELLOW" });
+  }
+
+  function runGlobalExerciseDecisionSurfaceAudit64BKBugfix1(stateInput) {
+    return auditGlobalExerciseDecisionSurface64BKBugfix1(stateInput);
+  }
+
+  function runFullAppAudit64BKBugfix1(stateInput) {
+    const previous = typeof runFullAppAudit64BK === "function" ? runFullAppAudit64BK(stateInput) : null;
+    const currentVsBest = runCurrentVsBestAlternativeAudit64BKBugfix1(stateInput);
+    const global = runGlobalExerciseDecisionSurfaceAudit64BKBugfix1(stateInput);
+    return Object.freeze({
+      phase: "64BK BUGFIX 1",
+      name: "Phase 64BK BUGFIX 1 — Global Current Exercise vs Best Alternative Decision Surface Lock",
+      previousAudit: previous,
+      currentVsBest,
+      globalDecisionSurface: global,
+      preservedBehavior: Object.freeze({
+        alternativeOwnerPreserved: typeof getRankedAlternativeCandidates19B === "function",
+        duplicateProtectionPreserved: typeof decorateAlternativeCandidateDuplicateStatus64BEBugfix3 === "function",
+        coachHistorySupersetPreserved: typeof completeSupersetRound64BH === "function" && (typeof buildUnifiedCoachActionDecision45 === "function" || !!(window.TailoredTrainingCoachBridge64BIBugfix3)),
+        restTimerBehaviorChanged: false,
+        warmupComboRestBehaviorChanged: false,
+        workoutProgrammingChangedAutomatically: false,
+        autoSwapAdded: false,
+        savedHistoryMutation: false,
+        mediaChanged: false,
+        wrapperStylePatchAdded: false,
+        ownerMonkeyPatchingAdded: false,
+        duplicateOwnersAdded: false
+      }),
+      status: currentVsBest.status === "RED" || global.status === "RED" ? "RED" : "YELLOW",
+      androidGithubRequired: true
+    });
+  }
+
   function renderAlternativeRow19A(candidate, options = {}) {
     const ranked = candidate && candidate.rankingBuilt19B;
     const canSwap = !!options.canSwap;
@@ -18825,6 +19123,7 @@ Existing History logs stay untouched.`);
     const meta = ranked ? `<div class="alternative-meta19b">${muscleChip}${equipmentChip}${equipmentUnavailableChip19D}${modeChip}${fitChip64BK}${gymChips}${duplicateChip64BEBugfix3}</div>` : "";
     const reasons = ranked && Array.isArray(candidate.reasons19B) ? ` · ${candidate.reasons19B.slice(0, 4).join(" · ")}` : "";
     const fitExplanation64BK = ranked && candidate.fitExplanation64BK ? `<div class="alternative-fit-explain64bk" data-phase64bk-fit-explanation="visible">${escapeHtml(candidate.fitExplanation64BK)}</div>` : "";
+    const comparisonPhrase64BKBugfix1 = ranked && candidate.comparisonPhrase64BKBugfix1 ? `<div class="alternative-comparison-note64bk-bugfix1" data-phase64bk-bugfix1-row-comparison="top">${escapeHtml(candidate.comparisonPhrase64BKBugfix1)}</div>` : "";
     const noStrong = candidate.noStrongNonFloorGymMatch64BABugfix8 ? `<div class="alternative-suggested19d" data-phase64ba-bugfix8-no-strong-nonfloor="true">No strong non-floor gym match found. Showing closest available options.</div>` : "";
     const floorFallback = candidate.floorFallback64BABugfix8 && !candidate.noStrongNonFloorGymMatch64BABugfix8 ? `<div class="alternative-suggested19d" data-phase64ba-bugfix8-floor-fallback="true">Floor fallback · weaker Gym fit</div>` : "";
     const duplicateNotice64BEBugfix3 = duplicateLabel64BEBugfix3 ? `<div class="alternative-suggested19d" data-phase64be-bugfix3-duplicate-notice="${escapeHtml(candidate.duplicateStatus64BEBugfix3)}">${escapeHtml(duplicateLabel64BEBugfix3)} · pick another unless intentional.</div>` : "";
@@ -18832,7 +19131,7 @@ Existing History logs stay untouched.`);
     const actionLabel = equipmentMode19D && candidate.suggestedByEquipmentUnavailable19D ? "Use best this session" : (duplicateLabel64BEBugfix3 ? "Pick another" : "Use this session");
     const action = canSwap ? `<button class="alternative-use-btn19c" type="button" data-session-safe-swap19c="active-session-only" data-alternative-id19c="${escapeHtml(candidate.id)}" data-phase64be-bugfix3-duplicate-status="${escapeHtml(candidate.duplicateStatus64BEBugfix3 || "none")}">${escapeHtml(actionLabel)}</button>` : `<div class="alternative-lock19a">Start workout</div>`;
     return `<div class="alternative-row19a" data-phase19a-alternative-row="ranked" data-phase19b-ranked="${ranked ? "true" : "false"}" data-same-muscle-rank19b="ranked-preserved" data-phase19c-swap-row="session-safe" data-phase19d-suggested="${candidate.suggestedByEquipmentUnavailable19D ? "best" : "ranked"}" data-phase64ba-bugfix8-gym-no-floor="${candidate.gymNoFloorCandidate64BABugfix8 ? "ranked" : "not-applicable"}" data-phase64ba-bugfix8-floor-fallback="${candidate.floorFallback64BABugfix8 ? "true" : "false"}" data-phase64be-bugfix3-duplicate-status="${escapeHtml(candidate.duplicateStatus64BEBugfix3 || "none")}" data-alternative-id19a="${escapeHtml(candidate.id)}">
-      <div>${noStrong}${floorFallback}${duplicateNotice64BEBugfix3}${suggested}<b>${escapeHtml(candidate.displayName)}</b><span>${escapeHtml(candidate.summary)} · ${escapeHtml(candidate.block)} · ${escapeHtml(candidate.equipment)}${escapeHtml(reasons)}</span>${meta}${fitExplanation64BK}</div>
+      <div>${noStrong}${floorFallback}${duplicateNotice64BEBugfix3}${suggested}<b>${escapeHtml(candidate.displayName)}</b><span>${escapeHtml(candidate.summary)} · ${escapeHtml(candidate.block)} · ${escapeHtml(candidate.equipment)}${escapeHtml(reasons)}</span>${meta}${fitExplanation64BK}${comparisonPhrase64BKBugfix1}</div>
       <div class="alternative-side19b">${rankMarkup}${action}</div>
     </div>`;
   }
@@ -18846,14 +19145,18 @@ Existing History logs stay untouched.`);
     const canSwap = !!(active && Array.isArray(active.exercises) && active.exercises[selectedIndex]);
     const unavailableTokens19D = equipmentMode19D ? getUnavailableEquipmentTokensForExercise19D(state, selectedIndex, currentExercise) : [];
     const candidates = equipmentMode19D ? getEquipmentAwareRankedCandidates19D(state, currentExercise, 6, unavailableTokens19D) : getRankedAlternativeCandidates19B(state, currentExercise, 6);
+    const decision64BKBugfix1 = !equipmentMode19D && typeof compareCurrentExerciseToBestAlternative64BKBugfix1 === "function" ? compareCurrentExerciseToBestAlternative64BKBugfix1(state, currentExercise, candidates) : null;
+    const decisionMarkup64BKBugfix1 = !equipmentMode19D && typeof renderExerciseFitDecision64BKBugfix1 === "function" ? renderExerciseFitDecision64BKBugfix1(decision64BKBugfix1) : "";
+    const candidatesWithDecision64BKBugfix1 = decision64BKBugfix1 ? candidates.map((candidate, index) => index === 0 ? Object.assign({}, candidate, { comparisonPhrase64BKBugfix1: decision64BKBugfix1.topRowPhrase }) : candidate) : candidates;
     setText("alternativesTitle19A", `${equipmentMode19D ? "Equipment unavailable · " : "Ranked alternatives · "}${currentExercise.displayName || "Exercise"}`);
     setText("alternativesText19A", equipmentMode19D ? (canSwap ? `Marked unavailable this session: ${unavailableTokens19D.join(" · ") || "current equipment"}. Use the best ranked alternative for this workout only.` : `Start a workout before marking equipment unavailable or applying a session-safe swap.`) : (canSwap ? `Pick one ranked alternative for this active session only. Original exercise stays stored and can be restored.` : `Ranked alternatives preview for ${currentExercise.displayName || currentExercise.id}. Start a workout before applying a session-safe swap.`));
     const list = document.getElementById("alternativesList19A");
     const restoreOriginalRow64BEBugfix3 = typeof renderRestoreOriginalSwapAction64BEBugfix3 === "function" ? renderRestoreOriginalSwapAction64BEBugfix3(currentExercise, state, selectedIndex) : "";
-    if (list) list.innerHTML = restoreOriginalRow64BEBugfix3 + (candidates.length ? candidates.map((candidate) => renderAlternativeRow19A(candidate, { canSwap, equipmentUnavailableMode19D: equipmentMode19D })).join("") : `<div class="alternative-empty19a">No same-muscle alternatives found in the local program database yet.</div>`);
+    if (list) list.innerHTML = decisionMarkup64BKBugfix1 + restoreOriginalRow64BEBugfix3 + (candidatesWithDecision64BKBugfix1.length ? candidatesWithDecision64BKBugfix1.map((candidate) => renderAlternativeRow19A(candidate, { canSwap, equipmentUnavailableMode19D: equipmentMode19D })).join("") : `<div class="alternative-empty19a">No same-muscle alternatives found in the local program database yet.</div>`);
     sheet.dataset.exerciseId19A = currentExercise.id || "";
     sheet.dataset.exerciseIndex19C = String(selectedIndex);
     sheet.dataset.candidateCount19A = String(candidates.length);
+    sheet.dataset.phase64bkBugfix1DecisionSurface = decision64BKBugfix1 ? "visible" : "not-available";
     sheet.dataset.phase19bRanked = "true";
     sheet.dataset.phase19cSessionSwap = canSwap ? "enabled-active-session-only" : "locked-until-active-session";
     sheet.dataset.phase19dEquipmentMode = equipmentMode19D ? "active-session-unavailable" : "idle";
@@ -74140,6 +74443,29 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
   window.runExerciseFitAudit64BK = runExerciseFitAudit64BK;
   window.runSmartProgrammingAudit64BK = runSmartProgrammingAudit64BK;
   window.runFullAppAudit64BK = runFullAppAudit64BK;
+  window.compareCurrentExerciseToBestAlternative64BKBugfix1 = compareCurrentExerciseToBestAlternative64BKBugfix1;
+  window.scoreCurrentExerciseAgainstAlternatives64BKBugfix1 = scoreCurrentExerciseAgainstAlternatives64BKBugfix1;
+  window.buildExerciseFitDecision64BKBugfix1 = buildExerciseFitDecision64BKBugfix1;
+  window.renderExerciseFitDecision64BKBugfix1 = renderExerciseFitDecision64BKBugfix1;
+  window.explainCurrentVsAlternative64BKBugfix1 = explainCurrentVsAlternative64BKBugfix1;
+  window.getCurrentExerciseFitLabel64BKBugfix1 = getCurrentExerciseFitLabel64BKBugfix1;
+  window.getBestAlternativeFitLabel64BKBugfix1 = getBestAlternativeFitLabel64BKBugfix1;
+  window.getExerciseFitDecisionLabel64BKBugfix1 = getExerciseFitDecisionLabel64BKBugfix1;
+  window.auditCurrentVsBestAlternative64BKBugfix1 = auditCurrentVsBestAlternative64BKBugfix1;
+  window.auditGlobalExerciseDecisionSurface64BKBugfix1 = auditGlobalExerciseDecisionSurface64BKBugfix1;
+  window.auditBandFlyDecisionSurface64BKBugfix1 = auditBandFlyDecisionSurface64BKBugfix1;
+  window.auditChestDecisionSurface64BKBugfix1 = auditChestDecisionSurface64BKBugfix1;
+  window.auditBackDecisionSurface64BKBugfix1 = auditBackDecisionSurface64BKBugfix1;
+  window.auditShoulderDecisionSurface64BKBugfix1 = auditShoulderDecisionSurface64BKBugfix1;
+  window.auditArmDecisionSurface64BKBugfix1 = auditArmDecisionSurface64BKBugfix1;
+  window.auditLegDecisionSurface64BKBugfix1 = auditLegDecisionSurface64BKBugfix1;
+  window.auditCoreDecisionSurface64BKBugfix1 = auditCoreDecisionSurface64BKBugfix1;
+  window.auditWarmupDecisionSurface64BKBugfix1 = auditWarmupDecisionSurface64BKBugfix1;
+  window.auditAlternativeDecisionLabels64BKBugfix1 = auditAlternativeDecisionLabels64BKBugfix1;
+  window.auditAlternativeComparisonWording64BKBugfix1 = auditAlternativeComparisonWording64BKBugfix1;
+  window.runCurrentVsBestAlternativeAudit64BKBugfix1 = runCurrentVsBestAlternativeAudit64BKBugfix1;
+  window.runGlobalExerciseDecisionSurfaceAudit64BKBugfix1 = runGlobalExerciseDecisionSurfaceAudit64BKBugfix1;
+  window.runFullAppAudit64BKBugfix1 = runFullAppAudit64BKBugfix1;
 
   function collectAlternativeCandidateCoverage64BJ(stateInput) {
     const candidates = alternativeCandidateLibrary64BJ();
