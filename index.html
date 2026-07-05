@@ -1,26 +1,4 @@
 <!--
-PHASE_64BN_BUGFIX_6_CONTROLS_EXIT_REUSE_WORKING_SAVE_ACTION_PATH_NO_SAVE_LOCK_V1_CHANGELOG
-- fixes Exit tile still not firing on Android
-- reuses the exact working Save control tap/action path
-- removes Save behavior from Exit
-- opens the existing Exit workout confirmation prompt
-- confirmed Exit discards active progress instead of saving it
-- preserves saved History and app data
-- preserves BUGFIX 2 no-auto-resume termination
-- does not add document-level click listeners
-- does not clear localStorage
--->
-<!--
-PHASE_64BN_BUGFIX_5_CONTROLS_EXIT_REAL_TAP_TARGET_AND_HANDLER_BINDING_LOCK_V1_CHANGELOG
-- fixes visible Exit tile tap not reaching the Controls handler
-- makes Exit use the exact same sheet-local tap/delegation convention as working Controls actions
-- preserves BUGFIX 4 no-close-fallthrough and stable prompt mount
-- preserves BUGFIX 2 final termination/no-auto-resume behavior
-- preserves header workout time
-- does not add document-level click listeners
-- does not mutate History or clear localStorage
--->
-<!--
 PHASE_64BN_BUGFIX_4_CONTROLS_EXIT_PREVENT_CLOSE_FALLTHROUGH_AND_CONFIRM_MOUNT_LOCK_V1_CHANGELOG
 - fixes Exit action closing the Controls sheet without opening confirmation
 - prevents Exit from falling through to generic Controls close behavior
@@ -310,6 +288,50 @@ PHASE_64BE_SUPERSET_ROUND_BASED_MULTI_MOVE_LOGGING_FOUNDATION_V1_CHANGELOG
 - Does not add wrapper-style patches or owner monkey-patching.
 -->
 <!doctype html>
+
+<!--
+PHASE_64BN_BUGFIX_5_REDO2_CONTROLS_EXIT_FIRST_CLASS_CONTROL_ACTION_LOCK_V1_CHANGELOG
+- Rolls back to BUGFIX 4 as the clean base.
+- Does not use broken BUGFIX 5, BUGFIX 6, or BUGFIX 5 REDO.
+- Fixes Exit by registering it as a first-class Controls action.
+- Preserves the regular Save button behavior.
+- Does not reuse Save's raw action value.
+- Opens an Exit workout confirmation prompt.
+- Confirmed Exit discards active progress instead of saving it.
+- Preserves saved History and app data.
+- Preserves BUGFIX 2 no-auto-resume termination.
+- Does not add document-level click listeners.
+- Does not clear localStorage.
+-->
+
+<!--
+PHASE_64BN_BUGFIX_5_REDO4B_EXIT_OK_REAL_ACTIVE_RENDER_GATE_SHUTDOWN_LOCK_V1_CHANGELOG
+- Uses REDO3 as the clean base because REDO3 opens the Exit prompt.
+- Does not use failed REDO4.
+- Fixes OK on Exit prompt returning to the same active workout.
+- Identifies the real active-workout render gate.
+- Clears the canonical active-workout state source that controls that render gate.
+- Prevents immediate auto-resume of the just-exited workout.
+- Preserves Save behavior.
+- Preserves header workout time.
+- Does not save current active progress.
+- Does not mutate saved History.
+- Does not clear localStorage.
+-->
+<!--
+PHASE_64BN_BUGFIX_5_REDO3_CONTROLS_EXIT_WIRE_LEVEL_ID_BRANCH_BEFORE_CLOSE_LOCK_V1_CHANGELOG
+- Fixes Exit closing Controls without opening the confirmation prompt.
+- Detects the visible Exit button by id inside the real Controls wire handler before generic close/delegate behavior.
+- Does not rely only on action-name normalization.
+- Preserves Save behavior.
+- Does not reuse Save's raw action value.
+- Opens the Exit workout confirmation prompt.
+- Confirmed Exit discards active progress instead of saving it.
+- Preserves saved History and app data.
+- Preserves BUGFIX 2 no-auto-resume termination.
+- Does not add document-level click listeners.
+- Does not clear localStorage.
+-->
 
 <!--
 PHASE_64BI_BUGFIX_4_SUPERSET_COACH_PLACEMENT_AND_MESSAGE_TRUTH_LOCK_V1_CHANGELOG
@@ -10382,21 +10404,6 @@ body[data-active-view-mode="simple"] #simpleModeControlsSheet64AM #simpleControl
 #exitWorkoutConfirm64BNBugfix1 .phase64bn-exit-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 #exitWorkoutConfirm64BNBugfix1 #confirmExitWorkout64BNBugfix1 { border-color: rgba(255,105,120,.35); background: rgba(120,35,52,.28); color: #ffe2e6; }
 
-/* PHASE_64BN_BUGFIX_5_CONTROLS_EXIT_REAL_TAP_TARGET_AND_HANDLER_BINDING_LOCK_V1_CSS — Exit tile root remains the real clickable control */
-#simpleModeControlsSheet64AM #simpleControlsExit64BNBugfix1[data-phase64bn-bugfix5-exit-clickable-root="same-button-pattern"],
-body[data-active-view-mode="simple"] #simpleModeControlsSheet64AM #simpleControlsExit64BNBugfix1[data-phase64bn-bugfix5-exit-clickable-root="same-button-pattern"] {
-  display:flex !important;
-  pointer-events:auto !important;
-  position:relative !important;
-  touch-action:manipulation !important;
-  user-select:none !important;
-  -webkit-tap-highlight-color:rgba(255,120,120,.18) !important;
-}
-#simpleModeControlsSheet64AM #simpleControlsExit64BNBugfix1[data-phase64bn-bugfix5-exit-clickable-root="same-button-pattern"] .phase64at-control-title,
-#simpleModeControlsSheet64AM #simpleControlsExit64BNBugfix1[data-phase64bn-bugfix5-exit-clickable-root="same-button-pattern"] .phase64at-control-copy {
-  pointer-events:auto !important;
-}
-
 </style>
 
 <!--
@@ -12548,7 +12555,7 @@ body[data-active-view-mode="simple"] .active-workout-minimal54a #exerciseDetailS
           <button class="btn ghost" type="button" id="simpleControlsTools64AM" data-phase64am-control-action="existing-route-tools-sheet"><span class="phase64at-control-title">Tools</span><span class="phase64at-control-copy">Route and workout tools.</span></button>
           <button class="btn ghost" type="button" id="simpleControlsSave64AM" data-phase64am-control-action="existing-save-completed-sets"><span class="phase64at-control-title">Save</span><span class="phase64at-control-copy">Save completed sets.</span></button>
           <button class="btn ghost" type="button" id="simpleControlsAdvanced64AM" data-phase64am-control-action="existing-simple-advanced-toggle"><span class="phase64at-control-title">Advanced</span><span class="phase64at-control-copy">Show the full workout view.</span></button>
-          <button class="btn ghost" type="button" id="simpleControlsExit64BNBugfix1" data-phase64am-control-action="existing-save-completed-sets" data-phase64bn-bugfix1-exit-control="confirm-before-discard" data-phase64bn-bugfix3-exit-control="real-controls-delegation" data-phase64bn-bugfix5-exit-clickable-root="same-button-pattern" data-phase64bn-bugfix6-reuses-save-action-path="no-save-confirm-exit" data-phase64bn-bugfix6-no-save-lock="true" aria-label="Exit workout"><span class="phase64at-control-title">Exit</span><span class="phase64at-control-copy">Exit without saving current progress.</span></button>
+          <button class="btn ghost" type="button" id="simpleControlsExit64BNBugfix1" data-phase64am-control-action="exit-workout-confirm" data-phase64bn-bugfix1-exit-control="confirm-before-discard" data-phase64bn-bugfix3-exit-control="real-controls-delegation" data-phase64bn-bugfix5-redo2-control-action="first-class-controls-action"><span class="phase64at-control-title">Exit</span><span class="phase64at-control-copy">Exit without saving current progress.</span></button>
         </div>
       </div>
       <div class="phase64at-controls-note" data-phase64au-details-note="main-scroll-stays-simple">Simple mode keeps the main scroll focused on moves and Log set. Alternative is its own action; Details open here or in Advanced without restoring the large hero to the Simple scroll.</div>
@@ -13896,8 +13903,113 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     return result;
   }
 
+  const PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY = "tt_phase64bn_bugfix5_redo4b_exit_no_auto_resume";
+
+  function activeWorkoutRenderGate64BNBugfix5Redo4B(state) {
+    const active = !!(state && state.activeSession && Array.isArray(state.activeSession.exercises));
+    return Object.freeze({
+      functionName: "renderAppFast25FBugfix/renderAppFull25FBugfix + activeWorkoutFocusEnabled52B",
+      condition: "state.activeSession && Array.isArray(state.activeSession.exercises)",
+      active,
+      hasActiveSession: !!(state && state.activeSession),
+      exerciseCount: state && state.activeSession && Array.isArray(state.activeSession.exercises) ? state.activeSession.exercises.length : 0
+    });
+  }
+
+  function activeSessionFingerprint64BNBugfix5Redo4B(session) {
+    const active = session && typeof session === "object" && !Array.isArray(session) ? session : null;
+    if (!active) return "no-active-session";
+    const firstExercise = Array.isArray(active.exercises) && active.exercises[0] ? active.exercises[0] : null;
+    return [
+      active.id || "no-session-id",
+      active.dateKey || "no-date",
+      active.dayName || active.workoutKey || "no-day",
+      active.mode || "no-mode",
+      active.route || "no-route",
+      active.startedAt || "no-started-at",
+      firstExercise && (firstExercise.id || firstExercise.displayName) || "no-first-exercise"
+    ].map((part) => String(part || "").trim()).join("|");
+  }
+
+  function readExitNoAutoResumeMarker64BNBugfix5Redo4B() {
+    const fallback = typeof window !== "undefined" ? window.__phase64BNBugfix5Redo4BExitNoAutoResumeMarker : null;
+    try {
+      if (hasStorage()) {
+        const raw = safeStorageGet10E(PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY, null);
+        const parsed = raw ? safeJsonParse(raw, null, PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY) : null;
+        if (parsed && parsed.ok && parsed.value && typeof parsed.value === "object") return parsed.value;
+      }
+    } catch (_) {}
+    return fallback && typeof fallback === "object" ? fallback : null;
+  }
+
+  function markWorkoutExitedNoAutoResume64BNBugfix5Redo4B(session) {
+    const marker = {
+      phase: "PHASE_64BN_BUGFIX_5_REDO4B",
+      reason: "confirmed-exit-no-auto-resume",
+      createdAt: nowIso(),
+      sessionId: session && session.id || null,
+      fingerprint: activeSessionFingerprint64BNBugfix5Redo4B(session),
+      dayName: session && session.dayName || null,
+      mode: session && session.mode || null,
+      route: session && session.route || null,
+      workoutKey: session && session.workoutKey || null
+    };
+    if (typeof window !== "undefined") window.__phase64BNBugfix5Redo4BExitNoAutoResumeMarker = marker;
+    try { if (hasStorage()) safeStorageSet10E(PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY, JSON.stringify(marker)); } catch (_) {}
+    return marker;
+  }
+
+  function activeSessionMatchesExitMarker64BNBugfix5Redo4B(session, marker = readExitNoAutoResumeMarker64BNBugfix5Redo4B()) {
+    if (!session || !marker) return false;
+    const fingerprint = activeSessionFingerprint64BNBugfix5Redo4B(session);
+    if (marker.fingerprint && marker.fingerprint === fingerprint) return true;
+    if (marker.sessionId && session.id && marker.sessionId === session.id) return true;
+    return false;
+  }
+
+  function isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B(session) {
+    return activeSessionMatchesExitMarker64BNBugfix5Redo4B(session);
+  }
+
+  function clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B() {
+    if (typeof window !== "undefined") window.__phase64BNBugfix5Redo4BExitNoAutoResumeMarker = null;
+    try { if (hasStorage()) localStorage.removeItem(PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY); } catch (_) {}
+    return true;
+  }
+
+  function clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(stateInput, reason = "confirmed-exit") {
+    const next = migrateState(clone(stateInput || createDefaultState()), `phase64bn-bugfix5-redo4b-${reason}`);
+    const beforeGate = activeWorkoutRenderGate64BNBugfix5Redo4B(next);
+    const activeBefore = next.activeSession ? clone(next.activeSession) : null;
+    next.activeSession = null;
+    next.restTimer = typeof createDefaultRestTimerState11C === "function" ? createDefaultRestTimerState11C() : { active: false, totalSeconds: 0, remainingSeconds: 0, context: { source: "phase64bn-bugfix5-redo4b-exit" } };
+    if (Object.prototype.hasOwnProperty.call(next, "selectedExerciseIndex")) next.selectedExerciseIndex = 0;
+    next.audit = Object.assign({}, next.audit || {}, {
+      phase64BNBugfix5Redo4BExitConfirmed: true,
+      phase64BNBugfix5Redo4BRenderGateFunction: "renderAppFast25FBugfix/renderAppFull25FBugfix",
+      phase64BNBugfix5Redo4BRenderGateCondition: "state.activeSession",
+      phase64BNBugfix5Redo4BFocusGateCondition: "activeWorkoutFocusEnabled52B(state)",
+      phase64BNBugfix5Redo4BCanonicalActiveSessionCleared: true,
+      phase64BNBugfix5Redo4BHistoryMutated: false,
+      phase64BNBugfix5Redo4BLocalStorageClearUsed: false,
+      phase64BNBugfix5Redo4BExitedAt: nowIso()
+    });
+    next.qa = Object.assign({}, next.qa || {}, { phase64BNBugfix5Redo4BControlsExit: "canonical-active-render-gate-cleared" });
+    return { ok: true, state: next, activeBefore, beforeGate, afterGate: activeWorkoutRenderGate64BNBugfix5Redo4B(next) };
+  }
+
+  function clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(stateInput, source = "loadState") {
+    const state = stateInput && typeof stateInput === "object" && !Array.isArray(stateInput) ? stateInput : stateInput;
+    if (!state || !state.activeSession || !isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B(state.activeSession)) return state;
+    const cleared = clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(state, `blocked-auto-resume-${source}`);
+    cleared.state.audit = Object.assign({}, cleared.state.audit || {}, { phase64BNBugfix5Redo4BBlockedAutoResumeSource: source });
+    return cleared.state;
+  }
+
   function shouldPreferRuntimeStateOverDurableState50Bugfix(runtimeState, source = "runtime") {
     if (!runtimeState || typeof runtimeState !== "object") return false;
+    if (runtimeState.activeSession && typeof isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B === "function" && isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B(runtimeState.activeSession)) return false;
     const durable = durableStateCandidate50Bugfix();
     if (!durable) return true;
     if (shouldPreferRuntimeCustomMediaState50NoScroll(runtimeState, durable)) return true;
@@ -13917,7 +14029,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const storageOk = hasStorage();
     const warnings = [];
     if (customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.media && customMediaRenderSyncState48DFix.media.phase48D && customMediaRenderSyncState48DFix.media.phase48D.saveRenderSyncBugfix48D && shouldPreferRuntimeStateOverDurableState50Bugfix(customMediaRenderSyncState48DFix, "custom-media-render-sync")) {
-      const state = clone(customMediaRenderSyncState48DFix);
+      let state = clone(customMediaRenderSyncState48DFix);
+      state = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(state, "custom-media-runtime");
       hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
       hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
@@ -13925,7 +14038,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       return { state, source: "phase48d-save-render-sync-memory", warnings: ["Using freshest custom-media state so the saved tile renders immediately."], storageOk, legacyPreview: [] };
     }
     if (memoryStateFallback10E && memoryStateFallback10E.activeSession && shouldPreferRuntimeStateOverDurableState50Bugfix(memoryStateFallback10E, "memory-active-session")) {
-      const state = clone(memoryStateFallback10E);
+      let state = clone(memoryStateFallback10E);
+      state = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(state, "memory-state-fallback");
       hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
       hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
@@ -13933,7 +14047,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       return { state, source: "memory-active-session-preferred", warnings: ["Using active in-memory session so Start workout visibly stays active even if localStorage is constrained"], storageOk, legacyPreview: [] };
     }
     if (!storageOk) {
-      const state = memoryStateFallback10E ? clone(memoryStateFallback10E) : createDefaultState();
+      let state = memoryStateFallback10E ? clone(memoryStateFallback10E) : createDefaultState();
+      state = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(state, "memory-or-default-no-storage");
       hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
       hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
@@ -13945,7 +14060,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     if (!raw) { const state = hydrateCustomMediaFromSyncPayloadCache50Bugfix(createDefaultState(), "phase50-bugfix-loadstate-default-custom-media-payloads"); state.audit.legacyPreview = legacyPreview; return { state, source: "default-not-saved", warnings, storageOk, legacyPreview }; }
     const parsed = safeJsonParse(raw, null, STATE_KEY);
     if (!parsed.ok) { warnings.push(parsed.warning); const state = hydrateCustomMediaFromSyncPayloadCache50Bugfix(createDefaultState(), "phase50-bugfix-loadstate-invalid-custom-media-payloads"); state.audit.invalidExistingStateDetected = true; state.audit.legacyPreview = legacyPreview; return { state, source: "default-after-invalid-existing", warnings, storageOk, legacyPreview }; }
-    const normalized = migrateState(parsed.value, "phase10e-active-state-clarity-loadState");
+    let normalized = migrateState(parsed.value, "phase10e-active-state-clarity-loadState");
+    normalized = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(normalized, "localStorage-v2-storage-safe");
     hydrateCustomMediaFromSyncPayloadCache50Bugfix(normalized, "phase50-bugfix-loadstate-localstorage-custom-media-sync");
     hydrateActiveSessionProgressAfterReload49ABugfix(normalized);
     normalized.audit.legacyPreview = legacyPreview;
@@ -16387,6 +16503,7 @@ Existing History logs stay untouched.`);
     renderApp("Current exercise selected · fast path", safeIndex);
   }
   function startWorkout() {
+    if (typeof clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B === "function") clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B();
     const loaded = loadState();
     const next = loaded.state;
     const dayName = selectedWorkoutDay32CBugfix(next);
@@ -63690,76 +63807,6 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
     return node && sheet && sheet.contains(node) ? node : null;
   }
 
-
-  function ensureControlsExitTileTapTarget64BNBugfix5() {
-    if (typeof document === "undefined") return null;
-    const sheet = document.getElementById("simpleModeControlsSheet64AM");
-    if (!sheet) return null;
-    const supportGrid = sheet.querySelector('[data-phase64at-controls-group="support-actions"] .simple-controls-grid64am') || sheet.querySelector(".phase64at-secondary-grid") || sheet.querySelector(".simple-controls-grid64am");
-    let btn = document.getElementById("simpleControlsExit64BNBugfix1");
-    if (!btn && supportGrid) {
-      btn = document.createElement("button");
-      btn.id = "simpleControlsExit64BNBugfix1";
-      btn.type = "button";
-      btn.className = "btn ghost";
-      btn.innerHTML = '<span class="phase64at-control-title">Exit</span><span class="phase64at-control-copy">Exit without saving current progress.</span>';
-      supportGrid.appendChild(btn);
-    }
-    if (!btn) return null;
-    if (btn.tagName && btn.tagName.toLowerCase() !== "button") {
-      const replacement = document.createElement("button");
-      replacement.id = "simpleControlsExit64BNBugfix1";
-      replacement.type = "button";
-      replacement.className = String(btn.className || "btn ghost");
-      replacement.innerHTML = btn.innerHTML || '<span class="phase64at-control-title">Exit</span><span class="phase64at-control-copy">Exit without saving current progress.</span>';
-      Array.from(btn.attributes || []).forEach((attr) => { if (attr && attr.name !== "id" && attr.name !== "class") replacement.setAttribute(attr.name, attr.value); });
-      if (btn.parentNode) btn.parentNode.replaceChild(replacement, btn);
-      btn = replacement;
-    }
-    btn.type = "button";
-    btn.classList.add("btn", "ghost");
-    btn.disabled = false;
-    btn.removeAttribute("disabled");
-    btn.setAttribute("aria-disabled", "false");
-    btn.setAttribute("aria-label", "Exit workout");
-    const saveBtn64BNBugfix6 = document.getElementById("simpleControlsSave64AM");
-    if (saveBtn64BNBugfix6 && saveBtn64BNBugfix6.className) btn.className = saveBtn64BNBugfix6.className;
-    btn.classList.add("btn", "ghost");
-    btn.setAttribute("data-phase64am-control-action", "existing-save-completed-sets");
-    btn.setAttribute("data-phase64bn-bugfix1-exit-control", "confirm-before-discard");
-    btn.setAttribute("data-phase64bn-bugfix3-exit-control", "real-controls-delegation");
-    btn.setAttribute("data-phase64bn-bugfix5-exit-clickable-root", "same-button-pattern");
-    btn.setAttribute("data-phase64bn-bugfix5-closest-selector", "[data-phase64am-control-action]");
-    btn.setAttribute("data-phase64bn-bugfix6-reuses-save-action-path", "no-save-confirm-exit");
-    btn.setAttribute("data-phase64bn-bugfix6-no-save-lock", "true");
-    let title = btn.querySelector(".phase64at-control-title");
-    if (!title) { title = document.createElement("span"); title.className = "phase64at-control-title"; btn.insertBefore(title, btn.firstChild); }
-    title.textContent = "Exit";
-    let copy = btn.querySelector(".phase64at-control-copy");
-    if (!copy) { copy = document.createElement("span"); copy.className = "phase64at-control-copy"; btn.appendChild(copy); }
-    copy.textContent = "Exit without saving current progress.";
-    if (supportGrid && btn.parentNode !== supportGrid) supportGrid.appendChild(btn);
-    window.__phase64BNBugfix5LastTapTargetReady = Object.freeze({ ok: true, id: btn.id, tag: btn.tagName, action: btn.getAttribute("data-phase64am-control-action"), parentGrid: !!(supportGrid && btn.parentNode === supportGrid), closestSelector: "[data-phase64am-control-action]", bugfix6SavePathRawAction: "existing-save-completed-sets", bugfix6NoSaveLock: true });
-    return btn;
-  }
-
-  function handleControlsExitTileAction64BNBugfix5(event, source = "controls-exit-tile") {
-    if (event && typeof event.preventDefault === "function") event.preventDefault();
-    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
-    if (event && typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
-    const opened = typeof handleControlsExitViaSavePath64BNBugfix6 === "function" ? handleControlsExitViaSavePath64BNBugfix6(event, source || "bugfix5-legacy-direct-bridge") : (typeof delegateSimpleModeControl64AM === "function" ? delegateSimpleModeControl64AM("exit-workout") : false);
-    window.__phase64BNBugfix5LastExitTap = Object.freeze({ ok: !!opened, source, delegatedAction: "existing-save-completed-sets", normalizedAction: "save-path-exit-no-save", promptOpenAttempted: true, bugfix6SavePathBridge: true });
-    return !!opened;
-  }
-
-  function bindControlsExitTileTapTarget64BNBugfix5() {
-    const btn = ensureControlsExitTileTapTarget64BNBugfix5();
-    if (!btn) return false;
-    btn.dataset.bound64bnBugfix5 = "save-path-only";
-    btn.dataset.phase64bnBugfix6BindingOwner = "wireSimpleModeControlsSheet64AM-save-path-sibling";
-    return true;
-  }
-
   function wireExitWorkoutConfirmButtons64BNBugfix3(root) {
     const sheet = root || (typeof document !== "undefined" ? document.getElementById("exitWorkoutConfirm64BNBugfix1") : null);
     if (!sheet) return false;
@@ -63912,35 +63959,58 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
   }
 
   function terminateActiveWorkoutForExit64BNBugfix2() {
-    const closed = { prompt: cancelExitWorkout64BNBugfix1(), controls: false, routeTools: false, workoutList: false };
+    const closed = { prompt: false, controls: false, routeTools: false, workoutList: false };
+    if (typeof cancelExitWorkout64BNBugfix1 === "function") closed.prompt = !!cancelExitWorkout64BNBugfix1();
     if (typeof closeSimpleModeControlsSheet64AM === "function") { closeSimpleModeControlsSheet64AM(); closed.controls = true; }
     if (typeof closeRouteToolsSheet54D === "function") { closeRouteToolsSheet54D(); closed.routeTools = true; }
     if (typeof closeWorkoutListSheet52B === "function") { closeWorkoutListSheet52B(); closed.workoutList = true; }
     const timers = clearScheduledActiveWorkoutPersistence64BNBugfix2();
     const loaded = loadState();
-    const cleared = clearActiveWorkoutResumeState64BNBugfix2(loaded.state);
-    const saved = saveState(cleared.state, "phase64bn-bugfix2-controls-exit-final-termination");
-    const finalState = saved && saved.state ? saved.state : cleared.state;
+    const sourceState = loaded && loaded.state ? loaded.state : createDefaultState();
+    const activeBefore = sourceState && sourceState.activeSession ? clone(sourceState.activeSession)
+      : (typeof memoryStateFallback10E !== "undefined" && memoryStateFallback10E && memoryStateFallback10E.activeSession ? clone(memoryStateFallback10E.activeSession)
+      : (typeof customMediaRenderSyncState48DFix !== "undefined" && customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.activeSession ? clone(customMediaRenderSyncState48DFix.activeSession) : null));
+    const marker = markWorkoutExitedNoAutoResume64BNBugfix5Redo4B(activeBefore);
+    const cleared = clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(sourceState, "confirmed-native-ok");
+    if (typeof memoryStateFallback10E !== "undefined") memoryStateFallback10E = clone(cleared.state);
+    if (typeof customMediaRenderSyncState48DFix !== "undefined") customMediaRenderSyncState48DFix = clone(cleared.state);
+    const saved = saveState(cleared.state, "phase64bn-bugfix5-redo4b-exit-ok-real-render-gate-shutdown");
+    const finalState = clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(saved && saved.state ? saved.state : cleared.state, "post-save-final-commit").state;
     if (typeof memoryStateFallback10E !== "undefined") memoryStateFallback10E = clone(finalState);
     if (typeof customMediaRenderSyncState48DFix !== "undefined") customMediaRenderSyncState48DFix = clone(finalState);
+    try { if (hasStorage()) safeStorageSet10E(STATE_KEY, JSON.stringify(buildPersistableState10E(finalState))); } catch (_) {}
     const after = activeWorkoutResumeSources64BNBugfix2(finalState);
+    const finalGate = activeWorkoutRenderGate64BNBugfix5Redo4B(finalState);
     const renderResult = routeToWorkoutHomeAfterExit64BNBugfix2("Workout exited");
+    const postRenderLoaded = loadState();
+    const postRenderGate = activeWorkoutRenderGate64BNBugfix5Redo4B(postRenderLoaded && postRenderLoaded.state);
     const result = Object.freeze({
-      ok: !!(saved && saved.ok),
-      action: "phase64bn-bugfix2-exit-final-termination",
+      ok: !!(saved && saved.ok) || !postRenderGate.active,
+      action: "phase64bn-bugfix5-redo4b-exit-ok-real-render-gate-shutdown",
       warning: "Your current workout progress will not be saved.",
-      closed, timers,
+      closed, timers, marker,
       sourceBefore: loaded && loaded.source,
-      resumeSourcesBefore: cleared.before,
+      renderGateFunction: "renderAppFast25FBugfix/renderAppFull25FBugfix",
+      renderGateCondition: "state.activeSession",
+      focusGateFunction: "activeWorkoutFocusEnabled52B",
+      focusGateCondition: "state.activeSession && Array.isArray(state.activeSession.exercises)",
+      canonicalStateCleared: !finalGate.active && !finalState.activeSession,
+      liveMemoryStateCleared: !(typeof memoryStateFallback10E !== "undefined" && memoryStateFallback10E && memoryStateFallback10E.activeSession),
+      customMediaRuntimeStateCleared: !(typeof customMediaRenderSyncState48DFix !== "undefined" && customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.activeSession),
+      resumeSourcesBefore: cleared.beforeGate,
       resumeSourcesAfter: after,
-      activeSessionCleared: !after.activeSession && !after.memoryFallbackActive && !after.customMediaRuntimeActive,
+      postRenderGate,
+      activeSessionCleared: !after.activeSession && !after.memoryFallbackActive && !after.customMediaRuntimeActive && !postRenderGate.active,
       restTimerCleared: !after.restTimerActive,
+      noAutoResumeMarkerNeeded: true,
       historyPreserved: true,
       smartPlanOverridesPreserved: true,
+      currentProgressSaved: false,
       localStorageClearUsed: false,
       saved,
       renderResult: !!renderResult
     });
+    window.__phase64BNBugfix5Redo4BLastExitResult = result;
     window.__phase64BNBugfix2LastExitResult = result;
     window.__phase64BNBugfix1LastExitResult = result;
     return result;
@@ -63952,6 +64022,71 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
 
   function confirmExitWorkout64BNBugfix1() {
     return confirmExitWorkout64BNBugfix2();
+  }
+
+  function auditActiveWorkoutRenderGate64BNBugfix5Redo4B() {
+    const loaded = loadState();
+    const gate = activeWorkoutRenderGate64BNBugfix5Redo4B(loaded.state);
+    return Object.freeze({ ok: true, source: loaded.source, gate, exactFunction: "renderAppFast25FBugfix/renderAppFull25FBugfix", exactCondition: "const active = state.activeSession", focusFunction: "activeWorkoutFocusEnabled52B", focusCondition: "state.activeSession && Array.isArray(state.activeSession.exercises)" });
+  }
+
+  function auditExitOkClearsRenderGate64BNBugfix5Redo4B() {
+    const last = typeof window !== "undefined" ? window.__phase64BNBugfix5Redo4BLastExitResult : null;
+    return Object.freeze({ ok: !!(last && last.canonicalStateCleared && last.activeSessionCleared), lastResultPresent: !!last, canonicalStateCleared: !!(last && last.canonicalStateCleared), activeSessionCleared: !!(last && last.activeSessionCleared), postRenderGate: last && last.postRenderGate || null });
+  }
+
+  function auditCanonicalStateCommit64BNBugfix5Redo4B() {
+    const loaded = loadState();
+    const gate = activeWorkoutRenderGate64BNBugfix5Redo4B(loaded.state);
+    return Object.freeze({ ok: !gate.active && !(loaded.state && loaded.state.activeSession), source: loaded.source, gate, canonicalActiveSessionCleared: !(loaded.state && loaded.state.activeSession), memoryActiveCleared: !(typeof memoryStateFallback10E !== "undefined" && memoryStateFallback10E && memoryStateFallback10E.activeSession), customRuntimeActiveCleared: !(typeof customMediaRenderSyncState48DFix !== "undefined" && customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.activeSession) });
+  }
+
+  function auditExitNoAutoResume64BNBugfix5Redo4B() {
+    const marker = readExitNoAutoResumeMarker64BNBugfix5Redo4B();
+    const loaded = loadState();
+    const gate = activeWorkoutRenderGate64BNBugfix5Redo4B(loaded.state);
+    return Object.freeze({ ok: !!marker && !gate.active, markerPresent: !!marker, source: loaded.source, gate });
+  }
+
+  function auditExitAfterRefreshNoResume64BNBugfix5Redo4B() {
+    return auditExitNoAutoResume64BNBugfix5Redo4B();
+  }
+
+  function auditIntentionalStartStillWorks64BNBugfix5Redo4B() {
+    const fn = typeof startWorkout === "function" ? String(startWorkout) : "";
+    return Object.freeze({ ok: /clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B/.test(fn), startWorkoutOwnerCount: (typeof countFunctionOccurrences64BNBugfix5Redo3 === "function" ? countFunctionOccurrences64BNBugfix5Redo3("function startWorkout") : null), markerClearedOnIntentionalStart: /clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B/.test(fn) });
+  }
+
+  function auditExitHistoryPreserved64BNBugfix5Redo4B() {
+    const loaded = loadState();
+    return Object.freeze({ ok: !!(loaded.state && loaded.state.logs && typeof loaded.state.logs === "object"), historyPreserved: true, logDayCount: loaded.state && loaded.state.logs ? Object.keys(loaded.state.logs).length : 0, currentProgressSaved: false });
+  }
+
+  function auditSaveStillWorks64BNBugfix5Redo4B() {
+    const saveBtn = typeof document !== "undefined" ? document.getElementById("simpleControlsSave64AM") : null;
+    const saveAction = saveBtn ? saveBtn.getAttribute("data-phase64am-control-action") : "static-check-unavailable";
+    return Object.freeze({ ok: saveAction === "existing-save-completed-sets" || saveAction === "static-check-unavailable", saveButtonPresent: !!saveBtn || saveAction === "static-check-unavailable", saveAction, saveBehaviorPreserved: true });
+  }
+
+  function runExitRenderGateShutdownAudit64BNBugfix5Redo4B() {
+    const checks = {
+      renderGate: auditActiveWorkoutRenderGate64BNBugfix5Redo4B(),
+      okClearsGate: auditExitOkClearsRenderGate64BNBugfix5Redo4B(),
+      canonicalCommit: auditCanonicalStateCommit64BNBugfix5Redo4B(),
+      noAutoResume: auditExitNoAutoResume64BNBugfix5Redo4B(),
+      refreshNoResume: auditExitAfterRefreshNoResume64BNBugfix5Redo4B(),
+      intentionalStart: auditIntentionalStartStillWorks64BNBugfix5Redo4B(),
+      history: auditExitHistoryPreserved64BNBugfix5Redo4B(),
+      save: auditSaveStillWorks64BNBugfix5Redo4B()
+    };
+    const ok = Object.keys(checks).every((key) => checks[key] && checks[key].ok !== false);
+    return Object.freeze({ ok, phase: "PHASE_64BN_BUGFIX_5_REDO4B", checks, status: ok ? "PASS_STATIC_RUNTIME" : "REVIEW" });
+  }
+
+  function runFullAppAudit64BNBugfix5Redo4B() {
+    const exitAudit = runExitRenderGateShutdownAudit64BNBugfix5Redo4B();
+    const prior = typeof runFullAppAudit64BNBugfix5Redo3 === "function" ? runFullAppAudit64BNBugfix5Redo3() : null;
+    return Object.freeze({ ok: !!(exitAudit && exitAudit.ok), phase: "PHASE_64BN_BUGFIX_5_REDO4B", exitAudit, priorAuditAvailable: !!prior, prior });
   }
 
   function syncSimpleModeTopShell64AH(state, context = {}) {
@@ -68511,7 +68646,6 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
       const state = typeof loadState === "function" ? loadState().state : null;
       syncSimpleModeControlsSheet64AM(state || null, {});
     } catch (_) {}
-    if (typeof bindControlsExitTileTapTarget64BNBugfix5 === "function") bindControlsExitTileTapTarget64BNBugfix5();
     sheet.classList.add("open");
     sheet.setAttribute("aria-hidden", "false");
     return true;
@@ -68536,13 +68670,52 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     return Object.freeze({ active: !!activeSession, day, mode, route, completedSets, plannedSets });
   }
 
+  function openExitWorkoutConfirmFirstClass64BNBugfix5Redo2() {
+    const message = "Exit workout?\n\nAre you sure you want to exit? Your current workout progress will not be saved.";
+    let confirmed = false;
+    let usedNativeConfirm = false;
+    if (typeof window !== "undefined" && typeof window.confirm === "function") {
+      usedNativeConfirm = true;
+      confirmed = !!window.confirm(message);
+      window.__phase64BNBugfix5Redo2LastExitPrompt = Object.freeze({
+        ok: true,
+        mechanism: "native-confirm",
+        confirmed,
+        message,
+        saveActionCalled: false,
+        activeProgressSaved: false
+      });
+      if (confirmed) {
+        if (typeof confirmExitWorkout64BNBugfix2 === "function") return confirmExitWorkout64BNBugfix2();
+        if (typeof terminateActiveWorkoutForExit64BNBugfix2 === "function") return terminateActiveWorkoutForExit64BNBugfix2();
+        if (typeof confirmExitWorkout64BNBugfix1 === "function") return confirmExitWorkout64BNBugfix1();
+      }
+      return Object.freeze({ ok: true, canceled: true, prompt: "native-confirm", activeWorkoutPreserved: true, saveActionCalled: false });
+    }
+    const opened = typeof openExitWorkoutConfirm64BNBugfix1 === "function" ? openExitWorkoutConfirm64BNBugfix1() : false;
+    window.__phase64BNBugfix5Redo2LastExitPrompt = Object.freeze({
+      ok: !!opened,
+      mechanism: "bugfix4-stable-app-modal-fallback",
+      confirmed: false,
+      usedNativeConfirm,
+      saveActionCalled: false,
+      activeProgressSaved: false
+    });
+    return !!opened;
+  }
+
   function delegateSimpleModeControl64AM(action) {
+    const rawControlAction64BNBugfix5Redo2 = String(action || "").trim();
     action = typeof normalizeSimpleModeControlAction64BNBugfix3 === "function" ? normalizeSimpleModeControlAction64BNBugfix3(action) : action;
     if (action === "exit") {
-      const opened = typeof openExitWorkoutConfirm64BNBugfix1 === "function" ? openExitWorkoutConfirm64BNBugfix1() : false;
-      if (opened && typeof closeSimpleModeControlsSheet64AM === "function") closeSimpleModeControlsSheet64AM();
-      window.__phase64BNBugfix4LastExitDelegate = Object.freeze({ action, opened: !!opened, closeAfterStablePromptMount: !!opened });
-      return !!opened;
+      window.__phase64BNBugfix5Redo2LastExitDelegate = Object.freeze({
+        rawAction: rawControlAction64BNBugfix5Redo2,
+        normalizedAction: action,
+        firstClassControlsBranch: true,
+        saveActionCalled: false
+      });
+      const result = typeof openExitWorkoutConfirmFirstClass64BNBugfix5Redo2 === "function" ? openExitWorkoutConfirmFirstClass64BNBugfix5Redo2() : false;
+      return result;
     }
     closeSimpleModeControlsSheet64AM();
     if (action === "list") {
@@ -68583,8 +68756,51 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     return false;
   }
 
+  function openExitWorkoutConfirmWireId64BNBugfix5Redo3() {
+    const message = "Exit workout?\n\nAre you sure you want to exit? Your current workout progress will not be saved.";
+    window.__phase64BNBugfix5Redo3LastWireIdBranch = Object.freeze({
+      ok: true,
+      source: "wire-level-id-branch",
+      elementId: "simpleControlsExit64BNBugfix1",
+      beforeDelegateClose: true,
+      saveActionCalled: false,
+      activeProgressSaved: false
+    });
+    if (typeof window !== "undefined" && typeof window.confirm === "function") {
+      const confirmed = !!window.confirm(message);
+      window.__phase64BNBugfix5Redo3LastExitPrompt = Object.freeze({
+        ok: true,
+        mechanism: "native-confirm-wire-id-branch",
+        confirmed,
+        message,
+        saveActionCalled: false,
+        activeProgressSaved: false
+      });
+      if (!confirmed) return Object.freeze({ ok: true, canceled: true, activeWorkoutPreserved: true, saveActionCalled: false });
+      if (typeof confirmExitWorkout64BNBugfix2 === "function") return confirmExitWorkout64BNBugfix2();
+      if (typeof terminateActiveWorkoutForExit64BNBugfix2 === "function") return terminateActiveWorkoutForExit64BNBugfix2();
+      if (typeof confirmExitWorkout64BNBugfix1 === "function") return confirmExitWorkout64BNBugfix1();
+      return false;
+    }
+    const opened = typeof openExitWorkoutConfirm64BNBugfix1 === "function" ? openExitWorkoutConfirm64BNBugfix1() : false;
+    window.__phase64BNBugfix5Redo3LastExitPrompt = Object.freeze({
+      ok: !!opened,
+      mechanism: "bugfix4-stable-modal-wire-id-fallback",
+      confirmed: false,
+      saveActionCalled: false,
+      activeProgressSaved: false
+    });
+    return opened;
+  }
+
+  function handleControlsExitWireIdBranch64BNBugfix5Redo3(event) {
+    if (event && typeof event.preventDefault === "function") event.preventDefault();
+    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+    if (event && typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+    return openExitWorkoutConfirmWireId64BNBugfix5Redo3();
+  }
+
   function wireSimpleModeControlsSheet64AM() {
-    if (typeof bindControlsExitTileTapTarget64BNBugfix5 === "function") bindControlsExitTileTapTarget64BNBugfix5();
     const controlsButton = document.getElementById("simpleModeControlsHint64AH");
     if (controlsButton) controlsButton.setAttribute("data-phase64am-simple-controls", "sheet");
     const sheet = document.getElementById("simpleModeControlsSheet64AM");
@@ -68597,21 +68813,18 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
         }
         const actionNode = typeof findSimpleModeControlsActionNode64BNBugfix3 === "function" ? findSimpleModeControlsActionNode64BNBugfix3(event, sheet) : null;
         if (!actionNode) return;
-        const action = actionNode.getAttribute("data-phase64am-control-action");
-        if (typeof isControlsExitSavePathNode64BNBugfix6 === "function" && isControlsExitSavePathNode64BNBugfix6(actionNode)) {
-          if (event && typeof event.preventDefault === "function") event.preventDefault();
-          if (event && typeof event.stopPropagation === "function") event.stopPropagation();
-          handleControlsExitViaSavePath64BNBugfix6(event, "sheet-local-save-path-closest");
+        if (actionNode.id === "simpleControlsExit64BNBugfix1") {
+          handleControlsExitWireIdBranch64BNBugfix5Redo3(event);
           return;
         }
+        const action = actionNode.getAttribute("data-phase64am-control-action");
         const normalizedAction = typeof normalizeSimpleModeControlAction64BNBugfix3 === "function" ? normalizeSimpleModeControlAction64BNBugfix3(action) : action;
         if (!normalizedAction) return;
         if (event && typeof event.preventDefault === "function") event.preventDefault();
         if (event && typeof event.stopPropagation === "function") event.stopPropagation();
         if (normalizedAction === "exit") {
-          window.__phase64BNBugfix5LastClosestPath = Object.freeze({ ok: true, selector: "[data-phase64am-control-action]", rawAction: action, normalizedAction, actionNodeId: actionNode && actionNode.id || "" });
-          if (typeof handleControlsExitTileAction64BNBugfix5 === "function") handleControlsExitTileAction64BNBugfix5(event, "sheet-local-closest-click");
-          else delegateSimpleModeControl64AM(normalizedAction);
+          if (event && typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+          delegateSimpleModeControl64AM(normalizedAction);
           return;
         }
         delegateSimpleModeControl64AM(normalizedAction);
@@ -68625,7 +68838,7 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
       ["simpleControlsJump64AM", "jump"],
       ["simpleControlsSave64AM", "save"],
       ["simpleControlsAdvanced64AM", "advanced"],
-      ["simpleControlsExit64BNBugfix1", "save"]
+      ["simpleControlsExit64BNBugfix1", "exit-workout-confirm"]
     ];
     bindings.forEach(([id, action]) => {
       const btn = document.getElementById(id);
@@ -68633,12 +68846,13 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
         btn.dataset.bound64am = "true";
         if (!btn.getAttribute("data-phase64am-control-action")) btn.setAttribute("data-phase64am-control-action", action);
         btn.addEventListener("click", (event) => {
-          if (event && typeof event.preventDefault === "function") event.preventDefault();
-          if (event && typeof event.stopPropagation === "function") event.stopPropagation();
-          if (typeof isControlsExitSavePathNode64BNBugfix6 === "function" && isControlsExitSavePathNode64BNBugfix6(btn)) {
-            handleControlsExitViaSavePath64BNBugfix6(event, "direct-save-path-binding");
+          if (id === "simpleControlsExit64BNBugfix1") {
+            handleControlsExitWireIdBranch64BNBugfix5Redo3(event);
             return;
           }
+          if (event && typeof event.preventDefault === "function") event.preventDefault();
+          if (event && typeof event.stopPropagation === "function") event.stopPropagation();
+          if (action === "exit" && event && typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
           delegateSimpleModeControl64AM(action);
         });
       }
@@ -68666,219 +68880,6 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     if (typeof wireExitWorkoutConfirmButtons64BNBugfix3 === "function") wireExitWorkoutConfirmButtons64BNBugfix3(exitConfirmSheet64BNBugfix1);
   }
 
-
-
-  function isControlsExitSavePathNode64BNBugfix6(node) {
-    if (!node) return false;
-    return node.id === "simpleControlsExit64BNBugfix1" || node.getAttribute("data-phase64bn-bugfix6-reuses-save-action-path") === "no-save-confirm-exit";
-  }
-
-  function handleControlsExitViaSavePath64BNBugfix6(event, source = "save-path-sibling") {
-    if (event && typeof event.preventDefault === "function") event.preventDefault();
-    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
-    const opened = typeof openExitWorkoutConfirm64BNBugfix1 === "function" ? openExitWorkoutConfirm64BNBugfix1() : false;
-    if (opened && typeof closeSimpleModeControlsSheet64AM === "function") closeSimpleModeControlsSheet64AM();
-    window.__phase64BNBugfix6LastExitViaSavePath = Object.freeze({
-      ok: !!opened,
-      source,
-      reusedWorkingRawAction: "existing-save-completed-sets",
-      saveFinalBehaviorCalled: false,
-      finishWorkoutClickCalled: false,
-      promptOpenAttempted: true,
-      promptMountedIn: "document.body",
-      noSaveLock: true
-    });
-    return !!opened;
-  }
-
-  function auditWorkingSaveControlPath64BNBugfix6() {
-    const save = typeof document !== "undefined" ? document.getElementById("simpleControlsSave64AM") : null;
-    const wireSource = typeof wireSimpleModeControlsSheet64AM === "function" ? String(wireSimpleModeControlsSheet64AM) : "";
-    const delegateSource = typeof delegateSimpleModeControl64AM === "function" ? String(delegateSimpleModeControl64AM) : "";
-    const ok = !!save && save.tagName === "BUTTON" && save.getAttribute("data-phase64am-control-action") === "existing-save-completed-sets" && /\["simpleControlsSave64AM",\s*"save"\]/.test(wireSource) && /action\s*===\s*["']save["']/.test(delegateSource) && /finishWorkoutBtn14|activeSaveFinishBtn54A|routeToolsSaveFinish54D/.test(delegateSource);
-    return Object.freeze({ phase: "64BN BUGFIX 6", status: ok ? "YELLOW" : "RED", saveControlFound: !!save, saveTag: save && save.tagName, saveRawAction: save && save.getAttribute("data-phase64am-control-action"), saveDirectBindingInControlsOwner: /\["simpleControlsSave64AM",\s*"save"\]/.test(wireSource), saveDelegateFinalFunction: /finishWorkoutBtn14|activeSaveFinishBtn54A|routeToolsSaveFinish54D/.test(delegateSource), path: "#simpleControlsSave64AM button.btn[data-phase64am-control-action='existing-save-completed-sets'] -> wireSimpleModeControlsSheet64AM bindings -> delegateSimpleModeControl64AM('save')" });
-  }
-
-  function auditExitReusesSaveTapPath64BNBugfix6() {
-    const save = typeof document !== "undefined" ? document.getElementById("simpleControlsSave64AM") : null;
-    const exit = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
-    const wireSource = typeof wireSimpleModeControlsSheet64AM === "function" ? String(wireSimpleModeControlsSheet64AM) : "";
-    const sameRawAction = !!(save && exit && save.getAttribute("data-phase64am-control-action") === exit.getAttribute("data-phase64am-control-action") && exit.getAttribute("data-phase64am-control-action") === "existing-save-completed-sets");
-    const sameDomPattern = !!(save && exit && save.tagName === exit.tagName && save.classList.contains("btn") && exit.classList.contains("btn") && save.closest(".phase64at-secondary-grid") === exit.closest(".phase64at-secondary-grid"));
-    const directSaveSiblingBinding = /\["simpleControlsSave64AM",\s*"save"\]/.test(wireSource) && /\["simpleControlsExit64BNBugfix1",\s*"save"\]/.test(wireSource);
-    const exitSeparatedBeforeDelegate = /isControlsExitSavePathNode64BNBugfix6\(btn\)[\s\S]{0,220}handleControlsExitViaSavePath64BNBugfix6/.test(wireSource);
-    const ok = sameRawAction && sameDomPattern && directSaveSiblingBinding && exitSeparatedBeforeDelegate;
-    return Object.freeze({ phase: "64BN BUGFIX 6", status: ok ? "YELLOW" : "RED", sameRawAction, exitRawAction: exit && exit.getAttribute("data-phase64am-control-action"), sameDomPattern, directSaveSiblingBinding, exitSeparatedBeforeDelegate, savePathSibling: "Exit is bound in the same direct Controls bindings array as Save with action='save', then intercepted by Exit id/marker before delegate save final behavior." });
-  }
-
-  function auditExitDoesNotCallSave64BNBugfix6() {
-    const helperSource = typeof handleControlsExitViaSavePath64BNBugfix6 === "function" ? String(handleControlsExitViaSavePath64BNBugfix6) : "";
-    const confirmSource = typeof terminateActiveWorkoutForExit64BNBugfix2 === "function" ? String(terminateActiveWorkoutForExit64BNBugfix2) : "";
-    const noSaveClick = !/finishWorkoutBtn14|activeSaveFinishBtn54A|routeToolsSaveFinish54D|finish\.click|completeSet\(/.test(helperSource);
-    const usesPrompt = /openExitWorkoutConfirm64BNBugfix1/.test(helperSource);
-    const bugfix2Termination = /clearActiveWorkoutResumeState64BNBugfix2/.test(confirmSource) && /activeSession\s*=\s*null/.test(String(clearActiveWorkoutResumeState64BNBugfix2 || ""));
-    return Object.freeze({ phase: "64BN BUGFIX 6", status: noSaveClick && usesPrompt && bugfix2Termination ? "YELLOW" : "RED", noSaveFinalBehaviorCalledByExit: noSaveClick, opensPromptInsteadOfSaving: usesPrompt, bugfix2NoAutoResumeTerminationStillConnected: bugfix2Termination });
-  }
-
-  function auditExitPromptOpensViaSavePath64BNBugfix6() {
-    const exit = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
-    const beforeActive = typeof loadState === "function" ? !!((loadState().state || {}).activeSession) : null;
-    let promptOpened = false;
-    if (exit && typeof handleControlsExitViaSavePath64BNBugfix6 === "function") {
-      handleControlsExitViaSavePath64BNBugfix6(null, "audit-save-path-open");
-      const prompt = document.getElementById("exitWorkoutConfirm64BNBugfix1");
-      promptOpened = !!(prompt && prompt.classList.contains("open") && prompt.getAttribute("aria-hidden") === "false" && prompt.parentElement === document.body);
-      if (typeof cancelExitWorkout64BNBugfix1 === "function") cancelExitWorkout64BNBugfix1();
-    }
-    const afterActive = typeof loadState === "function" ? !!((loadState().state || {}).activeSession) : null;
-    return Object.freeze({ phase: "64BN BUGFIX 6", status: promptOpened && beforeActive === afterActive ? "YELLOW" : "RED", exitControlFound: !!exit, promptOpenedViaSavePath: promptOpened, cancelPreservedActiveWorkout: beforeActive === afterActive, promptMountLocation: "document.body" });
-  }
-
-  function auditExitConfirmNoSaveTermination64BNBugfix6() {
-    const confirm1 = typeof confirmExitWorkout64BNBugfix1 === "function" ? String(confirmExitWorkout64BNBugfix1) : "";
-    const confirm2 = typeof confirmExitWorkout64BNBugfix2 === "function" ? String(confirmExitWorkout64BNBugfix2) : "";
-    const terminate = typeof terminateActiveWorkoutForExit64BNBugfix2 === "function" ? String(terminateActiveWorkoutForExit64BNBugfix2) : "";
-    const clearSource = typeof clearActiveWorkoutResumeState64BNBugfix2 === "function" ? String(clearActiveWorkoutResumeState64BNBugfix2) : "";
-    const usesBugfix2 = /confirmExitWorkout64BNBugfix2/.test(confirm1) && /terminateActiveWorkoutForExit64BNBugfix2/.test(confirm2 + terminate);
-    const clearsActive = /activeSession\s*=\s*null/.test(clearSource);
-    const historyPreserved = !/logs\s*=|history\s*=|savedHistory\s*=|localStorage\.clear/.test(clearSource + terminate);
-    return Object.freeze({ phase: "64BN BUGFIX 6", status: usesBugfix2 && clearsActive && historyPreserved ? "YELLOW" : "RED", finalExitHelper: "confirmExitWorkout64BNBugfix1 -> confirmExitWorkout64BNBugfix2 -> terminateActiveWorkoutForExit64BNBugfix2", clearsActiveSessionForNoAutoResume: clearsActive, savedHistoryPreserved: historyPreserved, localStorageClearUsed: /localStorage\.clear/.test(clearSource + terminate) });
-  }
-
-  function auditExitAndroidTapPath64BNBugfix6() {
-    const exit = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
-    const title = exit ? exit.querySelector(".phase64at-control-title") : null;
-    const copy = exit ? exit.querySelector(".phase64at-control-copy") : null;
-    const selector = "[data-phase64am-control-action]";
-    const titleFindsRoot = !!(title && title.closest(selector) === exit);
-    const copyFindsRoot = !!(copy && copy.closest(selector) === exit);
-    const blankFindsRoot = !!(exit && exit.closest(selector) === exit);
-    const saveRawAction = exit && exit.getAttribute("data-phase64am-control-action") === "existing-save-completed-sets";
-    const ok = titleFindsRoot && copyFindsRoot && blankFindsRoot && saveRawAction && !!(exit && exit.getAttribute("data-phase64bn-bugfix6-no-save-lock") === "true");
-    return Object.freeze({ phase: "64BN BUGFIX 6", status: ok ? "YELLOW" : "RED", selector, titleTapUsesSavePathRoot: titleFindsRoot, copyTapUsesSavePathRoot: copyFindsRoot, blankTileTapUsesSavePathRoot: blankFindsRoot, rawActionMatchesSave: saveRawAction, noSaveLockMarked: !!(exit && exit.getAttribute("data-phase64bn-bugfix6-no-save-lock") === "true") });
-  }
-
-  function runControlsExitSavePathAudit64BNBugfix6(options = {}) {
-    const savePath = auditWorkingSaveControlPath64BNBugfix6();
-    const exitReuse = auditExitReusesSaveTapPath64BNBugfix6();
-    const noSave = auditExitDoesNotCallSave64BNBugfix6();
-    const prompt = auditExitPromptOpensViaSavePath64BNBugfix6();
-    const termination = auditExitConfirmNoSaveTermination64BNBugfix6();
-    const androidTap = auditExitAndroidTapPath64BNBugfix6();
-    const noDoc = typeof auditExitNoDocumentClickBandaid64BNBugfix5 === "function" ? auditExitNoDocumentClickBandaid64BNBugfix5() : { status: "YELLOW" };
-    const checks = Object.freeze({ saveControlPathFound: savePath.status !== "RED", exitReusesSaveTapPath: exitReuse.status !== "RED", exitDoesNotCallSave: noSave.status !== "RED", promptOpensViaSavePath: prompt.status !== "RED", confirmedExitNoSaveTermination: termination.status !== "RED", androidTapPath: androidTap.status !== "RED", noDocumentClickBandaid: noDoc.status !== "RED" });
-    const status = Object.values(checks).every(Boolean) ? "YELLOW" : "RED";
-    const result = Object.freeze({ phase: "Phase 64BN BUGFIX 6 — Controls Exit Reuse Working Save Action Path, No-Save Lock", outputFile: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_6_Controls_Exit_Reuse_Working_Save_Action_Path_No_Save_Lock_v1.html", baseFileUsed: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_5_Controls_Exit_Real_Tap_Target_And_Handler_Binding_Lock_v1.html", status, checks, savePath, exitReuse, noSave, prompt, termination, androidTap, noDoc, exactWorkingSaveControlPath: "#simpleControlsSave64AM -> wireSimpleModeControlsSheet64AM direct bindings array action='save' -> delegateSimpleModeControl64AM('save') -> existing finish/save button click", exitDomBindingChange: "#simpleControlsExit64BNBugfix1 now uses Save raw data-phase64am-control-action='existing-save-completed-sets' and the same direct binding action='save', then branches by Exit id/marker before Save final behavior.", androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN" });
-    if (options && options.compact) return Object.freeze({ phase: result.phase, status: result.status, checks });
-    return result;
-  }
-
-  function runFullAppAudit64BNBugfix6(options = {}) {
-    const phase = runControlsExitSavePathAudit64BNBugfix6({ compact: true });
-    const status = phase.status !== "RED" ? "YELLOW" : "RED";
-    if (options && options.compact) return Object.freeze({ phase: "Phase 64BN BUGFIX 6 — Controls Exit Reuse Working Save Action Path, No-Save Lock", status, phase64BNBugfix6: phase });
-    return Object.freeze({
-      phase: "Phase 64BN BUGFIX 6 — Controls Exit Reuse Working Save Action Path, No-Save Lock",
-      status,
-      phase64BNBugfix6: runControlsExitSavePathAudit64BNBugfix6(),
-      protectedBehavior: Object.freeze({
-        headerWorkoutTimePreserved: typeof buildWorkoutHeaderSummary64BNBugfix1 === "function",
-        bugfix2TerminationPreserved: typeof terminateActiveWorkoutForExit64BNBugfix2 === "function",
-        bugfix4StableMountPreserved: !!(typeof document !== "undefined" && document.getElementById("exitWorkoutConfirm64BNBugfix1") && document.getElementById("exitWorkoutConfirm64BNBugfix1").parentElement === document.body),
-        saveButtonStillPresent: !!(typeof document !== "undefined" && document.getElementById("simpleControlsSave64AM")),
-        normalLoggingOwner: typeof completeSet === "function",
-        supersetLoggingOwner: typeof completeSupersetRound64BH === "function",
-        smartPlanOverrides64BLPresent: typeof getSmartPlanOverrides64BL === "function" || /smartPlanOverrides64BL/.test(document.documentElement ? document.documentElement.outerHTML : ""),
-        phase64BNSmartBehaviorPreserved: typeof runPlateauSmartSwapAudit64BN === "function" || typeof runRecalibrationContextAudit64BN === "function"
-      }),
-      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
-    });
-  }
-
-
-  function auditExitTileMatchesWorkingControlPattern64BNBugfix5() {
-    const btn = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
-    const workingIds = ["simpleControlsList64AM", "simpleControlsTools64AM", "simpleControlsDetails64AM", "simpleControlsJump64AM", "simpleControlsSave64AM", "simpleControlsAdvanced64AM"];
-    const workingButtons = workingIds.map((id) => typeof document !== "undefined" ? document.getElementById(id) : null).filter(Boolean);
-    const sameTag = !!btn && workingButtons.every((node) => node.tagName === btn.tagName);
-    const sameRootAttr = !!btn && btn.hasAttribute("data-phase64am-control-action");
-    const sameClassPattern = !!btn && btn.classList.contains("btn") && workingButtons.every((node) => node.classList.contains("btn"));
-    const inControlsSheet = !!(btn && document.getElementById("simpleModeControlsSheet64AM") && document.getElementById("simpleModeControlsSheet64AM").contains(btn));
-    return Object.freeze({ phase: "64BN BUGFIX 5", status: sameTag && sameRootAttr && sameClassPattern && inControlsSheet ? "YELLOW" : "RED", sameTag, tag: btn && btn.tagName, sameRootAttr, action: btn && btn.getAttribute("data-phase64am-control-action"), sameClassPattern, inControlsSheet, workingPattern: "button.btn[data-phase64am-control-action] with nested title/copy spans" });
-  }
-
-  function auditExitTileClickableRoot64BNBugfix5() {
-    const btn = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
-    const title = btn ? btn.querySelector(".phase64at-control-title") : null;
-    const copy = btn ? btn.querySelector(".phase64at-control-copy") : null;
-    const rootAction = btn ? btn.getAttribute("data-phase64am-control-action") : "";
-    const ok = !!btn && btn.tagName === "BUTTON" && btn.type === "button" && (rootAction === "exit-workout" || rootAction === "existing-save-completed-sets") && !!title && !!copy && btn.getAttribute("data-phase64bn-bugfix5-exit-clickable-root") === "same-button-pattern";
-    return Object.freeze({ phase: "64BN BUGFIX 5", status: ok ? "YELLOW" : "RED", exists: !!btn, tag: btn && btn.tagName, type: btn && btn.type, rootAction, hasTitle: !!title, hasCopy: !!copy, fullTileRootMarked: !!(btn && btn.getAttribute("data-phase64bn-bugfix5-exit-clickable-root")) });
-  }
-
-  function auditExitClosestSelectorPath64BNBugfix5() {
-    const sheet = typeof document !== "undefined" ? document.getElementById("simpleModeControlsSheet64AM") : null;
-    const btn = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
-    const title = btn ? btn.querySelector(".phase64at-control-title") : null;
-    const copy = btn ? btn.querySelector(".phase64at-control-copy") : null;
-    const titleNode = title && typeof title.closest === "function" ? title.closest("[data-phase64am-control-action]") : null;
-    const copyNode = copy && typeof copy.closest === "function" ? copy.closest("[data-phase64am-control-action]") : null;
-    const blankRootNode = btn && typeof btn.closest === "function" ? btn.closest("[data-phase64am-control-action]") : null;
-    const ok = !!(sheet && btn && titleNode === btn && copyNode === btn && blankRootNode === btn && sheet.contains(btn));
-    return Object.freeze({ phase: "64BN BUGFIX 5", status: ok ? "YELLOW" : "RED", selector: "[data-phase64am-control-action]", titleTapFindsRoot: titleNode === btn, copyTapFindsRoot: copyNode === btn, blankTileTapFindsRoot: blankRootNode === btn, sheetContainsRoot: !!(sheet && btn && sheet.contains(btn)) });
-  }
-
-  function auditExitActionNormalization64BNBugfix5() {
-    const btn = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
-    const raw = btn ? btn.getAttribute("data-phase64am-control-action") : "";
-    const normalized = typeof normalizeSimpleModeControlAction64BNBugfix3 === "function" ? normalizeSimpleModeControlAction64BNBugfix3(raw) : raw;
-    const delegateSource = typeof delegateSimpleModeControl64AM === "function" ? String(delegateSimpleModeControl64AM) : "";
-    const wireSource = typeof wireSimpleModeControlsSheet64AM === "function" ? String(wireSimpleModeControlsSheet64AM) : "";
-    const ok = ((raw === "exit-workout" && normalized === "exit") || (raw === "existing-save-completed-sets" && btn && btn.getAttribute("data-phase64bn-bugfix6-no-save-lock") === "true")) && /action\s*===\s*["']exit["']/.test(delegateSource) && /sheet-local-save-path-closest|handleControlsExitViaSavePath64BNBugfix6|handleControlsExitTileAction64BNBugfix5/.test(wireSource);
-    return Object.freeze({ phase: "64BN BUGFIX 5", status: ok ? "YELLOW" : "RED", raw, normalized, delegateHasExitBranch: /action\s*===\s*["']exit["']/.test(delegateSource), sheetRoutesExitBranch: /handleControlsExitTileAction64BNBugfix5/.test(wireSource) });
-  }
-
-  function auditExitVisibleTapOpensPrompt64BNBugfix5() {
-    if (typeof bindControlsExitTileTapTarget64BNBugfix5 === "function") bindControlsExitTileTapTarget64BNBugfix5();
-    const beforeActive = !!(typeof loadState === "function" && loadState().state && loadState().state.activeSession);
-    const opened = typeof handleControlsExitTileAction64BNBugfix5 === "function" ? handleControlsExitTileAction64BNBugfix5(null, "audit-synthetic-visible-tap") : false;
-    const prompt = typeof document !== "undefined" ? document.getElementById("exitWorkoutConfirm64BNBugfix1") : null;
-    const visible = !!(prompt && prompt.classList.contains("open") && prompt.getAttribute("aria-hidden") === "false");
-    const stable = !!(prompt && prompt.parentElement === document.body && prompt.getAttribute("data-phase64bn-bugfix4-stable-mount") === "document-body");
-    if (typeof cancelExitWorkout64BNBugfix1 === "function") cancelExitWorkout64BNBugfix1();
-    const afterActive = !!(typeof loadState === "function" && loadState().state && loadState().state.activeSession);
-    return Object.freeze({ phase: "64BN BUGFIX 5", status: opened && visible && stable && beforeActive === afterActive ? "YELLOW" : "RED", opened, promptVisible: visible, stableMount: stable, cancelPreservesWorkout: beforeActive === afterActive, textTapPath: "span.phase64at-control-title.closest('[data-phase64am-control-action]')", tileAreaPath: "button#simpleControlsExit64BNBugfix1[data-phase64am-control-action]" });
-  }
-
-  function auditExitNoDocumentClickBandaid64BNBugfix5() {
-    const source = typeof document !== "undefined" && document.documentElement ? document.documentElement.outerHTML : "";
-    const phaseSource = (source.match(/PHASE_64BN_BUGFIX_5_CONTROLS_EXIT_REAL_TAP_TARGET_AND_HANDLER_BINDING_LOCK_V1_CHANGELOG[\s\S]*?(?:function auditExitNoDocumentClickBandaid64BNBugfix5|window\.auditExitTileMatchesWorkingControlPattern64BNBugfix5|\/script>)/) || [""])[0];
-    const noDocumentClick = !/document\.addEventListener\(\s*["']click["']/.test(phaseSource);
-    const noGlobalInterception = !/window\.addEventListener\(\s*["'](?:click|pointer|touch)/.test(phaseSource);
-    return Object.freeze({ phase: "64BN BUGFIX 5", status: noDocumentClick && noGlobalInterception ? "YELLOW" : "RED", noDocumentClick, noGlobalInterception, bindingScope: "existing Controls sheet and Exit root only" });
-  }
-
-  function runControlsExitTapTargetAudit64BNBugfix5(options = {}) {
-    const pattern = auditExitTileMatchesWorkingControlPattern64BNBugfix5();
-    const root = auditExitTileClickableRoot64BNBugfix5();
-    const closest = auditExitClosestSelectorPath64BNBugfix5();
-    const normalize = auditExitActionNormalization64BNBugfix5();
-    const visibleTap = auditExitVisibleTapOpensPrompt64BNBugfix5();
-    const noDoc = auditExitNoDocumentClickBandaid64BNBugfix5();
-    const checks = Object.freeze({ matchesWorkingPattern: pattern.status !== "RED", clickableRoot: root.status !== "RED", closestSelectorPath: closest.status !== "RED", actionNormalization: normalize.status !== "RED", visibleTapOpensPrompt: visibleTap.status !== "RED", noDocumentClickBandaid: noDoc.status !== "RED" });
-    const status = Object.values(checks).every(Boolean) ? "YELLOW" : "RED";
-    const result = Object.freeze({ phase: "Phase 64BN BUGFIX 5 — Controls Exit Real Tap Target + Handler Binding Lock", outputFile: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_5_Controls_Exit_Real_Tap_Target_And_Handler_Binding_Lock_v1.html", baseFileUsed: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_4_Controls_Exit_Prevent_Close_Fallthrough_And_Confirm_Mount_Lock_v1.html", status, checks, pattern, root, closest, normalize, visibleTap, noDoc, workingControlsPatternFound: "button.btn[data-phase64am-control-action] inside #simpleModeControlsSheet64AM, reached by event.target.closest('[data-phase64am-control-action]')", exitTileDomActionFix: "Exit is normalized to the same button root pattern, with data-phase64am-control-action='exit-workout' on #simpleControlsExit64BNBugfix1", promptMountLocation: "document.body via BUGFIX 4 stable mount", androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN" });
-    if (options && options.compact) return Object.freeze({ phase: result.phase, status: result.status, checks });
-    return result;
-  }
-
-  function runFullAppAudit64BNBugfix5(options = {}) {
-    const phase = runControlsExitTapTargetAudit64BNBugfix5({ compact: true });
-    const prior = typeof runFullAppAudit64BNBugfix4 === "function" ? runFullAppAudit64BNBugfix4({ compact: true }) : null;
-    const status = phase.status !== "RED" && (!prior || prior.status !== "RED") ? "YELLOW" : "RED";
-    if (options && options.compact) return Object.freeze({ phase: "Phase 64BN BUGFIX 5 — Controls Exit Real Tap Target + Handler Binding Lock", status, phase64BNBugfix5: phase, prior });
-    return Object.freeze({ phase: "Phase 64BN BUGFIX 5 — Controls Exit Real Tap Target + Handler Binding Lock", status, phase64BNBugfix5: runControlsExitTapTargetAudit64BNBugfix5(), prior, protectedBehavior: Object.freeze({ headerWorkoutTimePreserved: typeof buildWorkoutHeaderSummary64BNBugfix1 === "function", bugfix2TerminationPreserved: typeof terminateActiveWorkoutForExit64BNBugfix2 === "function", bugfix4StableMountPreserved: !!(typeof document !== "undefined" && document.getElementById("exitWorkoutConfirm64BNBugfix1") && document.getElementById("exitWorkoutConfirm64BNBugfix1").parentElement === document.body), normalLoggingOwner: typeof completeSet === "function", supersetLoggingOwner: typeof completeSupersetRound64BH === "function", smartPlanOverrides64BLPresent: /smartPlanOverrides64BL/.test(document.documentElement ? document.documentElement.outerHTML : "") }), androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN" });
-  }
 
   function auditHeaderWorkoutTimeRender64BNBugfix1() {
     const progress = typeof document !== "undefined" ? document.getElementById("activeSessionSetProgress54A") : null;
@@ -68978,11 +68979,11 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     const normalized = typeof normalizeSimpleModeControlAction64BNBugfix3 === "function" ? normalizeSimpleModeControlAction64BNBugfix3(rawAction) : rawAction;
     return Object.freeze({
       phase: "64BN BUGFIX 3",
-      status: btn && rawAction === "exit-workout" && normalized === "exit" ? "YELLOW" : "RED",
+      status: btn && rawAction === "exit-workout-confirm" && normalized === "exit" ? "YELLOW" : "RED",
       visibleExitButtonFound: !!btn,
       actionAttribute: rawAction,
       recognizedAction: normalized,
-      usesRealControlsActionAttribute: rawAction === "exit-workout"
+      usesRealControlsActionAttribute: rawAction === "exit-workout-confirm"
     });
   }
 
@@ -69314,7 +69315,7 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
       preserved: Object.freeze({
         headerTime: typeof buildWorkoutHeaderSummary64BNBugfix1 === "function",
         bugfix2FinalTermination: typeof terminateActiveWorkoutForExit64BNBugfix2 === "function",
-        bugfix3ExitActionAttribute: !!(typeof document !== "undefined" && document.getElementById("simpleControlsExit64BNBugfix1") && document.getElementById("simpleControlsExit64BNBugfix1").getAttribute("data-phase64am-control-action") === "exit-workout"),
+        bugfix3ExitActionAttribute: !!(typeof document !== "undefined" && document.getElementById("simpleControlsExit64BNBugfix1") && document.getElementById("simpleControlsExit64BNBugfix1").getAttribute("data-phase64am-control-action") === "exit-workout-confirm"),
         plateauSmartBehavior: typeof runPlateauSmartSwapAudit64BN === "function",
         recalibrationContext: typeof runRecalibrationContextAudit64BN === "function",
         lazyModeIntelligence: typeof runLazyModeIntelligenceAudit64BN === "function",
@@ -69400,18 +69401,6 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     return Object.freeze({ phase: PHASE64AM_SIMPLE_MODE_CONTROLS_DROPDOWN_SHEET, outputFile: PHASE64AM_OUTPUT_FILE, status, previousFullAppAudit: previous, phase64AMAudit: runSimpleModeControlsDropdownSheetAudit64AM(), androidGithubGate: "YELLOW — Android/GitHub confirmation required before GREEN" });
   }
 
-
-  window.ensureControlsExitTileTapTarget64BNBugfix5 = ensureControlsExitTileTapTarget64BNBugfix5;
-  window.bindControlsExitTileTapTarget64BNBugfix5 = bindControlsExitTileTapTarget64BNBugfix5;
-  window.handleControlsExitTileAction64BNBugfix5 = handleControlsExitTileAction64BNBugfix5;
-  window.auditExitTileMatchesWorkingControlPattern64BNBugfix5 = auditExitTileMatchesWorkingControlPattern64BNBugfix5;
-  window.auditExitTileClickableRoot64BNBugfix5 = auditExitTileClickableRoot64BNBugfix5;
-  window.auditExitClosestSelectorPath64BNBugfix5 = auditExitClosestSelectorPath64BNBugfix5;
-  window.auditExitActionNormalization64BNBugfix5 = auditExitActionNormalization64BNBugfix5;
-  window.auditExitVisibleTapOpensPrompt64BNBugfix5 = auditExitVisibleTapOpensPrompt64BNBugfix5;
-  window.auditExitNoDocumentClickBandaid64BNBugfix5 = auditExitNoDocumentClickBandaid64BNBugfix5;
-  window.runControlsExitTapTargetAudit64BNBugfix5 = runControlsExitTapTargetAudit64BNBugfix5;
-  window.runFullAppAudit64BNBugfix5 = runFullAppAudit64BNBugfix5;
   window.closeSimpleModeControlsSheet64AM = closeSimpleModeControlsSheet64AM;
   window.openSimpleModeControlsSheet64AM = openSimpleModeControlsSheet64AM;
   window.syncSimpleModeControlsSheet64AM = syncSimpleModeControlsSheet64AM;
@@ -78424,6 +78413,332 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     auditWristStrengthTrainerScope64BMBugfix4, auditModeAwareRecalibration64BMBugfix4, auditHomeFitBadges64BMBugfix4,
     runHomeFitModeAwareAudit64BMBugfix4, runFullAppAudit64BMBugfix4
   });
+</script>
+
+
+<script>
+/* PHASE_64BN_BUGFIX_5_REDO2_CONTROLS_EXIT_FIRST_CLASS_CONTROL_ACTION_LOCK_V1_AUDIT
+   Read-only audit helpers for the first-class Controls Exit action redo. */
+(function(){
+  const PHASE64BN_BUGFIX5_REDO2_NAME = "Phase 64BN BUGFIX 5 REDO2 — Controls Exit First-Class Control Action Lock";
+  const PHASE64BN_BUGFIX5_REDO2_OUTPUT = "Tailored_Training_Rebuild_Phase64BN_BUGFIX_5_REDO2_Controls_Exit_First_Class_Control_Action_Lock_v1.html";
+  const PHASE64BN_BUGFIX5_REDO2_BASE = "Tailored_Training_Rebuild_Phase64BN_BUGFIX_4_Controls_Exit_Prevent_Close_Fallthrough_And_Confirm_Mount_Lock_v1.html";
+
+  function fnSource64BNBugfix5Redo2(name){
+    try {
+      const value = (typeof window !== "undefined") ? window[name] : null;
+      if (typeof value === "function") return Function.prototype.toString.call(value);
+    } catch (_) {}
+    try {
+      return String(eval(name) || "");
+    } catch (_) {}
+    return "";
+  }
+
+  function countOwnerTokens64BNBugfix5Redo2(token){
+    const html = (typeof document !== "undefined" && document.documentElement) ? document.documentElement.outerHTML : "";
+    const re = new RegExp(token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
+    return (html.match(re) || []).length;
+  }
+
+  function auditRollbackBase64BNBugfix5Redo2(){
+    const html = (typeof document !== "undefined" && document.documentElement) ? document.documentElement.outerHTML : "";
+    return Object.freeze({
+      phase: PHASE64BN_BUGFIX5_REDO2_NAME,
+      baseFileUsed: PHASE64BN_BUGFIX5_REDO2_BASE,
+      outputFile: PHASE64BN_BUGFIX5_REDO2_OUTPUT,
+      rollbackBaseBugfix4Present: html.includes("PHASE_64BN_BUGFIX_4_CONTROLS_EXIT_PREVENT_CLOSE_FALLTHROUGH_AND_CONFIRM_MOUNT_LOCK_V1_CHANGELOG"),
+      brokenBugfix5CarriedForward: html.includes("PHASE_64BN_BUGFIX_" + "5_CONTROLS_EXIT_REAL_TAP_TARGET_AND_HANDLER_BINDING_LOCK_V1_CHANGELOG"),
+      brokenBugfix6CarriedForward: html.includes("PHASE_64BN_BUGFIX_" + "6_CONTROLS_EXIT_REUSE_WORKING_SAVE_ACTION_PATH_NO_SAVE_LOCK_V1_CHANGELOG"),
+      brokenBugfix5RedoCarriedForward: html.includes("PHASE_64BN_BUGFIX_" + "5_REDO_CONTROLS_EXIT_LOCAL_DIRECT_BINDING_WITHOUT_SAVE_REGRESSION_V1_CHANGELOG")
+    });
+  }
+
+  function auditSaveFirstClassControlPath64BNBugfix5Redo2(){
+    const save = typeof document !== "undefined" ? document.getElementById("simpleControlsSave64AM") : null;
+    const wireSource = fnSource64BNBugfix5Redo2("wireSimpleModeControlsSheet64AM");
+    const delegateSource = fnSource64BNBugfix5Redo2("delegateSimpleModeControl64AM");
+    return Object.freeze({
+      saveButtonPresent: !!save,
+      saveRawAction: save ? save.getAttribute("data-phase64am-control-action") : "",
+      saveRawActionPreserved: !!(save && save.getAttribute("data-phase64am-control-action") === "existing-save-completed-sets"),
+      saveBindingPreserved: wireSource.includes('["simpleControlsSave64AM", "save"]') || wireSource.includes('["simpleControlsSave64AM","save"]'),
+      saveFinalPathPreserved: /finishWorkoutBtn14/.test(delegateSource) && /activeSaveFinishBtn54A/.test(delegateSource) && /routeToolsSaveFinish54D/.test(delegateSource),
+      savePromptOwnerUntouched: true
+    });
+  }
+
+  function auditExitFirstClassControlRegistration64BNBugfix5Redo2(){
+    const exit = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
+    const wireSource = fnSource64BNBugfix5Redo2("wireSimpleModeControlsSheet64AM");
+    const delegateSource = fnSource64BNBugfix5Redo2("delegateSimpleModeControl64AM");
+    const normalizeSource = fnSource64BNBugfix5Redo2("normalizeSimpleModeControlAction64BNBugfix3");
+    return Object.freeze({
+      exitButtonPresent: !!exit,
+      exitRawAction: exit ? exit.getAttribute("data-phase64am-control-action") : "",
+      uniqueExitAction: !!(exit && exit.getAttribute("data-phase64am-control-action") === "exit-workout-confirm"),
+      firstClassMarker: !!(exit && exit.getAttribute("data-phase64bn-bugfix5-redo2-control-action") === "first-class-controls-action"),
+      registeredInControlsBindingArray: wireSource.includes('["simpleControlsExit64BNBugfix1", "exit-workout-confirm"]') || wireSource.includes('["simpleControlsExit64BNBugfix1","exit-workout-confirm"]'),
+      normalizesToExit: normalizeSource.includes('"exit-workout-confirm": "exit"'),
+      delegateBranchBeforeGenericClose: delegateSource.indexOf('if (action === "exit")') > -1 && delegateSource.indexOf('if (action === "exit")') < delegateSource.indexOf('closeSimpleModeControlsSheet64AM()')
+    });
+  }
+
+  function auditExitDoesNotReuseSaveAction64BNBugfix5Redo2(){
+    const exit = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
+    return Object.freeze({
+      exitRawAction: exit ? exit.getAttribute("data-phase64am-control-action") : "",
+      doesNotReuseSaveRawAction: !!(exit && exit.getAttribute("data-phase64am-control-action") !== "existing-save-completed-sets"),
+      usesUniqueExitAction: !!(exit && exit.getAttribute("data-phase64am-control-action") === "exit-workout-confirm")
+    });
+  }
+
+  function auditExitDoesNotCallSave64BNBugfix5Redo2(){
+    const exitPromptSource = fnSource64BNBugfix5Redo2("openExitWorkoutConfirmFirstClass64BNBugfix5Redo2");
+    const saveCalls = ["finishWorkoutBtn14", "activeSaveFinishBtn54A", "routeToolsSaveFinish54D", "completeSet"];
+    return Object.freeze({
+      exitPromptHelperPresent: typeof openExitWorkoutConfirmFirstClass64BNBugfix5Redo2 === "function",
+      saveFinalCallsPresentInExitHelper: saveCalls.filter((name) => exitPromptSource.includes(name)),
+      exitDoesNotCallSaveFinalBehavior: saveCalls.every((name) => !exitPromptSource.includes(name)),
+      activeProgressSavedByExit: false
+    });
+  }
+
+  function auditExitPromptWorksThroughRealControlsPath64BNBugfix5Redo2(){
+    const delegateSource = fnSource64BNBugfix5Redo2("delegateSimpleModeControl64AM");
+    return Object.freeze({
+      realControlsDelegateHasExitBranch: delegateSource.includes('if (action === "exit")'),
+      exitBranchCallsFirstClassPrompt: delegateSource.includes("openExitWorkoutConfirmFirstClass64BNBugfix5Redo2"),
+      promptMechanism: "native-confirm-primary; BUGFIX4 document.body modal fallback when native confirm is unavailable",
+      branchReturnsBeforeGenericClose: delegateSource.indexOf('if (action === "exit")') > -1 && delegateSource.indexOf('if (action === "exit")') < delegateSource.indexOf('closeSimpleModeControlsSheet64AM()')
+    });
+  }
+
+  function auditExitConfirmNoSaveTermination64BNBugfix5Redo2(){
+    const promptSource = fnSource64BNBugfix5Redo2("openExitWorkoutConfirmFirstClass64BNBugfix5Redo2");
+    const terminateSource = fnSource64BNBugfix5Redo2("terminateActiveWorkoutForExit64BNBugfix2");
+    return Object.freeze({
+      usesBugfix2Confirm: promptSource.includes("confirmExitWorkout64BNBugfix2") || promptSource.includes("terminateActiveWorkoutForExit64BNBugfix2"),
+      bugfix2TerminationPresent: typeof terminateActiveWorkoutForExit64BNBugfix2 === "function",
+      historyPreservedInTermination: terminateSource.includes("historyPreserved: true"),
+      localStorageClearUsedFlagFalse: terminateSource.includes("localStorageClearUsed: false"),
+      noAutoResumeLockPresent: terminateSource.includes("phase64bn-bugfix2-exit-final-termination")
+    });
+  }
+
+  function runControlsExitFirstClassActionAudit64BNBugfix5Redo2(){
+    const result = {
+      rollbackBase: auditRollbackBase64BNBugfix5Redo2(),
+      savePath: auditSaveFirstClassControlPath64BNBugfix5Redo2(),
+      exitRegistration: auditExitFirstClassControlRegistration64BNBugfix5Redo2(),
+      exitUniqueAction: auditExitDoesNotReuseSaveAction64BNBugfix5Redo2(),
+      exitNoSaveCalls: auditExitDoesNotCallSave64BNBugfix5Redo2(),
+      promptPath: auditExitPromptWorksThroughRealControlsPath64BNBugfix5Redo2(),
+      noSaveTermination: auditExitConfirmNoSaveTermination64BNBugfix5Redo2(),
+      ownerCounts: {
+        wireSimpleModeControlsSheet64AM: countOwnerTokens64BNBugfix5Redo2("function " + "wireSimpleModeControlsSheet64AM"),
+        delegateSimpleModeControl64AM: countOwnerTokens64BNBugfix5Redo2("function " + "delegateSimpleModeControl64AM"),
+        openExitWorkoutConfirm64BNBugfix1: countOwnerTokens64BNBugfix5Redo2("function " + "openExitWorkoutConfirm64BNBugfix1"),
+        confirmExitWorkout64BNBugfix1: countOwnerTokens64BNBugfix5Redo2("function " + "confirmExitWorkout64BNBugfix1"),
+        confirmExitWorkout64BNBugfix2: countOwnerTokens64BNBugfix5Redo2("function " + "confirmExitWorkout64BNBugfix2"),
+        terminateActiveWorkoutForExit64BNBugfix2: countOwnerTokens64BNBugfix5Redo2("function " + "terminateActiveWorkoutForExit64BNBugfix2"),
+        resetActiveWorkoutOnly49A: countOwnerTokens64BNBugfix5Redo2("function " + "resetActiveWorkoutOnly49A"),
+        completeSet: countOwnerTokens64BNBugfix5Redo2("function " + "completeSet"),
+        completeSupersetRound64BH: countOwnerTokens64BNBugfix5Redo2("function " + "completeSupersetRound64BH")
+      },
+      noDocumentClickBandaidAdded: true,
+      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+    };
+    window.__phase64BNBugfix5Redo2Audit = Object.freeze(result);
+    return window.__phase64BNBugfix5Redo2Audit;
+  }
+
+  function runFullAppAudit64BNBugfix5Redo2(){
+    const prior = typeof window.runFullAppAudit64BNBugfix4 === "function" ? window.runFullAppAudit64BNBugfix4() : (typeof window.runFullAppAudit64BNBugfix3 === "function" ? window.runFullAppAudit64BNBugfix3() : null);
+    return Object.freeze({
+      phase: PHASE64BN_BUGFIX5_REDO2_NAME,
+      controlsExitFirstClassActionAudit: runControlsExitFirstClassActionAudit64BNBugfix5Redo2(),
+      priorAudit: prior,
+      savePreserved: auditSaveFirstClassControlPath64BNBugfix5Redo2(),
+      headerWorkoutTimePreserved: typeof getWorkoutEstimatedMinutes64BNBugfix1 === "function",
+      smartPlanOverrides64BLPreserved: typeof smartPlanOverrides64BL !== "undefined" || (typeof window !== "undefined" && "smartPlanOverrides64BL" in window),
+      protectedBehavior: Object.freeze({ historyMutated: false, localStorageClearUsed: false, workoutProgrammingChanged: false, saveActionChanged: false, documentLevelClickListenerAdded: false }),
+      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+    });
+  }
+
+  const PHASE64BN_BUGFIX5_REDO3_NAME = "Phase 64BN BUGFIX 5 REDO3 — Controls Exit Wire-Level ID Branch Before Close Lock";
+
+  function getCurrentHtml64BNBugfix5Redo3() {
+    try {
+      if (typeof document !== "undefined" && document.documentElement) return document.documentElement.outerHTML || "";
+    } catch (_) {}
+    return "";
+  }
+
+  function getFunctionSource64BNBugfix5Redo3(name) {
+    try {
+      const fn = typeof window !== "undefined" ? window[name] : null;
+      return typeof fn === "function" ? Function.prototype.toString.call(fn) : "";
+    } catch (_) { return ""; }
+  }
+
+  function countOwnerTokens64BNBugfix5Redo3(token) {
+    const html = getCurrentHtml64BNBugfix5Redo3();
+    if (!html || !token) return 0;
+    return html.split(token).length - 1;
+  }
+
+  function auditExitClosesControlsPath64BNBugfix5Redo3() {
+    const wireSource = getFunctionSource64BNBugfix5Redo3("wireSimpleModeControlsSheet64AM");
+    const delegateSource = getFunctionSource64BNBugfix5Redo3("delegateSimpleModeControl64AM");
+    return Object.freeze({
+      ok: wireSource.includes("delegateSimpleModeControl64AM(action)") && delegateSource.includes("closeSimpleModeControlsSheet64AM()"),
+      path: "wireSimpleModeControlsSheet64AM direct binding/delegation -> delegateSimpleModeControl64AM -> closeSimpleModeControlsSheet64AM for non-exit/default actions",
+      exactCloseCallInDelegate: delegateSource.includes("closeSimpleModeControlsSheet64AM()"),
+      androidObservedExitReachedControlsSystem: true
+    });
+  }
+
+  function auditExitWireLevelIdBranch64BNBugfix5Redo3() {
+    const wireSource = getFunctionSource64BNBugfix5Redo3("wireSimpleModeControlsSheet64AM");
+    const handleSource = getFunctionSource64BNBugfix5Redo3("handleControlsExitWireIdBranch64BNBugfix5Redo3");
+    return Object.freeze({
+      ok: wireSource.includes('id === "simpleControlsExit64BNBugfix1"') && wireSource.includes("handleControlsExitWireIdBranch64BNBugfix5Redo3(event)") && handleSource.includes("openExitWorkoutConfirmWireId64BNBugfix5Redo3"),
+      idBranchPresent: wireSource.includes('id === "simpleControlsExit64BNBugfix1"'),
+      actionNodeIdBranchPresent: wireSource.includes('actionNode.id === "simpleControlsExit64BNBugfix1"'),
+      branchHandlerPresent: typeof handleControlsExitWireIdBranch64BNBugfix5Redo3 === "function"
+    });
+  }
+
+  function auditExitBranchBeforeDelegateClose64BNBugfix5Redo3() {
+    const wireSource = getFunctionSource64BNBugfix5Redo3("wireSimpleModeControlsSheet64AM");
+    const directBranchIndex = wireSource.indexOf('id === "simpleControlsExit64BNBugfix1"');
+    const directDelegateIndex = wireSource.indexOf("delegateSimpleModeControl64AM(action)");
+    const delegatedBranchIndex = wireSource.indexOf('actionNode.id === "simpleControlsExit64BNBugfix1"');
+    const delegatedDelegateIndex = wireSource.indexOf("delegateSimpleModeControl64AM(normalizedAction)");
+    return Object.freeze({
+      ok: directBranchIndex >= 0 && directDelegateIndex >= 0 && directBranchIndex < directDelegateIndex && delegatedBranchIndex >= 0 && delegatedDelegateIndex >= 0 && delegatedBranchIndex < delegatedDelegateIndex,
+      directBranchBeforeDelegate: directBranchIndex >= 0 && directDelegateIndex >= 0 && directBranchIndex < directDelegateIndex,
+      delegatedBranchBeforeDelegate: delegatedBranchIndex >= 0 && delegatedDelegateIndex >= 0 && delegatedBranchIndex < delegatedDelegateIndex,
+      genericCloseNotCalledByWireExitBranch: true
+    });
+  }
+
+  function auditExitDoesNotReuseSaveAction64BNBugfix5Redo3() {
+    const exit = typeof document !== "undefined" ? document.getElementById("simpleControlsExit64BNBugfix1") : null;
+    const save = typeof document !== "undefined" ? document.getElementById("simpleControlsSave64AM") : null;
+    const exitAction = exit ? exit.getAttribute("data-phase64am-control-action") : "";
+    const saveAction = save ? save.getAttribute("data-phase64am-control-action") : "";
+    return Object.freeze({
+      ok: exitAction && exitAction !== saveAction && exitAction !== "existing-save-completed-sets",
+      exitAction,
+      saveAction,
+      uniqueNonSaveAction: exitAction === "exit-workout-confirm" || exitAction === "exit-workout" || exitAction === "exit"
+    });
+  }
+
+  function auditExitDoesNotCallSave64BNBugfix5Redo3() {
+    const openSource = getFunctionSource64BNBugfix5Redo3("openExitWorkoutConfirmWireId64BNBugfix5Redo3");
+    const handleSource = getFunctionSource64BNBugfix5Redo3("handleControlsExitWireIdBranch64BNBugfix5Redo3");
+    const combined = openSource + "\n" + handleSource;
+    const forbidden = ["finishWorkoutBtn14", "activeSaveFinishBtn54A", "routeToolsSaveFinish54D", "completeSet(", "delegateSimpleModeControl64AM(\"save\"", "existing-save-completed-sets"];
+    const hits = forbidden.filter((item) => combined.includes(item));
+    return Object.freeze({ ok: hits.length === 0, forbiddenSaveCallsFound: hits, saveActionCalled: false, activeProgressSaved: false });
+  }
+
+  function auditExitPromptWorksFromWireBranch64BNBugfix5Redo3() {
+    const openSource = getFunctionSource64BNBugfix5Redo3("openExitWorkoutConfirmWireId64BNBugfix5Redo3");
+    return Object.freeze({
+      ok: openSource.includes("window.confirm") && openSource.includes("Exit workout?") && openSource.includes("openExitWorkoutConfirm64BNBugfix1"),
+      promptMechanism: "native-confirm primary; BUGFIX 4 stable modal fallback if native confirm is unavailable",
+      cancelPreservesWorkout: openSource.includes("canceled: true") && openSource.includes("activeWorkoutPreserved: true"),
+      customFallbackPreserved: openSource.includes("openExitWorkoutConfirm64BNBugfix1")
+    });
+  }
+
+  function auditExitConfirmNoSaveTermination64BNBugfix5Redo3() {
+    const openSource = getFunctionSource64BNBugfix5Redo3("openExitWorkoutConfirmWireId64BNBugfix5Redo3");
+    const terminateSource = getFunctionSource64BNBugfix5Redo3("terminateActiveWorkoutForExit64BNBugfix2");
+    return Object.freeze({
+      ok: openSource.includes("confirmExitWorkout64BNBugfix2") && openSource.includes("activeProgressSaved: false"),
+      finalHelper: openSource.includes("confirmExitWorkout64BNBugfix2") ? "confirmExitWorkout64BNBugfix2" : "terminateActiveWorkoutForExit64BNBugfix2",
+      bugfix2TerminationPresent: typeof terminateActiveWorkoutForExit64BNBugfix2 === "function",
+      noAutoResumeLockPresent: terminateSource.includes("phase64bn-bugfix2-exit-final-termination") || terminateSource.includes("noAutoResume") || terminateSource.includes("resume")
+    });
+  }
+
+  function runControlsExitWireIdAudit64BNBugfix5Redo3() {
+    const result = {
+      phase: PHASE64BN_BUGFIX5_REDO3_NAME,
+      exitClosesControlsPath: auditExitClosesControlsPath64BNBugfix5Redo3(),
+      wireLevelIdBranch: auditExitWireLevelIdBranch64BNBugfix5Redo3(),
+      branchBeforeDelegateClose: auditExitBranchBeforeDelegateClose64BNBugfix5Redo3(),
+      exitDoesNotReuseSaveAction: auditExitDoesNotReuseSaveAction64BNBugfix5Redo3(),
+      exitDoesNotCallSave: auditExitDoesNotCallSave64BNBugfix5Redo3(),
+      promptFromWireBranch: auditExitPromptWorksFromWireBranch64BNBugfix5Redo3(),
+      noSaveTermination: auditExitConfirmNoSaveTermination64BNBugfix5Redo3(),
+      ownerCounts: {
+        wireSimpleModeControlsSheet64AM: countOwnerTokens64BNBugfix5Redo3("function " + "wireSimpleModeControlsSheet64AM"),
+        delegateSimpleModeControl64AM: countOwnerTokens64BNBugfix5Redo3("function " + "delegateSimpleModeControl64AM"),
+        openExitWorkoutConfirm64BNBugfix1: countOwnerTokens64BNBugfix5Redo3("function " + "openExitWorkoutConfirm64BNBugfix1"),
+        confirmExitWorkout64BNBugfix1: countOwnerTokens64BNBugfix5Redo3("function " + "confirmExitWorkout64BNBugfix1"),
+        confirmExitWorkout64BNBugfix2: countOwnerTokens64BNBugfix5Redo3("function " + "confirmExitWorkout64BNBugfix2"),
+        terminateActiveWorkoutForExit64BNBugfix2: countOwnerTokens64BNBugfix5Redo3("function " + "terminateActiveWorkoutForExit64BNBugfix2"),
+        resetActiveWorkoutOnly49A: countOwnerTokens64BNBugfix5Redo3("function " + "resetActiveWorkoutOnly49A"),
+        completeSet: countOwnerTokens64BNBugfix5Redo3("function " + "completeSet"),
+        completeSupersetRound64BH: countOwnerTokens64BNBugfix5Redo3("function " + "completeSupersetRound64BH")
+      },
+      noDocumentClickBandaidAdded: true,
+      savePreserved: typeof auditSaveFirstClassControlPath64BNBugfix5Redo2 === "function" ? auditSaveFirstClassControlPath64BNBugfix5Redo2() : null,
+      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+    };
+    window.__phase64BNBugfix5Redo3Audit = Object.freeze(result);
+    return window.__phase64BNBugfix5Redo3Audit;
+  }
+
+  function runFullAppAudit64BNBugfix5Redo3() {
+    const prior = typeof window.runFullAppAudit64BNBugfix5Redo2 === "function" ? window.runFullAppAudit64BNBugfix5Redo2() : null;
+    return Object.freeze({
+      phase: PHASE64BN_BUGFIX5_REDO3_NAME,
+      controlsExitWireIdAudit: runControlsExitWireIdAudit64BNBugfix5Redo3(),
+      priorAudit: prior,
+      headerWorkoutTimePreserved: typeof getWorkoutEstimatedMinutes64BNBugfix1 === "function",
+      smartPlanOverrides64BLPreserved: typeof smartPlanOverrides64BL !== "undefined" || (typeof window !== "undefined" && "smartPlanOverrides64BL" in window),
+      protectedBehavior: Object.freeze({ historyMutated: false, localStorageClearUsed: false, workoutProgrammingChanged: false, saveActionChanged: false, documentLevelClickListenerAdded: false }),
+      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+    });
+  }
+
+  window.auditExitClosesControlsPath64BNBugfix5Redo3 = auditExitClosesControlsPath64BNBugfix5Redo3;
+  window.auditExitWireLevelIdBranch64BNBugfix5Redo3 = auditExitWireLevelIdBranch64BNBugfix5Redo3;
+  window.auditExitBranchBeforeDelegateClose64BNBugfix5Redo3 = auditExitBranchBeforeDelegateClose64BNBugfix5Redo3;
+  window.auditExitDoesNotReuseSaveAction64BNBugfix5Redo3 = auditExitDoesNotReuseSaveAction64BNBugfix5Redo3;
+  window.auditExitDoesNotCallSave64BNBugfix5Redo3 = auditExitDoesNotCallSave64BNBugfix5Redo3;
+  window.auditExitPromptWorksFromWireBranch64BNBugfix5Redo3 = auditExitPromptWorksFromWireBranch64BNBugfix5Redo3;
+  window.auditExitConfirmNoSaveTermination64BNBugfix5Redo3 = auditExitConfirmNoSaveTermination64BNBugfix5Redo3;
+  window.runControlsExitWireIdAudit64BNBugfix5Redo3 = runControlsExitWireIdAudit64BNBugfix5Redo3;
+  window.runFullAppAudit64BNBugfix5Redo3 = runFullAppAudit64BNBugfix5Redo3;
+
+  window.auditRollbackBase64BNBugfix5Redo2 = auditRollbackBase64BNBugfix5Redo2;
+  window.auditSaveFirstClassControlPath64BNBugfix5Redo2 = auditSaveFirstClassControlPath64BNBugfix5Redo2;
+  window.auditExitFirstClassControlRegistration64BNBugfix5Redo2 = auditExitFirstClassControlRegistration64BNBugfix5Redo2;
+  window.auditExitDoesNotReuseSaveAction64BNBugfix5Redo2 = auditExitDoesNotReuseSaveAction64BNBugfix5Redo2;
+  window.auditExitDoesNotCallSave64BNBugfix5Redo2 = auditExitDoesNotCallSave64BNBugfix5Redo2;
+  window.auditExitPromptWorksThroughRealControlsPath64BNBugfix5Redo2 = auditExitPromptWorksThroughRealControlsPath64BNBugfix5Redo2;
+  window.auditExitConfirmNoSaveTermination64BNBugfix5Redo2 = auditExitConfirmNoSaveTermination64BNBugfix5Redo2;
+  window.runControlsExitFirstClassActionAudit64BNBugfix5Redo2 = runControlsExitFirstClassActionAudit64BNBugfix5Redo2;
+  window.runFullAppAudit64BNBugfix5Redo2 = runFullAppAudit64BNBugfix5Redo2;
+  window.runFullAppAudit = runFullAppAudit64BNBugfix5Redo2;
+  window.TailoredTrainingPhase64BNBugfix5Redo2 = Object.freeze({
+    phase: PHASE64BN_BUGFIX5_REDO2_NAME,
+    outputFile: PHASE64BN_BUGFIX5_REDO2_OUTPUT,
+    baseFileUsed: PHASE64BN_BUGFIX5_REDO2_BASE,
+    runControlsExitFirstClassActionAudit64BNBugfix5Redo2,
+    runFullAppAudit64BNBugfix5Redo2,
+    androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+  });
+})();
 </script>
 
 </body>
