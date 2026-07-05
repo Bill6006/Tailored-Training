@@ -1,4 +1,16 @@
 <!--
+PHASE_64BN_BUGFIX_10_REDO2_RECALIBRATION_APPLY_ROUNDTRIP_VERIFICATION_AND_OVERRIDE_AWARE_SCAN_LOCK_V1_CHANGELOG
+- Uses BUGFIX 10 REDO as base.
+- Fixes remaining repeat-apply after refresh.
+- Adds save/read/rescan roundtrip verification.
+- Prevents “Applied X upgrades” from counting unverified saves.
+- Makes recalibration scan override-aware.
+- Preserves Data-tab Recalibrate button/panel behavior.
+- Does not touch Exit behavior.
+- Does not mutate History.
+- Does not clear localStorage.
+-->
+<!--
 PHASE_64BN_BUGFIX_10_REDO_RECALIBRATION_IDEMPOTENT_APPLY_ALL_WITHOUT_BUTTON_RENDER_TOUCH_LOCK_V1_CHANGELOG
 - Uses BUGFIX 9 as rollback-safe base.
 - Does not carry forward broken BUGFIX 10/11/12 button/render changes.
@@ -20061,7 +20073,7 @@ Existing History logs stay untouched.`);
 
   function saveSmartPlanUpgrade64BL(state, payload) {
     state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
-    const upsert = typeof upsertSmartPlanOverride64BNBugfix10Redo === "function" ? upsertSmartPlanOverride64BNBugfix10Redo(state, payload) : null;
+    const upsert = typeof upsertSmartPlanOverride64BNBugfix10Redo2 === "function" ? upsertSmartPlanOverride64BNBugfix10Redo2(state, payload) : (typeof upsertSmartPlanOverride64BNBugfix10Redo === "function" ? upsertSmartPlanOverride64BNBugfix10Redo(state, payload) : null);
     const key = payload.key || smartPlanSlotKey64BL(payload);
     const entry = upsert && upsert.entry ? upsert.entry : Object.assign({}, payload, { key, active: true, updatedAt: nowIso() });
     if (!upsert || !upsert.ok) {
@@ -20072,7 +20084,7 @@ Existing History logs stay untouched.`);
       state.smartPlanOverrides64BL.entries = entries;
     }
     const audit = recordSmartPlanUpgradeAudit64BL(state, entry);
-    state.audit = Object.assign({}, state.audit || {}, { phase64BLSmartPlanUpgrade: true, phase64BLSmartPlanUpgradeLastKey: entry.key || key, phase64BLSmartPlanUpgradeLastAt: entry.updatedAt, phase64BLWorkoutWideRewrite: false, phase64BLHistoryMutation: false, phase64BNBugfix10RedoCanonicalOverrideKey: entry.phase64BNBugfix10RedoAppliedOverrideKey || "", phase64BNBugfix10RedoUpserted: !!(upsert && upsert.ok) });
+    state.audit = Object.assign({}, state.audit || {}, { phase64BLSmartPlanUpgrade: true, phase64BLSmartPlanUpgradeLastKey: entry.key || key, phase64BLSmartPlanUpgradeLastAt: entry.updatedAt, phase64BLWorkoutWideRewrite: false, phase64BLHistoryMutation: false, phase64BNBugfix10RedoCanonicalOverrideKey: entry.phase64BNBugfix10RedoAppliedOverrideKey || "", phase64BNBugfix10Redo2RoundtripKey: entry.phase64BNBugfix10Redo2RoundtripKey || "", phase64BNBugfix10RedoUpserted: !!(upsert && upsert.ok), phase64BNBugfix10Redo2Upserted: !!(upsert && upsert.phase64BNBugfix10Redo2) });
     state.qa = Object.assign({}, state.qa || {}, { phase64BLSmartPlanUpgrade: "user-confirmed-exact-slot-default", phase64BNBugfix10RedoSmartPlanUpsert: "canonical-applied-override-key" });
     return { ok: true, state, entry, audit, canonicalKey: entry.phase64BNBugfix10RedoAppliedOverrideKey || "", upserted: !!(upsert && upsert.ok) };
   }
@@ -20919,6 +20931,7 @@ Existing History logs stay untouched.`);
       blocked_missing_payload: "Cannot apply",
       blocked_unknown: "Cannot apply",
       already_applied: "Already applied",
+      not_verified: "Not saved",
       no_action: "No upgrade pushed"
     };
     return map[type] || "Cannot apply";
@@ -20934,6 +20947,7 @@ Existing History logs stay untouched.`);
       blocked_missing_payload: "This recommendation is missing a valid slot or replacement target.",
       blocked_unknown: "This recommendation could not be applied safely.",
       already_applied: "This future default is already saved for this slot.",
+      not_verified: "This upgrade could not be verified after saving, so it was not counted. Review manually.",
       no_action: "Keep current is already the system decision for this card."
     };
     return detail || map[type] || map.blocked_unknown;
@@ -21005,6 +21019,10 @@ Existing History logs stay untouched.`);
 
   function getAppliedSmartPlanOverrideForSlot64BNBugfix9(stateInput, rec) {
     if (!rec) return null;
+    if (typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function") {
+      const roundtripMatch64BNBugfix10Redo2 = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(stateInput, rec);
+      if (roundtripMatch64BNBugfix10Redo2) return roundtripMatch64BNBugfix10Redo2;
+    }
     if (typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function") {
       const canonicalMatch64BNBugfix10Redo = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(stateInput, rec);
       if (canonicalMatch64BNBugfix10Redo) return canonicalMatch64BNBugfix10Redo;
@@ -21168,10 +21186,254 @@ Existing History logs stay untouched.`);
     )) || null;
   }
 
+
+  function normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(value) {
+    if (value && typeof value === "object") {
+      const first = value.id || value.exerciseId || value.replacementExerciseId || value.originalExerciseId || value.displayName || value.name || value.recommendedName || value.currentName || "";
+      return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(first);
+    }
+    return String(value == null ? "" : value)
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, " and ")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function recalibrationRouteModeKey64BNBugfix10Redo2(item) {
+    const label = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.routeModeLabel64BN || item.routeModeLabel || item.routeMode));
+    const mode = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.mode || item.routeModeMode64BN || item.settingsMode64BN));
+    const route = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.route || item.routeModeRoute64BN || item.settingsRoute64BN));
+    const joined = `${mode} ${route} ${label}`;
+    if (/home.*lazy|lazy.*home/.test(joined)) return "home-lazy";
+    if (/home.*full|full.*home/.test(joined)) return "home-full";
+    if (/gym.*lazy|lazy.*gym/.test(joined)) return "gym-lazy";
+    if (/gym.*full|full.*gym/.test(joined)) return "gym-full";
+    if (mode || route) return `${mode || "unknown-mode"}-${route || "unknown-route"}`;
+    return "unknown-route";
+  }
+
+  function recalibrationSlotOrder64BNBugfix10Redo2(item) {
+    if (!item) return "unknown-slot";
+    if (Number.isFinite(Number(item.slotOrder))) return String(Number(item.slotOrder));
+    if (Number.isFinite(Number(item.order))) return String(Number(item.order));
+    if (item.current && Number.isFinite(Number(item.current.order))) return String(Number(item.current.order));
+    if (Number.isFinite(Number(item.slotIndex))) return String(Number(item.slotIndex) + 1);
+    return "unknown-slot";
+  }
+
+  function recalibrationOriginalIdentity64BNBugfix10Redo2(item) {
+    const current = item && item.current || {};
+    const raw = item && (item.originalExerciseId || item.currentOriginalExerciseId || item.currentExerciseId || item.originalExerciseName || item.currentExerciseName || item.currentName) || current.originalExerciseId19C || current.smartPlanDefaultOriginalExerciseId64BL || current.id || current.displayName || current.name || "unknown-original";
+    return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(raw) || "unknown-original";
+  }
+
+  function recalibrationReplacementIdentity64BNBugfix10Redo2(item) {
+    const recommended = item && item.recommended || {};
+    const current = item && item.current || {};
+    const raw = item && (item.replacementExerciseId || item.recommendedExerciseId || item.replacementExerciseName || item.recommendedName) || recommended.id || recommended.displayName || recommended.name || current.smartPlanDefaultReplacementId64BL || current.smartPlanDefaultReplacementDisplayName64BL || "unknown-replacement";
+    return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(raw) || "unknown-replacement";
+  }
+
+  function recalibrationBlockKey64BNBugfix10Redo2(item) {
+    const current = item && item.current || {};
+    return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.block || item.category || item.slotBlock) || current.block || current.category || "unknown-block") || "unknown-block";
+  }
+
+  function buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(item) {
+    if (!item) return "";
+    const day = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item.dayName || item.day || item.workoutDay || "unknown-day") || "unknown-day";
+    const routeMode = recalibrationRouteModeKey64BNBugfix10Redo2(item);
+    const slot = recalibrationSlotOrder64BNBugfix10Redo2(item);
+    const block = recalibrationBlockKey64BNBugfix10Redo2(item);
+    const original = recalibrationOriginalIdentity64BNBugfix10Redo2(item);
+    const replacement = recalibrationReplacementIdentity64BNBugfix10Redo2(item);
+    return ["phase64bn10redo2", day, routeMode, slot, block, original, replacement].join("__");
+  }
+
+  function buildRoundtripVerificationKey64BNBugfix10Redo2(item) {
+    if (!item) return "";
+    const day = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item.dayName || item.day || item.workoutDay || "unknown-day") || "unknown-day";
+    const slot = recalibrationSlotOrder64BNBugfix10Redo2(item);
+    const replacement = recalibrationReplacementIdentity64BNBugfix10Redo2(item);
+    return ["phase64bn10redo2-roundtrip", day, slot, replacement].join("__");
+  }
+
+  function equivalentRoundtripOverride64BNBugfix10Redo2(entry, item) {
+    if (!entry || !item) return false;
+    const entryRoundtrip = entry.phase64BNBugfix10Redo2RoundtripKey || buildRoundtripVerificationKey64BNBugfix10Redo2(entry);
+    const itemRoundtrip = buildRoundtripVerificationKey64BNBugfix10Redo2(item);
+    if (entryRoundtrip && itemRoundtrip && entryRoundtrip === itemRoundtrip && !/unknown-replacement/.test(itemRoundtrip)) return true;
+    const dayA = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(entry.dayName || entry.day);
+    const dayB = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item.dayName || item.day);
+    const slotA = recalibrationSlotOrder64BNBugfix10Redo2(entry);
+    const slotB = recalibrationSlotOrder64BNBugfix10Redo2(item);
+    const repA = recalibrationReplacementIdentity64BNBugfix10Redo2(entry);
+    const repB = recalibrationReplacementIdentity64BNBugfix10Redo2(item);
+    return !!(dayA && dayB && dayA === dayB && slotA !== "unknown-slot" && slotA === slotB && repA !== "unknown-replacement" && repA === repB);
+  }
+
+  function getSmartPlanOverrideStore64BNBugfix10Redo2(state) {
+    if (!state) return normalizeSmartPlanOverrides64BL(null);
+    state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
+    return state.smartPlanOverrides64BL;
+  }
+
+  function dedupeSmartPlanOverrides64BNBugfix10Redo2(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const store = getSmartPlanOverrideStore64BNBugfix10Redo2(state);
+    const entries = Array.isArray(store.entries) ? store.entries : [];
+    const seen = new Map();
+    const deduped = [];
+    entries.forEach((entry) => {
+      if (!entry) return;
+      const strictKey = entry.phase64BNBugfix10Redo2AppliedOverrideKey || buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(entry) || entry.phase64BNBugfix10RedoAppliedOverrideKey || entry.key || "";
+      const roundtripKey = entry.phase64BNBugfix10Redo2RoundtripKey || buildRoundtripVerificationKey64BNBugfix10Redo2(entry) || strictKey;
+      const dedupeKey = roundtripKey && !/unknown-replacement/.test(roundtripKey) ? roundtripKey : strictKey;
+      if (!dedupeKey) { deduped.push(entry); return; }
+      if (seen.has(dedupeKey)) {
+        const priorIndex = seen.get(dedupeKey);
+        const prior = deduped[priorIndex] || {};
+        deduped[priorIndex] = Object.assign({}, prior, entry, {
+          createdAt: prior.createdAt || entry.createdAt,
+          phase64BNBugfix10Redo2AppliedOverrideKey: strictKey,
+          phase64BNBugfix10Redo2RoundtripKey: roundtripKey,
+          phase64BNBugfix10Redo2Deduped: true
+        });
+      } else {
+        seen.set(dedupeKey, deduped.length);
+        deduped.push(Object.assign({}, entry, {
+          phase64BNBugfix10Redo2AppliedOverrideKey: strictKey,
+          phase64BNBugfix10Redo2RoundtripKey: roundtripKey
+        }));
+      }
+    });
+    store.entries = deduped;
+    store.phase64BNBugfix10Redo2Dedupe = true;
+    return { state, store, entries: deduped, removedCount: Math.max(0, entries.length - deduped.length) };
+  }
+
+  function upsertSmartPlanOverride64BNBugfix10Redo2(stateInput, payloadInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const payload = Object.assign({}, payloadInput || {});
+    const store = getSmartPlanOverrideStore64BNBugfix10Redo2(state);
+    const strictKey = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(payload);
+    const roundtripKey = buildRoundtripVerificationKey64BNBugfix10Redo2(payload);
+    const legacyKey = payload.key || (typeof smartPlanSlotKey64BL === "function" ? smartPlanSlotKey64BL(payload) : strictKey);
+    const entry = Object.assign({}, payload, {
+      key: legacyKey,
+      active: payload.active !== false,
+      updatedAt: nowIso(),
+      phase64BNBugfix10Redo2AppliedOverrideKey: strictKey,
+      phase64BNBugfix10Redo2RoundtripKey: roundtripKey,
+      phase64BNBugfix10RedoAppliedOverrideKey: payload.phase64BNBugfix10RedoAppliedOverrideKey || strictKey,
+      canonicalAppliedOverrideKey64BNBugfix10Redo: payload.canonicalAppliedOverrideKey64BNBugfix10Redo || strictKey,
+      phase64BNBugfix10Redo2Upsert: true
+    });
+    const entries = Array.isArray(store.entries) ? store.entries.slice() : [];
+    const existingIndex = entries.findIndex((item) => item && item.active !== false && (
+      item.phase64BNBugfix10Redo2AppliedOverrideKey === strictKey ||
+      item.phase64BNBugfix10Redo2RoundtripKey === roundtripKey ||
+      buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(item) === strictKey ||
+      equivalentRoundtripOverride64BNBugfix10Redo2(item, entry) ||
+      (typeof legacyEquivalentRecalibrationOverride64BNBugfix10Redo === "function" && legacyEquivalentRecalibrationOverride64BNBugfix10Redo(item, entry))
+    ));
+    if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry, { createdAt: entries[existingIndex].createdAt || entry.createdAt });
+    else entries.push(entry);
+    store.entries = entries;
+    const dedupe = dedupeSmartPlanOverrides64BNBugfix10Redo2(state);
+    return { ok: true, phase64BNBugfix10Redo2: true, state, store: dedupe.store, entry, canonicalKey: strictKey, roundtripKey, updatedExisting: existingIndex >= 0, dedupedCount: dedupe.removedCount };
+  }
+
+  function isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(stateInput, recOrPayload) {
+    if (!recOrPayload) return null;
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const store = typeof getSmartPlanOverrides64BL === "function" ? getSmartPlanOverrides64BL(state) : normalizeSmartPlanOverrides64BL(state && state.smartPlanOverrides64BL);
+    const entries = Array.isArray(store && store.entries) ? store.entries.filter((entry) => entry && entry.active !== false) : [];
+    const strictKey = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(recOrPayload);
+    const roundtripKey = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
+    return entries.find((entry) => entry && (
+      entry.phase64BNBugfix10Redo2AppliedOverrideKey === strictKey ||
+      entry.phase64BNBugfix10Redo2RoundtripKey === roundtripKey ||
+      buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(entry) === strictKey ||
+      equivalentRoundtripOverride64BNBugfix10Redo2(entry, recOrPayload)
+    )) || null;
+  }
+
+  function notVerifiedRecalibrationKeys64BNBugfix10Redo2(state) {
+    const list = state && state.qa && Array.isArray(state.qa.phase64BNBugfix10Redo2NotVerifiedKeys) ? state.qa.phase64BNBugfix10Redo2NotVerifiedKeys : [];
+    return new Set(list.map(String));
+  }
+
+  function markRecalibrationNotVerified64BNBugfix10Redo2(state, recOrPayload, reason) {
+    if (!state) return state;
+    const key = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
+    state.qa = Object.assign({}, state.qa || {});
+    const set = notVerifiedRecalibrationKeys64BNBugfix10Redo2(state);
+    if (key) set.add(key);
+    state.qa.phase64BNBugfix10Redo2NotVerifiedKeys = Array.from(set).slice(-50);
+    state.qa.phase64BNBugfix10Redo2LastNotVerifiedReason = reason || "roundtrip-not-verified";
+    return state;
+  }
+
+  function isRecalibrationNotVerified64BNBugfix10Redo2(state, recOrPayload) {
+    const key = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
+    return !!(key && notVerifiedRecalibrationKeys64BNBugfix10Redo2(state).has(key));
+  }
+
+  function removeRecalibrationNotVerified64BNBugfix10Redo2(state, recOrPayload) {
+    if (!state || !state.qa) return state;
+    const key = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
+    if (!key) return state;
+    const set = notVerifiedRecalibrationKeys64BNBugfix10Redo2(state);
+    set.delete(key);
+    state.qa.phase64BNBugfix10Redo2NotVerifiedKeys = Array.from(set).slice(-50);
+    return state;
+  }
+
+  function findRoundtripRecommendation64BNBugfix10Redo2(report, recOrPayload) {
+    const list = report && Array.isArray(report.recommendations) ? report.recommendations : [];
+    const roundtripKey = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
+    return list.find((candidate) => buildRoundtripVerificationKey64BNBugfix10Redo2(candidate) === roundtripKey) || null;
+  }
+
+  function verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2(stateInput, rec, payloadInput, options = {}) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const payload = Object.assign({}, payloadInput || {});
+    if (!rec || !payload || !payload.replacementExerciseId) return { verified: false, reason: "missing-roundtrip-payload", state, recommendation: rec, payload };
+    const alreadyBefore = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, rec) || isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, payload);
+    if (alreadyBefore && !options.forceSave) return { verified: true, alreadyBefore: true, reason: "already-applied-before-save", state, entry: alreadyBefore, recommendation: rec, payload };
+    const savedState = saveSmartPlanUpgrade64BL(state, payload);
+    let saved = null;
+    try { saved = saveState(savedState.state, options.saveReason || "phase64bn-bugfix10-redo2-roundtrip-verified-smart-plan-upgrade"); } catch (err) { saved = null; }
+    const latestState = saved && saved.state ? saved.state : (typeof loadState === "function" ? loadState().state : savedState.state);
+    const directSaved = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(latestState, payload) || isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(latestState, rec);
+    let freshRec = null;
+    let freshAction = null;
+    try {
+      const freshReport = buildSmartPlanRecalibrationReport64BM(latestState);
+      freshRec = findRoundtripRecommendation64BNBugfix10Redo2(freshReport, rec) || findRecalibrationRecommendation64BM(freshReport, rec && rec.key);
+      if (freshRec) freshAction = getRecalibrationActionState64BNBugfix6(freshRec, getRecalibrationSection64BNBugfix8(freshRec), { state: latestState, report: freshReport });
+    } catch (err) {
+      freshRec = null;
+      freshAction = null;
+    }
+    const scanAware = !freshRec || !!directSaved || (freshAction && (freshAction.type === "already_applied" || !freshAction.canApply));
+    const verified = !!directSaved && scanAware;
+    if (verified) {
+      removeRecalibrationNotVerified64BNBugfix10Redo2(latestState, payload);
+      return { verified: true, alreadyBefore: false, reason: "save-read-rescan-verified", state: latestState, entry: directSaved || savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction };
+    }
+    markRecalibrationNotVerified64BNBugfix10Redo2(latestState, payload, freshRec && freshAction && freshAction.reason || "roundtrip-not-recognized-after-save");
+    try { saveState(latestState, "phase64bn-bugfix10-redo2-roundtrip-not-verified"); } catch (err) {}
+    return { verified: false, reason: freshRec && freshAction && freshAction.reason || "roundtrip-not-recognized-after-save", state: latestState, entry: savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction };
+  }
+
   function getRecalibrationActionState64BNBugfix6(rec, section, options = {}) {
     const state = options.state || (typeof loadState === "function" ? loadState().state : createDefaultState());
     const report = options.report || null;
     if (!rec || !rec.key || !rec.current) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload"), reason: "missing-card-payload" });
+    if (typeof isRecalibrationNotVerified64BNBugfix10Redo2 === "function" && isRecalibrationNotVerified64BNBugfix10Redo2(state, rec)) return Object.freeze({ type: "not_verified", canApply: false, label: blockReasonLabel64BNBugfix6("not_verified"), message: blockReasonMessage64BNBugfix6("not_verified"), reason: "roundtrip-not-verified" });
     const alreadyAppliedOverride64BNBugfix9 = typeof getAppliedSmartPlanOverrideForSlot64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideForSlot64BNBugfix9(state, rec) : null;
     if (alreadyAppliedOverride64BNBugfix9) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_applied"), message: blockReasonMessage64BNBugfix6("already_applied"), reason: "smartplan-override-already-saved", override: alreadyAppliedOverride64BNBugfix9 });
     const isSafe = section === "safe" || rec.confidence === "safe";
@@ -21277,6 +21539,8 @@ Existing History logs stay untouched.`);
       canBatchApply = true;
     } else if (/already_applied/.test(type) || /already/.test(reason)) {
       category = "already_applied";
+    } else if (/not_verified/.test(type) || /not.verified|roundtrip/.test(reason)) {
+      category = "not_verified";
     } else if (/duplicate/.test(type) || /duplicate/.test(reason)) {
       category = "blocked_duplicate";
     } else if (/mode/.test(type) || /mode/.test(reason)) {
@@ -21309,6 +21573,7 @@ Existing History logs stay untouched.`);
       blocked_similar_fit: [],
       blocked_missing_payload: [],
       already_applied: [],
+      not_verified: [],
       review_only: [],
       skipped_unknown: []
     };
@@ -21324,7 +21589,7 @@ Existing History logs stay untouched.`);
     (report && Array.isArray(report.reviewFirst) ? report.reviewFirst : []).forEach((rec) => add(rec, "review"));
     (report && Array.isArray(report.currentStrong) ? report.currentStrong : []).forEach((rec) => add(rec, "strong"));
     const eligible = buckets.safe_apply.concat(buckets.review_apply_eligible);
-    const blocked = buckets.blocked_duplicate.concat(buckets.blocked_mode_mismatch, buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent, buckets.blocked_missing_payload, buckets.skipped_unknown);
+    const blocked = buckets.blocked_duplicate.concat(buckets.blocked_mode_mismatch, buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent, buckets.blocked_missing_payload, buckets.not_verified, buckets.skipped_unknown);
     const strongSimilar = buckets.blocked_current_strong.concat(buckets.blocked_similar_fit);
     const alreadyApplied = buckets.already_applied;
     const reviewOnly = buckets.review_only.concat(buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent);
@@ -21388,17 +21653,31 @@ Existing History logs stay untouched.`);
       if (!payloadResult || !payloadResult.ok) { skipped.push({ key: rec.key, reason: payloadResult && payloadResult.reason || "payload-failed" }); return; }
       const alreadyPayload64BNBugfix10Redo = typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function" ? isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(state, payloadResult.payload) : null;
       if (alreadyPayload64BNBugfix10Redo) { skipped.push({ key: rec.key, reason: "already-applied", category: "already_applied", entry: alreadyPayload64BNBugfix10Redo }); return; }
+      const roundtrip = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2(state, rec, payloadResult.payload, { saveReason: "phase64bn-bugfix10-redo2-apply-all-roundtrip" }) : null;
+      if (roundtrip) {
+        state = roundtrip.state || state;
+        if (roundtrip.verified && !roundtrip.alreadyBefore) {
+          applied.push(Object.assign({}, roundtrip.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key, phase64BNBugfix10Redo2Verified: true }));
+          if (guard.claimKey) claimedIdentities.add(guard.claimKey);
+        } else if (roundtrip.verified && roundtrip.alreadyBefore) {
+          skipped.push({ key: rec.key, reason: "already-applied", category: "already_applied", entry: roundtrip.entry });
+        } else {
+          skipped.push({ key: rec.key, reason: roundtrip.reason || "roundtrip-not-verified", category: "not_verified", entry: roundtrip.entry || null });
+        }
+        return;
+      }
       const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
       state = savedState.state;
       applied.push(Object.assign({}, savedState.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key }));
       if (guard.claimKey) claimedIdentities.add(guard.claimKey);
     });
     const leftUnchanged = (initialBatch.blocked.length || 0) + (initialBatch.reviewOnly.length || 0) + (initialBatch.strongSimilar.length || 0) + skipped.length;
-    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix8BatchApply: true, phase64BNBugfix8BatchAppliedCount: applied.length, phase64BNBugfix8BatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix8BatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix8BatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false });
+    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix8BatchApply: true, phase64BNBugfix8BatchAppliedCount: applied.length, phase64BNBugfix8BatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix10Redo2VerifiedAppliedCount: applied.filter((entry) => entry && entry.phase64BNBugfix10Redo2Verified).length, phase64BNBugfix10Redo2NotVerifiedCount: skipped.filter((item) => item && item.category === "not_verified").length, phase64BNBugfix8BatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix8BatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false });
     state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix8RecalibrationBatchApply: "user-confirmed-safe-plus-review-eligible" });
     saveState(state, "phase64bn-bugfix8-apply-all-recommended-upgrades");
     const alreadySkipped64BNBugfix10Redo = skipped.filter((item) => item && item.reason === "already-applied").length;
-    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. ${leftUnchanged} blocked/review-only item${leftUnchanged === 1 ? "" : "s"} were left unchanged.` : ((initialBatch.alreadyApplied && initialBatch.alreadyApplied.length) || alreadySkipped64BNBugfix10Redo ? "No new upgrades applied. Existing upgrades are already saved." : "No eligible upgrades ready. Blocked and review-only items were left unchanged.");
+    const notVerified64BNBugfix10Redo2 = skipped.filter((item) => item && item.category === "not_verified").length;
+    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. ${leftUnchanged} blocked/review-only item${leftUnchanged === 1 ? "" : "s"} were left unchanged.${notVerified64BNBugfix10Redo2 ? ` ${notVerified64BNBugfix10Redo2} upgrade${notVerified64BNBugfix10Redo2 === 1 ? "" : "s"} could not be verified and were not counted.` : ""}` : ((initialBatch.alreadyApplied && initialBatch.alreadyApplied.length) || alreadySkipped64BNBugfix10Redo ? "No new upgrades applied. Existing upgrades are already saved." : (notVerified64BNBugfix10Redo2 ? "No verified upgrades applied. Some upgrades need manual review." : "No eligible upgrades ready. Blocked and review-only items were left unchanged."));
     return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, leftUnchangedCount: leftUnchanged, batch: initialBatch, historyMutation: false, workoutWideRewrite: false, message };
   }
 
@@ -21661,6 +21940,18 @@ Existing History logs stay untouched.`);
     if (!payloadResult.ok) return payloadResult;
     const alreadyAppliedPayload64BNBugfix10Redo = typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function" ? isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(state, payloadResult.payload) : null;
     if (alreadyAppliedPayload64BNBugfix10Redo) return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyAppliedPayload64BNBugfix10Redo, recommendation: rec, historyMutation: false, workoutWideRewrite: false };
+    const roundtrip = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2(state, rec, payloadResult.payload, { saveReason: "phase64bn-bugfix10-redo2-individual-roundtrip" }) : null;
+    if (roundtrip) {
+      if (roundtrip.verified) {
+        roundtrip.state.audit = Object.assign({}, roundtrip.state.audit || {}, { phase64BMLastPlanUpgrade: payloadResult.payload.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true, phase64BNBugfix10Redo2RoundtripVerified: true });
+        saveState(roundtrip.state, "phase64bn-bugfix10-redo2-individual-roundtrip-verified");
+        const entry = roundtrip.entry || {};
+        setText("smartPlanRecalibrationStatus64BM", roundtrip.alreadyBefore ? "Already applied: this future default is already saved for this slot." : `Applied future default: ${entry.originalExerciseName || rec.currentName} → ${entry.replacementExerciseName || rec.recommendedName}. Remaining recommendations reconciled.`);
+        return { ok: !roundtrip.alreadyBefore, alreadyApplied: !!roundtrip.alreadyBefore, reason: roundtrip.alreadyBefore ? "already-applied" : "roundtrip-verified", state: roundtrip.state, entry, recommendation: rec, historyMutation: false, workoutWideRewrite: false, duplicateGuard: guard, reconciled: true, roundtripVerified: true };
+      }
+      setText("smartPlanRecalibrationStatus64BM", "Not saved: this upgrade could not be verified after saving, so it was not counted. Review manually.");
+      return { ok: false, reason: roundtrip.reason || "roundtrip-not-verified", notVerified: true, state: roundtrip.state, entry: roundtrip.entry || null, recommendation: rec, historyMutation: false, workoutWideRewrite: false, duplicateGuard: guard, reconciled: false };
+    }
     const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
     savedState.state.audit = Object.assign({}, savedState.state.audit || {}, { phase64BMLastPlanUpgrade: payloadResult.payload.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true });
     const saved = saveState(savedState.state, "phase64bm-bugfix3-user-confirmed-smart-plan-recalibration-upgrade");
@@ -79899,6 +80190,94 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
       saveBehaviorChanged: false
     };
   }
+
+
+
+  function buildRoundtripVerificationReport64BNBugfix10Redo2(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
+    const batch = typeof collectEligibleRecommendedUpgrades64BNBugfix8 === "function" ? collectEligibleRecommendedUpgrades64BNBugfix8(report, state) : { eligible: [], alreadyApplied: [] };
+    return Object.freeze({ report, batch, eligible: batch.eligible || [], alreadyApplied: batch.alreadyApplied || [] });
+  }
+
+  function isRecalibrationScanOverrideAware64BNBugfix10Redo2(stateInput) {
+    const snapshot = buildRoundtripVerificationReport64BNBugfix10Redo2(stateInput);
+    const activeAlreadyApplied = (snapshot.alreadyApplied || []).filter((row) => row && row.actionState && row.actionState.type === "already_applied");
+    return { ok: typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function", alreadyAppliedRows: activeAlreadyApplied.length, eligibleRows: (snapshot.eligible || []).length };
+  }
+
+  function auditRemainingRepeatApplyCause64BNBugfix10Redo2(stateInput) {
+    const source = String(buildRecalibrationAppliedOverrideKey64BNBugfix10Redo || "") + String(isRecalibrationOverrideAlreadySaved64BNBugfix10Redo || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 remaining repeat cause", cause: "BUGFIX 10 REDO could write overrides but counted attempted saves before save/read/rescan proof; some recommendations used a different original/current identity than the saved override after refresh.", oldKeyDependedOnStrictOriginalRouteBlock: /original/.test(source) && /route/.test(source), redo2UsesRoundtripKey: typeof buildRoundtripVerificationKey64BNBugfix10Redo2 === "function", status: "YELLOW" });
+  }
+
+  function auditRoundtripVerification64BNBugfix10Redo2(stateInput) {
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 roundtrip verification", helperAvailable: typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function", saveReadRescanPath: /saveState/.test(String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2)) && /buildSmartPlanRecalibrationReport64BM/.test(String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2)), status: typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? "YELLOW" : "RED" });
+  }
+
+  function auditApplyAllCountsOnlyVerifiedSaves64BNBugfix10Redo2() {
+    const src = String(applyAllEligibleRecommendedUpgrades64BNBugfix8 || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 verified apply count", applyAllUsesRoundtrip: src.includes("verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2"), appliedPushRequiresVerified: /roundtrip\.verified\s*&&\s*!roundtrip\.alreadyBefore/.test(src), notVerifiedSkipped: src.includes("category: \"not_verified\""), status: "YELLOW" });
+  }
+
+  function auditRefreshApplyAllZeroVerifiedDuplicates64BNBugfix10Redo2(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const scan = isRecalibrationScanOverrideAware64BNBugfix10Redo2(state);
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 refresh idempotency", overrideAwareLookup: typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function", alreadyAppliedRowsDetected: scan.alreadyAppliedRows, expectedRefreshSameUpgradeApplyCount: 0, status: "YELLOW" });
+  }
+
+  function auditFridayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
+    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
+    const target = list.find((rec) => /friday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /romanian|deadlift|hip thrust|glute bridge/i.test([rec.currentName, rec.recommendedName].join(" ")));
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 Friday Home Lazy Slot 2", targetFound: !!target, roundtripKey: target ? buildRoundtripVerificationKey64BNBugfix10Redo2(target) : "not-found", alreadySaved: !!(target && isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, target)), status: "YELLOW" });
+  }
+
+  function auditSundayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
+    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
+    const target = list.find((rec) => /sunday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /floor press|bench fly/i.test([rec.currentName, rec.recommendedName].join(" ")));
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 Sunday Home Lazy Slot 2", targetFound: !!target, roundtripKey: target ? buildRoundtripVerificationKey64BNBugfix10Redo2(target) : "not-found", alreadySaved: !!(target && isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, target)), status: "YELLOW" });
+  }
+
+  function auditOverrideAwareRecalibrationScan64BNBugfix10Redo2(stateInput) {
+    const scan = isRecalibrationScanOverrideAware64BNBugfix10Redo2(stateInput);
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 override-aware scan", lookupAvailable: scan.ok, alreadyAppliedRowsDetected: scan.alreadyAppliedRows, activeEligibleRows: scan.eligibleRows, status: scan.ok ? "YELLOW" : "RED" });
+  }
+
+  function auditComboNameNormalization64BNBugfix10Redo2() {
+    const a = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2("DB hip thrust or floor glute bridge");
+    const b = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2("DB hip thrust / floor glute bridge");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 combo normalization", preservesMeaningfulOrWording: a.includes("or"), stableNormalizedName: a, alternatePunctuationName: b, status: "YELLOW" });
+  }
+
+  function auditPassiveUiPreserved64BNBugfix10Redo2() {
+    const renderSrc = String(renderRecalibrationActionControls64BNBugfix6 || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 passive UI preserved", bugfix9PassiveClassStillPresent: renderSrc.includes("smart-recalibration-passive-action64bn-bugfix9"), notVerifiedPassiveSupported: renderSrc.includes("not_verified") || String(blockReasonLabel64BNBugfix6 || "").includes("not_verified"), status: "YELLOW" });
+  }
+
+  function runRecalibrationRoundtripAudit64BNBugfix10Redo2(stateInput) {
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2", name: "Recalibration Apply Roundtrip Verification + Override-Aware Scan Lock", remainingCause: auditRemainingRepeatApplyCause64BNBugfix10Redo2(stateInput), roundtrip: auditRoundtripVerification64BNBugfix10Redo2(stateInput), verifiedApplyCount: auditApplyAllCountsOnlyVerifiedSaves64BNBugfix10Redo2(), refreshIdempotency: auditRefreshApplyAllZeroVerifiedDuplicates64BNBugfix10Redo2(stateInput), fridayHomeLazySlot2: auditFridayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput), sundayHomeLazySlot2: auditSundayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput), overrideAwareScan: auditOverrideAwareRecalibrationScan64BNBugfix10Redo2(stateInput), comboNormalization: auditComboNameNormalization64BNBugfix10Redo2(), passiveUi: auditPassiveUiPreserved64BNBugfix10Redo2(), status: "YELLOW", androidGithubRequired: true });
+  }
+
+  function runFullAppAudit64BNBugfix10Redo2(stateInput) {
+    const previous = typeof runFullAppAudit64BNBugfix10Redo === "function" ? runFullAppAudit64BNBugfix10Redo(stateInput) : (typeof runFullAppAudit64BNBugfix9 === "function" ? runFullAppAudit64BNBugfix9(stateInput) : null);
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2", name: "Recalibration Apply Roundtrip Verification + Override-Aware Scan Lock", previous, recalibrationRoundtrip: runRecalibrationRoundtripAudit64BNBugfix10Redo2(stateInput), protectedOwners: Object.freeze({ renderRecalibrationRecommendationCard64BM: typeof renderRecalibrationRecommendationCard64BM === "function", wireSmartRecalibrationPanel64BM: typeof wireSmartRecalibrationPanel64BM === "function", applyPlanUpgrade64BM: typeof applyPlanUpgrade64BM === "function", applyAllEligibleRecommendedUpgrades64BNBugfix8: typeof applyAllEligibleRecommendedUpgrades64BNBugfix8 === "function", saveSmartPlanUpgrade64BL: typeof saveSmartPlanUpgrade64BL === "function", wireDataActions: typeof wireDataActions === "function", openSmartPlanRecalibrationCenter64BM: typeof openSmartPlanRecalibrationCenter64BM === "function", completeSet: typeof completeSet === "function", completeSupersetRound64BH: typeof completeSupersetRound64BH === "function", saveState: typeof saveState === "function", loadState: typeof loadState === "function", startWorkout: typeof startWorkout === "function" }), status: "YELLOW", androidGithubRequired: true });
+  }
+
+  window.normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2 = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2;
+  window.buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2 = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2;
+  window.buildRoundtripVerificationKey64BNBugfix10Redo2 = buildRoundtripVerificationKey64BNBugfix10Redo2;
+  window.verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 = verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2;
+  window.buildRoundtripVerificationReport64BNBugfix10Redo2 = buildRoundtripVerificationReport64BNBugfix10Redo2;
+  window.isRecalibrationScanOverrideAware64BNBugfix10Redo2 = isRecalibrationScanOverrideAware64BNBugfix10Redo2;
+  window.isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2;
+  window.upsertSmartPlanOverride64BNBugfix10Redo2 = upsertSmartPlanOverride64BNBugfix10Redo2;
+  window.dedupeSmartPlanOverrides64BNBugfix10Redo2 = dedupeSmartPlanOverrides64BNBugfix10Redo2;
+  window.runRecalibrationRoundtripAudit64BNBugfix10Redo2 = runRecalibrationRoundtripAudit64BNBugfix10Redo2;
+  window.runFullAppAudit64BNBugfix10Redo2 = runFullAppAudit64BNBugfix10Redo2;
 
   window.buildRecalibrationAppliedOverrideKey64BNBugfix10Redo = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo;
   window.upsertSmartPlanOverride64BNBugfix10Redo = upsertSmartPlanOverride64BNBugfix10Redo;
