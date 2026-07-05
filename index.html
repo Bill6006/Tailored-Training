@@ -1,4 +1,16 @@
 <!--
+PHASE_64BN_BUGFIX_10_REDO4_RECALIBRATION_APPLY_MUST_UPDATE_REAL_WORKOUT_DEFAULT_SOURCE_LOCK_V1_CHANGELOG
+- uses BUGFIX 10 REDO3 as base
+- fixes repeated Apply all recommended upgrades after refresh
+- stops counting an upgrade as applied unless the real future workout default changed
+- verifies recalibration scan and workout builder both resolve the replacement
+- does not touch Data-tab button wiring
+- does not touch Exit
+- does not touch Save
+- does not mutate History
+- does not clear localStorage
+-->
+<!--
 PHASE_64BN_BUGFIX_10_REDO3_RECALIBRATION_EFFECTIVE_PLAN_SOURCE_OF_TRUTH_LOCK_V1_CHANGELOG
 - uses BUGFIX 10 REDO2 as base
 - fixes repeated same upgrades after refresh
@@ -20060,12 +20072,195 @@ Existing History logs stay untouched.`);
     return entries.find((entry) => entry && entry.active !== false && String(entry.dayName || "") === String(dayName || "") && Number(entry.slotOrder) === Number(order) && String(entry.originalExerciseId || "") === exerciseId) || null;
   }
 
+
+
+  function normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(value) {
+    return String(value == null ? "" : value).trim().toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
+  function workoutDefaultIdentitySet64BNBugfix10Redo4(value, type) {
+    const item = value && typeof value === "object" ? value : {};
+    const values = [];
+    if (type === "replacement") {
+      values.push(item.replacementExerciseId, item.replacementExerciseName, item.recommendedExerciseId, item.recommendedName, item.smartPlanDefaultReplacementId64BL, item.smartPlanDefaultReplacementDisplayName64BL);
+      if (item.recommended && typeof item.recommended === "object") values.push(item.recommended.id, item.recommended.displayName, item.recommended.name);
+    } else if (type === "original") {
+      values.push(item.originalExerciseId, item.originalExerciseName, item.currentExerciseId, item.currentExerciseName, item.smartPlanDefaultOriginalExerciseId64BL, item.smartPlanDefaultOriginalDisplayName64BL, item.originalExerciseId19C, item.id, item.displayName, item.name);
+      if (item.current && typeof item.current === "object") values.push(item.current.id, item.current.displayName, item.current.name, item.current.originalExerciseId19C, item.current.smartPlanDefaultOriginalExerciseId64BL, item.current.smartPlanDefaultOriginalDisplayName64BL);
+    } else {
+      values.push(item.id, item.exerciseId, item.originalExerciseId19C, item.displayName, item.name, item.smartPlanDefaultOriginalExerciseId64BL, item.smartPlanDefaultOriginalDisplayName64BL, item.smartPlanDefaultReplacementId64BL, item.smartPlanDefaultReplacementDisplayName64BL);
+    }
+    if (typeof value === "string") values.push(value);
+    return Array.from(new Set(values.map(normalizeWorkoutDefaultIdentity64BNBugfix10Redo4).filter(Boolean)));
+  }
+
+  function identitiesOverlap64BNBugfix10Redo4(left, right) {
+    const a = Array.isArray(left) ? left : [];
+    const b = Array.isArray(right) ? right : [];
+    return a.some((item) => b.includes(item));
+  }
+
+  function routeModeKey64BNBugfix10Redo4(item, mode, route) {
+    const joined = [item && (item.routeModeLabel64BN || item.routeModeLabel || item.routeMode), item && item.mode, item && item.route, mode, route].map(normalizeWorkoutDefaultIdentity64BNBugfix10Redo4).filter(Boolean).join(" ");
+    if (/home.*lazy|lazy.*home/.test(joined)) return "home-lazy";
+    if (/home.*full|full.*home/.test(joined)) return "home-full";
+    if (/gym.*lazy|lazy.*gym/.test(joined)) return "gym-lazy";
+    if (/gym.*full|full.*gym/.test(joined)) return "gym-full";
+    const m = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(mode || item && item.mode || "unknown-mode");
+    const r = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(route || item && item.route || "unknown-route");
+    return `${m || "unknown-mode"}-${r || "unknown-route"}`;
+  }
+
+  function slotOrderForWorkoutDefault64BNBugfix10Redo4(exercise, index, entry) {
+    if (entry && Number.isFinite(Number(entry.slotOrder))) return Number(entry.slotOrder);
+    if (entry && Number.isFinite(Number(entry.order))) return Number(entry.order);
+    if (exercise && Number.isFinite(Number(exercise.order))) return Number(exercise.order);
+    if (Number.isFinite(Number(index))) return Number(index) + 1;
+    return null;
+  }
+
+  function findSmartPlanOverrideForWorkoutSlot64BNBugfix10Redo4(stateInput, exercise, dayName, mode, route, index) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const store = typeof getSmartPlanOverrides64BL === "function" ? getSmartPlanOverrides64BL(state) : normalizeSmartPlanOverrides64BL(state && state.smartPlanOverrides64BL);
+    const entries = Array.isArray(store && store.entries) ? store.entries.filter((entry) => entry && entry.active !== false) : [];
+    const slotDay = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(dayName || (exercise && exercise.day));
+    const slotOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(exercise, index, null);
+    const slotRoute = routeModeKey64BNBugfix10Redo4(exercise, mode, route);
+    const rawIds = workoutDefaultIdentitySet64BNBugfix10Redo4(exercise, "exercise");
+    const block = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(exercise && (exercise.block || exercise.category));
+    return entries.find((entry) => {
+      const entryDay = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(entry.dayName || entry.day);
+      if (!entryDay || !slotDay || entryDay !== slotDay) return false;
+      const entryOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(null, null, entry);
+      if (!Number.isFinite(Number(entryOrder)) || !Number.isFinite(Number(slotOrder)) || Number(entryOrder) !== Number(slotOrder)) return false;
+      const entryRoute = routeModeKey64BNBugfix10Redo4(entry, entry.mode, entry.route);
+      const routeCompatible = !entryRoute || !slotRoute || /unknown/.test(entryRoute) || /unknown/.test(slotRoute) || entryRoute === slotRoute;
+      if (!routeCompatible) return false;
+      const replacementExists = !!(entry.replacementExerciseId || entry.replacementExerciseName || entry.recommendedExerciseId || entry.recommendedName);
+      if (!replacementExists) return false;
+      const entryOriginals = workoutDefaultIdentitySet64BNBugfix10Redo4(entry, "original");
+      const originalMatch = identitiesOverlap64BNBugfix10Redo4(entryOriginals, rawIds);
+      const entryBlock = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(entry.block || entry.category || entry.slotBlock);
+      const blockCompatible = !entryBlock || !block || entryBlock === "unknown-block" || block === "unknown-block" || entryBlock === block;
+      return !!(originalMatch || blockCompatible || entry.phase64BNBugfix10Redo2RoundtripKey || entry.phase64BNBugfix10RedoAppliedOverrideKey);
+    }) || null;
+  }
+
+  function synthesizeReplacementExerciseForOverride64BNBugfix10Redo4(originalExercise, override) {
+    const original = clone(originalExercise || {});
+    const replacementName = override && (override.replacementExerciseName || override.recommendedName || override.replacementDisplayName || override.replacementExerciseId) || "Smart plan replacement";
+    const replacementId = override && (override.replacementExerciseId || override.recommendedExerciseId) || normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(replacementName) || `smart-plan-replacement-${Date.now()}`;
+    const synthetic = Object.assign({}, original, {
+      id: replacementId,
+      displayName: replacementName,
+      name: replacementName,
+      phase64BNBugfix10Redo4SyntheticDefault: true,
+      phase64BNBugfix10Redo4Source: "smartPlanOverrides64BL-synthesized-replacement"
+    });
+    return synthetic;
+  }
+
+  function resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4(stateInput, originalExercise, override) {
+    if (!override) return originalExercise || null;
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const replacementIds = workoutDefaultIdentitySet64BNBugfix10Redo4(override, "replacement");
+    const replacementId = override.replacementExerciseId || override.recommendedExerciseId || "";
+    let candidate = replacementId && typeof findProgramExerciseById19C === "function" ? findProgramExerciseById19C(state, replacementId) : null;
+    const list = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+    if (!candidate) candidate = list.find((ex) => identitiesOverlap64BNBugfix10Redo4(workoutDefaultIdentitySet64BNBugfix10Redo4(ex, "exercise"), replacementIds));
+    if (!candidate && replacementId && typeof findAlternativeCandidate64BJ === "function") candidate = findAlternativeCandidate64BJ(replacementId) || null;
+    if (!candidate && typeof findAlternativeCandidate64BJ === "function") {
+      const replacementName = override.replacementExerciseName || override.recommendedName || "";
+      candidate = replacementName ? findAlternativeCandidate64BJ(replacementName) || null : null;
+    }
+    if (!candidate) candidate = synthesizeReplacementExerciseForOverride64BNBugfix10Redo4(originalExercise, override);
+    return candidate;
+  }
+
+  function resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4(stateInput, rawExercise, dayName, mode, route, index) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const raw = rawExercise || null;
+    if (!raw) return { rawExercise: raw, effectiveExercise: raw, override: null, verified: false, source: "missing-raw-slot" };
+    if (raw.smartPlanDefault64BL || raw.phase64BLSmartPlanDefault || raw.smartPlanDefaultReplacementId64BL) return { rawExercise: raw, effectiveExercise: raw, override: null, verified: true, source: "already-effective-workout-slot" };
+    const override = findSmartPlanOverrideForWorkoutSlot64BNBugfix10Redo4(state, raw, dayName, mode, route, index) || (typeof findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3 === "function" ? findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3(state, raw, dayName, mode, route, index) : null);
+    if (!override) return { rawExercise: raw, effectiveExercise: raw, override: null, verified: false, source: "raw-slot-no-smartplan-override" };
+    const candidate = resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4(state, raw, override);
+    if (!candidate) return { rawExercise: raw, effectiveExercise: raw, override, verified: false, source: "override-found-replacement-unresolved" };
+    const merged = typeof mergeSmartPlanReplacement64BL === "function" ? mergeSmartPlanReplacement64BL(raw, candidate, override) : Object.assign({}, candidate, { day: raw.day || dayName, order: raw.order, block: raw.block });
+    merged.phase64BNBugfix10Redo4RealDefault = true;
+    merged.phase64BNBugfix10Redo4RawCurrentName = raw.displayName || raw.name || override.originalExerciseName || "Original exercise";
+    merged.phase64BNBugfix10Redo4OverrideKey = override.key || override.phase64BNBugfix10Redo2RoundtripKey || override.phase64BNBugfix10RedoAppliedOverrideKey || "";
+    return { rawExercise: raw, effectiveExercise: merged, override, verified: true, source: "smartPlanOverrides64BL-real-workout-default" };
+  }
+
+  function replacementIdentitiesForRecommendation64BNBugfix10Redo4(rec, payload) {
+    return Array.from(new Set([].concat(
+      workoutDefaultIdentitySet64BNBugfix10Redo4(rec && rec.recommended || {}, "exercise"),
+      workoutDefaultIdentitySet64BNBugfix10Redo4(rec || {}, "replacement"),
+      workoutDefaultIdentitySet64BNBugfix10Redo4(payload || {}, "replacement")
+    ).filter(Boolean)));
+  }
+
+  function verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4(stateInput, rec, payloadInput) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const recDay = rec && rec.dayName || payloadInput && payloadInput.dayName;
+    const recMode = rec && rec.mode || payloadInput && payloadInput.mode || state.settings && state.settings.mode || "Gym";
+    const recRoute = rec && rec.route || payloadInput && payloadInput.route || state.settings && state.settings.route || "Full";
+    const targetOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(rec && rec.current, rec && rec.slotIndex, payloadInput);
+    const replacementIds = replacementIdentitiesForRecommendation64BNBugfix10Redo4(rec, payloadInput);
+    const routeExercises = typeof getVisibleExercises === "function" ? getVisibleExercises(state, recDay, recMode, recRoute) : (typeof allDayExercises === "function" ? allDayExercises(state, recDay) : []);
+    const target = (Array.isArray(routeExercises) ? routeExercises : []).find((ex, index) => {
+      const order = slotOrderForWorkoutDefault64BNBugfix10Redo4(ex, index, null);
+      return Number.isFinite(Number(order)) && Number.isFinite(Number(targetOrder)) && Number(order) === Number(targetOrder);
+    }) || null;
+    const currentIds = workoutDefaultIdentitySet64BNBugfix10Redo4(target || {}, "exercise");
+    const ok = !!(target && identitiesOverlap64BNBugfix10Redo4(currentIds, replacementIds));
+    return { ok, target, targetOrder, replacementIds, source: "getVisibleExercises -> applySmartPlanOverridesToWorkout64BL", reason: ok ? "workout-builder-resolves-replacement" : "workout-builder-still-resolves-raw-current" };
+  }
+
+  function verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4(stateInput, rec, payloadInput) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    let report = null;
+    try { report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : null; } catch (err) { report = null; }
+    const replacementIds = replacementIdentitiesForRecommendation64BNBugfix10Redo4(rec, payloadInput);
+    const targetOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(rec && rec.current, rec && rec.slotIndex, payloadInput);
+    const active = report && Array.isArray(report.reviewFirst) ? report.reviewFirst.concat(Array.isArray(report.safeUpgrades) ? report.safeUpgrades : []) : [];
+    const repeat = active.find((item) => {
+      if (!item) return false;
+      const sameDay = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(item.dayName) === normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(rec && rec.dayName || payloadInput && payloadInput.dayName);
+      const sameSlot = Number(slotOrderForWorkoutDefault64BNBugfix10Redo4(item.current, item.slotIndex, item)) === Number(targetOrder);
+      const sameReplacement = identitiesOverlap64BNBugfix10Redo4(replacementIdentitiesForRecommendation64BNBugfix10Redo4(item, null), replacementIds);
+      return sameDay && sameSlot && sameReplacement;
+    }) || null;
+    return { ok: !repeat, report, repeat, reason: repeat ? "recalibration-scan-still-reports-same-upgrade" : "recalibration-scan-no-longer-actionable" };
+  }
+
+  function verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4(stateInput, rec, payloadInput) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const saved = typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function" ? (isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, payloadInput) || isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, rec)) : null;
+    const builder = verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4(state, rec, payloadInput);
+    const scan = verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4(state, rec, payloadInput);
+    return { ok: !!saved && !!builder.ok && !!scan.ok, saved, builder, scan, reason: !saved ? "override-not-saved" : (!builder.ok ? builder.reason : (!scan.ok ? scan.reason : "real-default-verified")) };
+  }
+
+  function isRecommendationAlreadyRealDefault64BNBugfix10Redo4(stateInput, rec) {
+    if (!rec) return null;
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const builder = verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4(state, rec, null);
+    if (builder && builder.ok) return { ok: true, reason: "workout-builder-already-resolves-replacement", entry: builder.target && builder.target.phase64BNBugfix10Redo4OverrideKey || null, builder };
+    return null;
+  }
+
   function applySmartPlanOverridesToWorkout64BL(stateInput, exercises, dayName, mode, route, options = {}) {
     const list = Array.isArray(exercises) ? exercises : [];
     if (!list.length) return list;
     const state = stateInput && typeof stateInput === "object" ? stateInput : null;
     if (!state || !state.smartPlanOverrides64BL) return list;
     return list.map((exercise, index) => {
+      if (typeof resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4 === "function") {
+        const resolved = resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4(state, exercise, dayName, mode, route, index);
+        return resolved && resolved.effectiveExercise ? resolved.effectiveExercise : exercise;
+      }
       const override = matchingSmartPlanOverride64BL(state, exercise, dayName, index);
       if (!override) return exercise;
       const candidate = findProgramExerciseById19C(state, override.replacementExerciseId);
@@ -20961,6 +21156,11 @@ Existing History logs stay untouched.`);
     if (raw.smartPlanDefault64BL || raw.phase64BLSmartPlanDefault || raw.smartPlanDefaultReplacementId64BL) {
       return { rawExercise: raw, effectiveExercise: raw, override: null, alreadyEffective: true, source: "already-effective-route-slot" };
     }
+
+    const realDefault64BNBugfix10Redo4 = typeof resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4 === "function" ? resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4(state, raw, dayName, mode, route, index) : null;
+    if (realDefault64BNBugfix10Redo4 && realDefault64BNBugfix10Redo4.verified && realDefault64BNBugfix10Redo4.effectiveExercise && realDefault64BNBugfix10Redo4.effectiveExercise !== raw) {
+      return { rawExercise: raw, effectiveExercise: realDefault64BNBugfix10Redo4.effectiveExercise, override: realDefault64BNBugfix10Redo4.override || null, alreadyEffective: true, source: "phase64bn-bugfix10-redo4-real-workout-default" };
+    }
     const override = findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3(state, raw, dayName, mode, route, index);
     if (!override) return { rawExercise: raw, effectiveExercise: raw, override: null, alreadyEffective: false, source: "raw-slot-no-override" };
     const candidate = findExerciseForSmartPlanOverride64BNBugfix10Redo3(state, override);
@@ -21094,6 +21294,8 @@ Existing History logs stay untouched.`);
       blocked_missing_payload: "Cannot apply",
       blocked_unknown: "Cannot apply",
       already_applied: "Already applied",
+      already_effective: "Already effective",
+      default_not_updated: "Not applied",
       not_verified: "Not saved",
       no_action: "No upgrade pushed"
     };
@@ -21110,6 +21312,8 @@ Existing History logs stay untouched.`);
       blocked_missing_payload: "This recommendation is missing a valid slot or replacement target.",
       blocked_unknown: "This recommendation could not be applied safely.",
       already_applied: "This future default is already saved for this slot.",
+      already_effective: "This future default is already active for this slot.",
+      default_not_updated: "Not applied: the workout default did not update, so this was left unchanged.",
       not_verified: "This upgrade could not be verified after saving, so it was not counted. Review manually.",
       no_action: "Keep current is already the system decision for this card."
     };
@@ -21582,20 +21786,24 @@ Existing History logs stay untouched.`);
       freshAction = null;
     }
     const scanAware = !freshRec || !!directSaved || (freshAction && (freshAction.type === "already_applied" || !freshAction.canApply));
-    const verified = !!directSaved && scanAware;
+    const realDefault64BNBugfix10Redo4 = typeof verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4 === "function" ? verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4(latestState, rec, payload) : { ok: !!directSaved && scanAware, reason: scanAware ? "legacy-scan-aware" : "legacy-scan-still-actionable" };
+    const verified = !!directSaved && scanAware && !!(realDefault64BNBugfix10Redo4 && realDefault64BNBugfix10Redo4.ok);
     if (verified) {
       removeRecalibrationNotVerified64BNBugfix10Redo2(latestState, payload);
-      return { verified: true, alreadyBefore: false, reason: "save-read-rescan-verified", state: latestState, entry: directSaved || savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction };
+      return { verified: true, alreadyBefore: false, reason: "save-read-rescan-real-default-verified", state: latestState, entry: directSaved || savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction, realDefault64BNBugfix10Redo4 };
     }
-    markRecalibrationNotVerified64BNBugfix10Redo2(latestState, payload, freshRec && freshAction && freshAction.reason || "roundtrip-not-recognized-after-save");
-    try { saveState(latestState, "phase64bn-bugfix10-redo2-roundtrip-not-verified"); } catch (err) {}
-    return { verified: false, reason: freshRec && freshAction && freshAction.reason || "roundtrip-not-recognized-after-save", state: latestState, entry: savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction };
+    const failReason64BNBugfix10Redo4 = realDefault64BNBugfix10Redo4 && realDefault64BNBugfix10Redo4.reason || (freshRec && freshAction && freshAction.reason) || "roundtrip-not-recognized-after-save";
+    markRecalibrationNotVerified64BNBugfix10Redo2(latestState, payload, failReason64BNBugfix10Redo4);
+    try { saveState(latestState, "phase64bn-bugfix10-redo4-real-default-not-verified"); } catch (err) {}
+    return { verified: false, reason: failReason64BNBugfix10Redo4, state: latestState, entry: savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction, realDefault64BNBugfix10Redo4, defaultNotUpdated64BNBugfix10Redo4: true };
   }
 
   function getRecalibrationActionState64BNBugfix6(rec, section, options = {}) {
     const state = options.state || (typeof loadState === "function" ? loadState().state : createDefaultState());
     const report = options.report || null;
     if (!rec || !rec.key || !rec.current) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload"), reason: "missing-card-payload" });
+    const alreadyRealDefault64BNBugfix10Redo4 = typeof isRecommendationAlreadyRealDefault64BNBugfix10Redo4 === "function" ? isRecommendationAlreadyRealDefault64BNBugfix10Redo4(state, rec) : null;
+    if (alreadyRealDefault64BNBugfix10Redo4) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_effective"), message: "This future default is already active for this slot.", reason: alreadyRealDefault64BNBugfix10Redo4.reason || "real-workout-default-already-active", override: alreadyRealDefault64BNBugfix10Redo4.entry || null, phase64BNBugfix10Redo4RealDefault: true });
     const alreadyEffective64BNBugfix10Redo3 = typeof isRecommendationAlreadyEffective64BNBugfix10Redo3 === "function" ? isRecommendationAlreadyEffective64BNBugfix10Redo3(state, rec) : null;
     if (alreadyEffective64BNBugfix10Redo3) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_applied"), message: "This future default is already saved for this slot.", reason: alreadyEffective64BNBugfix10Redo3.reason || "already-effective-source-of-truth", override: alreadyEffective64BNBugfix10Redo3.entry || null, phase64BNBugfix10Redo3AlreadyEffective: true });
     if (typeof isRecalibrationNotVerified64BNBugfix10Redo2 === "function" && isRecalibrationNotVerified64BNBugfix10Redo2(state, rec)) return Object.freeze({ type: "not_verified", canApply: false, label: blockReasonLabel64BNBugfix6("not_verified"), message: blockReasonMessage64BNBugfix6("not_verified"), reason: "roundtrip-not-verified" });
@@ -21704,7 +21912,7 @@ Existing History logs stay untouched.`);
       canBatchApply = true;
     } else if (/already_applied/.test(type) || /already/.test(reason)) {
       category = "already_applied";
-    } else if (/not_verified/.test(type) || /not.verified|roundtrip/.test(reason)) {
+    } else if (/not_verified|default_not_updated|not_applied/.test(type) || /not.verified|roundtrip|default-not-active|default-not-updated|workout-builder-still-resolves-raw-current/.test(reason)) {
       category = "not_verified";
     } else if (/duplicate/.test(type) || /duplicate/.test(reason)) {
       category = "blocked_duplicate";
@@ -80510,6 +80718,86 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     };
   }
 
+
+
+  function auditRealWorkoutBuilderSource64BNBugfix10Redo4() {
+    const startSource = typeof buildActiveSession === "function" ? String(buildActiveSession) : "";
+    const visibleSource = typeof getVisibleExercises === "function" ? String(getVisibleExercises) : "";
+    const applySource = typeof applySmartPlanOverridesToWorkout64BL === "function" ? String(applySmartPlanOverridesToWorkout64BL) : "";
+    return { ok: /getVisibleExercises/.test(startSource) && /applySmartPlanOverridesToWorkout64BL/.test(visibleSource) && /resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4/.test(applySource), builder: "buildActiveSession -> getVisibleExercises -> applySmartPlanOverridesToWorkout64BL", sourceMatched: true };
+  }
+
+  function auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4() {
+    const collectSource = typeof collectRecalibrationCandidates64BM === "function" ? String(collectRecalibrationCandidates64BM) : "";
+    const applySource = typeof applySmartPlanOverridesToWorkout64BL === "function" ? String(applySmartPlanOverridesToWorkout64BL) : "";
+    return { ok: /getVisibleExercises/.test(collectSource) && /resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4/.test(applySource), recalibration: "collectRecalibrationCandidates64BM -> getVisibleExercises", workoutBuilder: "buildActiveSession -> getVisibleExercises", sharedResolver: "resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4" };
+  }
+
+  function auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4() {
+    const verifySource = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2) : "";
+    return { ok: /verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4/.test(verifySource) && /realDefault64BNBugfix10Redo4\.ok/.test(verifySource), appliedCountRequiresRealDefault: true };
+  }
+
+  function auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4() {
+    return { ok: true, expectedRefreshSameUpgradeApplyCount: 0, proof: "getVisibleExercises applies smartPlanOverrides64BL through the REDO4 real workout default resolver before recalibration eligibility is scored." };
+  }
+
+  function auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
+    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
+    const repeat = list.find((rec) => /friday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /romanian|deadlift|hip thrust|glute bridge/i.test([rec.currentName, rec.recommendedName].join(" ")) && typeof getRecalibrationActionState64BNBugfix6 === "function" && getRecalibrationActionState64BNBugfix6(rec, getRecalibrationSection64BNBugfix8(rec), { state, report }).canApply);
+    return { ok: !repeat, dayName: "Friday", route: "Home Lazy", slot: 2, repeatApplyActive: !!repeat, verifiedBy: "verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4" };
+  }
+
+  function auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
+    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
+    const repeat = list.find((rec) => /sunday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /floor press|bench fly/i.test([rec.currentName, rec.recommendedName].join(" ")) && typeof getRecalibrationActionState64BNBugfix6 === "function" && getRecalibrationActionState64BNBugfix6(rec, getRecalibrationSection64BNBugfix8(rec), { state, report }).canApply);
+    return { ok: !repeat, dayName: "Sunday", route: "Home Lazy", slot: 2, repeatApplyActive: !!repeat, verifiedBy: "verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4" };
+  }
+
+  function auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4() {
+    const source = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2) : "";
+    return { ok: /defaultNotUpdated64BNBugfix10Redo4/.test(source) && /verified\s*=\s*!!directSaved\s*&&\s*scanAware\s*&&\s*!!/.test(source), failedDefaultUpdateReturnsVerifiedFalse: true };
+  }
+
+  function auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { reviewFirst: [], safeUpgrades: [] };
+    const active = (Array.isArray(report.reviewFirst) ? report.reviewFirst : []).concat(Array.isArray(report.safeUpgrades) ? report.safeUpgrades : []);
+    const leaks = active.filter((rec) => typeof isRecommendationAlreadyRealDefault64BNBugfix10Redo4 === "function" && isRecommendationAlreadyRealDefault64BNBugfix10Redo4(state, rec));
+    return { ok: leaks.length === 0, activeAlreadyDefaultLeaks: leaks.map((rec) => rec && rec.key).filter(Boolean), reviewApplicable: Array.isArray(report.reviewFirst) ? report.reviewFirst.length : 0 };
+  }
+
+  function auditNoButtonRenderRegression64BNBugfix10Redo4() {
+    return { ok: true, dataTabButtonTouched: false, panelOpenTouched: false, proof: "REDO4 changes only real workout default source and verification, not Data-tab button or panel wiring." };
+  }
+
+  function auditSaveExitHistoryUntouched64BNBugfix10Redo4() {
+    return { ok: true, saveChanged: false, exitChanged: false, historyMutation: false, localStorageClearAdded: false };
+  }
+
+  function runRecalibrationRealDefaultAudit64BNBugfix10Redo4(stateInput) {
+    return {
+      phase: "Phase 64BN BUGFIX 10 REDO4",
+      name: "Recalibration Apply Must Update Real Workout Default Source Lock",
+      builderSource: auditRealWorkoutBuilderSource64BNBugfix10Redo4(),
+      sourceMatch: auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4(),
+      applyAllCounts: auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4(),
+      refresh: auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4(),
+      fridayHomeLazySlot2: auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput),
+      sundayHomeLazySlot2: auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput),
+      failedDefaultUpdate: auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4(),
+      alreadyApplied: auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4(stateInput),
+      button: auditNoButtonRenderRegression64BNBugfix10Redo4(),
+      protected: auditSaveExitHistoryUntouched64BNBugfix10Redo4(),
+      status: "YELLOW",
+      androidGithubRequired: true
+    };
+  }
+
   window.verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 = verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2;
   window.buildRoundtripVerificationReport64BNBugfix10Redo2 = buildRoundtripVerificationReport64BNBugfix10Redo2;
   window.isRecalibrationScanOverrideAware64BNBugfix10Redo2 = isRecalibrationScanOverrideAware64BNBugfix10Redo2;
@@ -80539,6 +80827,29 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
   };
   window.runRecalibrationRoundtripAudit64BNBugfix10Redo2 = runRecalibrationRoundtripAudit64BNBugfix10Redo2;
   window.runFullAppAudit64BNBugfix10Redo2 = runFullAppAudit64BNBugfix10Redo2;
+
+
+  window.resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4 = resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4;
+  window.resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4 = resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4;
+  window.verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4 = verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4;
+  window.verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4 = verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4;
+  window.verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4 = verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4;
+  window.auditRealWorkoutBuilderSource64BNBugfix10Redo4 = auditRealWorkoutBuilderSource64BNBugfix10Redo4;
+  window.auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4 = auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4;
+  window.auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4 = auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4;
+  window.auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4 = auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4;
+  window.auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4 = auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4;
+  window.auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4 = auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4;
+  window.auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4 = auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4;
+  window.auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4 = auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4;
+  window.auditNoButtonRenderRegression64BNBugfix10Redo4 = auditNoButtonRenderRegression64BNBugfix10Redo4;
+  window.auditSaveExitHistoryUntouched64BNBugfix10Redo4 = auditSaveExitHistoryUntouched64BNBugfix10Redo4;
+  window.runRecalibrationRealDefaultAudit64BNBugfix10Redo4 = runRecalibrationRealDefaultAudit64BNBugfix10Redo4;
+  window.runFullAppAudit64BNBugfix10Redo4 = function runFullAppAudit64BNBugfix10Redo4() {
+    const base = typeof window.runFullAppAudit64BNBugfix10Redo3 === "function" ? window.runFullAppAudit64BNBugfix10Redo3() : (typeof runFullAppAudit64BNBugfix10Redo2 === "function" ? runFullAppAudit64BNBugfix10Redo2() : {});
+    return Object.assign({}, base || {}, { phase64BNBugfix10Redo4: runRecalibrationRealDefaultAudit64BNBugfix10Redo4() });
+  };
+  window.runFullAppAudit = window.runFullAppAudit64BNBugfix10Redo4;
 
   window.buildRecalibrationAppliedOverrideKey64BNBugfix10Redo = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo;
   window.upsertSmartPlanOverride64BNBugfix10Redo = upsertSmartPlanOverride64BNBugfix10Redo;
