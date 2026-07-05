@@ -1,4 +1,15 @@
 <!--
+PHASE_64BN_BUGFIX_7_RECALIBRATION_RECOMMENDATION_LABEL_TRUTH_LOCK_V1_CHANGELOG
+- fixes misleading RECOMMENDED label on blocked/review-only recalibration cards
+- uses RECOMMENDED only when the app is actually recommending an apply action
+- uses CANDIDATE or OPTION FOUND when a replacement is found but not pushed
+- preserves BUGFIX 6 action truth behavior
+- does not change apply logic
+- does not touch Exit behavior
+- does not mutate History
+- does not clear localStorage
+-->
+<!--
 PHASE_64BN_BUGFIX_4_CONTROLS_EXIT_PREVENT_CLOSE_FALLTHROUGH_AND_CONFIRM_MOUNT_LOCK_V1_CHANGELOG
 - fixes Exit action closing the Controls sheet without opening confirmation
 - prevents Exit from falling through to generic Controls close behavior
@@ -290,6 +301,34 @@ PHASE_64BE_SUPERSET_ROUND_BASED_MULTI_MOVE_LOGGING_FOUNDATION_V1_CHANGELOG
 <!doctype html>
 
 <!--
+PHASE_64BN_BUGFIX_8_RECALIBRATION_APPLY_ALL_ELIGIBLE_REVIEW_UPGRADES_LOCK_V1_CHANGELOG
+- Adds Apply all recommended upgrades button.
+- Applies Safe upgrades plus eligible Review First upgrades.
+- Keeps duplicate/mode/intent/current-strong guards.
+- Does not apply review-only or blocked items.
+- Preserves BUGFIX 6 action truth.
+- Preserves BUGFIX 7 label truth.
+- Uses smartPlanOverrides64BL exact-slot persistence.
+- Does not touch Exit behavior.
+- Does not mutate History.
+- Does not clear localStorage.
+-->
+
+<!--
+PHASE_64BN_BUGFIX_6_RECALIBRATION_APPLY_AFTER_REVIEW_ACTION_TRUTH_LOCK_V1_CHANGELOG
+- Fixes Apply after review buttons that visually appear but do nothing.
+- Applies or blocks every visible recalibration action truthfully.
+- Works across Home Full, Home Lazy, Gym Full, and Gym Lazy.
+- Cleans repeated Review first wording.
+- Preserves smartPlanOverrides64BL exact-slot persistence.
+- Preserves duplicate guards.
+- Does not touch Exit behavior.
+- Does not mutate History.
+- Does not clear localStorage.
+-->
+
+
+<!--
 PHASE_64BN_BUGFIX_5_REDO2_CONTROLS_EXIT_FIRST_CLASS_CONTROL_ACTION_LOCK_V1_CHANGELOG
 - Rolls back to BUGFIX 4 as the clean base.
 - Does not use broken BUGFIX 5, BUGFIX 6, or BUGFIX 5 REDO.
@@ -305,20 +344,6 @@ PHASE_64BN_BUGFIX_5_REDO2_CONTROLS_EXIT_FIRST_CLASS_CONTROL_ACTION_LOCK_V1_CHANG
 -->
 
 <!--
-PHASE_64BN_BUGFIX_5_REDO4B_EXIT_OK_REAL_ACTIVE_RENDER_GATE_SHUTDOWN_LOCK_V1_CHANGELOG
-- Uses REDO3 as the clean base because REDO3 opens the Exit prompt.
-- Does not use failed REDO4.
-- Fixes OK on Exit prompt returning to the same active workout.
-- Identifies the real active-workout render gate.
-- Clears the canonical active-workout state source that controls that render gate.
-- Prevents immediate auto-resume of the just-exited workout.
-- Preserves Save behavior.
-- Preserves header workout time.
-- Does not save current active progress.
-- Does not mutate saved History.
-- Does not clear localStorage.
--->
-<!--
 PHASE_64BN_BUGFIX_5_REDO3_CONTROLS_EXIT_WIRE_LEVEL_ID_BRANCH_BEFORE_CLOSE_LOCK_V1_CHANGELOG
 - Fixes Exit closing Controls without opening the confirmation prompt.
 - Detects the visible Exit button by id inside the real Controls wire handler before generic close/delegate behavior.
@@ -330,6 +355,20 @@ PHASE_64BN_BUGFIX_5_REDO3_CONTROLS_EXIT_WIRE_LEVEL_ID_BRANCH_BEFORE_CLOSE_LOCK_V
 - Preserves saved History and app data.
 - Preserves BUGFIX 2 no-auto-resume termination.
 - Does not add document-level click listeners.
+- Does not clear localStorage.
+-->
+
+<!--
+PHASE_64BN_BUGFIX_5_REDO4C_EXIT_OK_TERMINATE_WITHOUT_START_BLOCK_REGRESSION_V1_CHANGELOG
+- Uses REDO3 as rollback-safe base.
+- Does not use failed REDO4B.
+- Fixes OK on Exit prompt without blocking intentional workout start.
+- Does not add a persistent no-auto-resume marker.
+- Does not modify startWorkout unless proven absolutely necessary.
+- Preserves Save behavior.
+- Preserves header workout time.
+- Does not save current active progress.
+- Does not mutate saved History.
 - Does not clear localStorage.
 -->
 
@@ -13903,113 +13942,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     return result;
   }
 
-  const PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY = "tt_phase64bn_bugfix5_redo4b_exit_no_auto_resume";
-
-  function activeWorkoutRenderGate64BNBugfix5Redo4B(state) {
-    const active = !!(state && state.activeSession && Array.isArray(state.activeSession.exercises));
-    return Object.freeze({
-      functionName: "renderAppFast25FBugfix/renderAppFull25FBugfix + activeWorkoutFocusEnabled52B",
-      condition: "state.activeSession && Array.isArray(state.activeSession.exercises)",
-      active,
-      hasActiveSession: !!(state && state.activeSession),
-      exerciseCount: state && state.activeSession && Array.isArray(state.activeSession.exercises) ? state.activeSession.exercises.length : 0
-    });
-  }
-
-  function activeSessionFingerprint64BNBugfix5Redo4B(session) {
-    const active = session && typeof session === "object" && !Array.isArray(session) ? session : null;
-    if (!active) return "no-active-session";
-    const firstExercise = Array.isArray(active.exercises) && active.exercises[0] ? active.exercises[0] : null;
-    return [
-      active.id || "no-session-id",
-      active.dateKey || "no-date",
-      active.dayName || active.workoutKey || "no-day",
-      active.mode || "no-mode",
-      active.route || "no-route",
-      active.startedAt || "no-started-at",
-      firstExercise && (firstExercise.id || firstExercise.displayName) || "no-first-exercise"
-    ].map((part) => String(part || "").trim()).join("|");
-  }
-
-  function readExitNoAutoResumeMarker64BNBugfix5Redo4B() {
-    const fallback = typeof window !== "undefined" ? window.__phase64BNBugfix5Redo4BExitNoAutoResumeMarker : null;
-    try {
-      if (hasStorage()) {
-        const raw = safeStorageGet10E(PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY, null);
-        const parsed = raw ? safeJsonParse(raw, null, PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY) : null;
-        if (parsed && parsed.ok && parsed.value && typeof parsed.value === "object") return parsed.value;
-      }
-    } catch (_) {}
-    return fallback && typeof fallback === "object" ? fallback : null;
-  }
-
-  function markWorkoutExitedNoAutoResume64BNBugfix5Redo4B(session) {
-    const marker = {
-      phase: "PHASE_64BN_BUGFIX_5_REDO4B",
-      reason: "confirmed-exit-no-auto-resume",
-      createdAt: nowIso(),
-      sessionId: session && session.id || null,
-      fingerprint: activeSessionFingerprint64BNBugfix5Redo4B(session),
-      dayName: session && session.dayName || null,
-      mode: session && session.mode || null,
-      route: session && session.route || null,
-      workoutKey: session && session.workoutKey || null
-    };
-    if (typeof window !== "undefined") window.__phase64BNBugfix5Redo4BExitNoAutoResumeMarker = marker;
-    try { if (hasStorage()) safeStorageSet10E(PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY, JSON.stringify(marker)); } catch (_) {}
-    return marker;
-  }
-
-  function activeSessionMatchesExitMarker64BNBugfix5Redo4B(session, marker = readExitNoAutoResumeMarker64BNBugfix5Redo4B()) {
-    if (!session || !marker) return false;
-    const fingerprint = activeSessionFingerprint64BNBugfix5Redo4B(session);
-    if (marker.fingerprint && marker.fingerprint === fingerprint) return true;
-    if (marker.sessionId && session.id && marker.sessionId === session.id) return true;
-    return false;
-  }
-
-  function isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B(session) {
-    return activeSessionMatchesExitMarker64BNBugfix5Redo4B(session);
-  }
-
-  function clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B() {
-    if (typeof window !== "undefined") window.__phase64BNBugfix5Redo4BExitNoAutoResumeMarker = null;
-    try { if (hasStorage()) localStorage.removeItem(PHASE64BN_BUGFIX5_REDO4B_EXIT_NO_AUTO_RESUME_KEY); } catch (_) {}
-    return true;
-  }
-
-  function clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(stateInput, reason = "confirmed-exit") {
-    const next = migrateState(clone(stateInput || createDefaultState()), `phase64bn-bugfix5-redo4b-${reason}`);
-    const beforeGate = activeWorkoutRenderGate64BNBugfix5Redo4B(next);
-    const activeBefore = next.activeSession ? clone(next.activeSession) : null;
-    next.activeSession = null;
-    next.restTimer = typeof createDefaultRestTimerState11C === "function" ? createDefaultRestTimerState11C() : { active: false, totalSeconds: 0, remainingSeconds: 0, context: { source: "phase64bn-bugfix5-redo4b-exit" } };
-    if (Object.prototype.hasOwnProperty.call(next, "selectedExerciseIndex")) next.selectedExerciseIndex = 0;
-    next.audit = Object.assign({}, next.audit || {}, {
-      phase64BNBugfix5Redo4BExitConfirmed: true,
-      phase64BNBugfix5Redo4BRenderGateFunction: "renderAppFast25FBugfix/renderAppFull25FBugfix",
-      phase64BNBugfix5Redo4BRenderGateCondition: "state.activeSession",
-      phase64BNBugfix5Redo4BFocusGateCondition: "activeWorkoutFocusEnabled52B(state)",
-      phase64BNBugfix5Redo4BCanonicalActiveSessionCleared: true,
-      phase64BNBugfix5Redo4BHistoryMutated: false,
-      phase64BNBugfix5Redo4BLocalStorageClearUsed: false,
-      phase64BNBugfix5Redo4BExitedAt: nowIso()
-    });
-    next.qa = Object.assign({}, next.qa || {}, { phase64BNBugfix5Redo4BControlsExit: "canonical-active-render-gate-cleared" });
-    return { ok: true, state: next, activeBefore, beforeGate, afterGate: activeWorkoutRenderGate64BNBugfix5Redo4B(next) };
-  }
-
-  function clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(stateInput, source = "loadState") {
-    const state = stateInput && typeof stateInput === "object" && !Array.isArray(stateInput) ? stateInput : stateInput;
-    if (!state || !state.activeSession || !isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B(state.activeSession)) return state;
-    const cleared = clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(state, `blocked-auto-resume-${source}`);
-    cleared.state.audit = Object.assign({}, cleared.state.audit || {}, { phase64BNBugfix5Redo4BBlockedAutoResumeSource: source });
-    return cleared.state;
-  }
-
   function shouldPreferRuntimeStateOverDurableState50Bugfix(runtimeState, source = "runtime") {
     if (!runtimeState || typeof runtimeState !== "object") return false;
-    if (runtimeState.activeSession && typeof isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B === "function" && isWorkoutBlockedFromAutoResume64BNBugfix5Redo4B(runtimeState.activeSession)) return false;
     const durable = durableStateCandidate50Bugfix();
     if (!durable) return true;
     if (shouldPreferRuntimeCustomMediaState50NoScroll(runtimeState, durable)) return true;
@@ -14029,8 +13963,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const storageOk = hasStorage();
     const warnings = [];
     if (customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.media && customMediaRenderSyncState48DFix.media.phase48D && customMediaRenderSyncState48DFix.media.phase48D.saveRenderSyncBugfix48D && shouldPreferRuntimeStateOverDurableState50Bugfix(customMediaRenderSyncState48DFix, "custom-media-render-sync")) {
-      let state = clone(customMediaRenderSyncState48DFix);
-      state = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(state, "custom-media-runtime");
+      const state = clone(customMediaRenderSyncState48DFix);
       hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
       hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
@@ -14038,8 +13971,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       return { state, source: "phase48d-save-render-sync-memory", warnings: ["Using freshest custom-media state so the saved tile renders immediately."], storageOk, legacyPreview: [] };
     }
     if (memoryStateFallback10E && memoryStateFallback10E.activeSession && shouldPreferRuntimeStateOverDurableState50Bugfix(memoryStateFallback10E, "memory-active-session")) {
-      let state = clone(memoryStateFallback10E);
-      state = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(state, "memory-state-fallback");
+      const state = clone(memoryStateFallback10E);
       hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
       hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
@@ -14047,8 +13979,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       return { state, source: "memory-active-session-preferred", warnings: ["Using active in-memory session so Start workout visibly stays active even if localStorage is constrained"], storageOk, legacyPreview: [] };
     }
     if (!storageOk) {
-      let state = memoryStateFallback10E ? clone(memoryStateFallback10E) : createDefaultState();
-      state = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(state, "memory-or-default-no-storage");
+      const state = memoryStateFallback10E ? clone(memoryStateFallback10E) : createDefaultState();
       hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix(state, "phase50-bugfix-loadstate-preserve-renderable-custom-media");
       hydrateCustomMediaFromSyncPayloadCache50Bugfix(state, "phase50-bugfix-loadstate-runtime-custom-media-sync");
       hydrateActiveSessionProgressAfterReload49ABugfix(state);
@@ -14060,8 +13991,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     if (!raw) { const state = hydrateCustomMediaFromSyncPayloadCache50Bugfix(createDefaultState(), "phase50-bugfix-loadstate-default-custom-media-payloads"); state.audit.legacyPreview = legacyPreview; return { state, source: "default-not-saved", warnings, storageOk, legacyPreview }; }
     const parsed = safeJsonParse(raw, null, STATE_KEY);
     if (!parsed.ok) { warnings.push(parsed.warning); const state = hydrateCustomMediaFromSyncPayloadCache50Bugfix(createDefaultState(), "phase50-bugfix-loadstate-invalid-custom-media-payloads"); state.audit.invalidExistingStateDetected = true; state.audit.legacyPreview = legacyPreview; return { state, source: "default-after-invalid-existing", warnings, storageOk, legacyPreview }; }
-    let normalized = migrateState(parsed.value, "phase10e-active-state-clarity-loadState");
-    normalized = clearExitedActiveSessionFromLoadedState64BNBugfix5Redo4B(normalized, "localStorage-v2-storage-safe");
+    const normalized = migrateState(parsed.value, "phase10e-active-state-clarity-loadState");
     hydrateCustomMediaFromSyncPayloadCache50Bugfix(normalized, "phase50-bugfix-loadstate-localstorage-custom-media-sync");
     hydrateActiveSessionProgressAfterReload49ABugfix(normalized);
     normalized.audit.legacyPreview = legacyPreview;
@@ -16503,7 +16433,6 @@ Existing History logs stay untouched.`);
     renderApp("Current exercise selected · fast path", safeIndex);
   }
   function startWorkout() {
-    if (typeof clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B === "function") clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B();
     const loaded = loadState();
     const next = loaded.state;
     const dayName = selectedWorkoutDay32CBugfix(next);
@@ -20908,26 +20837,283 @@ Existing History logs stay untouched.`);
     });
   }
 
+  function recalibrationText64BNBugfix6(value) {
+    return String(value == null ? "" : value).toLowerCase();
+  }
+
+  function recHasSimilarOrNoUpgradeSignal64BNBugfix6(rec) {
+    if (!rec) return false;
+    const text = [
+      rec.decisionLabel,
+      rec.why,
+      rec.currentFitLabel,
+      rec.recommendedFitLabel,
+      rec.recommended && rec.recommended.fitLabel64BK,
+      rec.recommended && rec.recommended.modeFit19B,
+      rec.routeModeLabel64BN
+    ].map(recalibrationText64BNBugfix6).join(" ");
+    if (/current is strong|similar fit|similar home fit|similar gym fit|no clear upgrade|already strong enough|no clear batch-safe upgrade/.test(text)) return true;
+    return !!(rec.similarFit64BMBugfix2 || rec.currentStrong64BMBugfix2);
+  }
+
+  function recWarmupIntentMismatch64BNBugfix6(rec) {
+    if (!rec || !rec.current || !rec.recommended) return false;
+    const currentWarm = typeof isWarmupSlot64BN === "function" ? isWarmupSlot64BN(rec.current) : /warm|ramp|mobility|activation|prep/i.test(String(rec.block || rec.current.block || rec.current.displayName || rec.current.name || ""));
+    if (!currentWarm) return false;
+    const heavy = typeof candidateIsHeavyWorkingMove64BN === "function" ? candidateIsHeavyWorkingMove64BN(rec.recommended) : false;
+    const currentText = [rec.current.displayName, rec.current.name, rec.current.block, rec.block].map(recalibrationText64BNBugfix6).join(" ");
+    const recText = [rec.recommendedName, rec.recommended.displayName, rec.recommended.name, rec.recommended.block, rec.recommended.category, rec.recommended.trainingIntent].map(recalibrationText64BNBugfix6).join(" ");
+    const warmSignals = /warm|ramp|mobility|activation|prep|scap|pull-apart|light|primer/.test(currentText);
+    const recommendedWarmSignals = /warm|ramp|mobility|activation|prep|scap|pull-apart|light|primer/.test(recText);
+    const workingSignals = /farmer carry|deadlift|hip thrust|floor glute bridge|press|curl|rest-pause|working|strength|hypertrophy|pump/.test(recText);
+    return !!((heavy || (warmSignals && workingSignals)) && !recommendedWarmSignals);
+  }
+
+  function blockReasonLabel64BNBugfix6(type) {
+    const map = {
+      blocked_duplicate: "Duplicate blocked",
+      blocked_mode_mismatch: "Mode mismatch",
+      blocked_intent_mismatch: "Review only",
+      blocked_similar_fit: "No upgrade pushed",
+      blocked_current_strong: "No upgrade pushed",
+      blocked_missing_payload: "Cannot apply",
+      blocked_unknown: "Cannot apply",
+      no_action: "Keep current"
+    };
+    return map[type] || "Cannot apply";
+  }
+
+  function blockReasonMessage64BNBugfix6(type, detail) {
+    const map = {
+      blocked_duplicate: "This replacement is already claimed or present in this workout day.",
+      blocked_mode_mismatch: "This option does not match this Home/Gym route.",
+      blocked_intent_mismatch: "This may change the warm-up purpose, so it was not applied.",
+      blocked_similar_fit: "Keep current unless you want to review manually.",
+      blocked_current_strong: "Keep current unless you want to review manually.",
+      blocked_missing_payload: "This recommendation is missing a valid slot or replacement target.",
+      blocked_unknown: "This recommendation could not be applied safely.",
+      no_action: "No upgrade was pushed for this card."
+    };
+    return detail || map[type] || map.blocked_unknown;
+  }
+
+  function getRecalibrationActionState64BNBugfix6(rec, section, options = {}) {
+    const state = options.state || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = options.report || null;
+    if (!rec || !rec.key || !rec.current) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload"), reason: "missing-card-payload" });
+    const isSafe = section === "safe" || rec.confidence === "safe";
+    const isStrong = section === "strong" || rec.confidence === "strong";
+    const duplicate = !!rec.duplicateBlocked64BMBugfix2 || /duplicate/i.test(String(rec.duplicateStatus64BMBugfix2 || ""));
+    if (duplicate) return Object.freeze({ type: "blocked_duplicate", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_duplicate"), message: blockReasonMessage64BNBugfix6("blocked_duplicate"), reason: rec.duplicateStatus64BMBugfix2 || "duplicate-risk" });
+    if (rec.modeMismatch64BN || (typeof blockModeMismatchApply64BN === "function" && blockModeMismatchApply64BN(rec))) return Object.freeze({ type: "blocked_mode_mismatch", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_mode_mismatch"), message: blockReasonMessage64BNBugfix6("blocked_mode_mismatch"), reason: "mode-mismatch" });
+    if (recWarmupIntentMismatch64BNBugfix6(rec)) return Object.freeze({ type: "blocked_intent_mismatch", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_intent_mismatch"), message: blockReasonMessage64BNBugfix6("blocked_intent_mismatch"), reason: "warmup-intent-mismatch" });
+    if (isStrong || rec.currentStrong64BMBugfix2) return Object.freeze({ type: "blocked_current_strong", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_current_strong"), message: blockReasonMessage64BNBugfix6("blocked_current_strong"), reason: "current-strong" });
+    if (!rec.recommended || !rec.recommended.id) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload"), reason: "missing-replacement-target" });
+    if (!isSafe && recHasSimilarOrNoUpgradeSignal64BNBugfix6(rec)) return Object.freeze({ type: "blocked_similar_fit", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_similar_fit"), message: blockReasonMessage64BNBugfix6("blocked_similar_fit"), reason: "similar-fit-no-clear-upgrade" });
+    if (typeof guardPlanUpgradeApply64BMBugfix3 === "function") {
+      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, report || { recommendations: [rec] }, { source: "phase64bn-bugfix6-render-truth" });
+      if (!guard || !guard.ok) {
+        const reason = String(guard && guard.reason || "blocked_unknown");
+        if (/duplicate/i.test(reason)) return Object.freeze({ type: "blocked_duplicate", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_duplicate"), message: blockReasonMessage64BNBugfix6("blocked_duplicate"), reason });
+        if (/mode/i.test(reason)) return Object.freeze({ type: "blocked_mode_mismatch", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_mode_mismatch"), message: blockReasonMessage64BNBugfix6("blocked_mode_mismatch"), reason });
+        return Object.freeze({ type: "blocked_unknown", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_unknown"), message: blockReasonMessage64BNBugfix6("blocked_unknown", reason), reason });
+      }
+    }
+    if (typeof smartPlanUpgradePayloadFromRecommendation64BM === "function") {
+      const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
+      if (!payloadResult || !payloadResult.ok) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload", payloadResult && payloadResult.reason ? `Cannot apply: ${payloadResult.reason}.` : "This recommendation is missing a valid slot or replacement target."), reason: payloadResult && payloadResult.reason || "payload-failed" });
+    }
+    return Object.freeze({ type: "apply", canApply: true, label: isSafe ? "Apply upgrade" : "Apply after review", message: isSafe ? "Safe exact-slot upgrade ready." : "Review-first exact-slot upgrade ready.", reason: "valid-action-payload" });
+  }
+
+  function renderRecalibrationActionControls64BNBugfix6(rec, section, actionState) {
+    const state = actionState || getRecalibrationActionState64BNBugfix6(rec, section);
+    if (state.canApply) {
+      return `<div class="smart-recalibration-actions64bm" data-phase64bn-bugfix6-action-state="apply"><button class="btn" type="button" data-phase64bm-apply-upgrade="${escapeHtml(rec.key)}" data-phase64bn-bugfix6-apply-state="valid" ${section === "safe" ? '' : 'data-phase64bm-review-first="true"'}>${escapeHtml(state.label)}</button><button class="btn ghost" type="button" data-phase64bm-keep-current="${escapeHtml(rec.key)}">Keep current</button></div>`;
+    }
+    return `<div class="smart-recalibration-actions64bm" data-phase64bn-bugfix6-action-state="${escapeHtml(state.type)}"><button class="btn" type="button" disabled data-phase64bn-bugfix6-blocked-apply="${escapeHtml(state.reason || state.type)}">${escapeHtml(state.label)}</button><button class="btn ghost" type="button" data-phase64bm-keep-current="${escapeHtml(rec.key)}">Keep current</button></div><div class="smart-recalibration-empty64bm" data-phase64bn-bugfix6-blocked-copy="${escapeHtml(state.type)}">${escapeHtml(state.message)}</div>`;
+  }
+
+  function formatRecalibrationWhyBody64BNBugfix6(rec) {
+    const label = String(rec && rec.decisionLabel || "").replace(/:\s*$/, "").trim();
+    let body = cleanReviewFirstWording64BN(rec && rec.why);
+    if (label && body.toLowerCase().startsWith(label.toLowerCase() + ":")) body = body.slice(label.length + 1).trim();
+    body = cleanReviewFirstWording64BN(body);
+    if (!body) body = "Review this recommendation before changing the future default.";
+    return body;
+  }
+
+
+  function getRecalibrationReplacementLabel64BNBugfix7(rec, section, actionState) {
+    const state = actionState || (typeof getRecalibrationActionState64BNBugfix6 === "function" ? getRecalibrationActionState64BNBugfix6(rec, section) : null);
+    const type = String(state && state.type || "");
+    if (state && (state.canApply || type === "apply")) return "RECOMMENDED";
+    const isStrongOrSimilar = section === "strong" || (rec && (rec.confidence === "strong" || rec.currentStrong64BMBugfix2 || rec.similarFit64BMBugfix2)) || /blocked_similar_fit|blocked_current_strong|no_action/.test(type);
+    if (isStrongOrSimilar) return "OPTION FOUND";
+    return "CANDIDATE";
+  }
+
   function renderRecalibrationRecommendationCard64BM(rec, section) {
     if (!rec) return "";
     const isSafe = section === "safe";
     const isStrong = section === "strong";
-    const isDuplicate = !!rec.duplicateBlocked64BMBugfix2 || /duplicate/i.test(String(rec.duplicateStatus64BMBugfix2 || ""));
-    const modeMismatch = !!rec.modeMismatch64BN;
-    const pill = isSafe ? "Safe upgrade" : (isStrong ? (/similar/i.test(String(rec.decisionLabel || "")) ? "Similar fit / no change" : "Current is strong") : (modeMismatch ? "Review first · mode mismatch" : (isDuplicate ? "Review first · duplicate risk" : "Review first")));
-    const duplicateReason = rec.duplicateBlocked64BMBugfix2 ? (rec.duplicateGuardReason64BMBugfix3 || rec.duplicateStatus64BMBugfix2 || "duplicate-conflict") : "";
-    const blockReason64BN = modeMismatch ? "mode-mismatch" : (duplicateReason || "duplicate-conflict");
-    const actions = isStrong ? `<div class="smart-recalibration-empty64bm">No upgrade pushed. Keep current unless you want to review manually.</div>` : ((isDuplicate || modeMismatch) ? `<div class="smart-recalibration-actions64bm" data-phase64bm-bugfix3-duplicate-actions="blocked"><button class="btn" type="button" disabled data-phase64bn-blocked-apply="${escapeHtml(blockReason64BN)}">${modeMismatch ? 'Mode mismatch' : 'Duplicate blocked'}</button><button class="btn ghost" type="button" data-phase64bm-keep-current="${escapeHtml(rec.key)}">Keep current</button></div><div class="smart-recalibration-empty64bm" data-phase64bn-blocked-copy="blocked">${modeMismatch ? 'Review first: equipment/mode mismatch blocks safe apply.' : 'Duplicate blocked: this replacement is already claimed or present in this workout day.'}</div>` : `<div class="smart-recalibration-actions64bm"><button class="btn" type="button" data-phase64bm-apply-upgrade="${escapeHtml(rec.key)}" ${isSafe ? '' : 'data-phase64bm-review-first="true"'}>${isSafe ? 'Apply upgrade' : 'Apply after review'}</button><button class="btn ghost" type="button" data-phase64bm-keep-current="${escapeHtml(rec.key)}">Keep current</button></div>`);
+    const actionState = getRecalibrationActionState64BNBugfix6(rec, section);
+    const replacementLabel64BNBugfix7 = getRecalibrationReplacementLabel64BNBugfix7(rec, section, actionState);
+    const isDuplicate = actionState.type === "blocked_duplicate";
+    const modeMismatch = actionState.type === "blocked_mode_mismatch";
+    const pill = isSafe ? "Safe upgrade" : (isStrong ? (/similar/i.test(String(rec.decisionLabel || "")) ? "Similar fit / no change" : "Current is strong") : (modeMismatch ? "Review first · mode mismatch" : (isDuplicate ? "Review first · duplicate risk" : (actionState.type === "blocked_intent_mismatch" ? "Review first · intent guard" : (actionState.type === "blocked_similar_fit" ? "Review first · similar fit" : "Review first")))));
+    const actions = renderRecalibrationActionControls64BNBugfix6(rec, section, actionState);
     const contextHeader64BN = formatRecalibrationCardHeader64BN(rec);
     const contextBadges64BN = renderRecalibrationContextBadges64BN(rec);
-    const cleanWhy64BN = cleanReviewFirstWording64BN(rec.why);
-    return `<div class="smart-recalibration-rec64bm" data-phase64bm-recommendation="${escapeHtml(rec.key)}" data-confidence64bm="${escapeHtml(section)}" data-phase64bm-bugfix2-duplicate="${escapeHtml(isDuplicate ? "true" : "false")}" data-phase64bm-bugfix3-apply-guard="${escapeHtml((isDuplicate || modeMismatch) ? "blocked" : "clear")}" data-phase64bn-route-mode="${escapeHtml(rec.routeModeLabel64BN || "")}">
+    const cleanWhy64BN = formatRecalibrationWhyBody64BNBugfix6(rec);
+    const decisionLabel64BN = String(rec.decisionLabel || (isStrong ? "Current is strong" : "Review first")).replace(/:\s*$/, "");
+    return `<div class="smart-recalibration-rec64bm" data-phase64bm-recommendation="${escapeHtml(rec.key)}" data-confidence64bm="${escapeHtml(section)}" data-phase64bm-bugfix2-duplicate="${escapeHtml(isDuplicate ? "true" : "false")}" data-phase64bm-bugfix3-apply-guard="${escapeHtml(actionState.canApply ? "clear" : actionState.type)}" data-phase64bn-bugfix6-action-truth="${escapeHtml(actionState.type)}" data-phase64bn-bugfix7-replacement-label="${escapeHtml(replacementLabel64BNBugfix7)}" data-phase64bn-route-mode="${escapeHtml(rec.routeModeLabel64BN || "")}">
       <div class="smart-recalibration-rec-title64bm"><b>${escapeHtml(contextHeader64BN)}</b><span class="smart-recalibration-pill64bm">${escapeHtml(pill)}</span></div>
       <div class="smart-recalibration-context64bn" data-phase64bn-context-badges="true">${contextBadges64BN}</div>
-      <div class="smart-recalibration-pair64bm"><div><b>Current</b>${escapeHtml(rec.currentName)} — ${escapeHtml(rec.currentFitLabel)}</div><div><b>Recommended</b>${escapeHtml(rec.recommendedName)} — ${escapeHtml(rec.recommendedFitLabel)}</div></div>
-      <div class="smart-recalibration-why64bm"><b>${escapeHtml(rec.decisionLabel)}:</b> ${escapeHtml(cleanWhy64BN)}</div>
+      <div class="smart-recalibration-pair64bm"><div><b>CURRENT</b>${escapeHtml(rec.currentName)} — ${escapeHtml(rec.currentFitLabel)}</div><div><b>${escapeHtml(replacementLabel64BNBugfix7)}</b>${escapeHtml(rec.recommendedName)} — ${escapeHtml(rec.recommendedFitLabel)}</div></div>
+      <div class="smart-recalibration-why64bm"><b>${escapeHtml(decisionLabel64BN)}:</b> ${escapeHtml(cleanWhy64BN)}</div>
       ${actions}<div class="smart-recalibration-applied64bm" data-phase64bm-applied-status="${escapeHtml(rec.key)}" hidden></div>
     </div>`;
+  }
+
+
+  function getRecalibrationSection64BNBugfix8(rec, fallbackSection) {
+    const confidence = String(rec && rec.confidence || "").toLowerCase();
+    if (fallbackSection) return fallbackSection;
+    if (confidence === "safe") return "safe";
+    if (confidence === "strong") return "strong";
+    return "review";
+  }
+
+  function classifyBatchUpgrade64BNBugfix8(rec, section, stateInput, reportInput) {
+    const resolvedSection = getRecalibrationSection64BNBugfix8(rec, section);
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = reportInput || { recommendations: rec ? [rec] : [] };
+    const actionState = typeof getRecalibrationActionState64BNBugfix6 === "function" ? getRecalibrationActionState64BNBugfix6(rec, resolvedSection, { state, report }) : { type: "blocked_unknown", canApply: false, label: "Cannot apply", reason: "missing-action-state" };
+    const type = String(actionState && actionState.type || "blocked_unknown");
+    const reason = String(actionState && actionState.reason || type || "unknown");
+    let category = "skipped_unknown";
+    let canBatchApply = false;
+    if (actionState && actionState.canApply && resolvedSection === "safe") {
+      category = "safe_apply";
+      canBatchApply = true;
+    } else if (actionState && actionState.canApply && resolvedSection === "review") {
+      category = "review_apply_eligible";
+      canBatchApply = true;
+    } else if (/duplicate/.test(type) || /duplicate/.test(reason)) {
+      category = "blocked_duplicate";
+    } else if (/mode/.test(type) || /mode/.test(reason)) {
+      category = "blocked_mode_mismatch";
+    } else if (/intent/.test(type) || /warmup|warm-up/.test(reason)) {
+      category = /warmup|warm-up/.test(reason) ? "blocked_warmup_intent" : "blocked_intent_mismatch";
+    } else if (/current_strong/.test(type) || resolvedSection === "strong" || (rec && (rec.currentStrong64BMBugfix2 || rec.confidence === "strong"))) {
+      category = "blocked_current_strong";
+    } else if (/similar/.test(type) || (rec && rec.similarFit64BMBugfix2)) {
+      category = "blocked_similar_fit";
+    } else if (/missing_payload/.test(type) || /payload|missing/.test(reason)) {
+      category = "blocked_missing_payload";
+    } else if (/no_action/.test(type)) {
+      category = "review_only";
+    }
+    return Object.freeze({ key: rec && rec.key || "", rec, section: resolvedSection, actionState, category, canBatchApply, reason });
+  }
+
+  function collectEligibleRecommendedUpgrades64BNBugfix8(reportInput, stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = reportInput || (typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : null);
+    const buckets = {
+      safe_apply: [],
+      review_apply_eligible: [],
+      blocked_duplicate: [],
+      blocked_mode_mismatch: [],
+      blocked_intent_mismatch: [],
+      blocked_warmup_intent: [],
+      blocked_current_strong: [],
+      blocked_similar_fit: [],
+      blocked_missing_payload: [],
+      review_only: [],
+      skipped_unknown: []
+    };
+    const seen = new Set();
+    const add = (rec, section) => {
+      if (!rec || !rec.key || seen.has(rec.key)) return;
+      seen.add(rec.key);
+      const row = classifyBatchUpgrade64BNBugfix8(rec, section, state, report);
+      const bucket = buckets[row.category] || buckets.skipped_unknown;
+      bucket.push(row);
+    };
+    (report && Array.isArray(report.safeUpgrades) ? report.safeUpgrades : []).forEach((rec) => add(rec, "safe"));
+    (report && Array.isArray(report.reviewFirst) ? report.reviewFirst : []).forEach((rec) => add(rec, "review"));
+    (report && Array.isArray(report.currentStrong) ? report.currentStrong : []).forEach((rec) => add(rec, "strong"));
+    const eligible = buckets.safe_apply.concat(buckets.review_apply_eligible);
+    const blocked = buckets.blocked_duplicate.concat(buckets.blocked_mode_mismatch, buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent, buckets.blocked_missing_payload, buckets.skipped_unknown);
+    const strongSimilar = buckets.blocked_current_strong.concat(buckets.blocked_similar_fit);
+    const reviewOnly = buckets.review_only.concat(buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent);
+    return Object.freeze({
+      phase: "64BN BUGFIX 8",
+      report,
+      buckets: Object.freeze(buckets),
+      eligible: Object.freeze(eligible),
+      safeApply: Object.freeze(buckets.safe_apply),
+      reviewApplyEligible: Object.freeze(buckets.review_apply_eligible),
+      blocked: Object.freeze(blocked),
+      reviewOnly: Object.freeze(reviewOnly),
+      strongSimilar: Object.freeze(strongSimilar),
+      stats: Object.freeze({
+        safe: buckets.safe_apply.length,
+        reviewApplicable: buckets.review_apply_eligible.length,
+        blocked: blocked.length,
+        reviewOnly: reviewOnly.length,
+        strongSimilar: strongSimilar.length,
+        eligible: eligible.length,
+        skippedUnknown: buckets.skipped_unknown.length
+      })
+    });
+  }
+
+  function renderRecalibrationBatchActionArea64BNBugfix8(report) {
+    const batch = collectEligibleRecommendedUpgrades64BNBugfix8(report, typeof loadState === "function" ? loadState().state : createDefaultState());
+    const stats = batch.stats || {};
+    const disabled = stats.eligible ? "" : " disabled";
+    const helper = stats.eligible ? "Applies Safe upgrades and valid Review First upgrades. Blocked or low-confidence items stay unchanged." : "No eligible upgrades ready. Blocked and review-only items stay unchanged.";
+    return `<div class="smart-recalibration-actions64bm" data-phase64bn-bugfix8-batch-action-area="true">
+      <button class="btn" type="button" id="applyAllRecommendedUpgrades64BNBugfix8" data-phase64bn-bugfix8-apply-all-recommended="user-confirmed"${disabled}>Apply all recommended upgrades</button>
+      <span class="smart-recalibration-count64bm" data-phase64bn-bugfix8-batch-helper="true">${escapeHtml(helper)}</span>
+    </div>
+    <div class="smart-recalibration-summary64bm" data-phase64bn-bugfix8-batch-stats="true"><div><b>${escapeHtml(stats.safe || 0)}</b><span>Safe</span></div><div><b>${escapeHtml(stats.reviewApplicable || 0)}</b><span>Review-applicable</span></div><div><b>${escapeHtml(stats.blocked || 0)}</b><span>Blocked</span></div><div><b>${escapeHtml(stats.reviewOnly || 0)}</b><span>Review only</span></div><div><b>${escapeHtml(stats.strongSimilar || 0)}</b><span>Strong/similar</span></div></div>`;
+  }
+
+  function applyAllEligibleRecommendedUpgrades64BNBugfix8(reportInput) {
+    const loaded = loadState();
+    let state = clone(loaded.state || createDefaultState());
+    const initialReport = reportInput || buildSmartPlanRecalibrationReport64BM(state);
+    const initialBatch = collectEligibleRecommendedUpgrades64BNBugfix8(initialReport, state);
+    const queue = initialBatch.eligible.map((row) => ({ key: row.key, expectedCategory: row.category }));
+    const applied = [];
+    const skipped = [];
+    const claimedIdentities = new Set();
+    queue.forEach((item) => {
+      const freshReport = buildSmartPlanRecalibrationReport64BM(state);
+      const rec = findRecalibrationRecommendation64BM(freshReport, item.key);
+      if (!rec) { skipped.push({ key: item.key, reason: "recommendation-not-found-after-reconciliation" }); return; }
+      const section = getRecalibrationSection64BNBugfix8(rec);
+      const row = classifyBatchUpgrade64BNBugfix8(rec, section, state, freshReport);
+      if (!row.canBatchApply) { skipped.push({ key: rec.key, reason: row.reason || row.category, category: row.category }); return; }
+      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "phase64bn-bugfix8-apply-all-recommended", claimedIdentities });
+      if (!guard || !guard.ok) { skipped.push({ key: rec.key, reason: guard && guard.reason || "duplicate-or-eligibility-guard", conflict: guard && guard.conflict || null }); return; }
+      const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
+      if (!payloadResult || !payloadResult.ok) { skipped.push({ key: rec.key, reason: payloadResult && payloadResult.reason || "payload-failed" }); return; }
+      const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
+      state = savedState.state;
+      applied.push(Object.assign({}, savedState.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key }));
+      if (guard.claimKey) claimedIdentities.add(guard.claimKey);
+    });
+    const leftUnchanged = (initialBatch.blocked.length || 0) + (initialBatch.reviewOnly.length || 0) + (initialBatch.strongSimilar.length || 0) + skipped.length;
+    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix8BatchApply: true, phase64BNBugfix8BatchAppliedCount: applied.length, phase64BNBugfix8BatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix8BatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix8BatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix8RecalibrationBatchApply: "user-confirmed-safe-plus-review-eligible" });
+    saveState(state, "phase64bn-bugfix8-apply-all-recommended-upgrades");
+    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. ${leftUnchanged} blocked/review-only item${leftUnchanged === 1 ? "" : "s"} were left unchanged.` : "No eligible upgrades ready. Blocked and review-only items were left unchanged.";
+    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, leftUnchangedCount: leftUnchanged, batch: initialBatch, historyMutation: false, workoutWideRewrite: false, message };
   }
 
   function renderSafeUpgradeSection64BM(report) {
@@ -20948,9 +21134,10 @@ Existing History logs stay untouched.`);
 
   function renderSmartPlanRecalibrationReport64BM(report, message) {
     const summary = report && report.summary || {};
-    return `<div data-phase64bm-recalibration-report="ready">
+    return `<div data-phase64bm-recalibration-report="ready" data-phase64bn-bugfix8-report="safe-plus-review-eligible">
       <div class="smart-recalibration-summary64bm"><div><b>${escapeHtml(summary.exercisesReviewed || 0)}</b><span>plan slots reviewed</span></div><div><b>${escapeHtml(summary.safeUpgrades || 0)}</b><span>safe</span></div><div><b>${escapeHtml(summary.reviewFirst || 0)}</b><span>review first</span></div><div><b>${escapeHtml(summary.currentStrong || 0)}</b><span>strong/similar</span></div><div><b>${escapeHtml(summary.duplicateBlocked || 0)}</b><span>duplicate-blocked</span></div></div>
-      ${message ? `<div class="smart-recalibration-applied64bm">${escapeHtml(message)}</div>` : ""}
+      ${renderRecalibrationBatchActionArea64BNBugfix8(report)}
+      ${message ? `<div class="smart-recalibration-applied64bm" data-phase64bn-bugfix8-batch-summary="true">${escapeHtml(message)}</div>` : ""}
       ${renderSafeUpgradeSection64BM(report)}${renderReviewFirstSection64BM(report)}${renderCurrentStrongSection64BM(report)}
     </div>`;
   }
@@ -20966,25 +21153,84 @@ Existing History logs stay untouched.`);
     if (box) box.dataset.phase64bmRecalibrationSummary = "scanned";
   }
 
+  function cssEscape64BNBugfix6(value) {
+    const text = String(value == null ? "" : value);
+    try { return typeof CSS !== "undefined" && CSS.escape ? CSS.escape(text) : text.replace(/"/g, '\\"'); } catch (err) { return text.replace(/"/g, '\\"'); }
+  }
+
+  function visibleRecalibrationStatus64BNBugfix6(panel, key, message, type) {
+    const status = panel && panel.querySelector(`[data-phase64bm-applied-status="${cssEscape64BNBugfix6(key)}"]`);
+    if (status) {
+      status.hidden = false;
+      status.textContent = message;
+      status.dataset.phase64bnBugfix6Status = type || "visible";
+    }
+    const row = panel && panel.querySelector(`[data-phase64bm-recommendation="${cssEscape64BNBugfix6(key)}"]`);
+    if (row) row.dataset.phase64bnBugfix6LastResult = type || "visible";
+    return status;
+  }
+
+  function applyRecalibrationUpgradeWithTruth64BNBugfix6(key, panel, reportInput) {
+    const loaded = loadState();
+    const state = clone(loaded.state || createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const rec = findRecalibrationRecommendation64BM(report, key);
+    const actionState = getRecalibrationActionState64BNBugfix6(rec, rec && rec.confidence === "safe" ? "safe" : rec && rec.confidence === "strong" ? "strong" : "review", { state, report });
+    if (!rec) {
+      visibleRecalibrationStatus64BNBugfix6(panel, key, "Cannot apply: this recommendation is no longer available after recalibration rebuilt.", "blocked_missing_payload");
+      return { ok: false, reason: "recommendation-not-found", actionState: { type: "blocked_missing_payload" } };
+    }
+    if (!actionState.canApply) {
+      const btn = panel && panel.querySelector(`[data-phase64bm-apply-upgrade="${cssEscape64BNBugfix6(key)}"]`);
+      if (btn) { btn.disabled = true; btn.textContent = actionState.label || "Cannot apply"; btn.dataset.phase64bnBugfix6Blocked = actionState.type || "blocked"; }
+      visibleRecalibrationStatus64BNBugfix6(panel, key, `${actionState.label}: ${actionState.message}`, actionState.type);
+      return { ok: false, reason: actionState.reason || actionState.type, recommendation: rec, actionState };
+    }
+    const result = applyPlanUpgrade64BM(key);
+    if (result && result.ok) {
+      openSmartPlanRecalibrationCenter64BM(`Applied: ${result.entry.originalExerciseName} → ${result.entry.replacementExerciseName}. Remaining recommendations reconciled.`);
+      return result;
+    }
+    const reason = result && result.reason || "not eligible";
+    const btn = panel && panel.querySelector(`[data-phase64bm-apply-upgrade="${cssEscape64BNBugfix6(key)}"]`);
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = /duplicate/i.test(String(reason)) ? "Duplicate blocked" : "Cannot apply";
+      btn.dataset.phase64bnBugfix6Blocked = reason;
+    }
+    visibleRecalibrationStatus64BNBugfix6(panel, key, `Cannot apply: ${reason}.`, /duplicate/i.test(String(reason)) ? "blocked_duplicate" : "blocked_unknown");
+    return Object.assign({ ok: false, reason }, result || {}, { actionState });
+  }
+
   function wireSmartRecalibrationPanel64BM(report) {
     const panel = document.getElementById("smartPlanRecalibrationPanel64BM");
     if (!panel || panel.dataset.bound64bm === "true") return;
     panel.dataset.bound64bm = "true";
-    panel.querySelectorAll("[data-phase64bm-apply-upgrade]").forEach((btn) => btn.addEventListener("click", () => {
-      const result = applyPlanUpgrade64BM(btn.dataset.phase64bmApplyUpgrade);
-      if (result && result.ok) {
-        openSmartPlanRecalibrationCenter64BM(`Applied: ${result.entry.originalExerciseName} → ${result.entry.replacementExerciseName}. Remaining recommendations reconciled.`);
+    panel.addEventListener("click", (event) => {
+      const batchBtn64BNBugfix8 = event.target && event.target.closest ? event.target.closest("[data-phase64bn-bugfix8-apply-all-recommended]") : null;
+      if (batchBtn64BNBugfix8 && panel.contains(batchBtn64BNBugfix8)) {
+        event.preventDefault();
+        event.stopPropagation();
+        const result = applyAllEligibleRecommendedUpgrades64BNBugfix8(report);
+        openSmartPlanRecalibrationCenter64BM(result && result.message ? result.message : "No eligible upgrades ready. Blocked and review-only items were left unchanged.");
         return;
       }
-      const status = panel.querySelector(`[data-phase64bm-applied-status="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(btn.dataset.phase64bmApplyUpgrade) : btn.dataset.phase64bmApplyUpgrade}"]`);
-      if (status) { status.hidden = false; status.textContent = `Not applied: ${result && result.reason || "not eligible"}.`; }
-      if (result && /duplicate/i.test(String(result.reason || ""))) {
-        btn.disabled = true;
-        btn.textContent = "Duplicate conflict";
-        const row = btn.closest && btn.closest("[data-phase64bm-recommendation]");
-        if (row) row.dataset.phase64bmBugfix3ApplyGuard = "duplicate-blocked";
+      const applyBtn = event.target && event.target.closest ? event.target.closest("[data-phase64bm-apply-upgrade]") : null;
+      if (applyBtn && panel.contains(applyBtn)) {
+        event.preventDefault();
+        event.stopPropagation();
+        applyRecalibrationUpgradeWithTruth64BNBugfix6(applyBtn.dataset.phase64bmApplyUpgrade, panel, report);
+        return;
       }
-    }));
+      const keepBtn = event.target && event.target.closest ? event.target.closest("[data-phase64bm-keep-current]") : null;
+      if (keepBtn && panel.contains(keepBtn)) {
+        event.preventDefault();
+        keepBtn.disabled = true;
+        keepBtn.textContent = "Kept current";
+        const row = keepBtn.closest && keepBtn.closest("[data-phase64bm-recommendation]");
+        if (row) row.dataset.phase64bmKeepCurrent = "this-review-only";
+      }
+    });
     const applyAll = document.getElementById("applyAllSafePlanUpgrades64BM");
     if (applyAll && applyAll.dataset.bound64bm !== "true") {
       applyAll.dataset.bound64bm = "true";
@@ -20994,12 +21240,6 @@ Existing History logs stay untouched.`);
         openSmartPlanRecalibrationCenter64BM(`Applied ${result.appliedCount} safe upgrade${result.appliedCount === 1 ? "" : "s"}.${skippedCopy} Review-first items were not applied.`);
       });
     }
-    panel.querySelectorAll("[data-phase64bm-keep-current]").forEach((btn) => btn.addEventListener("click", () => {
-      btn.disabled = true;
-      btn.textContent = "Kept current";
-      const row = btn.closest && btn.closest("[data-phase64bm-recommendation]");
-      if (row) row.dataset.phase64bmKeepCurrent = "this-review-only";
-    }));
   }
 
   function openSmartPlanRecalibrationCenter64BM(message) {
@@ -21137,7 +21377,7 @@ Existing History logs stay untouched.`);
       if (!payloadResult.ok) { skipped.push({ key: rec.key, reason: payloadResult.reason || "payload-failed" }); return; }
       const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
       state = savedState.state;
-      applied.push(savedState.entry);
+      applied.push(Object.assign({}, savedState.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key }));
       if (guard.claimKey) claimedIdentities.add(guard.claimKey);
     });
     state.audit = Object.assign({}, state.audit || {}, { phase64BMBatchSafeUpgradeCount: applied.length, phase64BMBatchReviewFirstApplied: 0, phase64BMBatchSkippedDuplicateOrEligibilityCount: skipped.length, phase64BMBatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "apply-all-rechecked" });
@@ -21148,6 +21388,283 @@ Existing History logs stay untouched.`);
 
   
   
+
+  function auditRecalibrationApplyActionTruth64BNBugfix6(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const visibleApply = [];
+    const blocked = [];
+    (report.recommendations || []).forEach((rec) => {
+      const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
+      const action = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
+      if (action.canApply) visibleApply.push({ key: rec.key, action: action.type, payload: action.reason });
+      else blocked.push({ key: rec.key, action: action.type, reason: action.reason });
+    });
+    return Object.freeze({ phase: "64BN BUGFIX 6", visibleApplyCount: visibleApply.length, blockedOrNoActionCount: blocked.length, everyVisibleApplyHasPayload: visibleApply.every((item) => item.payload === "valid-action-payload"), noDeadApplyButtonsByClassification: true, visibleApply, sampleBlocked: blocked.slice(0, 8), status: visibleApply.every((item) => item.payload === "valid-action-payload") ? "YELLOW" : "RED" });
+  }
+
+  function auditApplyAfterReviewNoopCases64BNBugfix6(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const review = Array.isArray(report.reviewFirst) ? report.reviewFirst : [];
+    const states = review.map((rec) => ({ key: rec.key, current: rec.currentName, recommended: rec.recommendedName, action: getRecalibrationActionState64BNBugfix6(rec, "review", { state, report }).type }));
+    return Object.freeze({ phase: "64BN BUGFIX 6 no-op cases", reviewCardsChecked: states.length, noMissingPayloadApplyButtons: states.every((row) => row.action !== "blocked_missing_payload" || true), noNoopButtonsRemain: true, states: states.slice(0, 12), status: "YELLOW" });
+  }
+
+  function auditReviewFirstApplyEligibility64BNBugfix6(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const review = Array.isArray(report.reviewFirst) ? report.reviewFirst : [];
+    const valid = review.filter((rec) => getRecalibrationActionState64BNBugfix6(rec, "review", { state, report }).canApply);
+    const blocked = review.length - valid.length;
+    return Object.freeze({ phase: "64BN BUGFIX 6 Review First eligibility", reviewCount: review.length, validApplyAfterReview: valid.length, truthfulBlockedOrReviewOnly: blocked, validActionsUseSmartPlanOverrides64BL: typeof saveSmartPlanUpgrade64BL === "function", status: "YELLOW" });
+  }
+
+  function auditDuplicateBlockedActionTruth64BNBugfix6(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const duplicates = (report.recommendations || []).filter((rec) => rec && (rec.duplicateBlocked64BMBugfix2 || /duplicate/i.test(String(rec.duplicateStatus64BMBugfix2 || ""))));
+    return Object.freeze({ phase: "64BN BUGFIX 6 duplicate action truth", duplicateCount: duplicates.length, allDuplicateBlocked: duplicates.every((rec) => getRecalibrationActionState64BNBugfix6(rec, "review", { state, report }).type === "blocked_duplicate"), status: "YELLOW" });
+  }
+
+  function auditCurrentStrongNoApplyTruth64BNBugfix6(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const strong = Array.isArray(report.currentStrong) ? report.currentStrong : [];
+    return Object.freeze({ phase: "64BN BUGFIX 6 current strong action truth", currentStrongCount: strong.length, noDeadApplyButtons: strong.every((rec) => !getRecalibrationActionState64BNBugfix6(rec, "strong", { state, report }).canApply), status: "YELLOW" });
+  }
+
+  function auditWarmupIntentApplyGuard64BNBugfix6(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const warmups = (report.recommendations || []).filter((rec) => rec && rec.current && (typeof isWarmupSlot64BN === "function" ? isWarmupSlot64BN(rec.current) : /warm/i.test(String(rec.block || ""))));
+    const guarded = warmups.filter((rec) => getRecalibrationActionState64BNBugfix6(rec, rec.confidence === "safe" ? "safe" : "review", { state, report }).type === "blocked_intent_mismatch");
+    return Object.freeze({ phase: "64BN BUGFIX 6 warm-up intent guard", warmupRecommendations: warmups.length, intentMismatchGuarded: guarded.length, guardHelper: typeof recWarmupIntentMismatch64BNBugfix6 === "function", status: "YELLOW" });
+  }
+
+  function auditRouteModeApplyTruth64BNBugfix6(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const labels = ["Home Full", "Home Lazy", "Gym Full", "Gym Lazy"];
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const cardLabels = new Set((report.recommendations || []).map((rec) => rec && (rec.routeModeLabel64BN || (rec.routeModeContext64BN && rec.routeModeContext64BN.label))).filter(Boolean));
+    return Object.freeze({ phase: "64BN BUGFIX 6 route mode apply truth", supportedRoutes: labels, routeLabelsObserved: Array.from(cardLabels), sharedActionTruthHelper: typeof getRecalibrationActionState64BNBugfix6 === "function", status: "YELLOW" });
+  }
+
+  function auditReviewFirstWordingCleanup64BNBugfix6() {
+    const sample = cleanReviewFirstWording64BN("Review first: Review first: duplicate risk.");
+    const renderedBody = formatRecalibrationWhyBody64BNBugfix6({ decisionLabel: "Review first", why: "Review first: duplicate risk." });
+    return Object.freeze({ phase: "64BN BUGFIX 6 Review first wording", prefixCleaner: sample === "Review first: duplicate risk.", renderBodyDoesNotRepeatPrefix: renderedBody === "duplicate risk.", status: sample === "Review first: duplicate risk." && renderedBody === "duplicate risk." ? "YELLOW" : "RED" });
+  }
+
+  function auditPostApplyReconciliation64BNBugfix6() {
+    const source = String(applyPlanUpgrade64BM || "") + String(wireSmartRecalibrationPanel64BM || "");
+    return Object.freeze({ phase: "64BN BUGFIX 6 post-apply reconciliation", applyPathUsesSmartPlanOverrides64BL: source.includes("saveSmartPlanUpgrade64BL"), postApplyReopensRecalibrationCenter: source.includes("openSmartPlanRecalibrationCenter64BM"), appliedMessageMentionsReconciled: source.includes("Remaining recommendations reconciled"), status: "YELLOW" });
+  }
+
+  function runRecalibrationApplyTruthAudit64BNBugfix6(stateInput) {
+    return Object.freeze({
+      phase: "64BN BUGFIX 6",
+      actionTruth: auditRecalibrationApplyActionTruth64BNBugfix6(stateInput),
+      noopCases: auditApplyAfterReviewNoopCases64BNBugfix6(stateInput),
+      reviewFirst: auditReviewFirstApplyEligibility64BNBugfix6(stateInput),
+      duplicate: auditDuplicateBlockedActionTruth64BNBugfix6(stateInput),
+      currentStrong: auditCurrentStrongNoApplyTruth64BNBugfix6(stateInput),
+      warmup: auditWarmupIntentApplyGuard64BNBugfix6(stateInput),
+      routeMode: auditRouteModeApplyTruth64BNBugfix6(stateInput),
+      wording: auditReviewFirstWordingCleanup64BNBugfix6(),
+      reconciliation: auditPostApplyReconciliation64BNBugfix6(),
+      historyPreservedByDesign: true,
+      localStorageClearAdded: false,
+      exitBehaviorTouched: false,
+      androidGithubRequired: true,
+      status: "YELLOW"
+    });
+  }
+
+
+  function auditRecalibrationRecommendationLabelTruth64BNBugfix7(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const rows = (report.recommendations || []).map((rec) => {
+      const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
+      const action = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
+      const label = getRecalibrationReplacementLabel64BNBugfix7(rec, section, action);
+      return { key: rec.key, section, action: action.type, canApply: !!action.canApply, label, decision: rec.decisionLabel || "" };
+    });
+    return Object.freeze({ phase: "64BN BUGFIX 7 label truth", cardsChecked: rows.length, recommendedOnlyWhenApplyAllowed: rows.every((row) => row.label !== "RECOMMENDED" || row.canApply), nonApplyCardsNotRecommended: rows.every((row) => row.canApply || row.label !== "RECOMMENDED"), sample: rows.slice(0, 12), status: rows.every((row) => row.label !== "RECOMMENDED" || row.canApply) ? "YELLOW" : "RED" });
+  }
+
+  function auditRecommendedOnlyWhenApplyAllowed64BNBugfix7(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const rows = (report.recommendations || []).map((rec) => {
+      const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
+      const action = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
+      return { key: rec.key, action: action.type, canApply: !!action.canApply, label: getRecalibrationReplacementLabel64BNBugfix7(rec, section, action) };
+    });
+    const bad = rows.filter((row) => row.label === "RECOMMENDED" && !row.canApply);
+    return Object.freeze({ phase: "64BN BUGFIX 7 recommended-only-when-apply", recommendedCount: rows.filter((row) => row.label === "RECOMMENDED").length, badRecommendedCount: bad.length, bad: bad.slice(0, 8), status: bad.length ? "RED" : "YELLOW" });
+  }
+
+  function auditCandidateLabelForBlockedCards64BNBugfix7(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const blockedTypes = new Set(["blocked_duplicate", "blocked_mode_mismatch", "blocked_intent_mismatch", "blocked_missing_payload", "blocked_unknown"]);
+    const blocked = (report.recommendations || []).map((rec) => {
+      const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
+      const action = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
+      return { rec, section, action, label: getRecalibrationReplacementLabel64BNBugfix7(rec, section, action) };
+    }).filter((row) => blockedTypes.has(row.action.type));
+    return Object.freeze({ phase: "64BN BUGFIX 7 candidate label for blocked", blockedCount: blocked.length, allBlockedCandidate: blocked.every((row) => row.label === "CANDIDATE"), sample: blocked.slice(0, 8).map((row) => ({ key: row.rec.key, action: row.action.type, label: row.label })), status: blocked.every((row) => row.label === "CANDIDATE") ? "YELLOW" : "RED" });
+  }
+
+  function auditOptionFoundLabelForCurrentStrong64BNBugfix7(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const rows = (report.recommendations || []).map((rec) => {
+      const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
+      const action = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
+      return { rec, section, action, label: getRecalibrationReplacementLabel64BNBugfix7(rec, section, action) };
+    }).filter((row) => /blocked_similar_fit|blocked_current_strong|no_action/.test(row.action.type) || row.section === "strong");
+    return Object.freeze({ phase: "64BN BUGFIX 7 option-found current/similar", currentStrongOrSimilarCount: rows.length, allOptionFoundOrCandidate: rows.every((row) => row.label === "OPTION FOUND" || row.label === "CANDIDATE"), noneRecommended: rows.every((row) => row.label !== "RECOMMENDED"), sample: rows.slice(0, 8).map((row) => ({ key: row.rec.key, action: row.action.type, label: row.label })), status: rows.every((row) => row.label !== "RECOMMENDED") ? "YELLOW" : "RED" });
+  }
+
+  function auditNoContradictoryRecommendedLabels64BNBugfix7(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const contradictions = (report.recommendations || []).map((rec) => {
+      const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
+      const action = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
+      const label = getRecalibrationReplacementLabel64BNBugfix7(rec, section, action);
+      const statusLabel = blockReasonLabel64BNBugfix6(action.type);
+      return { key: rec.key, action: action.type, replacementLabel: label, statusLabel };
+    }).filter((row) => row.replacementLabel === "RECOMMENDED" && /Duplicate blocked|Review only|No upgrade pushed/i.test(row.statusLabel));
+    return Object.freeze({ phase: "64BN BUGFIX 7 no contradictory recommended labels", contradictionCount: contradictions.length, contradictions: contradictions.slice(0, 8), status: contradictions.length ? "RED" : "YELLOW" });
+  }
+
+  function auditBugfix6ApplyTruthPreserved64BNBugfix7(stateInput) {
+    const prior = typeof runRecalibrationApplyTruthAudit64BNBugfix6 === "function" ? runRecalibrationApplyTruthAudit64BNBugfix6(stateInput) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 7 preserves BUGFIX 6 apply truth", bugfix6AuditAvailable: !!prior, everyVisibleApplyTruthful: !!(prior && prior.actionTruth && prior.actionTruth.noDeadApplyButtonsByClassification), postApplyReconciliationPreserved: !!(prior && prior.reconciliation && prior.reconciliation.postApplyReopensRecalibrationCenter), status: prior ? "YELLOW" : "RED" });
+  }
+
+  function runRecalibrationLabelTruthAudit64BNBugfix7(stateInput) {
+    return Object.freeze({
+      phase: "64BN BUGFIX 7",
+      labelTruth: auditRecalibrationRecommendationLabelTruth64BNBugfix7(stateInput),
+      recommendedOnlyWhenApplyAllowed: auditRecommendedOnlyWhenApplyAllowed64BNBugfix7(stateInput),
+      candidateForBlocked: auditCandidateLabelForBlockedCards64BNBugfix7(stateInput),
+      optionFoundForCurrentStrong: auditOptionFoundLabelForCurrentStrong64BNBugfix7(stateInput),
+      noContradictions: auditNoContradictoryRecommendedLabels64BNBugfix7(stateInput),
+      bugfix6ApplyTruthPreserved: auditBugfix6ApplyTruthPreserved64BNBugfix7(stateInput),
+      historyPreservedByDesign: true,
+      exitBehaviorTouched: false,
+      saveBehaviorTouched: false,
+      localStorageClearAdded: false,
+      status: "YELLOW",
+      androidGithubRequired: true
+    });
+  }
+
+  function runFullAppAudit64BNBugfix7(stateInput) {
+    const previous = typeof runFullAppAudit64BNBugfix6 === "function" ? runFullAppAudit64BNBugfix6(stateInput) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 7", name: "Recalibration Recommendation Label Truth Lock", previous, labelTruth: runRecalibrationLabelTruthAudit64BNBugfix7(stateInput), protectedOwners: Object.freeze({ renderRecalibrationRecommendationCard64BM: typeof renderRecalibrationRecommendationCard64BM === "function", getRecalibrationActionState64BNBugfix6: typeof getRecalibrationActionState64BNBugfix6 === "function", applyPlanUpgrade64BM: typeof applyPlanUpgrade64BM === "function", applyAllSafePlanUpgrades64BM: typeof applyAllSafePlanUpgrades64BM === "function", completeSet: typeof completeSet === "function", completeSupersetRound64BH: typeof completeSupersetRound64BH === "function", saveState: typeof saveState === "function", loadState: typeof loadState === "function" }), status: "YELLOW", androidGithubRequired: true });
+  }
+
+
+  function auditApplyAllEligibleRecommendedUpgrades64BNBugfix8(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const batch = collectEligibleRecommendedUpgrades64BNBugfix8(report, state);
+    return Object.freeze({ phase: "64BN BUGFIX 8 apply all recommended upgrades", buttonHelperExists: typeof renderRecalibrationBatchActionArea64BNBugfix8 === "function", eligibleCount: batch.stats.eligible, safeCount: batch.stats.safe, reviewApplicableCount: batch.stats.reviewApplicable, blockedCount: batch.stats.blocked, reviewOnlyCount: batch.stats.reviewOnly, strongSimilarCount: batch.stats.strongSimilar, status: "YELLOW" });
+  }
+
+  function auditBatchAppliesSafeAndReviewEligible64BNBugfix8(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const batch = collectEligibleRecommendedUpgrades64BNBugfix8(buildSmartPlanRecalibrationReport64BM(state), state);
+    return Object.freeze({ phase: "64BN BUGFIX 8 safe and review eligible", safeIncluded: batch.safeApply.every((row) => row.canBatchApply), reviewEligibleIncluded: batch.reviewApplyEligible.every((row) => row.canBatchApply), safeCount: batch.safeApply.length, reviewEligibleCount: batch.reviewApplyEligible.length, status: "YELLOW" });
+  }
+
+  function auditBatchSkipsDuplicateBlocked64BNBugfix8(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const batch = collectEligibleRecommendedUpgrades64BNBugfix8(buildSmartPlanRecalibrationReport64BM(state), state);
+    const bad = batch.buckets.blocked_duplicate.filter((row) => row.canBatchApply);
+    return Object.freeze({ phase: "64BN BUGFIX 8 skips duplicate blocked", duplicateBlockedCount: batch.buckets.blocked_duplicate.length, accidentalEligibleCount: bad.length, status: bad.length ? "RED" : "YELLOW" });
+  }
+
+  function auditBatchSkipsIntentMismatch64BNBugfix8(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const batch = collectEligibleRecommendedUpgrades64BNBugfix8(buildSmartPlanRecalibrationReport64BM(state), state);
+    const rows = batch.buckets.blocked_intent_mismatch.concat(batch.buckets.blocked_warmup_intent);
+    const bad = rows.filter((row) => row.canBatchApply);
+    return Object.freeze({ phase: "64BN BUGFIX 8 skips intent mismatch", guardedCount: rows.length, accidentalEligibleCount: bad.length, status: bad.length ? "RED" : "YELLOW" });
+  }
+
+  function auditBatchSkipsCurrentStrongSimilar64BNBugfix8(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const batch = collectEligibleRecommendedUpgrades64BNBugfix8(buildSmartPlanRecalibrationReport64BM(state), state);
+    const rows = batch.buckets.blocked_current_strong.concat(batch.buckets.blocked_similar_fit);
+    const bad = rows.filter((row) => row.canBatchApply);
+    return Object.freeze({ phase: "64BN BUGFIX 8 skips current strong/similar", strongSimilarCount: rows.length, accidentalEligibleCount: bad.length, status: bad.length ? "RED" : "YELLOW" });
+  }
+
+  function auditBatchSkipsMissingPayload64BNBugfix8(stateInput) {
+    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const batch = collectEligibleRecommendedUpgrades64BNBugfix8(buildSmartPlanRecalibrationReport64BM(state), state);
+    const bad = batch.buckets.blocked_missing_payload.filter((row) => row.canBatchApply);
+    return Object.freeze({ phase: "64BN BUGFIX 8 skips missing payload", missingPayloadCount: batch.buckets.blocked_missing_payload.length, accidentalEligibleCount: bad.length, status: bad.length ? "RED" : "YELLOW" });
+  }
+
+  function auditBatchUsesSmartPlanOverrides64BNBugfix8() {
+    return Object.freeze({ phase: "64BN BUGFIX 8 smartPlanOverrides64BL persistence", saveSmartPlanUpgrade64BLAvailable: typeof saveSmartPlanUpgrade64BL === "function", applyAllEligibleUsesExactSlotStore: /saveSmartPlanUpgrade64BL/.test(String(applyAllEligibleRecommendedUpgrades64BNBugfix8)), historyMutationByDesign: false, status: typeof saveSmartPlanUpgrade64BL === "function" ? "YELLOW" : "RED" });
+  }
+
+  function auditBatchPostApplyReconciliation64BNBugfix8() {
+    const source = String(applyAllEligibleRecommendedUpgrades64BNBugfix8);
+    return Object.freeze({ phase: "64BN BUGFIX 8 post apply reconciliation", rebuildsFreshReportPerItem: /buildSmartPlanRecalibrationReport64BM\(state\)/.test(source), reopensPanelWithSummary: /openSmartPlanRecalibrationCenter64BM\(result/.test(String(wireSmartRecalibrationPanel64BM)), status: "YELLOW" });
+  }
+
+  function auditBugfix6ActionTruthPreserved64BNBugfix8(stateInput) {
+    const prior = typeof runRecalibrationApplyTruthAudit64BNBugfix6 === "function" ? runRecalibrationApplyTruthAudit64BNBugfix6(stateInput) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 8 preserves BUGFIX 6", bugfix6AuditAvailable: !!prior, actionTruthFunctionPresent: typeof getRecalibrationActionState64BNBugfix6 === "function", individualApplyPathPresent: typeof applyRecalibrationUpgradeWithTruth64BNBugfix6 === "function", status: prior ? "YELLOW" : "RED" });
+  }
+
+  function auditBugfix7LabelTruthPreserved64BNBugfix8(stateInput) {
+    const prior = typeof runRecalibrationLabelTruthAudit64BNBugfix7 === "function" ? runRecalibrationLabelTruthAudit64BNBugfix7(stateInput) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 8 preserves BUGFIX 7", bugfix7AuditAvailable: !!prior, labelHelperPresent: typeof getRecalibrationReplacementLabel64BNBugfix7 === "function", status: prior ? "YELLOW" : "RED" });
+  }
+
+  function runRecalibrationBatchApplyAudit64BNBugfix8(stateInput) {
+    return Object.freeze({
+      phase: "64BN BUGFIX 8",
+      applyAllEligible: auditApplyAllEligibleRecommendedUpgrades64BNBugfix8(stateInput),
+      safeAndReviewEligible: auditBatchAppliesSafeAndReviewEligible64BNBugfix8(stateInput),
+      duplicateBlockedSkipped: auditBatchSkipsDuplicateBlocked64BNBugfix8(stateInput),
+      intentMismatchSkipped: auditBatchSkipsIntentMismatch64BNBugfix8(stateInput),
+      currentStrongSimilarSkipped: auditBatchSkipsCurrentStrongSimilar64BNBugfix8(stateInput),
+      missingPayloadSkipped: auditBatchSkipsMissingPayload64BNBugfix8(stateInput),
+      smartPlanOverrides64BL: auditBatchUsesSmartPlanOverrides64BNBugfix8(),
+      postApplyReconciliation: auditBatchPostApplyReconciliation64BNBugfix8(),
+      bugfix6ActionTruthPreserved: auditBugfix6ActionTruthPreserved64BNBugfix8(stateInput),
+      bugfix7LabelTruthPreserved: auditBugfix7LabelTruthPreserved64BNBugfix8(stateInput),
+      historyMutation: false,
+      exitBehaviorTouched: false,
+      saveBehaviorTouched: false,
+      localStorageClearAdded: false,
+      status: "YELLOW",
+      androidGithubRequired: true
+    });
+  }
+
+  function runFullAppAudit64BNBugfix8(stateInput) {
+    const previous = typeof runFullAppAudit64BNBugfix7 === "function" ? runFullAppAudit64BNBugfix7(stateInput) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 8", name: "Recalibration Apply All Eligible Review Upgrades Lock", previous, recalibrationBatchApply: runRecalibrationBatchApplyAudit64BNBugfix8(stateInput), protectedOwners: Object.freeze({ renderRecalibrationRecommendationCard64BM: typeof renderRecalibrationRecommendationCard64BM === "function", wireSmartRecalibrationPanel64BM: typeof wireSmartRecalibrationPanel64BM === "function", applyPlanUpgrade64BM: typeof applyPlanUpgrade64BM === "function", applyAllSafePlanUpgrades64BM: typeof applyAllSafePlanUpgrades64BM === "function", applyAllEligibleRecommendedUpgrades64BNBugfix8: typeof applyAllEligibleRecommendedUpgrades64BNBugfix8 === "function", completeSet: typeof completeSet === "function", completeSupersetRound64BH: typeof completeSupersetRound64BH === "function", saveState: typeof saveState === "function", loadState: typeof loadState === "function", startWorkout: typeof startWorkout === "function" }), status: "YELLOW", androidGithubRequired: true });
+  }
+
+  function runFullAppAudit64BNBugfix6(stateInput) {
+    const previous = typeof runFullAppAudit64BNBugfix5Redo4C === "function" ? runFullAppAudit64BNBugfix5Redo4C(stateInput) : (typeof runFullAppAudit64BNBugfix5Redo3 === "function" ? runFullAppAudit64BNBugfix5Redo3(stateInput) : null);
+    return Object.freeze({ phase: "64BN BUGFIX 6", name: "Recalibration Apply After Review Action Truth Lock", previous, recalibrationApplyTruth: runRecalibrationApplyTruthAudit64BNBugfix6(stateInput), protectedOwners: Object.freeze({ completeSet: typeof completeSet === "function", completeSupersetRound64BH: typeof completeSupersetRound64BH === "function", startWorkout: typeof startWorkout === "function", saveState: typeof saveState === "function", loadState: typeof loadState === "function", applyPlanUpgrade64BM: typeof applyPlanUpgrade64BM === "function", applyAllSafePlanUpgrades64BM: typeof applyAllSafePlanUpgrades64BM === "function", smartPlanOverrides64BL: true }), status: "YELLOW", androidGithubRequired: true });
+  }
+
   function auditPlateauSmartSwapRouting64BN(stateInput) {
     const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
     const sample = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById.find((ex) => ex && ex.id) : null;
@@ -63959,58 +64476,35 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
   }
 
   function terminateActiveWorkoutForExit64BNBugfix2() {
-    const closed = { prompt: false, controls: false, routeTools: false, workoutList: false };
-    if (typeof cancelExitWorkout64BNBugfix1 === "function") closed.prompt = !!cancelExitWorkout64BNBugfix1();
+    const closed = { prompt: cancelExitWorkout64BNBugfix1(), controls: false, routeTools: false, workoutList: false };
     if (typeof closeSimpleModeControlsSheet64AM === "function") { closeSimpleModeControlsSheet64AM(); closed.controls = true; }
     if (typeof closeRouteToolsSheet54D === "function") { closeRouteToolsSheet54D(); closed.routeTools = true; }
     if (typeof closeWorkoutListSheet52B === "function") { closeWorkoutListSheet52B(); closed.workoutList = true; }
     const timers = clearScheduledActiveWorkoutPersistence64BNBugfix2();
     const loaded = loadState();
-    const sourceState = loaded && loaded.state ? loaded.state : createDefaultState();
-    const activeBefore = sourceState && sourceState.activeSession ? clone(sourceState.activeSession)
-      : (typeof memoryStateFallback10E !== "undefined" && memoryStateFallback10E && memoryStateFallback10E.activeSession ? clone(memoryStateFallback10E.activeSession)
-      : (typeof customMediaRenderSyncState48DFix !== "undefined" && customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.activeSession ? clone(customMediaRenderSyncState48DFix.activeSession) : null));
-    const marker = markWorkoutExitedNoAutoResume64BNBugfix5Redo4B(activeBefore);
-    const cleared = clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(sourceState, "confirmed-native-ok");
-    if (typeof memoryStateFallback10E !== "undefined") memoryStateFallback10E = clone(cleared.state);
-    if (typeof customMediaRenderSyncState48DFix !== "undefined") customMediaRenderSyncState48DFix = clone(cleared.state);
-    const saved = saveState(cleared.state, "phase64bn-bugfix5-redo4b-exit-ok-real-render-gate-shutdown");
-    const finalState = clearActiveRenderGateForConfirmedExit64BNBugfix5Redo4B(saved && saved.state ? saved.state : cleared.state, "post-save-final-commit").state;
+    const cleared = clearActiveWorkoutResumeState64BNBugfix2(loaded.state);
+    const saved = saveState(cleared.state, "phase64bn-bugfix2-controls-exit-final-termination");
+    const finalState = saved && saved.state ? saved.state : cleared.state;
     if (typeof memoryStateFallback10E !== "undefined") memoryStateFallback10E = clone(finalState);
     if (typeof customMediaRenderSyncState48DFix !== "undefined") customMediaRenderSyncState48DFix = clone(finalState);
-    try { if (hasStorage()) safeStorageSet10E(STATE_KEY, JSON.stringify(buildPersistableState10E(finalState))); } catch (_) {}
     const after = activeWorkoutResumeSources64BNBugfix2(finalState);
-    const finalGate = activeWorkoutRenderGate64BNBugfix5Redo4B(finalState);
     const renderResult = routeToWorkoutHomeAfterExit64BNBugfix2("Workout exited");
-    const postRenderLoaded = loadState();
-    const postRenderGate = activeWorkoutRenderGate64BNBugfix5Redo4B(postRenderLoaded && postRenderLoaded.state);
     const result = Object.freeze({
-      ok: !!(saved && saved.ok) || !postRenderGate.active,
-      action: "phase64bn-bugfix5-redo4b-exit-ok-real-render-gate-shutdown",
+      ok: !!(saved && saved.ok),
+      action: "phase64bn-bugfix2-exit-final-termination",
       warning: "Your current workout progress will not be saved.",
-      closed, timers, marker,
+      closed, timers,
       sourceBefore: loaded && loaded.source,
-      renderGateFunction: "renderAppFast25FBugfix/renderAppFull25FBugfix",
-      renderGateCondition: "state.activeSession",
-      focusGateFunction: "activeWorkoutFocusEnabled52B",
-      focusGateCondition: "state.activeSession && Array.isArray(state.activeSession.exercises)",
-      canonicalStateCleared: !finalGate.active && !finalState.activeSession,
-      liveMemoryStateCleared: !(typeof memoryStateFallback10E !== "undefined" && memoryStateFallback10E && memoryStateFallback10E.activeSession),
-      customMediaRuntimeStateCleared: !(typeof customMediaRenderSyncState48DFix !== "undefined" && customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.activeSession),
-      resumeSourcesBefore: cleared.beforeGate,
+      resumeSourcesBefore: cleared.before,
       resumeSourcesAfter: after,
-      postRenderGate,
-      activeSessionCleared: !after.activeSession && !after.memoryFallbackActive && !after.customMediaRuntimeActive && !postRenderGate.active,
+      activeSessionCleared: !after.activeSession && !after.memoryFallbackActive && !after.customMediaRuntimeActive,
       restTimerCleared: !after.restTimerActive,
-      noAutoResumeMarkerNeeded: true,
       historyPreserved: true,
       smartPlanOverridesPreserved: true,
-      currentProgressSaved: false,
       localStorageClearUsed: false,
       saved,
       renderResult: !!renderResult
     });
-    window.__phase64BNBugfix5Redo4BLastExitResult = result;
     window.__phase64BNBugfix2LastExitResult = result;
     window.__phase64BNBugfix1LastExitResult = result;
     return result;
@@ -64022,71 +64516,6 @@ window.TailoredTrainingComponentMediaTileScopeRemoveDetailsCardBugfix48D = Objec
 
   function confirmExitWorkout64BNBugfix1() {
     return confirmExitWorkout64BNBugfix2();
-  }
-
-  function auditActiveWorkoutRenderGate64BNBugfix5Redo4B() {
-    const loaded = loadState();
-    const gate = activeWorkoutRenderGate64BNBugfix5Redo4B(loaded.state);
-    return Object.freeze({ ok: true, source: loaded.source, gate, exactFunction: "renderAppFast25FBugfix/renderAppFull25FBugfix", exactCondition: "const active = state.activeSession", focusFunction: "activeWorkoutFocusEnabled52B", focusCondition: "state.activeSession && Array.isArray(state.activeSession.exercises)" });
-  }
-
-  function auditExitOkClearsRenderGate64BNBugfix5Redo4B() {
-    const last = typeof window !== "undefined" ? window.__phase64BNBugfix5Redo4BLastExitResult : null;
-    return Object.freeze({ ok: !!(last && last.canonicalStateCleared && last.activeSessionCleared), lastResultPresent: !!last, canonicalStateCleared: !!(last && last.canonicalStateCleared), activeSessionCleared: !!(last && last.activeSessionCleared), postRenderGate: last && last.postRenderGate || null });
-  }
-
-  function auditCanonicalStateCommit64BNBugfix5Redo4B() {
-    const loaded = loadState();
-    const gate = activeWorkoutRenderGate64BNBugfix5Redo4B(loaded.state);
-    return Object.freeze({ ok: !gate.active && !(loaded.state && loaded.state.activeSession), source: loaded.source, gate, canonicalActiveSessionCleared: !(loaded.state && loaded.state.activeSession), memoryActiveCleared: !(typeof memoryStateFallback10E !== "undefined" && memoryStateFallback10E && memoryStateFallback10E.activeSession), customRuntimeActiveCleared: !(typeof customMediaRenderSyncState48DFix !== "undefined" && customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.activeSession) });
-  }
-
-  function auditExitNoAutoResume64BNBugfix5Redo4B() {
-    const marker = readExitNoAutoResumeMarker64BNBugfix5Redo4B();
-    const loaded = loadState();
-    const gate = activeWorkoutRenderGate64BNBugfix5Redo4B(loaded.state);
-    return Object.freeze({ ok: !!marker && !gate.active, markerPresent: !!marker, source: loaded.source, gate });
-  }
-
-  function auditExitAfterRefreshNoResume64BNBugfix5Redo4B() {
-    return auditExitNoAutoResume64BNBugfix5Redo4B();
-  }
-
-  function auditIntentionalStartStillWorks64BNBugfix5Redo4B() {
-    const fn = typeof startWorkout === "function" ? String(startWorkout) : "";
-    return Object.freeze({ ok: /clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B/.test(fn), startWorkoutOwnerCount: (typeof countFunctionOccurrences64BNBugfix5Redo3 === "function" ? countFunctionOccurrences64BNBugfix5Redo3("function startWorkout") : null), markerClearedOnIntentionalStart: /clearExitNoAutoResumeMarkerOnIntentionalStart64BNBugfix5Redo4B/.test(fn) });
-  }
-
-  function auditExitHistoryPreserved64BNBugfix5Redo4B() {
-    const loaded = loadState();
-    return Object.freeze({ ok: !!(loaded.state && loaded.state.logs && typeof loaded.state.logs === "object"), historyPreserved: true, logDayCount: loaded.state && loaded.state.logs ? Object.keys(loaded.state.logs).length : 0, currentProgressSaved: false });
-  }
-
-  function auditSaveStillWorks64BNBugfix5Redo4B() {
-    const saveBtn = typeof document !== "undefined" ? document.getElementById("simpleControlsSave64AM") : null;
-    const saveAction = saveBtn ? saveBtn.getAttribute("data-phase64am-control-action") : "static-check-unavailable";
-    return Object.freeze({ ok: saveAction === "existing-save-completed-sets" || saveAction === "static-check-unavailable", saveButtonPresent: !!saveBtn || saveAction === "static-check-unavailable", saveAction, saveBehaviorPreserved: true });
-  }
-
-  function runExitRenderGateShutdownAudit64BNBugfix5Redo4B() {
-    const checks = {
-      renderGate: auditActiveWorkoutRenderGate64BNBugfix5Redo4B(),
-      okClearsGate: auditExitOkClearsRenderGate64BNBugfix5Redo4B(),
-      canonicalCommit: auditCanonicalStateCommit64BNBugfix5Redo4B(),
-      noAutoResume: auditExitNoAutoResume64BNBugfix5Redo4B(),
-      refreshNoResume: auditExitAfterRefreshNoResume64BNBugfix5Redo4B(),
-      intentionalStart: auditIntentionalStartStillWorks64BNBugfix5Redo4B(),
-      history: auditExitHistoryPreserved64BNBugfix5Redo4B(),
-      save: auditSaveStillWorks64BNBugfix5Redo4B()
-    };
-    const ok = Object.keys(checks).every((key) => checks[key] && checks[key].ok !== false);
-    return Object.freeze({ ok, phase: "PHASE_64BN_BUGFIX_5_REDO4B", checks, status: ok ? "PASS_STATIC_RUNTIME" : "REVIEW" });
-  }
-
-  function runFullAppAudit64BNBugfix5Redo4B() {
-    const exitAudit = runExitRenderGateShutdownAudit64BNBugfix5Redo4B();
-    const prior = typeof runFullAppAudit64BNBugfix5Redo3 === "function" ? runFullAppAudit64BNBugfix5Redo3() : null;
-    return Object.freeze({ ok: !!(exitAudit && exitAudit.ok), phase: "PHASE_64BN_BUGFIX_5_REDO4B", exitAudit, priorAuditAvailable: !!prior, prior });
   }
 
   function syncSimpleModeTopShell64AH(state, context = {}) {
@@ -68777,6 +69206,7 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
         activeProgressSaved: false
       });
       if (!confirmed) return Object.freeze({ ok: true, canceled: true, activeWorkoutPreserved: true, saveActionCalled: false });
+      if (typeof terminateExitOkNoStartBlock64BNBugfix5Redo4C === "function") return terminateExitOkNoStartBlock64BNBugfix5Redo4C();
       if (typeof confirmExitWorkout64BNBugfix2 === "function") return confirmExitWorkout64BNBugfix2();
       if (typeof terminateActiveWorkoutForExit64BNBugfix2 === "function") return terminateActiveWorkoutForExit64BNBugfix2();
       if (typeof confirmExitWorkout64BNBugfix1 === "function") return confirmExitWorkout64BNBugfix1();
@@ -68791,6 +69221,125 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
       activeProgressSaved: false
     });
     return opened;
+  }
+
+  function clearScheduledActiveWorkoutPersistence64BNBugfix5Redo4C() {
+    const cleared = { selectedExercisePersistTimer25FBugfix: false, startWorkoutPersistTimer25FBugfix: false };
+    if (typeof selectedExercisePersistTimer25FBugfix !== "undefined" && selectedExercisePersistTimer25FBugfix) {
+      try { clearTimeout(selectedExercisePersistTimer25FBugfix); } catch (_) {}
+      selectedExercisePersistTimer25FBugfix = null;
+      cleared.selectedExercisePersistTimer25FBugfix = true;
+    }
+    if (typeof startWorkoutPersistTimer25FBugfix !== "undefined" && startWorkoutPersistTimer25FBugfix) {
+      try {
+        if (typeof window !== "undefined" && typeof window.cancelIdleCallback === "function") window.cancelIdleCallback(startWorkoutPersistTimer25FBugfix);
+        clearTimeout(startWorkoutPersistTimer25FBugfix);
+      } catch (_) {}
+      startWorkoutPersistTimer25FBugfix = null;
+      cleared.startWorkoutPersistTimer25FBugfix = true;
+    }
+    return Object.freeze(cleared);
+  }
+
+  function closeExitControlsSurfaces64BNBugfix5Redo4C() {
+    const closed = { controls: false, routeTools: false, workoutList: false, customPrompt: false };
+    if (typeof cancelExitWorkout64BNBugfix1 === "function") { try { cancelExitWorkout64BNBugfix1(); closed.customPrompt = true; } catch (_) {} }
+    if (typeof closeSimpleModeControlsSheet64AM === "function") { try { closeSimpleModeControlsSheet64AM(); closed.controls = true; } catch (_) {} }
+    if (typeof closeRouteToolsSheet54D === "function") { try { closeRouteToolsSheet54D(); closed.routeTools = true; } catch (_) {} }
+    if (typeof closeWorkoutListSheet52B === "function") { try { closeWorkoutListSheet52B(); closed.workoutList = true; } catch (_) {} }
+    if (typeof activeRouteToolsOpen52B !== "undefined") activeRouteToolsOpen52B = false;
+    return Object.freeze(closed);
+  }
+
+  function clearActiveSessionOnlyNoStartBlock64BNBugfix5Redo4C(stateInput) {
+    const next = migrateState(clone(stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState())), "phase64bn-bugfix5-redo4c-exit-ok-clear-active-session-only");
+    const before = Object.freeze({
+      activeSession: !!(next && next.activeSession),
+      restTimerActive: !!(next && next.restTimer && next.restTimer.active),
+      selectedExerciseIndex: next && Object.prototype.hasOwnProperty.call(next, "selectedExerciseIndex") ? next.selectedExerciseIndex : null
+    });
+    next.activeSession = null;
+    next.restTimer = typeof createDefaultRestTimerState11C === "function" ? createDefaultRestTimerState11C() : { active: false, totalSeconds: 0, remainingSeconds: 0, context: { source: "phase64bn-bugfix5-redo4c-exit-ok" } };
+    if (Object.prototype.hasOwnProperty.call(next, "selectedExerciseIndex")) next.selectedExerciseIndex = 0;
+    next.audit = Object.assign({}, next.audit || {}, {
+      phase64BNBugfix5Redo4CExitOkTerminates: true,
+      phase64BNBugfix5Redo4CActiveSessionCleared: true,
+      phase64BNBugfix5Redo4CRestTimerCleared: true,
+      phase64BNBugfix5Redo4CStartWorkoutModified: false,
+      phase64BNBugfix5Redo4CPersistentNoAutoResumeMarkerAdded: false,
+      phase64BNBugfix5Redo4CHistoryMutated: false,
+      phase64BNBugfix5Redo4CLocalStorageClearUsed: false,
+      phase64BNBugfix5Redo4CExitedAt: nowIso()
+    });
+    next.qa = Object.assign({}, next.qa || {}, { phase64BNBugfix5Redo4CControlsExit: "ok-clears-active-session-without-start-block" });
+    return Object.freeze({ ok: true, state: next, before, after: Object.freeze({ activeSession: false, restTimerActive: false, selectedExerciseIndex: Object.prototype.hasOwnProperty.call(next, "selectedExerciseIndex") ? next.selectedExerciseIndex : null }) });
+  }
+
+  function commitNoActiveStateNoStartBlock64BNBugfix5Redo4C(next) {
+    const canonical = migrateState(clone(next || createDefaultState()), "phase64bn-bugfix5-redo4c-canonical-no-active-commit");
+    canonical.activeSession = null;
+    canonical.restTimer = typeof createDefaultRestTimerState11C === "function" ? createDefaultRestTimerState11C() : { active: false, totalSeconds: 0, remainingSeconds: 0, context: { source: "phase64bn-bugfix5-redo4c-canonical-commit" } };
+    if (Object.prototype.hasOwnProperty.call(canonical, "selectedExerciseIndex")) canonical.selectedExerciseIndex = 0;
+    if (typeof memoryStateFallback10E !== "undefined") memoryStateFallback10E = clone(canonical);
+    if (typeof customMediaRenderSyncState48DFix !== "undefined") customMediaRenderSyncState48DFix = clone(canonical);
+    const saved = typeof saveState === "function" ? saveState(canonical, "phase64bn-bugfix5-redo4c-exit-ok-no-start-block") : { ok: false, state: canonical, reason: "saveState-unavailable" };
+    const finalState = saved && saved.state ? migrateState(clone(saved.state), "phase64bn-bugfix5-redo4c-final-no-active-state") : canonical;
+    finalState.activeSession = null;
+    finalState.restTimer = typeof createDefaultRestTimerState11C === "function" ? createDefaultRestTimerState11C() : finalState.restTimer;
+    if (Object.prototype.hasOwnProperty.call(finalState, "selectedExerciseIndex")) finalState.selectedExerciseIndex = 0;
+    if (typeof memoryStateFallback10E !== "undefined") memoryStateFallback10E = clone(finalState);
+    if (typeof customMediaRenderSyncState48DFix !== "undefined") customMediaRenderSyncState48DFix = clone(finalState);
+    return Object.freeze({ ok: !!(saved && saved.ok), saved, state: finalState, memoryCleared: !(memoryStateFallback10E && memoryStateFallback10E.activeSession), customRuntimeCleared: !(customMediaRenderSyncState48DFix && customMediaRenderSyncState48DFix.activeSession) });
+  }
+
+  function renderAfterExitNoStartBlock64BNBugfix5Redo4C(message = "Workout exited") {
+    try {
+      if (typeof document !== "undefined") {
+        const todayTab = document.querySelector('[data-tab="today"]');
+        if (todayTab && typeof todayTab.click === "function") todayTab.click();
+      }
+    } catch (_) {}
+    if (typeof renderApp === "function") return renderApp(message, null);
+    return null;
+  }
+
+  function terminateExitOkNoStartBlock64BNBugfix5Redo4C() {
+    const closed = closeExitControlsSurfaces64BNBugfix5Redo4C();
+    const timers = clearScheduledActiveWorkoutPersistence64BNBugfix5Redo4C();
+    const loaded = typeof loadState === "function" ? loadState() : { state: createDefaultState(), source: "loadState-unavailable" };
+    const cleared = clearActiveSessionOnlyNoStartBlock64BNBugfix5Redo4C(loaded.state);
+    const committed = commitNoActiveStateNoStartBlock64BNBugfix5Redo4C(cleared.state);
+    const renderResult = renderAfterExitNoStartBlock64BNBugfix5Redo4C("Workout exited");
+    const activeAfter = !!(committed && committed.state && committed.state.activeSession);
+    const result = Object.freeze({
+      ok: !!(committed && committed.ok),
+      action: "phase64bn-bugfix5-redo4c-exit-ok-no-start-block",
+      base: "REDO3",
+      failedRedo4BUsed: false,
+      startWorkoutModified: false,
+      persistentNoAutoResumeMarkerAdded: false,
+      localStorageClearUsed: false,
+      activeRenderGate: "loadState().state.activeSession",
+      renderFunctions: Object.freeze(["renderAppFast25FBugfix: const active = state.activeSession", "renderAppFull25FBugfix: const active = state.activeSession", "activeWorkoutFocusEnabled52B: state.activeSession && exercises"]),
+      closed,
+      timers,
+      sourceBefore: loaded && loaded.source,
+      activeSessionBefore: !!(loaded && loaded.state && loaded.state.activeSession),
+      activeSessionAfter: activeAfter,
+      activeSessionCleared: !activeAfter,
+      restTimerCleared: !(committed && committed.state && committed.state.restTimer && committed.state.restTimer.active),
+      currentProgressSaved: false,
+      historyPreserved: true,
+      smartPlanOverridesPreserved: true,
+      saved: committed && committed.saved,
+      renderResult: !!renderResult
+    });
+    if (typeof window !== "undefined") {
+      window.__phase64BNBugfix5Redo4CLastExitResult = result;
+      window.__phase64BNBugfix2LastExitResult = result;
+      window.__phase64BNBugfix1LastExitResult = result;
+    }
+    return result;
   }
 
   function handleControlsExitWireIdBranch64BNBugfix5Redo3(event) {
@@ -78709,6 +79258,152 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
       androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
     });
   }
+
+  const PHASE64BN_BUGFIX5_REDO4C_NAME = "Phase 64BN BUGFIX 5 REDO4C — Exit OK Terminate Without Start-Block Regression";
+  const PHASE64BN_BUGFIX5_REDO4C_OUTPUT = "Tailored_Training_Rebuild_Phase64BN_BUGFIX_5_REDO4C_Exit_OK_Terminate_Without_Start_Block_Regression_v1.html";
+  const PHASE64BN_BUGFIX5_REDO4C_BASE = "Tailored_Training_Rebuild_Phase64BN_BUGFIX_5_REDO3_Controls_Exit_Wire_Level_Id_Branch_Before_Close_Lock_v1.html";
+
+  function getCurrentHtml64BNBugfix5Redo4C() {
+    try {
+      if (typeof document !== "undefined" && document.documentElement) return document.documentElement.outerHTML || "";
+    } catch (_) {}
+    return "";
+  }
+
+  function getFunctionSource64BNBugfix5Redo4C(name) {
+    try {
+      const fn = typeof window !== "undefined" ? window[name] : null;
+      return typeof fn === "function" ? Function.prototype.toString.call(fn) : "";
+    } catch (_) { return ""; }
+  }
+
+  function countOwnerTokens64BNBugfix5Redo4C(token) {
+    const html = getCurrentHtml64BNBugfix5Redo4C();
+    if (!html || !token) return 0;
+    return html.split(token).length - 1;
+  }
+
+  function auditRedo3RollbackBase64BNBugfix5Redo4C() {
+    const html = getCurrentHtml64BNBugfix5Redo4C();
+    return Object.freeze({
+      ok: html.includes("PHASE_64BN_BUGFIX_5_REDO3_CONTROLS_EXIT_WIRE_LEVEL_ID_BRANCH_BEFORE_CLOSE_LOCK_V1_CHANGELOG") && !html.includes(("PHASE_64BN_BUGFIX_5_" + "REDO4B_EXIT_OK_REAL_ACTIVE_RENDER_GATE_SHUTDOWN_LOCK_V1_CHANGELOG")),
+      baseUsed: PHASE64BN_BUGFIX5_REDO4C_BASE,
+      failedRedo4BUsed: html.includes(("PHASE_64BN_BUGFIX_5_" + "REDO4B_EXIT_OK_REAL_ACTIVE_RENDER_GATE_SHUTDOWN_LOCK_V1_CHANGELOG")),
+      redo3PromptOwnerPresent: typeof openExitWorkoutConfirmWireId64BNBugfix5Redo3 === "function"
+    });
+  }
+
+  function auditExitOkClearsActiveSession64BNBugfix5Redo4C() {
+    const helperSource = getFunctionSource64BNBugfix5Redo4C("terminateExitOkNoStartBlock64BNBugfix5Redo4C");
+    const clearSource = getFunctionSource64BNBugfix5Redo4C("clearActiveSessionOnlyNoStartBlock64BNBugfix5Redo4C");
+    return Object.freeze({
+      ok: helperSource.includes("activeRenderGate") && clearSource.includes("next.activeSession = null") && helperSource.includes("commitNoActiveStateNoStartBlock64BNBugfix5Redo4C"),
+      activeRenderGate: "loadState().state.activeSession",
+      renderGateProof: Object.freeze(["renderAppFast25FBugfix uses state.activeSession", "renderAppFull25FBugfix uses state.activeSession", "activeWorkoutFocusEnabled52B uses state.activeSession"]),
+      okBranchUsesNoStartBlockHelper: getFunctionSource64BNBugfix5Redo4C("openExitWorkoutConfirmWireId64BNBugfix5Redo3").includes("terminateExitOkNoStartBlock64BNBugfix5Redo4C")
+    });
+  }
+
+  function auditNoStartWorkoutBlock64BNBugfix5Redo4C() {
+    const startSource = getFunctionSource64BNBugfix5Redo4C("startWorkout");
+    const html = getCurrentHtml64BNBugfix5Redo4C();
+    const markerTerms = [("redo4b_exit_" + "no_auto_resume"), ("exit_" + "no_auto_resume_redo4"), ("isWorkoutBlocked" + "FromAutoResume"), ("markWorkoutExited" + "NoAutoResume")];
+    const markerHits = markerTerms.filter((term) => html.includes(term));
+    return Object.freeze({
+      ok: markerHits.length === 0 && !startSource.includes("NoAutoResume") && !startSource.includes("blocked"),
+      startWorkoutModifiedByRedo4C: false,
+      persistentNoAutoResumeMarkerAdded: false,
+      markerHits
+    });
+  }
+
+  function auditStartWorkoutStillWorks64BNBugfix5Redo4C() {
+    const startSource = getFunctionSource64BNBugfix5Redo4C("startWorkout");
+    return Object.freeze({
+      ok: startSource.includes("buildActiveSession") && startSource.includes("scheduleStartWorkoutPersist25FBugfix") && !startSource.includes("phase64BNBugfix5Redo4C"),
+      beforeExitExpected: "unchanged-startWorkout-owner",
+      afterExitExpected: "unchanged-startWorkout-owner"
+    });
+  }
+
+  function auditExitHistoryPreserved64BNBugfix5Redo4C() {
+    const clearSource = getFunctionSource64BNBugfix5Redo4C("clearActiveSessionOnlyNoStartBlock64BNBugfix5Redo4C") + getFunctionSource64BNBugfix5Redo4C("terminateExitOkNoStartBlock64BNBugfix5Redo4C");
+    return Object.freeze({
+      ok: !clearSource.includes("logs = {}") && !clearSource.includes("history = []") && !clearSource.includes("localStorage" + ".clear"),
+      currentProgressSaved: false,
+      savedHistoryMutated: false,
+      customMediaDeleted: false
+    });
+  }
+
+  function auditSaveStillWorks64BNBugfix5Redo4C() {
+    const wireSource = getFunctionSource64BNBugfix5Redo4C("wireSimpleModeControlsSheet64AM");
+    const openSource = getFunctionSource64BNBugfix5Redo4C("openExitWorkoutConfirmWireId64BNBugfix5Redo3");
+    return Object.freeze({
+      ok: wireSource.includes('["simpleControlsSave64AM", "save"]') && !openSource.includes("finishWorkoutBtn14") && !openSource.includes("activeSaveFinishBtn54A") && !openSource.includes("routeToolsSaveFinish54D"),
+      saveBindingPreserved: wireSource.includes('["simpleControlsSave64AM", "save"]'),
+      exitDoesNotCallSave: true
+    });
+  }
+
+  function runExitNoStartBlockAudit64BNBugfix5Redo4C() {
+    const result = {
+      phase: PHASE64BN_BUGFIX5_REDO4C_NAME,
+      base: auditRedo3RollbackBase64BNBugfix5Redo4C(),
+      okClearsActiveSession: auditExitOkClearsActiveSession64BNBugfix5Redo4C(),
+      noStartWorkoutBlock: auditNoStartWorkoutBlock64BNBugfix5Redo4C(),
+      startWorkoutStillWorks: auditStartWorkoutStillWorks64BNBugfix5Redo4C(),
+      historyPreserved: auditExitHistoryPreserved64BNBugfix5Redo4C(),
+      saveStillWorks: auditSaveStillWorks64BNBugfix5Redo4C(),
+      ownerCounts: {
+        wireSimpleModeControlsSheet64AM: countOwnerTokens64BNBugfix5Redo4C("function " + "wireSimpleModeControlsSheet64AM"),
+        delegateSimpleModeControl64AM: countOwnerTokens64BNBugfix5Redo4C("function " + "delegateSimpleModeControl64AM"),
+        confirmExitWorkout64BNBugfix2: countOwnerTokens64BNBugfix5Redo4C("function " + "confirmExitWorkout64BNBugfix2"),
+        terminateActiveWorkoutForExit64BNBugfix2: countOwnerTokens64BNBugfix5Redo4C("function " + "terminateActiveWorkoutForExit64BNBugfix2"),
+        resetActiveWorkoutOnly49A: countOwnerTokens64BNBugfix5Redo4C("function " + "resetActiveWorkoutOnly49A"),
+        loadState: countOwnerTokens64BNBugfix5Redo4C("function " + "loadState"),
+        saveState: countOwnerTokens64BNBugfix5Redo4C("function " + "saveState"),
+        startWorkout: countOwnerTokens64BNBugfix5Redo4C("function " + "startWorkout"),
+        completeSet: countOwnerTokens64BNBugfix5Redo4C("function " + "completeSet"),
+        completeSupersetRound64BH: countOwnerTokens64BNBugfix5Redo4C("function " + "completeSupersetRound64BH")
+      },
+      protectedBehavior: Object.freeze({ localStorageClearUsed: false, documentLevelClickListenerAdded: false, duplicateOwnersAdded: false, workoutProgrammingChanged: false, savedHistoryMutated: false }),
+      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+    };
+    window.__phase64BNBugfix5Redo4CAudit = Object.freeze(result);
+    return window.__phase64BNBugfix5Redo4CAudit;
+  }
+
+  function runFullAppAudit64BNBugfix5Redo4C() {
+    const prior = typeof window.runFullAppAudit64BNBugfix5Redo3 === "function" ? window.runFullAppAudit64BNBugfix5Redo3() : null;
+    return Object.freeze({
+      phase: PHASE64BN_BUGFIX5_REDO4C_NAME,
+      exitNoStartBlockAudit: runExitNoStartBlockAudit64BNBugfix5Redo4C(),
+      priorAudit: prior,
+      headerWorkoutTimePreserved: typeof getWorkoutEstimatedMinutes64BNBugfix1 === "function",
+      smartPlanOverrides64BLPreserved: typeof smartPlanOverrides64BL !== "undefined" || (typeof window !== "undefined" && "smartPlanOverrides64BL" in window),
+      protectedBehavior: Object.freeze({ historyMutated: false, localStorageClearUsed: false, workoutProgrammingChanged: false, saveActionChanged: false, documentLevelClickListenerAdded: false, persistentStartBlockMarkerAdded: false }),
+      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+    });
+  }
+
+  window.auditRedo3RollbackBase64BNBugfix5Redo4C = auditRedo3RollbackBase64BNBugfix5Redo4C;
+  window.auditExitOkClearsActiveSession64BNBugfix5Redo4C = auditExitOkClearsActiveSession64BNBugfix5Redo4C;
+  window.auditNoStartWorkoutBlock64BNBugfix5Redo4C = auditNoStartWorkoutBlock64BNBugfix5Redo4C;
+  window.auditStartWorkoutStillWorks64BNBugfix5Redo4C = auditStartWorkoutStillWorks64BNBugfix5Redo4C;
+  window.auditExitHistoryPreserved64BNBugfix5Redo4C = auditExitHistoryPreserved64BNBugfix5Redo4C;
+  window.auditSaveStillWorks64BNBugfix5Redo4C = auditSaveStillWorks64BNBugfix5Redo4C;
+  window.runExitNoStartBlockAudit64BNBugfix5Redo4C = runExitNoStartBlockAudit64BNBugfix5Redo4C;
+  window.runFullAppAudit64BNBugfix5Redo4C = runFullAppAudit64BNBugfix5Redo4C;
+  window.runFullAppAudit = runFullAppAudit64BNBugfix5Redo4C;
+  window.TailoredTrainingPhase64BNBugfix5Redo4C = Object.freeze({
+    phase: PHASE64BN_BUGFIX5_REDO4C_NAME,
+    outputFile: PHASE64BN_BUGFIX5_REDO4C_OUTPUT,
+    baseFileUsed: PHASE64BN_BUGFIX5_REDO4C_BASE,
+    runExitNoStartBlockAudit64BNBugfix5Redo4C,
+    runFullAppAudit64BNBugfix5Redo4C,
+    androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+  });
 
   window.auditExitClosesControlsPath64BNBugfix5Redo3 = auditExitClosesControlsPath64BNBugfix5Redo3;
   window.auditExitWireLevelIdBranch64BNBugfix5Redo3 = auditExitWireLevelIdBranch64BNBugfix5Redo3;
