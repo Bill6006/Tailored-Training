@@ -313,21 +313,6 @@ PHASE_64BE_SUPERSET_ROUND_BASED_MULTI_MOVE_LOGGING_FOUNDATION_V1_CHANGELOG
 - Preserves Phase 64BM Smart Plan Recalibration behavior.
 - Does not add wrapper-style patches or owner monkey-patching.
 -->
-<!--
-PHASE_64BO_RECALIBRATION_V2_CLEAN_SLOT_ASSIGNMENT_REBUILD_V1_CHANGELOG
-- Starts from BUGFIX 9 rollback-safe base.
-- Decommissions the old Recalibration apply/override patch stack for Smart Plan Recalibration actions.
-- Does not carry forward BUGFIX 10 / REDO / FINAL verifier code.
-- Builds Recalibration V2 around persistent route slot assignments.
-- Approved upgrades rewrite route slot assignment patches.
-- Old exercise identity is metadata only.
-- Refresh + Apply all must apply 0 same upgrades.
-- Does not delete the exercise library.
-- Does not delete History.
-- Does not clear localStorage.
-- Does not touch Exit.
-- Does not change Save behavior except preserving V2 stores.
--->
 <!doctype html>
 
 <!--
@@ -13663,8 +13648,6 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     merged.media = dynamicMediaFromCandidate10E(candidate || merged);
     merged.coach = normalizeCoachTraceStorage23B(candidate && candidate.coach);
     merged.smartPlanOverrides64BL = typeof normalizeSmartPlanOverrides64BL === "function" ? normalizeSmartPlanOverrides64BL(candidate && candidate.smartPlanOverrides64BL) : (candidate && candidate.smartPlanOverrides64BL && typeof candidate.smartPlanOverrides64BL === "object" && !Array.isArray(candidate.smartPlanOverrides64BL) ? candidate.smartPlanOverrides64BL : { entries: [], auditTrail: [] });
-    merged.recalibrationV2SlotAssignments64BO = typeof normalizeRecalibrationV2SlotAssignments64BO === "function" ? normalizeRecalibrationV2SlotAssignments64BO(candidate && candidate.recalibrationV2SlotAssignments64BO) : { version: 1, entries: [] };
-    merged.recalibrationV2PromotedExercises64BO = typeof normalizeRecalibrationV2PromotedExercises64BO === "function" ? normalizeRecalibrationV2PromotedExercises64BO(candidate && candidate.recalibrationV2PromotedExercises64BO) : { version: 1, entries: [] };
     ["bodyMetrics", "painChecks", "recoveryChecks", "nutritionContext", "conditioning"].forEach((key) => { merged[key] = Array.isArray(merged[key]) ? merged[key] : []; });
     merged.qa = Object.assign({}, merged.qa, { phase9SetLoggingBase: "set-logging-base-ready", phase10BIndependentMenu: "independent-menu-ready", phase10CIndependentDoneEditing: "done-editing-collapse-ready", phase10DManualHeaderCollapse: "manual-header-collapse-ready", phase10EAndroidTouchQaLock: "real-phone-gate-green", phase10EStorageSafeFix: "program-not-persisted", phase11BRestTimerDockUI: "normal-rest-start-stop-ready-no-set-completion-wiring", phase11ERestTimerRegressionLock: "regression-lock-ready", phase13ADropSetDataStructure: "data-structure-ready", phase13BDropSetRenderUnderParent: "render-ready", phase13CDropSetCompletion: "completion-ready-no-rest-bypass" });
     merged.audit = Object.assign({}, merged.audit, { lastMigrationAt: merged.migratedAt, noDestructiveMigration: true, setLoggingPhase: "Phase 12B", stableSetControlsPhase: "Phase 10E", restTimerPhase: "Phase 11E", storageSafeFix: true, programStoredInLocalStorage: false, snapshotsExcludeProgram: true, restTimerDockBuilt: true, restTimerSetCompletionWiringBuilt: true, dropSetDataStructureBuilt: true, dropSetRenderingBuilt: true, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: false });
@@ -13688,8 +13671,6 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       media: dynamicMediaFromCandidate10E(s),
       coach: normalizeCoachTraceStorage23B(s.coach),
       smartPlanOverrides64BL: typeof normalizeSmartPlanOverrides64BL === "function" ? normalizeSmartPlanOverrides64BL(s.smartPlanOverrides64BL) : clone(s.smartPlanOverrides64BL || { entries: [], auditTrail: [] }),
-      recalibrationV2SlotAssignments64BO: typeof normalizeRecalibrationV2SlotAssignments64BO === "function" ? normalizeRecalibrationV2SlotAssignments64BO(s.recalibrationV2SlotAssignments64BO) : { version: 1, entries: [] },
-      recalibrationV2PromotedExercises64BO: typeof normalizeRecalibrationV2PromotedExercises64BO === "function" ? normalizeRecalibrationV2PromotedExercises64BO(s.recalibrationV2PromotedExercises64BO) : { version: 1, entries: [] },
       bodyMetrics: Array.isArray(s.bodyMetrics) ? clone(s.bodyMetrics) : [],
       painChecks: Array.isArray(s.painChecks) ? clone(s.painChecks) : [],
       recoveryChecks: Array.isArray(s.recoveryChecks) ? clone(s.recoveryChecks) : [],
@@ -14226,11 +14207,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
   }
   function getTodayName() { return DAY_NAMES[new Date().getDay()]; }
   function getDayPlan(state, dayName = getTodayName()) { return (state.program.weeklySchedule || []).find((d) => d.day === dayName) || state.program.weeklySchedule[0]; }
-  function allDayExercises(state, dayName) {
-    const base = (state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : []).filter((ex) => ex && ex.day === dayName).sort((a,b) => a.order - b.order);
-    const v2 = typeof window !== "undefined" && window.TTRecalibrationV2_64BO;
-    return v2 && typeof v2.applyAssignmentsToAllDayExercises === "function" ? v2.applyAssignmentsToAllDayExercises(state, dayName, base, { owner: "allDayExercises" }) : base;
-  }
+  function allDayExercises(state, dayName) { return (state.program.exercisesById || []).filter((ex) => ex.day === dayName).sort((a,b) => a.order - b.order); }
   const MAIN_TAB_WORKOUT_DAY_SELECTOR32CBUGFIX = "phase32c-bugfix-main-tab-workout-day-selector-v1";
   function workoutDayOptions32CBugfix(state) {
     const days = state && state.program && Array.isArray(state.program.weeklySchedule) ? state.program.weeklySchedule : [];
@@ -14643,9 +14620,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const modeReady = normalizedMode === "Gym" ? applyGymFloorAvoidance32CBugfix(modeReadyRaw, normalizedRoute, dayName) : modeReadyRaw;
     const generatedRoute = normalizedRoute !== "Lazy" ? applyFullRouteDurationCap32CBugfix(modeReady, normalizedMode, dayName) : buildLazyTargetRoute32CBugfix(modeReady, normalizedMode, dayName);
     const plateauRoute = typeof applyPlateauSwapToGeneratedRoute51A === "function" ? applyPlateauSwapToGeneratedRoute51A(state, generatedRoute, dayName, normalizedMode, normalizedRoute, { owner: "getVisibleExercises" }) : generatedRoute;
-    const legacyAppliedRoute = typeof applySmartPlanOverridesToWorkout64BL === "function" ? applySmartPlanOverridesToWorkout64BL(state, plateauRoute, dayName, normalizedMode, normalizedRoute, { owner: "getVisibleExercises" }) : plateauRoute;
-    const v2 = typeof window !== "undefined" && window.TTRecalibrationV2_64BO;
-    return v2 && typeof v2.applyAssignmentsToVisibleExercises === "function" ? v2.applyAssignmentsToVisibleExercises(state, dayName, normalizedMode, normalizedRoute, legacyAppliedRoute, { owner: "getVisibleExercises" }) : legacyAppliedRoute;
+    return typeof applySmartPlanOverridesToWorkout64BL === "function" ? applySmartPlanOverridesToWorkout64BL(state, plateauRoute, dayName, normalizedMode, normalizedRoute, { owner: "getVisibleExercises" }) : plateauRoute;
   }
   function gymHomeRouteComparison32CBugfix(state, dayName, route) {
     const selectedRoute = route === "Lazy" ? "Lazy" : "Full";
@@ -21028,9 +21003,8 @@ Existing History logs stay untouched.`);
     const state = options.state || (typeof loadState === "function" ? loadState().state : createDefaultState());
     const report = options.report || null;
     if (!rec || !rec.key || !rec.current) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload"), reason: "missing-card-payload" });
-    const v2AlreadyUpdated64BO = typeof window !== "undefined" && window.TTRecalibrationV2_64BO && typeof window.TTRecalibrationV2_64BO.findAssignmentForRecommendation === "function" ? window.TTRecalibrationV2_64BO.findAssignmentForRecommendation(state, rec) : null;
-    if (v2AlreadyUpdated64BO) return Object.freeze({ type: "already_updated", canApply: false, label: "Already updated", message: "This route slot now uses the new default.", reason: "route-slot-already-updated", assignment: v2AlreadyUpdated64BO });
-    const alreadyAppliedOverride64BNBugfix9 = null;
+    const alreadyAppliedOverride64BNBugfix9 = typeof getAppliedSmartPlanOverrideForSlot64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideForSlot64BNBugfix9(state, rec) : null;
+    if (alreadyAppliedOverride64BNBugfix9) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_applied"), message: blockReasonMessage64BNBugfix6("already_applied"), reason: "smartplan-override-already-saved", override: alreadyAppliedOverride64BNBugfix9 });
     const isSafe = section === "safe" || rec.confidence === "safe";
     const isStrong = section === "strong" || rec.confidence === "strong";
     const duplicate = !!rec.duplicateBlocked64BMBugfix2 || /duplicate/i.test(String(rec.duplicateStatus64BMBugfix2 || ""));
@@ -21221,444 +21195,37 @@ Existing History logs stay untouched.`);
     <div class="smart-recalibration-summary64bm" data-phase64bn-bugfix8-batch-stats="true" data-phase64bn-bugfix9-batch-stats="applied-aware"><div><b>${escapeHtml(stats.safe || 0)}</b><span>Safe</span></div><div><b>${escapeHtml(stats.reviewApplicable || 0)}</b><span>Review-applicable</span></div><div><b>${escapeHtml(stats.blocked || 0)}</b><span>Blocked</span></div><div><b>${escapeHtml(stats.reviewOnly || 0)}</b><span>Review only</span></div><div><b>${escapeHtml(stats.strongSimilar || 0)}</b><span>Strong/similar</span></div><div><b>${escapeHtml(stats.alreadyApplied || 0)}</b><span>Already applied</span></div></div>`;
   }
 
-
-
-  function normalizeRecalibrationV2Text64BO(value) {
-    return String(value == null ? "" : value).trim();
-  }
-
-  function normalizeRecalibrationV2Identity64BO(value) {
-    return String(value == null ? "" : value).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  }
-
-  function normalizeRecalibrationV2RouteMode64BO(mode, route) {
-    const env = /home/i.test(String(mode || "")) ? "Home" : (/gym/i.test(String(mode || "")) ? "Gym" : "Unknown");
-    const effort = /lazy/i.test(String(route || "")) ? "Lazy" : (/full/i.test(String(route || "")) ? "Full" : "Unknown");
-    return `${env} ${effort}`;
-  }
-
-  function normalizeRecalibrationV2SlotAssignments64BO(store) {
-    const input = store && typeof store === "object" && !Array.isArray(store) ? store : {};
-    const entries = Array.isArray(input.entries) ? input.entries.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
-    return { version: 1, entries };
-  }
-
-  function normalizeRecalibrationV2PromotedExercises64BO(store) {
-    const input = store && typeof store === "object" && !Array.isArray(store) ? store : {};
-    const entries = Array.isArray(input.entries) ? input.entries.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
-    return { version: 1, entries };
-  }
-
-  window.TTRecalibrationV2_64BO = (() => {
-    const api = { phase: "64BO", version: 1, lastResult: null, lastDiagnostics: [] };
-    const STORE_KEY = "recalibrationV2SlotAssignments64BO";
-    const PROMOTED_KEY = "recalibrationV2PromotedExercises64BO";
-
-    function safeClone64BO(value, fallback) {
-      try { return clone(value); } catch (err) { return fallback == null ? null : fallback; }
-    }
-
-    function displayName64BO(ex) {
-      return String(ex && (ex.displayName || ex.name || ex.title || ex.id) || "Exercise").trim();
-    }
-
-    function exerciseId64BO(ex) {
-      const raw = ex && (ex.id || ex.exerciseId || ex.slug || ex.name || ex.displayName);
-      const clean = normalizeRecalibrationV2Identity64BO(raw || displayName64BO(ex));
-      return clean || `recalibration-v2-${Date.now()}`;
-    }
-
-    function slotOrder64BO(recOrExercise, fallbackIndex) {
-      const raw = recOrExercise && (recOrExercise.slotOrder || recOrExercise.order || recOrExercise.slot || recOrExercise.position);
-      const n = Number(raw);
-      return Number.isFinite(n) && n > 0 ? n : (Number.isFinite(Number(fallbackIndex)) ? Number(fallbackIndex) + 1 : 1);
-    }
-
-    function slotIndex64BO(recOrExercise, fallbackIndex) {
-      const raw = recOrExercise && recOrExercise.slotIndex;
-      const n = Number(raw);
-      if (Number.isFinite(n) && n >= 0) return n;
-      const order = slotOrder64BO(recOrExercise, fallbackIndex);
-      return Math.max(0, order - 1);
-    }
-
-    function buildKey(parts) {
-      const dayName = normalizeRecalibrationV2Text64BO(parts && parts.dayName || "day");
-      const routeMode = normalizeRecalibrationV2Text64BO(parts && parts.routeMode || normalizeRecalibrationV2RouteMode64BO(parts && parts.mode, parts && parts.route));
-      const order = slotOrder64BO(parts || {}, parts && parts.slotIndex);
-      return [dayName, routeMode, `slot-${order}`].map(normalizeRecalibrationV2Identity64BO).join("__");
-    }
-
-    function buildRouteSlotAssignmentKey64BO(input) { return buildKey(input || {}); }
-
-    function getAssignmentStore(state) {
-      if (!state || typeof state !== "object") return { version: 1, entries: [] };
-      state[STORE_KEY] = normalizeRecalibrationV2SlotAssignments64BO(state[STORE_KEY]);
-      return state[STORE_KEY];
-    }
-
-    function getPromotedStore(state) {
-      if (!state || typeof state !== "object") return { version: 1, entries: [] };
-      state[PROMOTED_KEY] = normalizeRecalibrationV2PromotedExercises64BO(state[PROMOTED_KEY]);
-      return state[PROMOTED_KEY];
-    }
-
-    function resolvePromotedOrProgramExercise(state, idOrName, fallbackExercise) {
-      const targetId = normalizeRecalibrationV2Identity64BO(idOrName || (fallbackExercise && fallbackExercise.id));
-      const targetName = normalizeRecalibrationV2Identity64BO(fallbackExercise && (fallbackExercise.displayName || fallbackExercise.name));
-      const program = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
-      const promoted = getPromotedStore(state).entries || [];
-      const all = program.concat(promoted);
-      return all.find((ex) => {
-        const id = normalizeRecalibrationV2Identity64BO(ex && ex.id);
-        const name = normalizeRecalibrationV2Identity64BO(ex && (ex.displayName || ex.name));
-        return (targetId && (id === targetId || name === targetId)) || (targetName && (id === targetName || name === targetName));
-      }) || fallbackExercise || null;
-    }
-
-    function promoteReplacement(state, replacement) {
-      if (!state || !replacement) return { ok: false, reason: "missing-state-or-replacement", replacement: null, promoted: false };
-      const replacementName = displayName64BO(replacement);
-      const replacementId = exerciseId64BO(replacement);
-      const existing = resolvePromotedOrProgramExercise(state, replacementId, replacement) || resolvePromotedOrProgramExercise(state, replacementName, replacement);
-      const existingInProgram = existing && state.program && Array.isArray(state.program.exercisesById) && state.program.exercisesById.some((ex) => ex === existing || normalizeRecalibrationV2Identity64BO(ex && ex.id) === normalizeRecalibrationV2Identity64BO(existing.id));
-      if (existingInProgram) return { ok: true, replacement: safeClone64BO(existing, existing), replacementId: existing.id || replacementId, replacementName: displayName64BO(existing), promoted: false, source: "program" };
-      const store = getPromotedStore(state);
-      const promotedExercise = Object.assign({}, safeClone64BO(replacement, {}), {
-        id: replacementId,
-        name: replacement.name || replacementName,
-        displayName: replacement.displayName || replacement.name || replacementName,
-        recalibrationV2Promoted64BO: true,
-        promotedAt64BO: nowIso(),
-        source: "recalibration_v2_promoted_exercise"
-      });
-      const idx = store.entries.findIndex((ex) => normalizeRecalibrationV2Identity64BO(ex && ex.id) === normalizeRecalibrationV2Identity64BO(promotedExercise.id) || normalizeRecalibrationV2Identity64BO(ex && (ex.displayName || ex.name)) === normalizeRecalibrationV2Identity64BO(promotedExercise.displayName));
-      if (idx >= 0) store.entries[idx] = Object.assign({}, store.entries[idx], promotedExercise);
-      else store.entries.push(promotedExercise);
-      return { ok: true, replacement: safeClone64BO(promotedExercise, promotedExercise), replacementId: promotedExercise.id, replacementName: displayName64BO(promotedExercise), promoted: true, source: "promoted" };
-    }
-
-    function recommendationToAssignment(rec, state) {
-      if (!rec || !rec.current || !rec.recommended) return { ok: false, reason: "missing-recommendation-current-or-replacement" };
-      const replacementResult = promoteReplacement(state, rec.recommended);
-      if (!replacementResult.ok) return replacementResult;
-      const current = rec.current || {};
-      const routeMode = normalizeRecalibrationV2RouteMode64BO(rec.mode, rec.route);
-      const slotOrder = slotOrder64BO(rec, rec.slotIndex);
-      const slotIndex = slotIndex64BO(rec, rec.slotIndex);
-      const key = buildRouteSlotAssignmentKey64BO({ dayName: rec.dayName, routeMode, slotOrder, slotIndex });
-      return { ok: true, entry: {
-        key,
-        dayName: rec.dayName || current.day || "Unknown",
-        routeMode,
-        slotOrder,
-        slotIndex,
-        block: rec.block || current.block || "Workout",
-        category: current.category || rec.category || rec.block || current.block || "Workout",
-        replacementId: replacementResult.replacementId,
-        replacementName: replacementResult.replacementName,
-        replacementExercise: safeClone64BO(replacementResult.replacement, {}),
-        replacedFromId: current.id || rec.currentId || "",
-        replacedFromName: rec.currentName || displayName64BO(current),
-        updatedAt: nowIso(),
-        source: "recalibration_v2"
-      }, replacement: replacementResult };
-    }
-
-    function upsertRouteSlotAssignment(state, entry) {
-      if (!state || !entry || !entry.key) return { ok: false, reason: "missing-assignment-entry" };
-      const store = getAssignmentStore(state);
-      const clean = Object.assign({}, entry, { source: "recalibration_v2", updatedAt: entry.updatedAt || nowIso() });
-      const idx = store.entries.findIndex((item) => item && item.key === clean.key);
-      if (idx >= 0) store.entries[idx] = Object.assign({}, store.entries[idx], clean);
-      else store.entries.push(clean);
-      return { ok: true, entry: clean, store };
-    }
-
-    function assignmentMatchesSlot(entry, ex, index, routeMode, dayName) {
-      if (!entry || !ex) return false;
-      const entryDay = normalizeRecalibrationV2Identity64BO(entry.dayName);
-      const slotDay = normalizeRecalibrationV2Identity64BO(dayName || ex.day);
-      if (entryDay && slotDay && entryDay !== slotDay) return false;
-      if (routeMode) {
-        const entryRoute = normalizeRecalibrationV2Identity64BO(entry.routeMode);
-        const requestedRoute = normalizeRecalibrationV2Identity64BO(routeMode);
-        if (entryRoute && requestedRoute && entryRoute !== requestedRoute) return false;
-      }
-      const order = slotOrder64BO(ex, index);
-      const idx = slotIndex64BO(ex, index);
-      return Number(entry.slotOrder) === Number(order) || Number(entry.slotIndex) === Number(idx);
-    }
-
-    function latestAssignmentForSlot(state, ex, index, routeMode, dayName) {
-      const entries = getAssignmentStore(state).entries || [];
-      return entries.filter((entry) => assignmentMatchesSlot(entry, ex, index, routeMode, dayName)).sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")))[0] || null;
-    }
-
-    function mergeAssignmentIntoExercise(state, ex, entry) {
-      if (!entry || !ex) return ex;
-      const replacement = resolvePromotedOrProgramExercise(state, entry.replacementId || entry.replacementName, entry.replacementExercise || null) || entry.replacementExercise || {};
-      const original = safeClone64BO(ex, {});
-      const replacementMeta = safeClone64BO(replacement, {});
-      const merged = Object.assign({}, original, replacementMeta, {
-        id: entry.replacementId || replacementMeta.id || original.id,
-        name: entry.replacementName || replacementMeta.name || replacementMeta.displayName || original.name,
-        displayName: entry.replacementName || replacementMeta.displayName || replacementMeta.name || original.displayName,
-        day: original.day,
-        order: original.order,
-        block: original.block,
-        category: original.category,
-        sets: original.sets,
-        reps: original.reps,
-        rest: original.rest,
-        restSeconds: original.restSeconds,
-        rir: original.rir,
-        tempo: original.tempo,
-        prescription: original.prescription,
-        guidance: original.guidance,
-        recalibrationV2Assigned64BO: true,
-        recalibrationV2AssignmentKey64BO: entry.key,
-        smartUpgraded64BO: true,
-        replacedFrom64BO: { id: entry.replacedFromId || original.id || "", name: entry.replacedFromName || displayName64BO(original) }
-      });
-      return merged;
-    }
-
-    function applyAssignmentsToExercises(state, dayName, exercises, routeMode, options) {
-      if (!Array.isArray(exercises) || !state) return Array.isArray(exercises) ? exercises : [];
-      const entries = getAssignmentStore(state).entries || [];
-      if (!entries.length) return exercises;
-      return exercises.map((ex, index) => {
-        const entry = latestAssignmentForSlot(state, ex, index, routeMode || null, dayName || (ex && ex.day));
-        return entry ? mergeAssignmentIntoExercise(state, ex, entry) : ex;
-      });
-    }
-
-    function applyAssignmentsToAllDayExercises(state, dayName, exercises, options) {
-      return applyAssignmentsToExercises(state, dayName, exercises, null, options);
-    }
-
-    function applyAssignmentsToVisibleExercises(state, dayName, mode, route, exercises, options) {
-      const routeMode = normalizeRecalibrationV2RouteMode64BO(mode, route);
-      return applyAssignmentsToExercises(state, dayName, exercises, routeMode, options);
-    }
-
-    function findAssignmentForRecommendation(state, rec) {
-      if (!state || !rec) return null;
-      const routeMode = normalizeRecalibrationV2RouteMode64BO(rec.mode, rec.route);
-      const key = buildRouteSlotAssignmentKey64BO({ dayName: rec.dayName, routeMode, slotOrder: rec.slotOrder, slotIndex: rec.slotIndex });
-      const replacementId = normalizeRecalibrationV2Identity64BO(rec.recommended && (rec.recommended.id || rec.recommended.name || rec.recommended.displayName));
-      const replacementName = normalizeRecalibrationV2Identity64BO(rec.recommendedName || (rec.recommended && (rec.recommended.displayName || rec.recommended.name)));
-      return (getAssignmentStore(state).entries || []).find((entry) => {
-        if (!entry || entry.key !== key) return false;
-        const id = normalizeRecalibrationV2Identity64BO(entry.replacementId);
-        const name = normalizeRecalibrationV2Identity64BO(entry.replacementName);
-        return !replacementId && !replacementName || id === replacementId || name === replacementName || id === replacementName || name === replacementId;
-      }) || null;
-    }
-
-    function stillRecommendedAfterApply(state, rec) {
-      try {
-        const report = buildSmartPlanRecalibrationReport64BM(state);
-        const oldName = normalizeRecalibrationV2Identity64BO(rec && rec.currentName);
-        const replacementName = normalizeRecalibrationV2Identity64BO(rec && rec.recommendedName);
-        return (report.recommendations || []).some((row) => row && normalizeRecalibrationV2Identity64BO(row.dayName) === normalizeRecalibrationV2Identity64BO(rec.dayName) && Number(row.slotOrder) === Number(rec.slotOrder) && normalizeRecalibrationV2Identity64BO(row.currentName) === oldName && normalizeRecalibrationV2Identity64BO(row.recommendedName) === replacementName && (row.confidence === "safe" || row.confidence === "review"));
-      } catch (err) { return true; }
-    }
-
-    function verifyRefresh(slotKey, context = {}) {
-      const result = {
-        verified: false,
-        ok: false,
-        failureStep: "not_started",
-        slotKey: slotKey || "",
-        oldExercise: context.oldExercise || "",
-        replacementExercise: context.replacementExercise || "",
-        savedEntryFound: false,
-        loadedEntryFound: false,
-        replacementResolved: false,
-        visibleExerciseAfterReload: "",
-        stillReviewApplicable: true
-      };
-      try {
-        const savedState = context.state || (typeof loadState === "function" ? loadState().state : createDefaultState());
-        const savedStore = getAssignmentStore(savedState);
-        const savedEntry = (savedStore.entries || []).find((entry) => entry && entry.key === slotKey) || null;
-        result.savedEntryFound = !!savedEntry;
-        if (!savedEntry) { result.failureStep = "assignment_not_saved_in_state"; return result; }
-        const persistable = typeof buildPersistableState10E === "function" ? buildPersistableState10E(savedState) : savedState;
-        const persistedStore = persistable && persistable[STORE_KEY];
-        const persistedEntry = persistedStore && Array.isArray(persistedStore.entries) ? persistedStore.entries.find((entry) => entry && entry.key === slotKey) : null;
-        if (!persistedEntry) { result.failureStep = "assignment_not_in_persistable_state"; return result; }
-        const loadedState = context.loadedState || (typeof migrateState === "function" ? migrateState(persistable, "phase64bo-v2-refresh-proof") : persistable);
-        const loadedStore = getAssignmentStore(loadedState);
-        const loadedEntry = (loadedStore.entries || []).find((entry) => entry && entry.key === slotKey) || null;
-        result.loadedEntryFound = !!loadedEntry;
-        if (!loadedEntry) { result.failureStep = "assignment_not_loaded_after_hydration"; return result; }
-        const replacement = resolvePromotedOrProgramExercise(loadedState, loadedEntry.replacementId || loadedEntry.replacementName, loadedEntry.replacementExercise);
-        result.replacementResolved = !!replacement;
-        if (!replacement) { result.failureStep = "replacement_not_resolved_after_hydration"; return result; }
-        const routeParts = String(loadedEntry.routeMode || "").split(/\s+/);
-        const mode = routeParts[0] || "Gym";
-        const route = routeParts[1] || "Full";
-        const visible = typeof getVisibleExercises === "function" ? getVisibleExercises(loadedState, loadedEntry.dayName, mode, route) : applyAssignmentsToVisibleExercises(loadedState, loadedEntry.dayName, mode, route, allDayExercises(loadedState, loadedEntry.dayName));
-        const matched = (visible || []).find((ex, index) => assignmentMatchesSlot(loadedEntry, ex, index, loadedEntry.routeMode, loadedEntry.dayName));
-        result.visibleExerciseAfterReload = displayName64BO(matched);
-        const replacementName = normalizeRecalibrationV2Identity64BO(loadedEntry.replacementName || displayName64BO(replacement));
-        const visibleName = normalizeRecalibrationV2Identity64BO(result.visibleExerciseAfterReload);
-        if (!matched || visibleName !== replacementName) { result.failureStep = "visible_route_slot_not_replacement_after_hydration"; return result; }
-        result.stillReviewApplicable = context.recommendation ? stillRecommendedAfterApply(loadedState, context.recommendation) : false;
-        if (result.stillReviewApplicable) { result.failureStep = "recalibration_still_review_applicable_after_hydration"; return result; }
-        result.verified = true;
-        result.ok = true;
-        result.failureStep = "verified";
-        return result;
-      } catch (err) {
-        result.failureStep = "runtime_error";
-        result.errorName = err && err.name || "Error";
-        result.errorMessage = err && err.message || String(err);
-        return result;
-      }
-    }
-
-    function applyOne(recommendation, options = {}) {
-      const baseResult = { ok: false, applied: false, reason: "not_started", slotKey: "", oldExercise: "", replacementExercise: "", visibleAfterApply: "", stillRecommended: true };
-      try {
-        let state = options.state || clone((typeof loadState === "function" ? loadState().state : createDefaultState()) || createDefaultState());
-        let rec = recommendation;
-        if (typeof recommendation === "string") {
-          const report = buildSmartPlanRecalibrationReport64BM(state);
-          rec = findRecalibrationRecommendation64BM(report, recommendation);
-        }
-        if (!rec) return Object.assign(baseResult, { reason: "recommendation-not-found" });
-        const already = findAssignmentForRecommendation(state, rec);
-        if (already) return Object.assign(baseResult, { ok: true, applied: false, reason: "already-updated", slotKey: already.key, oldExercise: rec.currentName, replacementExercise: rec.recommendedName, visibleAfterApply: already.replacementName, stillRecommended: false, entry: already });
-        const actionState = getRecalibrationActionState64BNBugfix6(rec, rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review", { state, report: options.report || null });
-        if (!actionState || !actionState.canApply) return Object.assign(baseResult, { reason: actionState && (actionState.reason || actionState.type) || "not-eligible", oldExercise: rec.currentName, replacementExercise: rec.recommendedName, actionState });
-        const assignmentResult = recommendationToAssignment(rec, state);
-        if (!assignmentResult.ok) return Object.assign(baseResult, { reason: assignmentResult.reason || "assignment-build-failed", oldExercise: rec.currentName, replacementExercise: rec.recommendedName });
-        const upsert = upsertRouteSlotAssignment(state, assignmentResult.entry);
-        if (!upsert.ok) return Object.assign(baseResult, { reason: upsert.reason || "assignment-upsert-failed", slotKey: assignmentResult.entry.key, oldExercise: rec.currentName, replacementExercise: rec.recommendedName });
-        state.audit = Object.assign({}, state.audit || {}, { phase64BORecalibrationV2LastAssignment: assignmentResult.entry.key, phase64BORecalibrationV2LastAssignmentAt: nowIso(), phase64BOHistoryMutation: false });
-        state.qa = Object.assign({}, state.qa || {}, { phase64BORecalibrationV2: "route-slot-assignment-source-of-truth" });
-        const saved = saveState(state, "phase64bo-recalibration-v2-slot-assignment");
-        const verify = verifyRefresh(assignmentResult.entry.key, { state: saved && saved.state || state, recommendation: rec, oldExercise: rec.currentName, replacementExercise: rec.recommendedName });
-        const routeParts = String(assignmentResult.entry.routeMode || "").split(/\s+/);
-        const visible = getVisibleExercises((saved && saved.state) || state, assignmentResult.entry.dayName, routeParts[0] || rec.mode, routeParts[1] || rec.route);
-        const visibleMatch = (visible || []).find((ex, index) => assignmentMatchesSlot(assignmentResult.entry, ex, index, assignmentResult.entry.routeMode, assignmentResult.entry.dayName));
-        return { ok: !!verify.verified, applied: !!verify.verified, reason: verify.verified ? "verified-route-slot-assignment" : verify.failureStep, slotKey: assignmentResult.entry.key, oldExercise: rec.currentName, replacementExercise: rec.recommendedName, visibleAfterApply: displayName64BO(visibleMatch), stillRecommended: !!verify.stillReviewApplicable, entry: assignmentResult.entry, verification: verify, state: (saved && saved.state) || state };
-      } catch (err) {
-        return Object.assign(baseResult, { reason: "runtime_error", errorName: err && err.name || "Error", errorMessage: err && err.message || String(err) });
-      }
-    }
-
-    function eligibleRowsFromReport(report, state) {
-      const batch = collectEligibleRecommendedUpgrades64BNBugfix8(report, state);
-      return { batch, rows: (batch.eligible || []).map((row) => row && row.rec).filter(Boolean) };
-    }
-
-    function applyAll(reportInput, options = {}) {
-      const result = { ok: true, appliedCount: 0, applied: [], skipped: [], failed: [], diagnostics: [], message: "No eligible upgrades to apply." };
-      try {
-        let state = clone((typeof loadState === "function" ? loadState().state : createDefaultState()) || createDefaultState());
-        let report = reportInput || buildSmartPlanRecalibrationReport64BM(state);
-        const eligible = eligibleRowsFromReport(report, state);
-        if (!eligible.rows.length) {
-          result.message = eligible.batch && eligible.batch.alreadyApplied && eligible.batch.alreadyApplied.length ? "0 upgrades applied. Existing defaults are already updated." : "No eligible upgrades to apply.";
-          api.lastResult = result;
-          return result;
-        }
-        const claimed = new Set();
-        eligible.rows.forEach((rec) => {
-          const freshReport = buildSmartPlanRecalibrationReport64BM(state);
-          const freshRec = findRecalibrationRecommendation64BM(freshReport, rec.key) || rec;
-          const guard = guardPlanUpgradeApply64BMBugfix3(state, freshRec, freshReport, { source: "phase64bo-v2-apply-all", claimedIdentities: claimed });
-          if (!guard || !guard.ok) { result.skipped.push({ key: freshRec.key, reason: guard && guard.reason || "guard-blocked" }); return; }
-          const one = applyOne(freshRec, { state, report: freshReport });
-          if (one && one.applied) {
-            result.applied.push(one);
-            result.appliedCount += 1;
-            if (guard.claimKey) claimed.add(guard.claimKey);
-            state = one.state || (typeof loadState === "function" ? loadState().state : state);
-          } else {
-            result.failed.push(one);
-            result.diagnostics.push(one && one.verification ? one.verification : one);
-          }
-        });
-        if (result.appliedCount) result.message = `Applied ${result.appliedCount} route slot update${result.appliedCount === 1 ? "" : "s"}.`;
-        else if (result.failed.length) result.message = `0 upgrades applied. Verification failed: ${result.failed[0] && result.failed[0].reason || "unknown"}.`;
-        else result.message = "0 upgrades applied. Existing defaults are already updated.";
-        api.lastResult = result;
-        api.lastDiagnostics = result.diagnostics;
-        return result;
-      } catch (err) {
-        result.ok = false;
-        result.message = `Apply all failed: ${err && err.message ? err.message : err}.`;
-        result.failed.push({ reason: "runtime_error", errorName: err && err.name || "Error", errorMessage: err && err.message || String(err) });
-        result.diagnostics.push(result.failed[0]);
-        api.lastResult = result;
-        api.lastDiagnostics = result.diagnostics;
-        return result;
-      }
-    }
-
-    function renderDiagnostics() {
-      const diagnostics = api.lastDiagnostics || [];
-      if (!diagnostics.length) return "";
-      return `<div class="smart-recalibration-empty64bm" data-phase64bo-v2-diagnostics="visible"><b>V2 verification diagnostic</b>${diagnostics.slice(0, 5).map((diag) => `<div class="smart-recalibration-why64bm"><b>Slot:</b> ${escapeHtml(diag && diag.slotKey || "unknown")} · <b>Old:</b> ${escapeHtml(diag && (diag.oldExercise || diag.replacedFromName) || "unknown")} · <b>Replacement:</b> ${escapeHtml(diag && (diag.replacementExercise || diag.replacementName) || "unknown")}<br><b>Failure:</b> ${escapeHtml(diag && (diag.failureStep || diag.reason) || "unknown")} · saved: ${escapeHtml(diag && diag.savedEntryFound ? "yes" : "no")} · loaded: ${escapeHtml(diag && diag.loadedEntryFound ? "yes" : "no")} · resolved: ${escapeHtml(diag && diag.replacementResolved ? "yes" : "no")} · visible: ${escapeHtml(diag && diag.visibleExerciseAfterReload || "")} · still review-applicable: ${escapeHtml(diag && diag.stillReviewApplicable ? "yes" : "no")}</div>`).join("")}</div>`;
-    }
-
-    function auditBase() {
-      const state = (typeof loadState === "function" ? loadState().state : createDefaultState()) || createDefaultState();
-      const report = buildSmartPlanRecalibrationReport64BM(state);
-      const sampleDay = "Friday";
-      return { phase: "64BO", namespaceExists: !!window.TTRecalibrationV2_64BO, applyAllFunction: typeof api.applyAll === "function", applyOneFunction: typeof api.applyOne === "function", verifyRefreshFunction: typeof api.verifyRefresh === "function", assignmentStoreExists: !!state[STORE_KEY], promotedStoreExists: !!state[PROMOTED_KEY], realLocalStorageKey: "tailoredWorkoutTracker.v2", routeSource: "allDayExercises(state, dayName) filters state.program.exercisesById by day/order; getVisibleExercises builds mode/route and applies V2 route patches", slotIdentityFields: ["dayName", "routeMode", "slotOrder", "slotIndex"], exercisePointerFields: ["id", "name", "displayName"], reviewed: report.summary && report.summary.exercisesReviewed || 0, allDayExercisesPatched: (allDayExercises(state, sampleDay) || []).some((ex) => ex && ex.recalibrationV2Assigned64BO) || getAssignmentStore(state).entries.length === 0 };
-    }
-
-    function targetedAudit(dayName, routeModeText, slotOrder, oldName, replacementName) {
-      const state = (typeof loadState === "function" ? loadState().state : createDefaultState()) || createDefaultState();
-      const entry = (getAssignmentStore(state).entries || []).find((item) => normalizeRecalibrationV2Identity64BO(item.dayName) === normalizeRecalibrationV2Identity64BO(dayName) && normalizeRecalibrationV2Identity64BO(item.routeMode) === normalizeRecalibrationV2Identity64BO(routeModeText) && Number(item.slotOrder) === Number(slotOrder)) || null;
-      const mode = String(routeModeText || "").split(/\s+/)[0] || "Home";
-      const route = String(routeModeText || "").split(/\s+/)[1] || "Lazy";
-      const visible = getVisibleExercises(state, dayName, mode, route);
-      const slot = (visible || []).find((ex, index) => Number(slotOrder64BO(ex, index)) === Number(slotOrder)) || null;
-      const still = entry ? verifyRefresh(entry.key, { state, oldExercise: oldName, replacementExercise: replacementName }) : { verified: false, failureStep: "assignment_not_present_yet", slotKey: "" };
-      return { dayName, routeMode: routeModeText, slotOrder, oldName, replacementName, assignmentPresent: !!entry, visibleExercise: displayName64BO(slot), replacementVisible: normalizeRecalibrationV2Identity64BO(displayName64BO(slot)) === normalizeRecalibrationV2Identity64BO(replacementName), refreshVerified: !!still.verified, verification: still };
-    }
-
-    api.buildRouteSlotAssignmentKey = buildRouteSlotAssignmentKey64BO;
-    api.getAssignments = (state) => getAssignmentStore(state).entries;
-    api.upsertRouteSlotAssignment = upsertRouteSlotAssignment;
-    api.promoteReplacement = promoteReplacement;
-    api.applyAssignmentsToAllDayExercises = applyAssignmentsToAllDayExercises;
-    api.applyAssignmentsToVisibleExercises = applyAssignmentsToVisibleExercises;
-    api.findAssignmentForRecommendation = findAssignmentForRecommendation;
-    api.applyOne = applyOne;
-    api.applyAll = applyAll;
-    api.verifyRefresh = verifyRefresh;
-    api.renderDiagnostics = renderDiagnostics;
-    api.auditBase = auditBase;
-    api.targetedAudit = targetedAudit;
-    return api;
-  })();
-
-  window.runRecalibrationV2CleanAudit64BO = function runRecalibrationV2CleanAudit64BO() {
-    return window.TTRecalibrationV2_64BO && window.TTRecalibrationV2_64BO.auditBase ? window.TTRecalibrationV2_64BO.auditBase() : { ok: false, reason: "namespace-missing" };
-  };
-  window.runRecalibrationV2RefreshAudit64BO = function runRecalibrationV2RefreshAudit64BO() {
-    const state = loadState().state || createDefaultState();
-    const entries = window.TTRecalibrationV2_64BO.getAssignments(state);
-    return { phase: "64BO-refresh", entries: entries.length, results: entries.map((entry) => window.TTRecalibrationV2_64BO.verifyRefresh(entry.key, { state, oldExercise: entry.replacedFromName, replacementExercise: entry.replacementName })) };
-  };
-  window.runRecalibrationV2FridaySlotAudit64BO = function runRecalibrationV2FridaySlotAudit64BO() { return window.TTRecalibrationV2_64BO.targetedAudit("Friday", "Home Lazy", 2, "DB Romanian deadlift", "DB hip thrust or floor glute bridge"); };
-  window.runRecalibrationV2SundaySlotAudit64BO = function runRecalibrationV2SundaySlotAudit64BO() { return window.TTRecalibrationV2_64BO.targetedAudit("Sunday", "Home Lazy", 2, "DB floor press", "DB bench fly"); };
-  window.runFullAppAudit64BO = function runFullAppAudit64BO() {
-    return { phase: "64BO", clean: window.runRecalibrationV2CleanAudit64BO(), refresh: window.runRecalibrationV2RefreshAudit64BO(), friday: window.runRecalibrationV2FridaySlotAudit64BO(), sunday: window.runRecalibrationV2SundaySlotAudit64BO(), protectedBehavior: { exitTouched: false, historyMutation: false, localStorageClearAdded: false, dataTabWiringChanged: false } };
-  };
   function applyAllEligibleRecommendedUpgrades64BNBugfix8(reportInput) {
-    const v2 = typeof window !== "undefined" && window.TTRecalibrationV2_64BO;
-    if (!v2 || typeof v2.applyAll !== "function") return { ok: false, appliedCount: 0, applied: [], skipped: [], failed: [{ reason: "recalibration-v2-namespace-missing" }], message: "0 upgrades applied. Verification failed: recalibration V2 namespace missing." };
-    return v2.applyAll(reportInput || buildSmartPlanRecalibrationReport64BM(loadState().state || createDefaultState()), { source: "apply-all-recommended" });
+    const loaded = loadState();
+    let state = clone(loaded.state || createDefaultState());
+    const initialReport = reportInput || buildSmartPlanRecalibrationReport64BM(state);
+    const initialBatch = collectEligibleRecommendedUpgrades64BNBugfix8(initialReport, state);
+    const queue = initialBatch.eligible.map((row) => ({ key: row.key, expectedCategory: row.category }));
+    const applied = [];
+    const skipped = [];
+    const claimedIdentities = new Set();
+    queue.forEach((item) => {
+      const freshReport = buildSmartPlanRecalibrationReport64BM(state);
+      const rec = findRecalibrationRecommendation64BM(freshReport, item.key);
+      if (!rec) { skipped.push({ key: item.key, reason: "recommendation-not-found-after-reconciliation" }); return; }
+      const section = getRecalibrationSection64BNBugfix8(rec);
+      const row = classifyBatchUpgrade64BNBugfix8(rec, section, state, freshReport);
+      if (!row.canBatchApply) { skipped.push({ key: rec.key, reason: row.reason || row.category, category: row.category }); return; }
+      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "phase64bn-bugfix8-apply-all-recommended", claimedIdentities });
+      if (!guard || !guard.ok) { skipped.push({ key: rec.key, reason: guard && guard.reason || "duplicate-or-eligibility-guard", conflict: guard && guard.conflict || null }); return; }
+      const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
+      if (!payloadResult || !payloadResult.ok) { skipped.push({ key: rec.key, reason: payloadResult && payloadResult.reason || "payload-failed" }); return; }
+      const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
+      state = savedState.state;
+      applied.push(Object.assign({}, savedState.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key }));
+      if (guard.claimKey) claimedIdentities.add(guard.claimKey);
+    });
+    const leftUnchanged = (initialBatch.blocked.length || 0) + (initialBatch.reviewOnly.length || 0) + (initialBatch.strongSimilar.length || 0) + skipped.length;
+    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix8BatchApply: true, phase64BNBugfix8BatchAppliedCount: applied.length, phase64BNBugfix8BatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix8BatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix8BatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix8RecalibrationBatchApply: "user-confirmed-safe-plus-review-eligible" });
+    saveState(state, "phase64bn-bugfix8-apply-all-recommended-upgrades");
+    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. ${leftUnchanged} blocked/review-only item${leftUnchanged === 1 ? "" : "s"} were left unchanged.` : (initialBatch.alreadyApplied && initialBatch.alreadyApplied.length ? "No new upgrades applied. Existing upgrades are already saved." : "No eligible upgrades ready. Blocked and review-only items were left unchanged.");
+    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, leftUnchangedCount: leftUnchanged, batch: initialBatch, historyMutation: false, workoutWideRewrite: false, message };
   }
 
   function renderSafeUpgradeSection64BM(report) {
@@ -21679,12 +21246,10 @@ Existing History logs stay untouched.`);
 
   function renderSmartPlanRecalibrationReport64BM(report, message) {
     const summary = report && report.summary || {};
-    const v2Diagnostics64BO = typeof window !== "undefined" && window.TTRecalibrationV2_64BO && typeof window.TTRecalibrationV2_64BO.renderDiagnostics === "function" ? window.TTRecalibrationV2_64BO.renderDiagnostics() : "";
-    return `<div data-phase64bm-recalibration-report="ready" data-phase64bo-v2-recalibration-report="clean-slot-assignment-source">
+    return `<div data-phase64bm-recalibration-report="ready" data-phase64bn-bugfix8-report="safe-plus-review-eligible">
       <div class="smart-recalibration-summary64bm"><div><b>${escapeHtml(summary.exercisesReviewed || 0)}</b><span>plan slots reviewed</span></div><div><b>${escapeHtml(summary.safeUpgrades || 0)}</b><span>safe</span></div><div><b>${escapeHtml(summary.reviewFirst || 0)}</b><span>review first</span></div><div><b>${escapeHtml(summary.currentStrong || 0)}</b><span>strong/similar</span></div><div><b>${escapeHtml(summary.duplicateBlocked || 0)}</b><span>duplicate-blocked</span></div></div>
       ${renderRecalibrationBatchActionArea64BNBugfix8(report)}
-      ${message ? `<div class="smart-recalibration-applied64bm" data-phase64bo-v2-batch-summary="true">${escapeHtml(message)}</div>` : ""}
-      ${v2Diagnostics64BO}
+      ${message ? `<div class="smart-recalibration-applied64bm" data-phase64bn-bugfix8-batch-summary="true">${escapeHtml(message)}</div>` : ""}
       ${renderSafeUpgradeSection64BM(report)}${renderReviewFirstSection64BM(report)}${renderCurrentStrongSection64BM(report)}
     </div>`;
   }
@@ -21718,37 +21283,40 @@ Existing History logs stay untouched.`);
   }
 
   function applyRecalibrationUpgradeWithTruth64BNBugfix6(key, panel, reportInput) {
-    try {
-      visibleRecalibrationStatus64BNBugfix6(panel, key, "Checking route slot update…", "v2_started");
-      const loaded = loadState();
-      const state = clone(loaded.state || createDefaultState());
-      const report = buildSmartPlanRecalibrationReport64BM(state);
-      const rec = findRecalibrationRecommendation64BM(report, key);
-      const actionState = getRecalibrationActionState64BNBugfix6(rec, rec && rec.confidence === "safe" ? "safe" : rec && rec.confidence === "strong" ? "strong" : "review", { state, report });
-      if (!rec) {
-        visibleRecalibrationStatus64BNBugfix6(panel, key, "Cannot apply: this recommendation is no longer available after recalibration rebuilt.", "blocked_missing_payload");
-        return { ok: false, reason: "recommendation-not-found", actionState: { type: "blocked_missing_payload" } };
+    const loaded = loadState();
+    const state = clone(loaded.state || createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const rec = findRecalibrationRecommendation64BM(report, key);
+    const actionState = getRecalibrationActionState64BNBugfix6(rec, rec && rec.confidence === "safe" ? "safe" : rec && rec.confidence === "strong" ? "strong" : "review", { state, report });
+    if (!rec) {
+      const alreadyAppliedFromKey64BNBugfix9 = typeof getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9(state, key) : null;
+      if (alreadyAppliedFromKey64BNBugfix9) {
+        visibleRecalibrationStatus64BNBugfix6(panel, key, "Already applied: this future default is already saved for this slot.", "already_applied");
+        return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyAppliedFromKey64BNBugfix9, actionState: { type: "already_applied", canApply: false } };
       }
-      if (!actionState.canApply) {
-        const btn = panel && panel.querySelector(`[data-phase64bm-apply-upgrade="${cssEscape64BNBugfix6(key)}"]`);
-        if (btn) { btn.disabled = true; btn.textContent = actionState.label || "Cannot apply"; btn.dataset.phase64bnBugfix6Blocked = actionState.type || "blocked"; }
-        visibleRecalibrationStatus64BNBugfix6(panel, key, `${actionState.label}: ${actionState.message}`, actionState.type);
-        return { ok: false, reason: actionState.reason || actionState.type, recommendation: rec, actionState };
-      }
-      const result = applyPlanUpgrade64BM(key);
-      if (result && result.ok) {
-        openSmartPlanRecalibrationCenter64BM(`Applied route slot update: ${result.entry.originalExerciseName} → ${result.entry.replacementExerciseName}.`);
-        return result;
-      }
-      const reason = result && result.reason || "not eligible";
-      const btn = panel && panel.querySelector(`[data-phase64bm-apply-upgrade="${cssEscape64BNBugfix6(key)}"]`);
-      if (btn) { btn.disabled = true; btn.textContent = /already/i.test(String(reason)) ? "Already updated" : "Cannot apply"; btn.dataset.phase64bnBugfix6Blocked = reason; }
-      visibleRecalibrationStatus64BNBugfix6(panel, key, /already/i.test(String(reason)) ? "Already updated: this route slot now uses the new default." : `Cannot apply: ${reason}.`, /already/i.test(String(reason)) ? "already_updated" : "blocked_unknown");
-      return Object.assign({ ok: false, reason }, result || {}, { actionState });
-    } catch (err) {
-      visibleRecalibrationStatus64BNBugfix6(panel, key, `Apply after review failed: ${err && err.message ? err.message : err}.`, "runtime_error");
-      return { ok: false, reason: "runtime_error", errorName: err && err.name || "Error", errorMessage: err && err.message || String(err) };
+      visibleRecalibrationStatus64BNBugfix6(panel, key, "Cannot apply: this recommendation is no longer available after recalibration rebuilt.", "blocked_missing_payload");
+      return { ok: false, reason: "recommendation-not-found", actionState: { type: "blocked_missing_payload" } };
     }
+    if (!actionState.canApply) {
+      const btn = panel && panel.querySelector(`[data-phase64bm-apply-upgrade="${cssEscape64BNBugfix6(key)}"]`);
+      if (btn) { btn.disabled = true; btn.textContent = actionState.label || "Cannot apply"; btn.dataset.phase64bnBugfix6Blocked = actionState.type || "blocked"; }
+      visibleRecalibrationStatus64BNBugfix6(panel, key, `${actionState.label}: ${actionState.message}`, actionState.type);
+      return { ok: false, reason: actionState.reason || actionState.type, recommendation: rec, actionState };
+    }
+    const result = applyPlanUpgrade64BM(key);
+    if (result && result.ok) {
+      openSmartPlanRecalibrationCenter64BM(`Applied: ${result.entry.originalExerciseName} → ${result.entry.replacementExerciseName}. Remaining recommendations reconciled.`);
+      return result;
+    }
+    const reason = result && result.reason || "not eligible";
+    const btn = panel && panel.querySelector(`[data-phase64bm-apply-upgrade="${cssEscape64BNBugfix6(key)}"]`);
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = /duplicate/i.test(String(reason)) ? "Duplicate blocked" : "Cannot apply";
+      btn.dataset.phase64bnBugfix6Blocked = reason;
+    }
+    visibleRecalibrationStatus64BNBugfix6(panel, key, `Cannot apply: ${reason}.`, /duplicate/i.test(String(reason)) ? "blocked_duplicate" : "blocked_unknown");
+    return Object.assign({ ok: false, reason }, result || {}, { actionState });
   }
 
   function wireSmartRecalibrationPanel64BM(report) {
@@ -21760,13 +21328,8 @@ Existing History logs stay untouched.`);
       if (batchBtn64BNBugfix8 && panel.contains(batchBtn64BNBugfix8)) {
         event.preventDefault();
         event.stopPropagation();
-        try {
-          openSmartPlanRecalibrationCenter64BM("Checking recalibration upgrades…");
-          const result = applyAllEligibleRecommendedUpgrades64BNBugfix8(report);
-          openSmartPlanRecalibrationCenter64BM(result && result.message ? result.message : "0 upgrades applied. Verification failed: missing V2 result.");
-        } catch (err) {
-          openSmartPlanRecalibrationCenter64BM(`Apply all failed: ${err && err.message ? err.message : err}.`);
-        }
+        const result = applyAllEligibleRecommendedUpgrades64BNBugfix8(report);
+        openSmartPlanRecalibrationCenter64BM(result && result.message ? result.message : "No eligible upgrades ready. Blocked and review-only items were left unchanged.");
         return;
       }
       const applyBtn = event.target && event.target.closest ? event.target.closest("[data-phase64bm-apply-upgrade]") : null;
@@ -21789,13 +21352,9 @@ Existing History logs stay untouched.`);
     if (applyAll && applyAll.dataset.bound64bm !== "true") {
       applyAll.dataset.bound64bm = "true";
       applyAll.addEventListener("click", () => {
-        try {
-          openSmartPlanRecalibrationCenter64BM("Checking recalibration upgrades…");
-          const result = applyAllSafePlanUpgrades64BM();
-          openSmartPlanRecalibrationCenter64BM(result && result.message ? result.message : `Applied ${result.appliedCount || 0} route slot update${(result.appliedCount || 0) === 1 ? "" : "s"}.`);
-        } catch (err) {
-          openSmartPlanRecalibrationCenter64BM(`Apply all failed: ${err && err.message ? err.message : err}.`);
-        }
+        const result = applyAllSafePlanUpgrades64BM();
+        const skippedCopy = result.skipped && result.skipped.length ? ` ${result.skipped.length} skipped by duplicate/eligibility guard.` : "";
+        openSmartPlanRecalibrationCenter64BM(`Applied ${result.appliedCount} safe upgrade${result.appliedCount === 1 ? "" : "s"}.${skippedCopy} Review-first items were not applied.`);
       });
     }
   }
@@ -21900,23 +21459,54 @@ Existing History logs stay untouched.`);
   }
 
   function applyPlanUpgrade64BM(recommendationKey) {
-    const v2 = typeof window !== "undefined" && window.TTRecalibrationV2_64BO;
-    if (!v2 || typeof v2.applyOne !== "function") return { ok: false, reason: "recalibration-v2-namespace-missing" };
-    const result = v2.applyOne(recommendationKey, { source: "apply-after-review" });
-    if (result && result.applied) {
-      setText("smartPlanRecalibrationStatus64BM", `Applied route slot update: ${result.oldExercise} → ${result.replacementExercise}.`);
-      return Object.assign({}, result, { ok: true, entry: Object.assign({}, result.entry || {}, { originalExerciseName: result.oldExercise, replacementExerciseName: result.replacementExercise }) });
+    const loaded = loadState();
+    const state = clone(loaded.state || createDefaultState());
+    const report = buildSmartPlanRecalibrationReport64BM(state);
+    const rec = findRecalibrationRecommendation64BM(report, recommendationKey);
+    if (!rec) {
+      const alreadyAppliedFromKey64BNBugfix9 = typeof getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9(state, recommendationKey) : null;
+      if (alreadyAppliedFromKey64BNBugfix9) return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyAppliedFromKey64BNBugfix9, historyMutation: false, workoutWideRewrite: false };
+      return { ok: false, reason: "recommendation-not-found" };
     }
-    if (result && result.reason === "already-updated") return Object.assign({}, result, { ok: false, alreadyApplied: true, reason: "already-updated", entry: Object.assign({}, result.entry || {}, { originalExerciseName: result.oldExercise, replacementExerciseName: result.replacementExercise }) });
-    return Object.assign({ ok: false }, result || { reason: "unknown-v2-apply-one-result" });
+    const alreadyApplied64BNBugfix9 = typeof getAppliedSmartPlanOverrideForSlot64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideForSlot64BNBugfix9(state, rec) : null;
+    if (alreadyApplied64BNBugfix9) return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyApplied64BNBugfix9, recommendation: rec, historyMutation: false, workoutWideRewrite: false };
+    if (!rec.recommended || rec.confidence === "strong") return { ok: false, reason: "no-upgrade-for-current-strong" };
+    const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, report, { source: "single-apply" });
+    if (!guard.ok) return Object.assign({ ok: false, recommendation: rec }, guard);
+    const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
+    if (!payloadResult.ok) return payloadResult;
+    const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
+    savedState.state.audit = Object.assign({}, savedState.state.audit || {}, { phase64BMLastPlanUpgrade: payloadResult.payload.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true });
+    const saved = saveState(savedState.state, "phase64bm-bugfix3-user-confirmed-smart-plan-recalibration-upgrade");
+    setText("smartPlanRecalibrationStatus64BM", `Applied future default: ${savedState.entry.originalExerciseName} → ${savedState.entry.replacementExerciseName}. Remaining recommendations reconciled.`);
+    return { ok: true, state: saved && saved.state || savedState.state, entry: savedState.entry, recommendation: rec, historyMutation: false, workoutWideRewrite: false, duplicateGuard: guard, reconciled: true };
   }
 
   function applyAllSafePlanUpgrades64BM() {
-    const state = loadState().state || createDefaultState();
-    const report = buildSmartPlanRecalibrationReport64BM(state);
-    const safeReport = Object.assign({}, report, { reviewFirst: [], currentStrong: report.currentStrong || [], recommendations: report.safeUpgrades || [] });
-    const result = applyAllEligibleRecommendedUpgrades64BNBugfix8(safeReport);
-    return { ok: result.ok !== false, appliedCount: result.appliedCount || 0, applied: result.applied || [], skipped: (result.skipped || []).concat(result.failed || []), skippedCount: ((result.skipped || []).length + (result.failed || []).length), reviewFirstApplied: 0, historyMutation: false, workoutWideRewrite: false, duplicateGuard: true, message: result.message };
+    const loaded = loadState();
+    let state = clone(loaded.state || createDefaultState());
+    const initialReport = buildSmartPlanRecalibrationReport64BM(state);
+    const safeKeys = (Array.isArray(initialReport.safeUpgrades) ? initialReport.safeUpgrades : []).filter((rec) => isPlanUpgradeSafe64BM(rec) && !rec.duplicateBlocked64BMBugfix2 && !(typeof blockModeMismatchApply64BN === "function" && blockModeMismatchApply64BN(rec))).map((rec) => rec.key);
+    const applied = [];
+    const skipped = [];
+    const claimedIdentities = new Set();
+    safeKeys.forEach((key) => {
+      const freshReport = buildSmartPlanRecalibrationReport64BM(state);
+      const rec = findRecalibrationRecommendation64BM(freshReport, key);
+      if (!rec || rec.confidence !== "safe" || !isPlanUpgradeSafe64BM(rec)) { skipped.push({ key, reason: "no-longer-safe-after-reconciliation" }); return; }
+      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "apply-all-safe", claimedIdentities });
+      if (!guard.ok) { skipped.push({ key: rec.key, reason: guard.reason || "duplicate-conflict", conflict: guard.conflict || null }); return; }
+      const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
+      if (!payloadResult.ok) { skipped.push({ key: rec.key, reason: payloadResult.reason || "payload-failed" }); return; }
+      const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
+      state = savedState.state;
+      applied.push(Object.assign({}, savedState.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key }));
+      if (guard.claimKey) claimedIdentities.add(guard.claimKey);
+    });
+    state.audit = Object.assign({}, state.audit || {}, { phase64BMBatchSafeUpgradeCount: applied.length, phase64BMBatchReviewFirstApplied: 0, phase64BMBatchSkippedDuplicateOrEligibilityCount: skipped.length, phase64BMBatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "apply-all-rechecked" });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BMSmartPlanRecalibration: "user-confirmed-batch-safe-upgrades-duplicate-guarded" });
+    saveState(state, "phase64bm-bugfix3-apply-all-safe-smart-plan-upgrades");
+    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, reviewFirstApplied: 0, historyMutation: false, workoutWideRewrite: false, duplicateGuard: true };
   }
 
   
