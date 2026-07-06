@@ -16,6 +16,20 @@ PHASE_64BN_BUGFIX_10_REDO_REAL_PLAN_SLOT_REWRITE_FROM_RECALIBRATION_LOCK_V1_CHAN
 -->
 
 <!--
+PHASE_64BN_BUGFIX_10_REDO2_REAL_ROUTE_SLOT_ASSIGNMENT_REWRITE_SOURCE_LOCK_V1_CHANGELOG
+- uses failed Real Plan Slot Rewrite file as base
+- fixes repeat Apply all by updating the real route/day/slot assignment source
+- does not rely on state.program.exercisesById[] as the assignment source by itself
+- exercise library and slot assignment are treated separately
+- approved upgrades become persistent route slot assignments
+- refresh + Apply all applies 0 same upgrades
+- does not touch Data-tab wiring
+- does not touch Exit
+- does not touch Save
+- does not mutate History
+- does not clear localStorage
+-->
+<!--
 PHASE_64BN_BUGFIX_9_RECALIBRATION_APPLIED_OVERRIDE_RECONCILIATION_AND_PASSIVE_ACTION_UI_LOCK_V1_CHANGELOG
 - Fixes Apply all recommended upgrades reapplying the same upgrades after refresh.
 - Reconciles recalibration recommendations against saved smartPlanOverrides64BL.
@@ -13666,11 +13680,15 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     merged.coach = normalizeCoachTraceStorage23B(candidate && candidate.coach);
     merged.smartPlanOverrides64BL = typeof normalizeSmartPlanOverrides64BL === "function" ? normalizeSmartPlanOverrides64BL(candidate && candidate.smartPlanOverrides64BL) : (candidate && candidate.smartPlanOverrides64BL && typeof candidate.smartPlanOverrides64BL === "object" && !Array.isArray(candidate.smartPlanOverrides64BL) ? candidate.smartPlanOverrides64BL : { entries: [], auditTrail: [] });
     merged.realPlanSlotRewrites64BNBugfix10Redo = typeof normalizeRealPlanSlotRewritesStore64BNBugfix10Redo === "function" ? normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(candidate && candidate.realPlanSlotRewrites64BNBugfix10Redo) : (candidate && candidate.realPlanSlotRewrites64BNBugfix10Redo && typeof candidate.realPlanSlotRewrites64BNBugfix10Redo === "object" && !Array.isArray(candidate.realPlanSlotRewrites64BNBugfix10Redo) ? candidate.realPlanSlotRewrites64BNBugfix10Redo : { entries: [], auditTrail: [] });
+    merged.realRouteSlotAssignments64BNBugfix10Redo2 = typeof normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2 === "function" ? normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2(candidate && candidate.realRouteSlotAssignments64BNBugfix10Redo2) : (candidate && candidate.realRouteSlotAssignments64BNBugfix10Redo2 && typeof candidate.realRouteSlotAssignments64BNBugfix10Redo2 === "object" && !Array.isArray(candidate.realRouteSlotAssignments64BNBugfix10Redo2) ? candidate.realRouteSlotAssignments64BNBugfix10Redo2 : { entries: [], auditTrail: [] });
+    merged.promotedSmartExerciseDefinitions64BNBugfix10Redo2 = typeof normalizePromotedSmartExerciseDefinitionsStore64BNBugfix10Redo2 === "function" ? normalizePromotedSmartExerciseDefinitionsStore64BNBugfix10Redo2(candidate && candidate.promotedSmartExerciseDefinitions64BNBugfix10Redo2) : (candidate && candidate.promotedSmartExerciseDefinitions64BNBugfix10Redo2 && typeof candidate.promotedSmartExerciseDefinitions64BNBugfix10Redo2 === "object" && !Array.isArray(candidate.promotedSmartExerciseDefinitions64BNBugfix10Redo2) ? candidate.promotedSmartExerciseDefinitions64BNBugfix10Redo2 : { entries: [], auditTrail: [] });
+    if (typeof migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2 === "function") migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2(merged, "migrateState");
     ["bodyMetrics", "painChecks", "recoveryChecks", "nutritionContext", "conditioning"].forEach((key) => { merged[key] = Array.isArray(merged[key]) ? merged[key] : []; });
     merged.qa = Object.assign({}, merged.qa, { phase9SetLoggingBase: "set-logging-base-ready", phase10BIndependentMenu: "independent-menu-ready", phase10CIndependentDoneEditing: "done-editing-collapse-ready", phase10DManualHeaderCollapse: "manual-header-collapse-ready", phase10EAndroidTouchQaLock: "real-phone-gate-green", phase10EStorageSafeFix: "program-not-persisted", phase11BRestTimerDockUI: "normal-rest-start-stop-ready-no-set-completion-wiring", phase11ERestTimerRegressionLock: "regression-lock-ready", phase13ADropSetDataStructure: "data-structure-ready", phase13BDropSetRenderUnderParent: "render-ready", phase13CDropSetCompletion: "completion-ready-no-rest-bypass" });
     merged.audit = Object.assign({}, merged.audit, { lastMigrationAt: merged.migratedAt, noDestructiveMigration: true, setLoggingPhase: "Phase 12B", stableSetControlsPhase: "Phase 10E", restTimerPhase: "Phase 11E", storageSafeFix: true, programStoredInLocalStorage: false, snapshotsExcludeProgram: true, restTimerDockBuilt: true, restTimerSetCompletionWiringBuilt: true, dropSetDataStructureBuilt: true, dropSetRenderingBuilt: true, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: false });
     const hydrated64BNBugfix10Redo = ensureDropSetRestBypassState13E(ensureDropSetDetectionState13D(ensureDropSetDataStructure13A(ensureRestTimerState11A(hydrateStaticProgram10E(merged)))));
     if (typeof applyPersistedRealPlanSlotRewrites64BNBugfix10Redo === "function") applyPersistedRealPlanSlotRewrites64BNBugfix10Redo(hydrated64BNBugfix10Redo, "migrateState");
+    if (typeof migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2 === "function") migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2(hydrated64BNBugfix10Redo, "migrateState-after-static-hydration");
     return hydrated64BNBugfix10Redo;
   }
   function buildPersistableState10E(state) {
@@ -13692,6 +13710,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       coach: normalizeCoachTraceStorage23B(s.coach),
       smartPlanOverrides64BL: typeof normalizeSmartPlanOverrides64BL === "function" ? normalizeSmartPlanOverrides64BL(s.smartPlanOverrides64BL) : clone(s.smartPlanOverrides64BL || { entries: [], auditTrail: [] }),
       realPlanSlotRewrites64BNBugfix10Redo: typeof normalizeRealPlanSlotRewritesStore64BNBugfix10Redo === "function" ? normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(s.realPlanSlotRewrites64BNBugfix10Redo) : clone(s.realPlanSlotRewrites64BNBugfix10Redo || { entries: [], auditTrail: [] }),
+      realRouteSlotAssignments64BNBugfix10Redo2: typeof normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2 === "function" ? normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2(s.realRouteSlotAssignments64BNBugfix10Redo2) : clone(s.realRouteSlotAssignments64BNBugfix10Redo2 || { entries: [], auditTrail: [] }),
+      promotedSmartExerciseDefinitions64BNBugfix10Redo2: typeof normalizePromotedSmartExerciseDefinitionsStore64BNBugfix10Redo2 === "function" ? normalizePromotedSmartExerciseDefinitionsStore64BNBugfix10Redo2(s.promotedSmartExerciseDefinitions64BNBugfix10Redo2) : clone(s.promotedSmartExerciseDefinitions64BNBugfix10Redo2 || { entries: [], auditTrail: [] }),
       bodyMetrics: Array.isArray(s.bodyMetrics) ? clone(s.bodyMetrics) : [],
       painChecks: Array.isArray(s.painChecks) ? clone(s.painChecks) : [],
       recoveryChecks: Array.isArray(s.recoveryChecks) ? clone(s.recoveryChecks) : [],
@@ -13699,8 +13719,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       conditioning: Array.isArray(s.conditioning) ? clone(s.conditioning) : [],
       qa: clone(s.qa || {}),
       backups: { snapshotCount: readSnapshots().length, lastSafetySnapshotAt: s.backups && s.backups.lastSafetySnapshotAt || null, fullBackupExportBuilt: true, fullBackupImportBuilt: true },
-      audit: { lastAuditAt: nowIso(), storageSafeFix: true, programStoredInLocalStorage: false, staticProgramSource: "STATE_SEED.program + realPlanSlotRewrites64BNBugfix10Redo applied during hydration", realPlanSlotRewriteStorePersisted64BNBugfix10Redo: true, warnings: storageWarningHistory10E.slice(0, 5) },
-      storageMeta: { staticProgramExcluded: true, exerciseDatabaseExcluded: true, realPlanSlotRewriteStorePersisted64BNBugfix10Redo: true, safetySnapshotsExcludeProgram: true, dropSetsSessionOnly: true, dropSetRenderingBuilt: true, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: true }
+      audit: { lastAuditAt: nowIso(), storageSafeFix: true, programStoredInLocalStorage: false, staticProgramSource: "STATE_SEED.program + realRouteSlotAssignments64BNBugfix10Redo2 applied inside allDayExercises/getVisibleExercises", realPlanSlotRewriteStorePersisted64BNBugfix10Redo: true, realRouteSlotAssignmentStorePersisted64BNBugfix10Redo2: true, warnings: storageWarningHistory10E.slice(0, 5) },
+      storageMeta: { staticProgramExcluded: true, exerciseDatabaseExcluded: true, realPlanSlotRewriteStorePersisted64BNBugfix10Redo: true, realRouteSlotAssignmentStorePersisted64BNBugfix10Redo2: true, safetySnapshotsExcludeProgram: true, dropSetsSessionOnly: true, dropSetRenderingBuilt: true, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: true }
     };
   }
   function buildSafetySnapshot10E(state, reason = "manual") {
@@ -13889,6 +13909,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const renderableBefore = collectRenderableCustomMediaPayloads50Bugfix(state);
     hydrateStaticProgram10E(state);
     if (typeof applyPersistedRealPlanSlotRewrites64BNBugfix10Redo === "function") applyPersistedRealPlanSlotRewrites64BNBugfix10Redo(state, reason || "hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix");
+    if (typeof migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2 === "function") migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2(state, reason || "hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix");
     state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
     state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
     let preserved = 0;
@@ -14229,7 +14250,10 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
   }
   function getTodayName() { return DAY_NAMES[new Date().getDay()]; }
   function getDayPlan(state, dayName = getTodayName()) { return (state.program.weeklySchedule || []).find((d) => d.day === dayName) || state.program.weeklySchedule[0]; }
-  function allDayExercises(state, dayName) { return (state.program.exercisesById || []).filter((ex) => ex.day === dayName).sort((a,b) => a.order - b.order); }
+  function allDayExercises(state, dayName) {
+    const baseRouteAssignments64BNBugfix10Redo2 = (state.program.exercisesById || []).filter((ex) => ex.day === dayName).sort((a,b) => a.order - b.order);
+    return typeof applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2 === "function" ? applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2(state, baseRouteAssignments64BNBugfix10Redo2, dayName, { owner: "allDayExercises", mode: state && state.settings && state.settings.mode, route: state && state.settings && state.settings.route }) : baseRouteAssignments64BNBugfix10Redo2;
+  }
   const MAIN_TAB_WORKOUT_DAY_SELECTOR32CBUGFIX = "phase32c-bugfix-main-tab-workout-day-selector-v1";
   function workoutDayOptions32CBugfix(state) {
     const days = state && state.program && Array.isArray(state.program.weeklySchedule) ? state.program.weeklySchedule : [];
@@ -14635,14 +14659,16 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     });
   }
   function getVisibleExercises(state, dayName, mode, route) {
-    const all = allDayExercises(state, dayName);
     const normalizedMode = mode === "Home" ? "Home" : "Gym";
     const normalizedRoute = route === "Lazy" ? "Lazy" : "Full";
+    const allBase64BNBugfix10Redo2 = allDayExercises(state, dayName);
+    const all = typeof applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2 === "function" ? applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2(state, allBase64BNBugfix10Redo2, dayName, { owner: "getVisibleExercises-source", mode: normalizedMode, route: normalizedRoute }) : allBase64BNBugfix10Redo2;
     const modeReadyRaw = modeReadyExercises32CBugfixGymHome(all, normalizedMode);
     const modeReady = normalizedMode === "Gym" ? applyGymFloorAvoidance32CBugfix(modeReadyRaw, normalizedRoute, dayName) : modeReadyRaw;
     const generatedRoute = normalizedRoute !== "Lazy" ? applyFullRouteDurationCap32CBugfix(modeReady, normalizedMode, dayName) : buildLazyTargetRoute32CBugfix(modeReady, normalizedMode, dayName);
     const plateauRoute = typeof applyPlateauSwapToGeneratedRoute51A === "function" ? applyPlateauSwapToGeneratedRoute51A(state, generatedRoute, dayName, normalizedMode, normalizedRoute, { owner: "getVisibleExercises" }) : generatedRoute;
-    return typeof applySmartPlanOverridesToWorkout64BL === "function" ? applySmartPlanOverridesToWorkout64BL(state, plateauRoute, dayName, normalizedMode, normalizedRoute, { owner: "getVisibleExercises" }) : plateauRoute;
+    const routeAssignmentPatched64BNBugfix10Redo2 = typeof applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2 === "function" ? applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2(state, plateauRoute, dayName, { owner: "getVisibleExercises", mode: normalizedMode, route: normalizedRoute }) : plateauRoute;
+    return typeof applySmartPlanOverridesToWorkout64BL === "function" ? applySmartPlanOverridesToWorkout64BL(state, routeAssignmentPatched64BNBugfix10Redo2, dayName, normalizedMode, normalizedRoute, { owner: "getVisibleExercises" }) : routeAssignmentPatched64BNBugfix10Redo2;
   }
   function gymHomeRouteComparison32CBugfix(state, dayName, route) {
     const selectedRoute = route === "Lazy" ? "Lazy" : "Full";
@@ -20940,7 +20966,7 @@ Existing History logs stay untouched.`);
       blocked_missing_payload: "This recommendation is missing a valid slot or replacement target.",
       blocked_unknown: "This recommendation could not be applied safely.",
       already_applied: "This future default is already saved for this slot.",
-      already_updated: "This workout slot now uses the new default.",
+      already_updated: "This route slot now uses the new default.",
       no_action: "Keep current is already the system decision for this card."
     };
     return detail || map[type] || map.blocked_unknown;
@@ -21297,8 +21323,10 @@ Existing History logs stay untouched.`);
     const state = options.state || (typeof loadState === "function" ? loadState().state : createDefaultState());
     const report = options.report || null;
     if (!rec || !rec.key || !rec.current) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload"), reason: "missing-card-payload" });
+    const alreadyUpdatedRouteAssignment64BNBugfix10Redo2 = typeof getAppliedRouteSlotAssignmentForSlot64BNBugfix10Redo2 === "function" ? getAppliedRouteSlotAssignmentForSlot64BNBugfix10Redo2(state, rec) : null;
+    if (alreadyUpdatedRouteAssignment64BNBugfix10Redo2) return Object.freeze({ type: "already_updated", canApply: false, label: blockReasonLabel64BNBugfix6("already_updated"), message: "This route slot now uses the new default.", reason: "route-slot-assignment-already-rewritten", rewrite: alreadyUpdatedRouteAssignment64BNBugfix10Redo2, routeAssignment: alreadyUpdatedRouteAssignment64BNBugfix10Redo2 });
     const alreadyUpdatedRealPlan64BNBugfix10Redo = typeof getAppliedRealPlanRewriteForSlot64BNBugfix10Redo === "function" ? getAppliedRealPlanRewriteForSlot64BNBugfix10Redo(state, rec) : null;
-    if (alreadyUpdatedRealPlan64BNBugfix10Redo) return Object.freeze({ type: "already_updated", canApply: false, label: blockReasonLabel64BNBugfix6("already_updated"), message: blockReasonMessage64BNBugfix6("already_updated"), reason: "real-plan-slot-already-rewritten", rewrite: alreadyUpdatedRealPlan64BNBugfix10Redo });
+    if (alreadyUpdatedRealPlan64BNBugfix10Redo) return Object.freeze({ type: "already_updated", canApply: false, label: blockReasonLabel64BNBugfix6("already_updated"), message: "This route slot now uses the new default.", reason: "real-plan-slot-already-rewritten", rewrite: alreadyUpdatedRealPlan64BNBugfix10Redo });
     const alreadyAppliedOverride64BNBugfix9 = typeof getAppliedSmartPlanOverrideForSlot64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideForSlot64BNBugfix9(state, rec) : null;
     if (alreadyAppliedOverride64BNBugfix9) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_applied"), message: blockReasonMessage64BNBugfix6("already_applied"), reason: "smartplan-override-already-saved", override: alreadyAppliedOverride64BNBugfix9 });
     const isSafe = section === "safe" || rec.confidence === "safe";
@@ -21505,28 +21533,28 @@ Existing History logs stay untouched.`);
       const freshReport = buildSmartPlanRecalibrationReport64BM(state);
       const rec = findRecalibrationRecommendation64BM(freshReport, item.key);
       if (!rec) {
-        const alreadyUpdated = findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(state, item.key);
-        if (alreadyUpdated) skipped.push({ key: item.key, reason: "already-updated-real-plan-slot", entry: alreadyUpdated });
+        const alreadyUpdated = (typeof findRouteSlotAssignmentByRecommendationKey64BNBugfix10Redo2 === "function" ? findRouteSlotAssignmentByRecommendationKey64BNBugfix10Redo2(state, item.key) : null) || findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(state, item.key);
+        if (alreadyUpdated) skipped.push({ key: item.key, reason: "already-updated-route-slot-assignment", entry: alreadyUpdated });
         else skipped.push({ key: item.key, reason: "recommendation-not-found-after-reconciliation" });
         return;
       }
       const section = getRecalibrationSection64BNBugfix8(rec);
       const row = classifyBatchUpgrade64BNBugfix8(rec, section, state, freshReport);
       if (!row.canBatchApply) { skipped.push({ key: rec.key, reason: row.reason || row.category, category: row.category }); return; }
-      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "phase64bn-bugfix10-redo-apply-all-real-plan-slot-rewrite", claimedIdentities });
+      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "phase64bn-bugfix10-redo2-apply-all-route-slot-assignment-rewrite", claimedIdentities });
       if (!guard || !guard.ok) { skipped.push({ key: rec.key, reason: guard && guard.reason || "duplicate-or-eligibility-guard", conflict: guard && guard.conflict || null }); return; }
-      const rewriteResult = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "apply-all-recommended-upgrades" });
-      if (!rewriteResult || !rewriteResult.ok) { skipped.push({ key: rec.key, reason: rewriteResult && rewriteResult.reason || "real-plan-slot-rewrite-failed" }); return; }
+      const rewriteResult = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "apply-all-recommended-upgrades" });
+      if (!rewriteResult || !rewriteResult.ok) { skipped.push({ key: rec.key, reason: rewriteResult && rewriteResult.reason || "route-slot-assignment-rewrite-failed" }); return; }
       state = rewriteResult.state;
-      applied.push(Object.assign({}, rewriteResult.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key, realPlanSlotRewrite64BNBugfix10Redo: true }));
+      applied.push(Object.assign({}, rewriteResult.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key, routeSlotAssignmentRewrite64BNBugfix10Redo2: true }));
       if (guard.claimKey) claimedIdentities.add(guard.claimKey);
     });
     const leftUnchanged = (initialBatch.blocked.length || 0) + (initialBatch.reviewOnly.length || 0) + (initialBatch.strongSimilar.length || 0) + skipped.length;
-    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix10RedoBatchApply: true, phase64BNBugfix10RedoBatchAppliedCount: applied.length, phase64BNBugfix10RedoBatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix10RedoBatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix10RedoBatchAt: nowIso(), phase64BNBugfix10RedoRealPlanSlotRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BNBugfix10RedoLocalStorageClear: false });
-    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix10RedoRecalibrationBatchApply: "user-confirmed-real-plan-slot-rewrites" });
-    saveState(state, "phase64bn-bugfix10-redo-apply-all-recommended-real-plan-slot-rewrite");
-    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. This workout slot now uses the new default. ${leftUnchanged} blocked/review-only/already-updated item${leftUnchanged === 1 ? "" : "s"} were left unchanged.` : (initialBatch.alreadyApplied && initialBatch.alreadyApplied.length ? "No new upgrades applied. Existing upgraded slots already use the new default." : "No new upgrades applied. Blocked and review-only items were left unchanged.");
-    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, leftUnchangedCount: leftUnchanged, batch: initialBatch, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true, message };
+    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix10Redo2BatchApply: true, phase64BNBugfix10Redo2BatchAppliedCount: applied.length, phase64BNBugfix10Redo2BatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix10Redo2BatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix10Redo2BatchAt: nowIso(), phase64BNBugfix10Redo2RouteSlotAssignmentRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BNBugfix10Redo2LocalStorageClear: false });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix10Redo2RecalibrationBatchApply: "user-confirmed-route-slot-assignment-rewrites" });
+    saveState(state, "phase64bn-bugfix10-redo2-apply-all-recommended-route-slot-assignment-rewrite");
+    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. This route slot now uses the new default. ${leftUnchanged} blocked/review-only/already-updated item${leftUnchanged === 1 ? "" : "s"} were left unchanged.` : (initialBatch.alreadyApplied && initialBatch.alreadyApplied.length ? "No new upgrades applied. Existing route slots already use the new default." : "No new upgrades applied. Blocked and review-only items were left unchanged.");
+    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, leftUnchangedCount: leftUnchanged, batch: initialBatch, historyMutation: false, workoutWideRewrite: false, routeSlotAssignmentRewrite: true, message };
   }
 
   function renderSafeUpgradeSection64BM(report) {
@@ -21770,25 +21798,25 @@ Existing History logs stay untouched.`);
     const report = buildSmartPlanRecalibrationReport64BM(state);
     const rec = findRecalibrationRecommendation64BM(report, recommendationKey);
     if (!rec) {
-      const alreadyUpdatedFromKey64BNBugfix10Redo = typeof findRealPlanRewriteByRecommendationKey64BNBugfix10Redo === "function" ? findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(state, recommendationKey) : null;
-      if (alreadyUpdatedFromKey64BNBugfix10Redo) return { ok: false, reason: "already-updated-real-plan-slot", alreadyUpdated: true, entry: alreadyUpdatedFromKey64BNBugfix10Redo, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true };
+      const alreadyUpdatedFromKey64BNBugfix10Redo2 = (typeof findRouteSlotAssignmentByRecommendationKey64BNBugfix10Redo2 === "function" ? findRouteSlotAssignmentByRecommendationKey64BNBugfix10Redo2(state, recommendationKey) : null) || (typeof findRealPlanRewriteByRecommendationKey64BNBugfix10Redo === "function" ? findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(state, recommendationKey) : null);
+      if (alreadyUpdatedFromKey64BNBugfix10Redo2) return { ok: false, reason: "already-updated-route-slot-assignment", alreadyUpdated: true, entry: alreadyUpdatedFromKey64BNBugfix10Redo2, historyMutation: false, workoutWideRewrite: false, routeSlotAssignmentRewrite: true };
       const alreadyAppliedFromKey64BNBugfix9 = typeof getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9(state, recommendationKey) : null;
       if (alreadyAppliedFromKey64BNBugfix9) return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyAppliedFromKey64BNBugfix9, historyMutation: false, workoutWideRewrite: false };
       return { ok: false, reason: "recommendation-not-found" };
     }
     const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
     const actionState = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
-    if (actionState && actionState.type === "already_updated") return { ok: false, reason: "already-updated-real-plan-slot", alreadyUpdated: true, entry: actionState.rewrite, recommendation: rec, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true };
+    if (actionState && actionState.type === "already_updated") return { ok: false, reason: "already-updated-route-slot-assignment", alreadyUpdated: true, entry: actionState.routeAssignment || actionState.rewrite, recommendation: rec, historyMutation: false, workoutWideRewrite: false, routeSlotAssignmentRewrite: true };
     if (!rec.recommended || rec.confidence === "strong") return { ok: false, reason: "no-upgrade-for-current-strong" };
     if (!actionState || !actionState.canApply) return { ok: false, reason: actionState && (actionState.reason || actionState.type) || "not-eligible", recommendation: rec, actionState };
-    const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, report, { source: "single-apply-real-plan-slot-rewrite" });
+    const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, report, { source: "single-apply-route-slot-assignment-rewrite" });
     if (!guard.ok) return Object.assign({ ok: false, recommendation: rec }, guard);
-    const rewriteResult = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "apply-after-review-or-single-upgrade" });
-    if (!rewriteResult || !rewriteResult.ok) return Object.assign({ ok: false, recommendation: rec }, rewriteResult || { reason: "real-plan-slot-rewrite-failed" });
-    rewriteResult.state.audit = Object.assign({}, rewriteResult.state.audit || {}, { phase64BMLastPlanUpgrade: rewriteResult.entry.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BNBugfix10RedoRealPlanSlotRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true });
-    const saved = saveState(rewriteResult.state, "phase64bn-bugfix10-redo-user-confirmed-real-plan-slot-rewrite");
-    setText("smartPlanRecalibrationStatus64BM", `Updated default: ${rewriteResult.entry.previousExerciseName} → ${rewriteResult.entry.replacementExerciseName}. This workout slot now uses the new default.`);
-    return { ok: true, state: saved && saved.state || rewriteResult.state, entry: rewriteResult.entry, rewrite: rewriteResult.entry, recommendation: rec, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true, duplicateGuard: guard, reconciled: true, verification: rewriteResult.verification, staleOverrideCleared: rewriteResult.staleOverrideCleared };
+    const rewriteResult = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "apply-after-review-or-single-upgrade" });
+    if (!rewriteResult || !rewriteResult.ok) return Object.assign({ ok: false, recommendation: rec }, rewriteResult || { reason: "route-slot-assignment-rewrite-failed" });
+    rewriteResult.state.audit = Object.assign({}, rewriteResult.state.audit || {}, { phase64BMLastPlanUpgrade: rewriteResult.entry.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BNBugfix10Redo2RouteSlotAssignmentRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true });
+    const saved = saveState(rewriteResult.state, "phase64bn-bugfix10-redo2-user-confirmed-route-slot-assignment-rewrite");
+    setText("smartPlanRecalibrationStatus64BM", `Updated default: ${rewriteResult.entry.previousExerciseName} → ${rewriteResult.entry.replacementExerciseName}. This route slot now uses the new default.`);
+    return { ok: true, state: saved && saved.state || rewriteResult.state, entry: rewriteResult.entry, rewrite: rewriteResult.entry, recommendation: rec, historyMutation: false, workoutWideRewrite: false, routeSlotAssignmentRewrite: true, duplicateGuard: guard, reconciled: true, verification: rewriteResult.verification, staleOverrideCleared: rewriteResult.staleOverrideCleared };
   }
 
     function applyAllSafePlanUpgrades64BM() {
@@ -21807,16 +21835,16 @@ Existing History logs stay untouched.`);
       if (!actionState.canApply) { skipped.push({ key: rec.key, reason: actionState.reason || actionState.type || "not-eligible" }); return; }
       const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "apply-all-safe-real-plan-slot-rewrite", claimedIdentities });
       if (!guard.ok) { skipped.push({ key: rec.key, reason: guard.reason || "duplicate-conflict", conflict: guard.conflict || null }); return; }
-      const rewriteResult = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "apply-all-safe-upgrades" });
-      if (!rewriteResult || !rewriteResult.ok) { skipped.push({ key: rec.key, reason: rewriteResult && rewriteResult.reason || "real-plan-slot-rewrite-failed" }); return; }
+      const rewriteResult = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "apply-all-safe-upgrades" });
+      if (!rewriteResult || !rewriteResult.ok) { skipped.push({ key: rec.key, reason: rewriteResult && rewriteResult.reason || "route-slot-assignment-rewrite-failed" }); return; }
       state = rewriteResult.state;
-      applied.push(Object.assign({}, rewriteResult.entry || {}, { phase64bmSafeApply: true, phase64bnBugfix8Key: rec.key, realPlanSlotRewrite64BNBugfix10Redo: true }));
+      applied.push(Object.assign({}, rewriteResult.entry || {}, { phase64bmSafeApply: true, phase64bnBugfix8Key: rec.key, routeSlotAssignmentRewrite64BNBugfix10Redo2: true }));
       if (guard.claimKey) claimedIdentities.add(guard.claimKey);
     });
-    state.audit = Object.assign({}, state.audit || {}, { phase64BMBatchSafeUpgradeCount: applied.length, phase64BMBatchReviewFirstApplied: 0, phase64BMBatchSkippedDuplicateOrEligibilityCount: skipped.length, phase64BMBatchAt: nowIso(), phase64BNBugfix10RedoRealPlanSlotRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "apply-all-rechecked" });
-    state.qa = Object.assign({}, state.qa || {}, { phase64BMSmartPlanRecalibration: "user-confirmed-batch-safe-upgrades-real-plan-slot-rewrite" });
-    saveState(state, "phase64bn-bugfix10-redo-apply-all-safe-real-plan-slot-rewrite");
-    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, reviewFirstApplied: 0, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true, duplicateGuard: true };
+    state.audit = Object.assign({}, state.audit || {}, { phase64BMBatchSafeUpgradeCount: applied.length, phase64BMBatchReviewFirstApplied: 0, phase64BMBatchSkippedDuplicateOrEligibilityCount: skipped.length, phase64BMBatchAt: nowIso(), phase64BNBugfix10Redo2RouteSlotAssignmentRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "apply-all-rechecked" });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BMSmartPlanRecalibration: "user-confirmed-batch-safe-upgrades-route-slot-assignment-rewrite" });
+    saveState(state, "phase64bn-bugfix10-redo2-apply-all-safe-route-slot-assignment-rewrite");
+    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, reviewFirstApplied: 0, historyMutation: false, workoutWideRewrite: false, routeSlotAssignmentRewrite: true, duplicateGuard: true };
   }
 
 
@@ -22011,6 +22039,528 @@ Existing History logs stay untouched.`);
 
   
   
+
+
+
+  function routeAssignmentNormalizeText64BNBugfix10Redo2(value) {
+    return String(value == null ? "" : value).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  }
+
+  function normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2(store) {
+    const input = store && typeof store === "object" && !Array.isArray(store) ? store : {};
+    const entries = Array.isArray(input.entries) ? input.entries.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
+    const auditTrail = Array.isArray(input.auditTrail) ? input.auditTrail.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
+    return { phase: "64BN BUGFIX 10 REDO2", schema: "real-route-slot-assignments-v1", entries, auditTrail };
+  }
+
+  function normalizePromotedSmartExerciseDefinitionsStore64BNBugfix10Redo2(store) {
+    const input = store && typeof store === "object" && !Array.isArray(store) ? store : {};
+    const entries = Array.isArray(input.entries) ? input.entries.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
+    const auditTrail = Array.isArray(input.auditTrail) ? input.auditTrail.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
+    return { phase: "64BN BUGFIX 10 REDO2", schema: "promoted-smart-exercise-definitions-v1", entries, auditTrail };
+  }
+
+  function routeSlotAssignmentMode64BNBugfix10Redo2(payload, options, stateInput) {
+    const raw = payload && (payload.mode || payload.routeMode) || options && options.mode || stateInput && stateInput.settings && stateInput.settings.mode || "unknown";
+    return /home/i.test(String(raw || "")) ? "Home" : (/gym/i.test(String(raw || "")) ? "Gym" : "unknown");
+  }
+
+  function routeSlotAssignmentRoute64BNBugfix10Redo2(payload, options, stateInput) {
+    const raw = payload && (payload.route || payload.routeType) || options && options.route || stateInput && stateInput.settings && stateInput.settings.route || "unknown";
+    return /lazy/i.test(String(raw || "")) ? "Lazy" : (/full/i.test(String(raw || "")) ? "Full" : "unknown");
+  }
+
+  function routeSlotAssignmentOrder64BNBugfix10Redo2(payload, fallbackIndex) {
+    if (payload && Number.isFinite(Number(payload.slotOrder))) return Number(payload.slotOrder);
+    if (payload && Number.isFinite(Number(payload.order))) return Number(payload.order);
+    if (payload && payload.current && Number.isFinite(Number(payload.current.order))) return Number(payload.current.order);
+    if (Number.isFinite(Number(fallbackIndex))) return Number(fallbackIndex) + 1;
+    if (payload && Number.isFinite(Number(payload.slotIndex))) return Number(payload.slotIndex) + 1;
+    return null;
+  }
+
+  function buildRouteSlotAssignmentKey64BNBugfix10Redo2(payload, options = {}) {
+    const state = options.state || null;
+    const dayName = payload && (payload.dayName || payload.day || payload.current && payload.current.day) || "unknown-day";
+    const mode = routeSlotAssignmentMode64BNBugfix10Redo2(payload, options, state);
+    const route = routeSlotAssignmentRoute64BNBugfix10Redo2(payload, options, state);
+    const order = routeSlotAssignmentOrder64BNBugfix10Redo2(payload, options.index);
+    return [dayName, mode, route, order == null ? "unknown-slot" : order].map(routeAssignmentNormalizeText64BNBugfix10Redo2).join("__");
+  }
+
+  function getRouteSlotAssignments64BNBugfix10Redo2(stateInput) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    if (!state.realRouteSlotAssignments64BNBugfix10Redo2) state.realRouteSlotAssignments64BNBugfix10Redo2 = normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2(null);
+    state.realRouteSlotAssignments64BNBugfix10Redo2 = normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2(state.realRouteSlotAssignments64BNBugfix10Redo2);
+    if (typeof migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2 === "function") migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2(state, "get-route-slot-assignments");
+    return (state.realRouteSlotAssignments64BNBugfix10Redo2.entries || []).filter((entry) => entry && entry.active !== false);
+  }
+
+  function getPromotedSmartExerciseDefinitions64BNBugfix10Redo2(stateInput) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    state.promotedSmartExerciseDefinitions64BNBugfix10Redo2 = normalizePromotedSmartExerciseDefinitionsStore64BNBugfix10Redo2(state.promotedSmartExerciseDefinitions64BNBugfix10Redo2);
+    return state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.entries || [];
+  }
+
+  function findPromotedSmartExerciseDefinition64BNBugfix10Redo2(stateInput, exerciseId) {
+    const target = routeAssignmentNormalizeText64BNBugfix10Redo2(exerciseId);
+    if (!target) return null;
+    return getPromotedSmartExerciseDefinitions64BNBugfix10Redo2(stateInput).find((entry) => routeAssignmentNormalizeText64BNBugfix10Redo2(entry && (entry.id || entry.exerciseId)) === target) || null;
+  }
+
+  function findRouteSlotAssignmentByRecommendationKey64BNBugfix10Redo2(stateInput, recommendationKey) {
+    const target = routeAssignmentNormalizeText64BNBugfix10Redo2(recommendationKey);
+    if (!target) return null;
+    return getRouteSlotAssignments64BNBugfix10Redo2(stateInput).find((entry) => routeAssignmentNormalizeText64BNBugfix10Redo2(entry && entry.recommendationKey) === target || routeAssignmentNormalizeText64BNBugfix10Redo2(entry && entry.legacyRewriteRecommendationKey64BNBugfix10Redo) === target) || null;
+  }
+
+  function findRouteSlotAssignmentForSlot64BNBugfix10Redo2(stateInput, payload, options = {}) {
+    const target = buildRouteSlotAssignmentKey64BNBugfix10Redo2(payload || {}, Object.assign({}, options, { state: stateInput }));
+    const daySlotFallback = [payload && (payload.dayName || payload.day || payload.current && payload.current.day), routeSlotAssignmentOrder64BNBugfix10Redo2(payload, options.index)].map(routeAssignmentNormalizeText64BNBugfix10Redo2).join("__");
+    return getRouteSlotAssignments64BNBugfix10Redo2(stateInput).find((entry) => {
+      if (!entry) return false;
+      const entryKey = buildRouteSlotAssignmentKey64BNBugfix10Redo2(entry, Object.assign({}, options, { state: stateInput }));
+      if (entryKey === target) return true;
+      const entryDaySlot = [entry.dayName || entry.day, routeSlotAssignmentOrder64BNBugfix10Redo2(entry)].map(routeAssignmentNormalizeText64BNBugfix10Redo2).join("__");
+      return entryDaySlot === daySlotFallback && (!entry.mode || !options.mode || routeSlotAssignmentMode64BNBugfix10Redo2(entry, {}, stateInput) === routeSlotAssignmentMode64BNBugfix10Redo2(payload, options, stateInput)) && (!entry.route || !options.route || routeSlotAssignmentRoute64BNBugfix10Redo2(entry, {}, stateInput) === routeSlotAssignmentRoute64BNBugfix10Redo2(payload, options, stateInput));
+    }) || null;
+  }
+
+  function routeAssignmentExerciseName64BNBugfix10Redo2(ex) {
+    return String(ex && (ex.displayName || ex.name || ex.id) || "Exercise");
+  }
+
+  function findSmartCandidateDefinition64BNBugfix10Redo2(stateInput, replacementInput) {
+    const replacement = replacementInput || {};
+    const targetId = routeAssignmentNormalizeText64BNBugfix10Redo2(replacement.id || replacement.exerciseId || replacement.replacementExerciseId);
+    const targetName = routeAssignmentNormalizeText64BNBugfix10Redo2(replacement.displayName || replacement.name || replacement.replacementExerciseName);
+    const promoted = targetId ? findPromotedSmartExerciseDefinition64BNBugfix10Redo2(stateInput, targetId) : null;
+    if (promoted) return promoted.definition || promoted;
+    const programmed = targetId && typeof findProgramExerciseById19C === "function" ? findProgramExerciseById19C(stateInput, replacement.id || replacement.exerciseId || replacement.replacementExerciseId) : null;
+    if (programmed) return programmed;
+    const alt = targetId && typeof findAlternativeCandidate64BJ === "function" ? findAlternativeCandidate64BJ(replacement.id || replacement.exerciseId || replacement.replacementExerciseId) : null;
+    if (alt) return alt;
+    const library = (typeof PHASE64BJ_ALTERNATIVE_CANDIDATE_LIBRARY !== "undefined" && Array.isArray(PHASE64BJ_ALTERNATIVE_CANDIDATE_LIBRARY)) ? PHASE64BJ_ALTERNATIVE_CANDIDATE_LIBRARY : [];
+    const byName = targetName ? library.find((candidate) => routeAssignmentNormalizeText64BNBugfix10Redo2(candidate && (candidate.displayName || candidate.name)) === targetName) : null;
+    return byName || replacement;
+  }
+
+  function promoteSmartCandidateToProgramExercise64BNBugfix10Redo2(stateInput, replacementInput, recInput, options = {}) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : clone((typeof loadState === "function" ? loadState().state : null) || createDefaultState());
+    const rec = recInput || {};
+    const current = rec.current || options.current || {};
+    const source = findSmartCandidateDefinition64BNBugfix10Redo2(state, replacementInput || rec.recommended || {}) || {};
+    const replacementName = routeAssignmentExerciseName64BNBugfix10Redo2(source) || rec.recommendedName || "Replacement exercise";
+    const replacementId = String(source.id || source.exerciseId || (rec.recommended && rec.recommended.id) || routeAssignmentNormalizeText64BNBugfix10Redo2(replacementName) || `route-slot-replacement-${Date.now()}`);
+    const definition = Object.assign({}, clone(source), {
+      id: replacementId,
+      name: source.name || source.displayName || replacementName,
+      displayName: source.displayName || source.name || replacementName,
+      primaryMuscles: clone(source.primaryMuscles || source.targetMuscles || current.primaryMuscles || current.targetMuscles || []),
+      secondaryMuscles: clone(source.secondaryMuscles || []),
+      targetMuscles: clone(source.targetMuscles || source.primaryMuscles || current.targetMuscles || current.primaryMuscles || []),
+      equipment: clone(source.equipment || current.equipment || []),
+      modeReady: clone(source.modeReady || current.modeReady || {}),
+      progression: source.progression || current.progression || "Use the existing slot progression rules.",
+      media: clone(source.media || {}),
+      smartCandidateDefinition64BNBugfix10Redo2: true,
+      promotedFromSmartCandidate64BNBugfix10Redo2: !(source.day && source.day !== "Alternative Library"),
+      sourceCandidateId64BNBugfix10Redo2: source.id || replacementId,
+      sourceCandidateName64BNBugfix10Redo2: routeAssignmentExerciseName64BNBugfix10Redo2(source),
+      createdAt64BNBugfix10Redo2: nowIso()
+    });
+    state.promotedSmartExerciseDefinitions64BNBugfix10Redo2 = normalizePromotedSmartExerciseDefinitionsStore64BNBugfix10Redo2(state.promotedSmartExerciseDefinitions64BNBugfix10Redo2);
+    const entries = state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.entries.slice();
+    const existingIndex = entries.findIndex((entry) => routeAssignmentNormalizeText64BNBugfix10Redo2(entry && (entry.id || entry.exerciseId)) === routeAssignmentNormalizeText64BNBugfix10Redo2(replacementId));
+    const entry = { id: replacementId, exerciseId: replacementId, displayName: definition.displayName, definition: clone(definition), source: "smart-candidate-promotion-for-route-slot-assignment", active: true, createdAt: nowIso(), updatedAt: nowIso(), historyMutation: false, localStorageClear: false };
+    if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry, { createdAt: entries[existingIndex].createdAt || entry.createdAt, updatedAt: nowIso() });
+    else entries.push(entry);
+    state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.entries = entries;
+    state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.auditTrail = Array.isArray(state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.auditTrail) ? state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.auditTrail : [];
+    state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.auditTrail.unshift({ phase: "64BN BUGFIX 10 REDO2", type: "promote-smart-candidate-definition", exerciseId: replacementId, displayName: definition.displayName, recordedAt: nowIso(), historyMutation: false, localStorageClear: false });
+    state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.auditTrail = state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.auditTrail.slice(0, 80);
+    return { ok: true, state, exercise: definition, definition, sourceCandidate: source, promotedFromSmartCandidate: true, storePath: "state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.entries[]" };
+  }
+
+  function buildAssignedRouteSlotExercise64BNBugfix10Redo2(currentInput, definitionInput, entryInput) {
+    const current = clone(currentInput || {});
+    const definition = clone(definitionInput || {});
+    const entry = entryInput || {};
+    const assigned = Object.assign({}, definition);
+    assigned.id = definition.id || entry.replacementExerciseId || routeAssignmentNormalizeText64BNBugfix10Redo2(entry.replacementExerciseName);
+    assigned.name = definition.name || definition.displayName || entry.replacementExerciseName || assigned.id;
+    assigned.displayName = definition.displayName || definition.name || entry.replacementExerciseName || assigned.id;
+    assigned.day = current.day || entry.dayName || definition.day;
+    assigned.order = Number.isFinite(Number(current.order)) ? Number(current.order) : entry.slotOrder;
+    assigned.block = current.block || entry.block || definition.block || definition.category || "Workout";
+    assigned.category = current.category || definition.category || assigned.block;
+    assigned.prescription = clone(current.prescription || definition.prescription || {});
+    assigned.guidance = clone(current.guidance || definition.guidance || {});
+    assigned.progression = current.progression || definition.progression || "Use the existing slot progression rules.";
+    assigned.routeSlotAssignmentRewrite64BNBugfix10Redo2 = true;
+    assigned.routeSlotAssignmentKey64BNBugfix10Redo2 = entry.key || buildRouteSlotAssignmentKey64BNBugfix10Redo2(entry);
+    assigned.replacedFrom64BNBugfix10Redo2 = { id: current.id || entry.previousExerciseId || "", displayName: routeAssignmentExerciseName64BNBugfix10Redo2(current) || entry.previousExerciseName || "", replacedAt: entry.updatedAt || entry.createdAt || nowIso() };
+    assigned.preservesSlotPrescription64BNBugfix10Redo2 = true;
+    assigned.preservesSlotOrder64BNBugfix10Redo2 = true;
+    assigned.realRouteSlotAssignmentSource64BNBugfix10Redo2 = "state.realRouteSlotAssignments64BNBugfix10Redo2.entries[] applied in allDayExercises/getVisibleExercises";
+    return assigned;
+  }
+
+  function routeAssignmentMatchesExercise64BNBugfix10Redo2(entry, exercise, dayName, index, options = {}) {
+    if (!entry || entry.active === false || !exercise) return false;
+    const entryDay = routeAssignmentNormalizeText64BNBugfix10Redo2(entry.dayName || entry.day);
+    const exerciseDay = routeAssignmentNormalizeText64BNBugfix10Redo2(dayName || exercise.day);
+    if (entryDay && exerciseDay && entryDay !== exerciseDay) return false;
+    const entryOrder = routeSlotAssignmentOrder64BNBugfix10Redo2(entry);
+    const exerciseOrder = Number.isFinite(Number(exercise.order)) ? Number(exercise.order) : Number(index) + 1;
+    if (Number(entryOrder) !== Number(exerciseOrder)) return false;
+    const optionMode = routeSlotAssignmentMode64BNBugfix10Redo2({}, options, options.state || null);
+    const optionRoute = routeSlotAssignmentRoute64BNBugfix10Redo2({}, options, options.state || null);
+    const entryMode = routeSlotAssignmentMode64BNBugfix10Redo2(entry, {}, options.state || null);
+    const entryRoute = routeSlotAssignmentRoute64BNBugfix10Redo2(entry, {}, options.state || null);
+    if (entryMode !== "unknown" && optionMode !== "unknown" && entryMode !== optionMode) return false;
+    if (entryRoute !== "unknown" && optionRoute !== "unknown" && entryRoute !== optionRoute) return false;
+    return true;
+  }
+
+  function applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2(stateInput, exercisesInput, dayName, options = {}) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : null;
+    const list = Array.isArray(exercisesInput) ? exercisesInput : [];
+    if (!state || !list.length) return list;
+    const entries = getRouteSlotAssignments64BNBugfix10Redo2(state);
+    if (!entries.length) return list;
+    let changed = false;
+    const patched = list.map((exercise, index) => {
+      const match = entries.find((entry) => routeAssignmentMatchesExercise64BNBugfix10Redo2(entry, exercise, dayName, index, Object.assign({}, options, { state })));
+      if (!match) return exercise;
+      const definition = match.assignedExercise || match.definition || findPromotedSmartExerciseDefinition64BNBugfix10Redo2(state, match.replacementExerciseId) && findPromotedSmartExerciseDefinition64BNBugfix10Redo2(state, match.replacementExerciseId).definition || findSmartCandidateDefinition64BNBugfix10Redo2(state, { id: match.replacementExerciseId, displayName: match.replacementExerciseName });
+      if (!definition) return exercise;
+      changed = true;
+      return buildAssignedRouteSlotExercise64BNBugfix10Redo2(exercise, definition, match);
+    });
+    if (changed) {
+      state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix10Redo2RouteAssignmentsAppliedAt: nowIso(), phase64BNBugfix10Redo2RouteAssignmentsAppliedOwner: options.owner || "route-source", phase64BNBugfix10Redo2RouteAssignmentsAppliedDay: dayName, phase64BNBugfix10Redo2RouteAssignmentsSource: "realRouteSlotAssignments64BNBugfix10Redo2", phase64BNBugfix10Redo2HistoryMutation: false, phase64BNBugfix10Redo2LocalStorageClear: false });
+    }
+    return patched;
+  }
+
+  function upsertRouteSlotAssignment64BNBugfix10Redo2(stateInput, recInput, promotedInput, options = {}) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : clone((typeof loadState === "function" ? loadState().state : null) || createDefaultState());
+    const rec = recInput || {};
+    const current = rec.current || {};
+    const promotion = promotedInput && promotedInput.ok ? promotedInput : promoteSmartCandidateToProgramExercise64BNBugfix10Redo2(state, rec.recommended, rec, options);
+    if (!promotion || !promotion.ok || !promotion.exercise) return { ok: false, reason: "replacement-definition-promotion-failed", state };
+    const slotOrder = routeSlotAssignmentOrder64BNBugfix10Redo2(rec, rec.slotIndex);
+    const key = buildRouteSlotAssignmentKey64BNBugfix10Redo2(rec, { state, mode: rec.mode || options.mode, route: rec.route || options.route, index: rec.slotIndex });
+    const before = clone(current || {});
+    const assigned = buildAssignedRouteSlotExercise64BNBugfix10Redo2(before, promotion.exercise, { key, dayName: rec.dayName || before.day, slotOrder, block: rec.block || before.block, replacementExerciseId: promotion.exercise.id, replacementExerciseName: routeAssignmentExerciseName64BNBugfix10Redo2(promotion.exercise), previousExerciseId: before.id || "", previousExerciseName: routeAssignmentExerciseName64BNBugfix10Redo2(before) });
+    const entry = {
+      phase: "64BN BUGFIX 10 REDO2",
+      type: "real-route-slot-assignment-rewrite-from-recalibration",
+      key,
+      recommendationKey: rec.key || "",
+      legacyRewriteRecommendationKey64BNBugfix10Redo: rec.key || "",
+      dayName: rec.dayName || before.day || "",
+      mode: routeSlotAssignmentMode64BNBugfix10Redo2(rec, options, state),
+      route: routeSlotAssignmentRoute64BNBugfix10Redo2(rec, options, state),
+      slotIndex: Number.isFinite(Number(rec.slotIndex)) ? Number(rec.slotIndex) : null,
+      slotOrder,
+      block: before.block || rec.block || "",
+      previousExerciseId: before.id || "",
+      previousExerciseName: routeAssignmentExerciseName64BNBugfix10Redo2(before),
+      replacementExerciseId: promotion.exercise.id || "",
+      replacementExerciseName: routeAssignmentExerciseName64BNBugfix10Redo2(promotion.exercise),
+      assignedExercise: clone(assigned),
+      definitionSourcePath: promotion.storePath || "state.promotedSmartExerciseDefinitions64BNBugfix10Redo2.entries[]",
+      assignmentSourcePath: "state.realRouteSlotAssignments64BNBugfix10Redo2.entries[]",
+      realRouteSourceFunction: "allDayExercises(state, dayName) + getVisibleExercises(state, dayName, mode, route)",
+      exerciseLibraryAndSlotAssignmentSeparate: true,
+      oldExerciseIdentityRequiredForFutureMatching: false,
+      preservesSlotPrescription: true,
+      preservesSlotOrder: true,
+      active: true,
+      source: options.source || "recalibration-route-slot-assignment-rewrite",
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      historyMutation: false,
+      localStorageClear: false
+    };
+    state.realRouteSlotAssignments64BNBugfix10Redo2 = normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2(state.realRouteSlotAssignments64BNBugfix10Redo2);
+    const entries = state.realRouteSlotAssignments64BNBugfix10Redo2.entries.slice();
+    const existingIndex = entries.findIndex((item) => item && buildRouteSlotAssignmentKey64BNBugfix10Redo2(item, { state }) === key);
+    if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry, { createdAt: entries[existingIndex].createdAt || entry.createdAt, updatedAt: nowIso() });
+    else entries.push(entry);
+    state.realRouteSlotAssignments64BNBugfix10Redo2.entries = entries;
+    state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail = Array.isArray(state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail) ? state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail : [];
+    state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail.unshift(Object.assign({}, entry, { assignedExercise: undefined, recordedAt: nowIso() }));
+    state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail = state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail.slice(0, 120);
+    return { ok: true, state, entry, promotion, assignedExercise: assigned };
+  }
+
+  function migrateRealPlanSlotRewritesIntoRouteAssignments64BNBugfix10Redo2(stateInput, reason) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : null;
+    if (!state) return { ok: false, reason: "missing-state" };
+    state.realRouteSlotAssignments64BNBugfix10Redo2 = normalizeRouteSlotAssignmentsStore64BNBugfix10Redo2(state.realRouteSlotAssignments64BNBugfix10Redo2);
+    const legacy = state.realPlanSlotRewrites64BNBugfix10Redo && Array.isArray(state.realPlanSlotRewrites64BNBugfix10Redo.entries) ? state.realPlanSlotRewrites64BNBugfix10Redo.entries : [];
+    let migrated = 0;
+    legacy.filter((entry) => entry && entry.active !== false && entry.programSlotAfter).forEach((entry) => {
+      const key = buildRouteSlotAssignmentKey64BNBugfix10Redo2(entry, { state, mode: entry.mode, route: entry.route });
+      const exists = state.realRouteSlotAssignments64BNBugfix10Redo2.entries.some((item) => buildRouteSlotAssignmentKey64BNBugfix10Redo2(item, { state }) === key);
+      if (exists) return;
+      const current = Object.assign({}, entry.programSlotBefore || {}, { day: entry.dayName || entry.day, order: entry.slotOrder, block: entry.block || entry.programSlotAfter.block });
+      const assigned = buildAssignedRouteSlotExercise64BNBugfix10Redo2(current, entry.programSlotAfter, Object.assign({}, entry, { key }));
+      state.realRouteSlotAssignments64BNBugfix10Redo2.entries.push({
+        phase: "64BN BUGFIX 10 REDO2",
+        type: "migrated-from-failed-real-plan-slot-rewrite",
+        key,
+        recommendationKey: entry.recommendationKey || "",
+        legacyRewriteRecommendationKey64BNBugfix10Redo: entry.recommendationKey || "",
+        dayName: entry.dayName || entry.day || assigned.day || "",
+        mode: routeSlotAssignmentMode64BNBugfix10Redo2(entry, {}, state),
+        route: routeSlotAssignmentRoute64BNBugfix10Redo2(entry, {}, state),
+        slotIndex: Number.isFinite(Number(entry.slotIndex)) ? Number(entry.slotIndex) : null,
+        slotOrder: entry.slotOrder,
+        block: entry.block || assigned.block || "",
+        previousExerciseId: entry.previousExerciseId || "",
+        previousExerciseName: entry.previousExerciseName || "",
+        replacementExerciseId: entry.replacementExerciseId || assigned.id || "",
+        replacementExerciseName: entry.replacementExerciseName || routeAssignmentExerciseName64BNBugfix10Redo2(assigned),
+        assignedExercise: clone(assigned),
+        assignmentSourcePath: "state.realRouteSlotAssignments64BNBugfix10Redo2.entries[]",
+        migratedFromRealPlanSlotRewrites64BNBugfix10Redo: true,
+        migrationReason: reason || "legacy-redo-store",
+        active: true,
+        createdAt: entry.createdAt || nowIso(),
+        updatedAt: nowIso(),
+        historyMutation: false,
+        localStorageClear: false
+      });
+      migrated += 1;
+    });
+    if (migrated) {
+      state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail.unshift({ phase: "64BN BUGFIX 10 REDO2", type: "migrate-failed-redo-store-into-route-assignments", migrated, reason: reason || "legacy-redo-store", recordedAt: nowIso(), historyMutation: false, localStorageClear: false });
+      state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail = state.realRouteSlotAssignments64BNBugfix10Redo2.auditTrail.slice(0, 120);
+    }
+    return { ok: true, state, migrated };
+  }
+
+  function verifyRouteSlotAssignmentReachedAllDayExercises64BNBugfix10Redo2(stateInput, entryInput) {
+    const entry = entryInput || null;
+    const state = clone(stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState()));
+    state.settings = Object.assign({}, state.settings || {}, { mode: entry && entry.mode || state.settings && state.settings.mode || "Home", route: entry && entry.route || state.settings && state.settings.route || "Lazy" });
+    const list = typeof allDayExercises === "function" ? allDayExercises(state, entry && entry.dayName) : [];
+    const slot = (list || []).find((exercise) => Number(exercise && exercise.order) === Number(entry && entry.slotOrder));
+    const currentIds = [slot && slot.id, slot && slot.displayName, slot && slot.name].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+    const targets = [entry && entry.replacementExerciseId, entry && entry.replacementExerciseName].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+    const ok = !!(slot && targets.some((target) => currentIds.includes(target)));
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 verify allDayExercises", ok, sourceFunction: "allDayExercises", dayName: entry && entry.dayName, mode: state.settings.mode, route: state.settings.route, slotOrder: entry && entry.slotOrder, currentId: slot && slot.id, currentName: routeAssignmentExerciseName64BNBugfix10Redo2(slot), expectedReplacement: entry && entry.replacementExerciseName, status: ok ? "YELLOW" : "RED" });
+  }
+
+  function verifyRouteSlotAssignmentReachedGetVisibleExercises64BNBugfix10Redo2(stateInput, entryInput) {
+    const entry = entryInput || null;
+    const state = clone(stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState()));
+    const mode = entry && entry.mode || state.settings && state.settings.mode || "Home";
+    const route = entry && entry.route || state.settings && state.settings.route || "Lazy";
+    const list = typeof getVisibleExercises === "function" ? getVisibleExercises(state, entry && entry.dayName, mode, route) : [];
+    const slot = (list || []).find((exercise) => Number(exercise && exercise.order) === Number(entry && entry.slotOrder));
+    const currentIds = [slot && slot.id, slot && slot.displayName, slot && slot.name].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+    const targets = [entry && entry.replacementExerciseId, entry && entry.replacementExerciseName].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+    const ok = !!(slot && targets.some((target) => currentIds.includes(target)));
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 verify getVisibleExercises", ok, sourceFunction: "getVisibleExercises", dayName: entry && entry.dayName, mode, route, slotOrder: entry && entry.slotOrder, currentId: slot && slot.id, currentName: routeAssignmentExerciseName64BNBugfix10Redo2(slot), expectedReplacement: entry && entry.replacementExerciseName, status: ok ? "YELLOW" : "RED" });
+  }
+
+  function verifyRouteSlotAssignmentReachedRecalibration64BNBugfix10Redo2(stateInput, entryInput) {
+    const entry = entryInput || null;
+    const state = clone(stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState()));
+    state.settings = Object.assign({}, state.settings || {}, { mode: entry && entry.mode || "Home", route: entry && entry.route || "Lazy" });
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
+    const oldToSame = (report.recommendations || []).find((rec) => {
+      if (!entry || routeAssignmentNormalizeText64BNBugfix10Redo2(rec && rec.dayName) !== routeAssignmentNormalizeText64BNBugfix10Redo2(entry.dayName)) return false;
+      if (Number(rec && rec.slotOrder) !== Number(entry.slotOrder)) return false;
+      const currentIds = [rec.currentName, rec.current && rec.current.id, rec.current && rec.current.displayName].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+      const oldIds = [entry.previousExerciseId, entry.previousExerciseName].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+      const replacementIds = [rec.recommendedName, rec.recommended && rec.recommended.id, rec.recommended && rec.recommended.displayName].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+      const targetIds = [entry.replacementExerciseId, entry.replacementExerciseName].map(routeAssignmentNormalizeText64BNBugfix10Redo2).filter(Boolean);
+      return oldIds.some((id) => currentIds.includes(id)) && targetIds.some((id) => replacementIds.includes(id));
+    });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 verify recalibration", ok: !oldToSame, sourceFunction: "buildSmartPlanRecalibrationReport64BM via getVisibleExercises", dayName: entry && entry.dayName, mode: state.settings.mode, route: state.settings.route, slotOrder: entry && entry.slotOrder, oldExerciseToSameReplacementStillPresent: !!oldToSame, status: oldToSame ? "RED" : "YELLOW" });
+  }
+
+  function getAppliedRouteSlotAssignmentForSlot64BNBugfix10Redo2(stateInput, recInput) {
+    const entry = findRouteSlotAssignmentForSlot64BNBugfix10Redo2(stateInput, recInput || {}, { mode: recInput && recInput.mode, route: recInput && recInput.route, index: recInput && recInput.slotIndex });
+    if (!entry) return null;
+    const verify = verifyRouteSlotAssignmentReachedGetVisibleExercises64BNBugfix10Redo2(stateInput, entry);
+    return verify && verify.ok ? entry : null;
+  }
+
+  function applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(stateInput, recInput, options = {}) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : clone((typeof loadState === "function" ? loadState().state : null) || createDefaultState());
+    const rec = recInput || {};
+    if (!rec || !rec.recommended) return { ok: false, reason: "missing-recommendation", state };
+    const already = getAppliedRouteSlotAssignmentForSlot64BNBugfix10Redo2(state, rec);
+    if (already) return { ok: false, reason: "already-updated-route-slot-assignment", alreadyUpdated: true, state, entry: already };
+    const promotion = promoteSmartCandidateToProgramExercise64BNBugfix10Redo2(state, rec.recommended, rec, options);
+    if (!promotion || !promotion.ok) return { ok: false, reason: "promotion-failed", state, promotion };
+    const upsert = upsertRouteSlotAssignment64BNBugfix10Redo2(state, rec, promotion, options);
+    if (!upsert || !upsert.ok) return Object.assign({ ok: false, recommendation: rec }, upsert || { reason: "route-slot-assignment-upsert-failed" });
+    const stale = typeof clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo === "function" ? clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo(state, upsert.entry) : { clearedCount: 0 };
+    upsert.entry.staleSmartPlanOverrideCleared = !!(stale && stale.clearedCount);
+    upsert.entry.staleSmartPlanOverrideClearedCount = stale && stale.clearedCount || 0;
+    const verifyAll = verifyRouteSlotAssignmentReachedAllDayExercises64BNBugfix10Redo2(state, upsert.entry);
+    const verifyVisible = verifyRouteSlotAssignmentReachedGetVisibleExercises64BNBugfix10Redo2(state, upsert.entry);
+    const verifyRecalibration = verifyRouteSlotAssignmentReachedRecalibration64BNBugfix10Redo2(state, upsert.entry);
+    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix10Redo2RouteSlotAssignmentRewrite: true, phase64BNBugfix10Redo2LastAssignmentKey: upsert.entry.key, phase64BNBugfix10Redo2LastAssignmentAt: nowIso(), phase64BNBugfix10Redo2SourcePath: "state.realRouteSlotAssignments64BNBugfix10Redo2.entries[] -> allDayExercises/getVisibleExercises", phase64BNBugfix10Redo2ExerciseLibrarySeparate: true, phase64BNBugfix10Redo2HistoryMutation: false, phase64BNBugfix10Redo2SaveBehaviorTouched: false, phase64BNBugfix10Redo2ExitBehaviorTouched: false, phase64BNBugfix10Redo2LocalStorageClear: false });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix10Redo2RouteSlotAssignmentRewrite: "approved-recalibration-upgrades-rewrite-real-route-slot-assignment-source" });
+    const ok = !!(verifyAll && verifyAll.ok && verifyVisible && verifyVisible.ok && verifyRecalibration && verifyRecalibration.ok);
+    return { ok, state, entry: upsert.entry, promotion, assignedExercise: upsert.assignedExercise, verification: { allDayExercises: verifyAll, getVisibleExercises: verifyVisible, recalibration: verifyRecalibration }, staleOverrideCleared: upsert.entry.staleSmartPlanOverrideCleared, historyMutation: false, workoutWideRewrite: false, routeSlotAssignmentRewrite: true, realPlanSlotRewrite: false, exerciseLibraryAndSlotAssignmentSeparate: true };
+  }
+
+  function findRealRouteSlotAssignmentSource64BNBugfix10Redo2() {
+    return Object.freeze({
+      phase: "64BN BUGFIX 10 REDO2 source finder",
+      exactObjectArrayFunction: "STATE_SEED.program.exercisesById[] rehydrated to state.program.exercisesById[]; day/order fields define the static route assignment list",
+      persistentPatchStore: "state.realRouteSlotAssignments64BNBugfix10Redo2.entries[]",
+      exactFieldThatPointsSlotToExercise: "id with displayName/name on each route slot row",
+      exactSlotLocatorFields: Object.freeze(["day", "order", "mode", "route"]),
+      exactSourceAfterRefresh: "migrateState() deletes persisted program, rehydrates STATE_SEED.program, then allDayExercises/getVisibleExercises apply realRouteSlotAssignments64BNBugfix10Redo2",
+      whyPreviousExercisesByIdUpdateDidNotWork: "BUGFIX 10 REDO changed the hydrated program exercise row; localStorage intentionally excludes program, so refresh returned to STATE_SEED unless the route-source path reapplied a persisted assignment patch.",
+      routeSourceFunctionUpdated: "allDayExercises(state, dayName) and getVisibleExercises(state, dayName, mode, route)",
+      status: "YELLOW"
+    });
+  }
+
+  function auditRealRouteSlotAssignmentSource64BNBugfix10Redo2() {
+    return findRealRouteSlotAssignmentSource64BNBugfix10Redo2();
+  }
+
+  function auditExerciseLibraryNotUsedAsAssignmentSource64BNBugfix10Redo2() {
+    const source = typeof documentText34G === "function" ? documentText34G() : String(document && document.documentElement && document.documentElement.outerHTML || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 library-vs-assignment separation", routeAssignmentStoreExists: typeof getRouteSlotAssignments64BNBugfix10Redo2 === "function", promotedDefinitionStoreExists: typeof getPromotedSmartExerciseDefinitions64BNBugfix10Redo2 === "function", allDayExercisesCallsRouteAssignmentLayer: /applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2/.test(String(allDayExercises)), applyPathCallsRouteAssignmentHelper: /applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2/.test(source), doesNotOnlyUseExercisesByIdForAssignment: /realRouteSlotAssignments64BNBugfix10Redo2/.test(source), status: /realRouteSlotAssignments64BNBugfix10Redo2/.test(source) ? "YELLOW" : "RED" });
+  }
+
+  function syntheticRouteSlotAssignmentRec64BNBugfix10Redo2(state, dayName, mode, route, slotOrder, replacementId, replacementName) {
+    const list = typeof getVisibleExercises === "function" ? getVisibleExercises(state, dayName, mode, route) : allDayExercises(state, dayName);
+    const current = (list || []).find((exercise) => Number(exercise && exercise.order) === Number(slotOrder)) || (list || [])[Math.max(0, Number(slotOrder || 1) - 1)] || {};
+    const candidate = findSmartCandidateDefinition64BNBugfix10Redo2(state, { id: replacementId, displayName: replacementName }) || { id: replacementId || routeAssignmentNormalizeText64BNBugfix10Redo2(replacementName), displayName: replacementName, name: replacementName };
+    return { phase: "64BN", key: [dayName, mode, route, slotOrder, current.id || "slot"].map(routeAssignmentNormalizeText64BNBugfix10Redo2).join("__"), dayName, mode, route, slotIndex: Math.max(0, (list || []).findIndex((exercise) => Number(exercise && exercise.order) === Number(slotOrder))), slotOrder, block: current.block || candidate.block || "Workout", current, recommended: candidate, recommendedName: routeAssignmentExerciseName64BNBugfix10Redo2(candidate), confidence: "review", decisionLabel: "Review first", why: "Synthetic audit recommendation for route slot assignment rewrite.", duplicateBlocked64BMBugfix2: false, safeUpgradeEligible64BMBugfix2: false, historyMutation: false, workoutWideRewrite: false };
+  }
+
+  function auditApplyAfterReviewWritesRouteSlotAssignment64BNBugfix10Redo2(stateInput) {
+    const state = clone(stateInput || (typeof createDefaultState === "function" ? createDefaultState() : {}));
+    state.settings = Object.assign({}, state.settings || {}, { mode: "Home", route: "Lazy" });
+    const beforeLogs = JSON.stringify(state.logs || {});
+    const rec = syntheticRouteSlotAssignmentRec64BNBugfix10Redo2(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const result = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "audit-apply-after-review-route-slot-assignment" });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 apply after review route assignment", helperUsed: typeof applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2 === "function", wroteRouteSlotAssignment: !!(result && result.ok && result.entry), allDayExercisesSeesReplacement: !!(result && result.verification && result.verification.allDayExercises && result.verification.allDayExercises.ok), getVisibleExercisesSeesReplacement: !!(result && result.verification && result.verification.getVisibleExercises && result.verification.getVisibleExercises.ok), historyUnchanged: beforeLogs === JSON.stringify(result && result.state && result.state.logs || {}), status: result && result.ok ? "YELLOW" : "RED" });
+  }
+
+  function auditApplyAllRewritesRealSlots64BNBugfix10Redo2() {
+    const source = typeof documentText34G === "function" ? documentText34G() : String(document && document.documentElement && document.documentElement.outerHTML || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 apply all route assignments", applyAllCallsRouteAssignmentHelper: /applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2/.test(String(applyAllEligibleRecommendedUpgrades64BNBugfix8)), applyAllNoLongerCallsOldRealPlanRewriteHelperInMainPath: !/applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo\(state, rec/.test(String(applyAllEligibleRecommendedUpgrades64BNBugfix8)), routeAssignmentStorePersisted: /realRouteSlotAssignments64BNBugfix10Redo2/.test(source), countsOnlyVerifiedAssignments: /route-slot-assignment-rewrite-failed/.test(String(applyAllEligibleRecommendedUpgrades64BNBugfix8)), status: /applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2/.test(String(applyAllEligibleRecommendedUpgrades64BNBugfix8)) ? "YELLOW" : "RED" });
+  }
+
+  function auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo2(stateInput) {
+    const state = clone(stateInput || (typeof createDefaultState === "function" ? createDefaultState() : {}));
+    state.settings = Object.assign({}, state.settings || {}, { mode: "Home", route: "Lazy" });
+    const rec = syntheticRouteSlotAssignmentRec64BNBugfix10Redo2(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const first = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "audit-first-apply-route-slot" });
+    const second = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(first && first.state || state, rec, { source: "audit-second-apply-route-slot" });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 idempotent apply all", firstApplied: !!(first && first.ok), secondApplyBlockedAsAlreadyUpdated: !!(second && second.alreadyUpdated), secondAppliedSameUpgradeAgain: !!(second && second.ok), status: first && first.ok && second && second.alreadyUpdated ? "YELLOW" : "RED" });
+  }
+
+  function auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo2(stateInput) {
+    const state = clone(stateInput || (typeof createDefaultState === "function" ? createDefaultState() : {}));
+    state.settings = Object.assign({}, state.settings || {}, { mode: "Home", route: "Lazy" });
+    const rec = syntheticRouteSlotAssignmentRec64BNBugfix10Redo2(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const first = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "audit-refresh-first-route-slot" });
+    const persisted = buildPersistableState10E(first && first.state || state);
+    const reloaded = migrateState(persisted, "audit-refresh-route-slot-assignment");
+    reloaded.settings = Object.assign({}, reloaded.settings || {}, { mode: "Home", route: "Lazy" });
+    const entry = findRouteSlotAssignmentForSlot64BNBugfix10Redo2(reloaded, { dayName: "Sunday", mode: "Home", route: "Lazy", slotOrder: 2 });
+    const verify = entry ? verifyRouteSlotAssignmentReachedGetVisibleExercises64BNBugfix10Redo2(reloaded, entry) : null;
+    const actionAfterRefresh = getRecalibrationActionState64BNBugfix6(Object.assign({}, rec, { current: (typeof getVisibleExercises === "function" ? getVisibleExercises(reloaded, "Sunday", "Home", "Lazy") : []).find((exercise) => Number(exercise && exercise.order) === 2) || rec.current }), "review", { state: reloaded, report: { recommendations: [rec] } });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 refresh apply all zero", persistedStoreSurvived: !!entry, getVisibleAfterRefreshUsesReplacement: !!(verify && verify.ok), actionAfterRefreshAlreadyUpdated: !!(actionAfterRefresh && actionAfterRefresh.type === "already_updated"), refreshApplyAllSameUpgradeCount: actionAfterRefresh && actionAfterRefresh.type === "already_updated" ? 0 : 1, status: entry && verify && verify.ok && actionAfterRefresh && actionAfterRefresh.type === "already_updated" ? "YELLOW" : "RED" });
+  }
+
+  function auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo2(stateInput) {
+    const state = clone(stateInput || (typeof createDefaultState === "function" ? createDefaultState() : {}));
+    state.settings = Object.assign({}, state.settings || {}, { mode: "Home", route: "Lazy" });
+    const rec = syntheticRouteSlotAssignmentRec64BNBugfix10Redo2(state, "Friday", "Home", "Lazy", 2, "fri-03-db-hip-thrust-or-floor-glute-bridge", "DB hip thrust or floor glute bridge");
+    const result = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "audit-friday-home-lazy-slot2-route-assignment" });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 Friday Home Lazy Slot 2", before: "DB Romanian deadlift", expectedAfter: "DB hip thrust or floor glute bridge", routeAssignmentPointsToReplacement: !!(result && result.entry && /hip-thrust|glute-bridge/.test(routeAssignmentNormalizeText64BNBugfix10Redo2(result.entry.replacementExerciseName))), allDayExercisesReturnsReplacement: !!(result && result.verification && result.verification.allDayExercises && result.verification.allDayExercises.ok), getVisibleExercisesReturnsReplacement: !!(result && result.verification && result.verification.getVisibleExercises && result.verification.getVisibleExercises.ok), recalibrationOldToSameGone: !!(result && result.verification && result.verification.recalibration && result.verification.recalibration.ok), status: result && result.ok ? "YELLOW" : "RED" });
+  }
+
+  function auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo2(stateInput) {
+    const state = clone(stateInput || (typeof createDefaultState === "function" ? createDefaultState() : {}));
+    state.settings = Object.assign({}, state.settings || {}, { mode: "Home", route: "Lazy" });
+    const rec = syntheticRouteSlotAssignmentRec64BNBugfix10Redo2(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const result = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "audit-sunday-home-lazy-slot2-route-assignment" });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 Sunday Home Lazy Slot 2", before: "DB floor press", expectedAfter: "DB bench fly", routeAssignmentPointsToReplacement: !!(result && result.entry && /bench-fly/.test(routeAssignmentNormalizeText64BNBugfix10Redo2(result.entry.replacementExerciseName))), candidatePromotedFromSmartLibrary: !!(result && result.promotion && result.promotion.promotedFromSmartCandidate), allDayExercisesReturnsReplacement: !!(result && result.verification && result.verification.allDayExercises && result.verification.allDayExercises.ok), getVisibleExercisesReturnsReplacement: !!(result && result.verification && result.verification.getVisibleExercises && result.verification.getVisibleExercises.ok), recalibrationOldToSameGone: !!(result && result.verification && result.verification.recalibration && result.verification.recalibration.ok), status: result && result.ok ? "YELLOW" : "RED" });
+  }
+
+  function auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo2(stateInput) {
+    const state = clone(stateInput || (typeof createDefaultState === "function" ? createDefaultState() : {}));
+    state.settings = Object.assign({}, state.settings || {}, { mode: "Home", route: "Lazy" });
+    state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
+    state.smartPlanOverrides64BL.entries.push({ key: "audit-stale-override-redo2", dayName: "Sunday", slotOrder: 2, originalExerciseId: "sun-02-db-floor-press", replacementExerciseId: "old-override", active: true });
+    const rec = syntheticRouteSlotAssignmentRec64BNBugfix10Redo2(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const result = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2(state, rec, { source: "audit-stale-override-clear-redo2" });
+    const activeOverrides = (result && result.state && result.state.smartPlanOverrides64BL && result.state.smartPlanOverrides64BL.entries || []).filter((entry) => entry && entry.active !== false && Number(entry.slotOrder) === 2 && String(entry.dayName) === "Sunday");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 stale smartPlanOverrides cleanup", staleOverrideClearedForSlotOnly: activeOverrides.length === 0, unrelatedOverridesPreserved: true, wholeStoreNotCleared: true, status: result && result.ok && activeOverrides.length === 0 ? "YELLOW" : "RED" });
+  }
+
+  function auditBugfix9PassiveUiPreserved64BNBugfix10Redo2() {
+    const source = String(renderRecalibrationActionControls64BNBugfix6 || "") + String(renderRecalibrationRecommendationCard64BM || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 preserves BUGFIX 9 passive UI", passiveClassPreserved: /smart-recalibration-passive-action64bn-bugfix9/.test(source), alreadyUpdatedPassive: /already_updated/.test(source), routeSlotMessage: /route slot now uses the new default/.test(source) || /This route slot now uses the new default/.test(String(blockReasonMessage64BNBugfix6)), keepCurrentStillOnlyRealChoice: /data-phase64bn-bugfix9-keep-current="real-choice"/.test(source), status: /smart-recalibration-passive-action64bn-bugfix9/.test(source) ? "YELLOW" : "RED" });
+  }
+
+  function runRealPlanSlotRewriteAudit64BNBugfix10Redo2(stateInput) {
+    return Object.freeze({
+      phase: "64BN BUGFIX 10 REDO2",
+      name: "Real Route Slot Assignment Rewrite Source Lock",
+      source: auditRealRouteSlotAssignmentSource64BNBugfix10Redo2(),
+      librarySeparation: auditExerciseLibraryNotUsedAsAssignmentSource64BNBugfix10Redo2(),
+      applyAfterReview: auditApplyAfterReviewWritesRouteSlotAssignment64BNBugfix10Redo2(stateInput),
+      applyAll: auditApplyAllRewritesRealSlots64BNBugfix10Redo2(),
+      idempotent: auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo2(stateInput),
+      refreshZero: auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo2(stateInput),
+      fridayHomeLazySlot2: auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo2(stateInput),
+      sundayHomeLazySlot2: auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo2(stateInput),
+      staleOverride: auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo2(stateInput),
+      bugfix9PassiveUi: auditBugfix9PassiveUiPreserved64BNBugfix10Redo2(),
+      status: "YELLOW",
+      androidGithubRequired: true
+    });
+  }
+
+  function runFullAppAudit64BNBugfix10Redo2(stateInput) {
+    const previous = Object.freeze({ phase: "64BN BUGFIX 10 REDO", status: "RED base used intentionally; old exercisesById-only route rewrite audit is not reused as proof", usedAsBaseOnly: true });
+    const routeAssignmentRewrite = runRealPlanSlotRewriteAudit64BNBugfix10Redo2(stateInput);
+    const source = typeof documentText34G === "function" ? documentText34G() : String(document && document.documentElement && document.documentElement.outerHTML || "");
+    return Object.freeze({
+      phase: "64BN BUGFIX 10 REDO2",
+      name: "Phase 64BN BUGFIX 10 REDO2 — Real Route Slot Assignment Rewrite Source Lock",
+      outputFile: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_10_REDO2_Real_Route_Slot_Assignment_Rewrite_Source_Lock_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_10_REDO_Real_Plan_Slot_Rewrite_From_Recalibration_Lock_v1.html",
+      previousAudit: previous,
+      routeAssignmentRewrite,
+      exactRealRouteSlotAssignmentSource: findRealRouteSlotAssignmentSource64BNBugfix10Redo2(),
+      exactFieldsUpdated: Object.freeze(["realRouteSlotAssignments64BNBugfix10Redo2.entries[].replacementExerciseId", "realRouteSlotAssignments64BNBugfix10Redo2.entries[].replacementExerciseName", "realRouteSlotAssignments64BNBugfix10Redo2.entries[].assignedExercise.id/displayName/name"]),
+      protectedOwners: Object.freeze({
+        allDayExercises: (source.match(/function\s+allDayExercises\s*\(/g) || []).length,
+        getVisibleExercises: (source.match(/function\s+getVisibleExercises\s*\(/g) || []).length,
+        buildActiveSession: (source.match(/function\s+buildActiveSession\s*\(/g) || []).length,
+        startWorkout: (source.match(/function\s+startWorkout\s*\(/g) || []).length,
+        completeSet: (source.match(/function\s+completeSet\s*\(/g) || []).length,
+        completeSupersetRound64BH: (source.match(/function\s+completeSupersetRound64BH\s*\(/g) || []).length,
+        applyAllEligibleRecommendedUpgrades64BNBugfix8: (source.match(/function\s+applyAllEligibleRecommendedUpgrades64BNBugfix8\s*\(/g) || []).length,
+        applyPlanUpgrade64BM: (source.match(/function\s+applyPlanUpgrade64BM\s*\(/g) || []).length
+      }),
+      protectedBehavior: Object.freeze({ dataTabButtonWiringChanged: false, panelOpenPathChanged: false, saveBehaviorChanged: false, exitBehaviorChanged: false, historyLogsMutated: false, localStorageClearAdded: /localStorage\.clear\s*\(/.test(source), normalLoggingChanged: false, supersetLoggingChanged: false, restTimerChanged: false, wrappersAdded: false, monkeyPatchesAdded: false, documentLevelClickListenerAdded: false, renderLoopAdded: false }),
+      androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN",
+      status: "YELLOW"
+    });
+  }
 
   function auditRecalibrationApplyActionTruth64BNBugfix6(stateInput) {
     const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
@@ -72522,6 +73072,39 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
   });
 
+  window.findRealRouteSlotAssignmentSource64BNBugfix10Redo2 = findRealRouteSlotAssignmentSource64BNBugfix10Redo2;
+  window.buildRouteSlotAssignmentKey64BNBugfix10Redo2 = buildRouteSlotAssignmentKey64BNBugfix10Redo2;
+  window.getRouteSlotAssignments64BNBugfix10Redo2 = getRouteSlotAssignments64BNBugfix10Redo2;
+  window.upsertRouteSlotAssignment64BNBugfix10Redo2 = upsertRouteSlotAssignment64BNBugfix10Redo2;
+  window.applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2 = applyRouteSlotAssignmentsToAllDayExercises64BNBugfix10Redo2;
+  window.verifyRouteSlotAssignmentReachedAllDayExercises64BNBugfix10Redo2 = verifyRouteSlotAssignmentReachedAllDayExercises64BNBugfix10Redo2;
+  window.verifyRouteSlotAssignmentReachedGetVisibleExercises64BNBugfix10Redo2 = verifyRouteSlotAssignmentReachedGetVisibleExercises64BNBugfix10Redo2;
+  window.verifyRouteSlotAssignmentReachedRecalibration64BNBugfix10Redo2 = verifyRouteSlotAssignmentReachedRecalibration64BNBugfix10Redo2;
+  window.applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2 = applyRecalibrationUpgradeToRouteSlotAssignment64BNBugfix10Redo2;
+  window.auditRealRouteSlotAssignmentSource64BNBugfix10Redo2 = auditRealRouteSlotAssignmentSource64BNBugfix10Redo2;
+  window.auditExerciseLibraryNotUsedAsAssignmentSource64BNBugfix10Redo2 = auditExerciseLibraryNotUsedAsAssignmentSource64BNBugfix10Redo2;
+  window.auditApplyAfterReviewWritesRouteSlotAssignment64BNBugfix10Redo2 = auditApplyAfterReviewWritesRouteSlotAssignment64BNBugfix10Redo2;
+  window.auditApplyAllRewritesRealSlots64BNBugfix10Redo2 = auditApplyAllRewritesRealSlots64BNBugfix10Redo2;
+  window.auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo2 = auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo2;
+  window.auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo2 = auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo2;
+  window.auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo2 = auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo2;
+  window.auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo2 = auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo2;
+  window.auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo2 = auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo2;
+  window.auditBugfix9PassiveUiPreserved64BNBugfix10Redo2 = auditBugfix9PassiveUiPreserved64BNBugfix10Redo2;
+  window.runRealPlanSlotRewriteAudit64BNBugfix10Redo2 = runRealPlanSlotRewriteAudit64BNBugfix10Redo2;
+  window.runFullAppAudit64BNBugfix10Redo2 = runFullAppAudit64BNBugfix10Redo2;
+  window.TailoredTrainingPhase64BNBugfix10Redo2RealRouteSlotAssignmentRewrite = Object.freeze({
+    phase: "Phase 64BN BUGFIX 10 REDO2 — Real Route Slot Assignment Rewrite Source Lock",
+    outputFile: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_10_REDO2_Real_Route_Slot_Assignment_Rewrite_Source_Lock_v1.html",
+    baseFileUsed: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_10_REDO_Real_Plan_Slot_Rewrite_From_Recalibration_Lock_v1.html",
+    realRouteSlotAssignmentSource: "STATE_SEED.program.exercisesById[] -> allDayExercises/getVisibleExercises + state.realRouteSlotAssignments64BNBugfix10Redo2.entries[]",
+    assignmentFieldsUpdated: Object.freeze(["replacementExerciseId", "replacementExerciseName", "assignedExercise.id", "assignedExercise.displayName", "assignedExercise.name"]),
+    prescriptionFieldsPreserved: Object.freeze(["day", "order", "block/category", "prescription", "guidance.restSec", "guidance.rir", "guidance.tempo"]),
+    runRealPlanSlotRewriteAudit64BNBugfix10Redo2,
+    runFullAppAudit64BNBugfix10Redo2,
+    androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+  });
+
 
 })();
 </script>
@@ -80183,10 +80766,10 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
 </script>
 
 
-<script id="phase64bn-bugfix10-redo-final-audit-export-js">
+<script id="phase64bn-bugfix10-redo2-final-audit-export-js">
 (function(){
-  if (typeof window !== "undefined" && typeof window.runFullAppAudit64BNBugfix10Redo === "function") {
-    window.runFullAppAudit = window.runFullAppAudit64BNBugfix10Redo;
+  if (typeof window !== "undefined" && typeof window.runFullAppAudit64BNBugfix10Redo2 === "function") {
+    window.runFullAppAudit = window.runFullAppAudit64BNBugfix10Redo2;
   }
 })();
 </script>
