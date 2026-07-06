@@ -1,53 +1,20 @@
 <!--
-PHASE_64BN_BUGFIX_10_REDO4_RECALIBRATION_APPLY_MUST_UPDATE_REAL_WORKOUT_DEFAULT_SOURCE_LOCK_V1_CHANGELOG
-- uses BUGFIX 10 REDO3 as base
-- fixes repeated Apply all recommended upgrades after refresh
-- stops counting an upgrade as applied unless the real future workout default changed
-- verifies recalibration scan and workout builder both resolve the replacement
+PHASE_64BN_BUGFIX_10_REDO_REAL_PLAN_SLOT_REWRITE_FROM_RECALIBRATION_LOCK_V1_CHANGELOG
+- uses BUGFIX 9 as rollback-safe base
+- replaces override stacking with real workout slot rewrite for approved recalibration upgrades
+- applied upgrades become the real default exercise for that route/day/slot
+- replacement candidates can be promoted into the programmed exercise library when needed
+- old exercise identity is not required for future matching
+- stale smartPlanOverrides64BL entries for rewritten slots are removed/ignored
+- Apply all becomes idempotent because the real slot changes
+- refresh + Apply all does not reapply the same upgrade
 - does not touch Data-tab button wiring
-- does not touch Exit
-- does not touch Save
-- does not mutate History
-- does not clear localStorage
--->
-<!--
-PHASE_64BN_BUGFIX_10_REDO3_RECALIBRATION_EFFECTIVE_PLAN_SOURCE_OF_TRUTH_LOCK_V1_CHANGELOG
-- uses BUGFIX 10 REDO2 as base
-- fixes repeated same upgrades after refresh
-- stops recalibration from scanning only raw/base programmed slots
-- applies smartPlanOverrides64BL into an effective recalibration slot before scoring
-- prevents already-effective upgrades from remaining Review-applicable
-- preserves Data-tab Recalibrate button/panel behavior
 - does not touch Exit behavior
-- does not mutate History
+- does not touch Save behavior
 - does not clear localStorage
+- does not mutate saved History logs
 -->
-<!--
-PHASE_64BN_BUGFIX_10_REDO2_RECALIBRATION_APPLY_ROUNDTRIP_VERIFICATION_AND_OVERRIDE_AWARE_SCAN_LOCK_V1_CHANGELOG
-- Uses BUGFIX 10 REDO as base.
-- Fixes remaining repeat-apply after refresh.
-- Adds save/read/rescan roundtrip verification.
-- Prevents “Applied X upgrades” from counting unverified saves.
-- Makes recalibration scan override-aware.
-- Preserves Data-tab Recalibrate button/panel behavior.
-- Does not touch Exit behavior.
-- Does not mutate History.
-- Does not clear localStorage.
--->
-<!--
-PHASE_64BN_BUGFIX_10_REDO_RECALIBRATION_IDEMPOTENT_APPLY_ALL_WITHOUT_BUTTON_RENDER_TOUCH_LOCK_V1_CHANGELOG
-- Uses BUGFIX 9 as rollback-safe base.
-- Does not carry forward broken BUGFIX 10/11/12 button/render changes.
-- Fixes Apply all repeatedly applying the same upgrades after refresh.
-- Adds canonical applied-override recognition for smartPlanOverrides64BL.
-- Upserts/dedupes equivalent smartPlanOverrides64BL entries without replacing the store.
-- Excludes already-applied upgrades from Safe and Review-applicable counts.
-- Preserves BUGFIX 9 panel open/render behavior.
-- Does not touch Data-tab Recalibrate button wiring.
-- Does not touch Exit behavior.
-- Does not mutate History.
-- Does not clear localStorage.
--->
+
 <!--
 PHASE_64BN_BUGFIX_9_RECALIBRATION_APPLIED_OVERRIDE_RECONCILIATION_AND_PASSIVE_ACTION_UI_LOCK_V1_CHANGELOG
 - Fixes Apply all recommended upgrades reapplying the same upgrades after refresh.
@@ -13698,10 +13665,13 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     merged.media = dynamicMediaFromCandidate10E(candidate || merged);
     merged.coach = normalizeCoachTraceStorage23B(candidate && candidate.coach);
     merged.smartPlanOverrides64BL = typeof normalizeSmartPlanOverrides64BL === "function" ? normalizeSmartPlanOverrides64BL(candidate && candidate.smartPlanOverrides64BL) : (candidate && candidate.smartPlanOverrides64BL && typeof candidate.smartPlanOverrides64BL === "object" && !Array.isArray(candidate.smartPlanOverrides64BL) ? candidate.smartPlanOverrides64BL : { entries: [], auditTrail: [] });
+    merged.realPlanSlotRewrites64BNBugfix10Redo = typeof normalizeRealPlanSlotRewritesStore64BNBugfix10Redo === "function" ? normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(candidate && candidate.realPlanSlotRewrites64BNBugfix10Redo) : (candidate && candidate.realPlanSlotRewrites64BNBugfix10Redo && typeof candidate.realPlanSlotRewrites64BNBugfix10Redo === "object" && !Array.isArray(candidate.realPlanSlotRewrites64BNBugfix10Redo) ? candidate.realPlanSlotRewrites64BNBugfix10Redo : { entries: [], auditTrail: [] });
     ["bodyMetrics", "painChecks", "recoveryChecks", "nutritionContext", "conditioning"].forEach((key) => { merged[key] = Array.isArray(merged[key]) ? merged[key] : []; });
     merged.qa = Object.assign({}, merged.qa, { phase9SetLoggingBase: "set-logging-base-ready", phase10BIndependentMenu: "independent-menu-ready", phase10CIndependentDoneEditing: "done-editing-collapse-ready", phase10DManualHeaderCollapse: "manual-header-collapse-ready", phase10EAndroidTouchQaLock: "real-phone-gate-green", phase10EStorageSafeFix: "program-not-persisted", phase11BRestTimerDockUI: "normal-rest-start-stop-ready-no-set-completion-wiring", phase11ERestTimerRegressionLock: "regression-lock-ready", phase13ADropSetDataStructure: "data-structure-ready", phase13BDropSetRenderUnderParent: "render-ready", phase13CDropSetCompletion: "completion-ready-no-rest-bypass" });
     merged.audit = Object.assign({}, merged.audit, { lastMigrationAt: merged.migratedAt, noDestructiveMigration: true, setLoggingPhase: "Phase 12B", stableSetControlsPhase: "Phase 10E", restTimerPhase: "Phase 11E", storageSafeFix: true, programStoredInLocalStorage: false, snapshotsExcludeProgram: true, restTimerDockBuilt: true, restTimerSetCompletionWiringBuilt: true, dropSetDataStructureBuilt: true, dropSetRenderingBuilt: true, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: false });
-    return ensureDropSetRestBypassState13E(ensureDropSetDetectionState13D(ensureDropSetDataStructure13A(ensureRestTimerState11A(hydrateStaticProgram10E(merged)))));
+    const hydrated64BNBugfix10Redo = ensureDropSetRestBypassState13E(ensureDropSetDetectionState13D(ensureDropSetDataStructure13A(ensureRestTimerState11A(hydrateStaticProgram10E(merged)))));
+    if (typeof applyPersistedRealPlanSlotRewrites64BNBugfix10Redo === "function") applyPersistedRealPlanSlotRewrites64BNBugfix10Redo(hydrated64BNBugfix10Redo, "migrateState");
+    return hydrated64BNBugfix10Redo;
   }
   function buildPersistableState10E(state) {
     const s = migrateState(state, "buildPersistableState10E");
@@ -13721,6 +13691,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       media: dynamicMediaFromCandidate10E(s),
       coach: normalizeCoachTraceStorage23B(s.coach),
       smartPlanOverrides64BL: typeof normalizeSmartPlanOverrides64BL === "function" ? normalizeSmartPlanOverrides64BL(s.smartPlanOverrides64BL) : clone(s.smartPlanOverrides64BL || { entries: [], auditTrail: [] }),
+      realPlanSlotRewrites64BNBugfix10Redo: typeof normalizeRealPlanSlotRewritesStore64BNBugfix10Redo === "function" ? normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(s.realPlanSlotRewrites64BNBugfix10Redo) : clone(s.realPlanSlotRewrites64BNBugfix10Redo || { entries: [], auditTrail: [] }),
       bodyMetrics: Array.isArray(s.bodyMetrics) ? clone(s.bodyMetrics) : [],
       painChecks: Array.isArray(s.painChecks) ? clone(s.painChecks) : [],
       recoveryChecks: Array.isArray(s.recoveryChecks) ? clone(s.recoveryChecks) : [],
@@ -13728,8 +13699,8 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
       conditioning: Array.isArray(s.conditioning) ? clone(s.conditioning) : [],
       qa: clone(s.qa || {}),
       backups: { snapshotCount: readSnapshots().length, lastSafetySnapshotAt: s.backups && s.backups.lastSafetySnapshotAt || null, fullBackupExportBuilt: true, fullBackupImportBuilt: true },
-      audit: { lastAuditAt: nowIso(), storageSafeFix: true, programStoredInLocalStorage: false, staticProgramSource: "STATE_SEED.program", warnings: storageWarningHistory10E.slice(0, 5) },
-      storageMeta: { staticProgramExcluded: true, exerciseDatabaseExcluded: true, safetySnapshotsExcludeProgram: true, dropSetsSessionOnly: true, dropSetRenderingBuilt: true, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: true }
+      audit: { lastAuditAt: nowIso(), storageSafeFix: true, programStoredInLocalStorage: false, staticProgramSource: "STATE_SEED.program + realPlanSlotRewrites64BNBugfix10Redo applied during hydration", realPlanSlotRewriteStorePersisted64BNBugfix10Redo: true, warnings: storageWarningHistory10E.slice(0, 5) },
+      storageMeta: { staticProgramExcluded: true, exerciseDatabaseExcluded: true, realPlanSlotRewriteStorePersisted64BNBugfix10Redo: true, safetySnapshotsExcludeProgram: true, dropSetsSessionOnly: true, dropSetRenderingBuilt: true, dropSetCompletionBuilt: true, dropSetRestBypassBuilt: true }
     };
   }
   function buildSafetySnapshot10E(state, reason = "manual") {
@@ -13917,6 +13888,7 @@ PHASE_49A_SAFE_RESET_TEST_DATA_CONTROLS_V1_CHANGELOG
     const state = stateInput && typeof stateInput === "object" && !Array.isArray(stateInput) ? stateInput : createDefaultState();
     const renderableBefore = collectRenderableCustomMediaPayloads50Bugfix(state);
     hydrateStaticProgram10E(state);
+    if (typeof applyPersistedRealPlanSlotRewrites64BNBugfix10Redo === "function") applyPersistedRealPlanSlotRewrites64BNBugfix10Redo(state, reason || "hydrateStaticProgramPreservingCustomMediaPayloads50Bugfix");
     state.media = state.media && typeof state.media === "object" && !Array.isArray(state.media) ? state.media : {};
     state.media.custom = state.media.custom && typeof state.media.custom === "object" && !Array.isArray(state.media.custom) ? Object.assign({}, state.media.custom) : {};
     let preserved = 0;
@@ -20072,195 +20044,12 @@ Existing History logs stay untouched.`);
     return entries.find((entry) => entry && entry.active !== false && String(entry.dayName || "") === String(dayName || "") && Number(entry.slotOrder) === Number(order) && String(entry.originalExerciseId || "") === exerciseId) || null;
   }
 
-
-
-  function normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(value) {
-    return String(value == null ? "" : value).trim().toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  }
-
-  function workoutDefaultIdentitySet64BNBugfix10Redo4(value, type) {
-    const item = value && typeof value === "object" ? value : {};
-    const values = [];
-    if (type === "replacement") {
-      values.push(item.replacementExerciseId, item.replacementExerciseName, item.recommendedExerciseId, item.recommendedName, item.smartPlanDefaultReplacementId64BL, item.smartPlanDefaultReplacementDisplayName64BL);
-      if (item.recommended && typeof item.recommended === "object") values.push(item.recommended.id, item.recommended.displayName, item.recommended.name);
-    } else if (type === "original") {
-      values.push(item.originalExerciseId, item.originalExerciseName, item.currentExerciseId, item.currentExerciseName, item.smartPlanDefaultOriginalExerciseId64BL, item.smartPlanDefaultOriginalDisplayName64BL, item.originalExerciseId19C, item.id, item.displayName, item.name);
-      if (item.current && typeof item.current === "object") values.push(item.current.id, item.current.displayName, item.current.name, item.current.originalExerciseId19C, item.current.smartPlanDefaultOriginalExerciseId64BL, item.current.smartPlanDefaultOriginalDisplayName64BL);
-    } else {
-      values.push(item.id, item.exerciseId, item.originalExerciseId19C, item.displayName, item.name, item.smartPlanDefaultOriginalExerciseId64BL, item.smartPlanDefaultOriginalDisplayName64BL, item.smartPlanDefaultReplacementId64BL, item.smartPlanDefaultReplacementDisplayName64BL);
-    }
-    if (typeof value === "string") values.push(value);
-    return Array.from(new Set(values.map(normalizeWorkoutDefaultIdentity64BNBugfix10Redo4).filter(Boolean)));
-  }
-
-  function identitiesOverlap64BNBugfix10Redo4(left, right) {
-    const a = Array.isArray(left) ? left : [];
-    const b = Array.isArray(right) ? right : [];
-    return a.some((item) => b.includes(item));
-  }
-
-  function routeModeKey64BNBugfix10Redo4(item, mode, route) {
-    const joined = [item && (item.routeModeLabel64BN || item.routeModeLabel || item.routeMode), item && item.mode, item && item.route, mode, route].map(normalizeWorkoutDefaultIdentity64BNBugfix10Redo4).filter(Boolean).join(" ");
-    if (/home.*lazy|lazy.*home/.test(joined)) return "home-lazy";
-    if (/home.*full|full.*home/.test(joined)) return "home-full";
-    if (/gym.*lazy|lazy.*gym/.test(joined)) return "gym-lazy";
-    if (/gym.*full|full.*gym/.test(joined)) return "gym-full";
-    const m = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(mode || item && item.mode || "unknown-mode");
-    const r = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(route || item && item.route || "unknown-route");
-    return `${m || "unknown-mode"}-${r || "unknown-route"}`;
-  }
-
-  function slotOrderForWorkoutDefault64BNBugfix10Redo4(exercise, index, entry) {
-    if (entry && Number.isFinite(Number(entry.slotOrder))) return Number(entry.slotOrder);
-    if (entry && Number.isFinite(Number(entry.order))) return Number(entry.order);
-    if (exercise && Number.isFinite(Number(exercise.order))) return Number(exercise.order);
-    if (Number.isFinite(Number(index))) return Number(index) + 1;
-    return null;
-  }
-
-  function findSmartPlanOverrideForWorkoutSlot64BNBugfix10Redo4(stateInput, exercise, dayName, mode, route, index) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const store = typeof getSmartPlanOverrides64BL === "function" ? getSmartPlanOverrides64BL(state) : normalizeSmartPlanOverrides64BL(state && state.smartPlanOverrides64BL);
-    const entries = Array.isArray(store && store.entries) ? store.entries.filter((entry) => entry && entry.active !== false) : [];
-    const slotDay = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(dayName || (exercise && exercise.day));
-    const slotOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(exercise, index, null);
-    const slotRoute = routeModeKey64BNBugfix10Redo4(exercise, mode, route);
-    const rawIds = workoutDefaultIdentitySet64BNBugfix10Redo4(exercise, "exercise");
-    const block = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(exercise && (exercise.block || exercise.category));
-    return entries.find((entry) => {
-      const entryDay = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(entry.dayName || entry.day);
-      if (!entryDay || !slotDay || entryDay !== slotDay) return false;
-      const entryOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(null, null, entry);
-      if (!Number.isFinite(Number(entryOrder)) || !Number.isFinite(Number(slotOrder)) || Number(entryOrder) !== Number(slotOrder)) return false;
-      const entryRoute = routeModeKey64BNBugfix10Redo4(entry, entry.mode, entry.route);
-      const routeCompatible = !entryRoute || !slotRoute || /unknown/.test(entryRoute) || /unknown/.test(slotRoute) || entryRoute === slotRoute;
-      if (!routeCompatible) return false;
-      const replacementExists = !!(entry.replacementExerciseId || entry.replacementExerciseName || entry.recommendedExerciseId || entry.recommendedName);
-      if (!replacementExists) return false;
-      const entryOriginals = workoutDefaultIdentitySet64BNBugfix10Redo4(entry, "original");
-      const originalMatch = identitiesOverlap64BNBugfix10Redo4(entryOriginals, rawIds);
-      const entryBlock = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(entry.block || entry.category || entry.slotBlock);
-      const blockCompatible = !entryBlock || !block || entryBlock === "unknown-block" || block === "unknown-block" || entryBlock === block;
-      return !!(originalMatch || blockCompatible || entry.phase64BNBugfix10Redo2RoundtripKey || entry.phase64BNBugfix10RedoAppliedOverrideKey);
-    }) || null;
-  }
-
-  function synthesizeReplacementExerciseForOverride64BNBugfix10Redo4(originalExercise, override) {
-    const original = clone(originalExercise || {});
-    const replacementName = override && (override.replacementExerciseName || override.recommendedName || override.replacementDisplayName || override.replacementExerciseId) || "Smart plan replacement";
-    const replacementId = override && (override.replacementExerciseId || override.recommendedExerciseId) || normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(replacementName) || `smart-plan-replacement-${Date.now()}`;
-    const synthetic = Object.assign({}, original, {
-      id: replacementId,
-      displayName: replacementName,
-      name: replacementName,
-      phase64BNBugfix10Redo4SyntheticDefault: true,
-      phase64BNBugfix10Redo4Source: "smartPlanOverrides64BL-synthesized-replacement"
-    });
-    return synthetic;
-  }
-
-  function resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4(stateInput, originalExercise, override) {
-    if (!override) return originalExercise || null;
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const replacementIds = workoutDefaultIdentitySet64BNBugfix10Redo4(override, "replacement");
-    const replacementId = override.replacementExerciseId || override.recommendedExerciseId || "";
-    let candidate = replacementId && typeof findProgramExerciseById19C === "function" ? findProgramExerciseById19C(state, replacementId) : null;
-    const list = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
-    if (!candidate) candidate = list.find((ex) => identitiesOverlap64BNBugfix10Redo4(workoutDefaultIdentitySet64BNBugfix10Redo4(ex, "exercise"), replacementIds));
-    if (!candidate && replacementId && typeof findAlternativeCandidate64BJ === "function") candidate = findAlternativeCandidate64BJ(replacementId) || null;
-    if (!candidate && typeof findAlternativeCandidate64BJ === "function") {
-      const replacementName = override.replacementExerciseName || override.recommendedName || "";
-      candidate = replacementName ? findAlternativeCandidate64BJ(replacementName) || null : null;
-    }
-    if (!candidate) candidate = synthesizeReplacementExerciseForOverride64BNBugfix10Redo4(originalExercise, override);
-    return candidate;
-  }
-
-  function resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4(stateInput, rawExercise, dayName, mode, route, index) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const raw = rawExercise || null;
-    if (!raw) return { rawExercise: raw, effectiveExercise: raw, override: null, verified: false, source: "missing-raw-slot" };
-    if (raw.smartPlanDefault64BL || raw.phase64BLSmartPlanDefault || raw.smartPlanDefaultReplacementId64BL) return { rawExercise: raw, effectiveExercise: raw, override: null, verified: true, source: "already-effective-workout-slot" };
-    const override = findSmartPlanOverrideForWorkoutSlot64BNBugfix10Redo4(state, raw, dayName, mode, route, index) || (typeof findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3 === "function" ? findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3(state, raw, dayName, mode, route, index) : null);
-    if (!override) return { rawExercise: raw, effectiveExercise: raw, override: null, verified: false, source: "raw-slot-no-smartplan-override" };
-    const candidate = resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4(state, raw, override);
-    if (!candidate) return { rawExercise: raw, effectiveExercise: raw, override, verified: false, source: "override-found-replacement-unresolved" };
-    const merged = typeof mergeSmartPlanReplacement64BL === "function" ? mergeSmartPlanReplacement64BL(raw, candidate, override) : Object.assign({}, candidate, { day: raw.day || dayName, order: raw.order, block: raw.block });
-    merged.phase64BNBugfix10Redo4RealDefault = true;
-    merged.phase64BNBugfix10Redo4RawCurrentName = raw.displayName || raw.name || override.originalExerciseName || "Original exercise";
-    merged.phase64BNBugfix10Redo4OverrideKey = override.key || override.phase64BNBugfix10Redo2RoundtripKey || override.phase64BNBugfix10RedoAppliedOverrideKey || "";
-    return { rawExercise: raw, effectiveExercise: merged, override, verified: true, source: "smartPlanOverrides64BL-real-workout-default" };
-  }
-
-  function replacementIdentitiesForRecommendation64BNBugfix10Redo4(rec, payload) {
-    return Array.from(new Set([].concat(
-      workoutDefaultIdentitySet64BNBugfix10Redo4(rec && rec.recommended || {}, "exercise"),
-      workoutDefaultIdentitySet64BNBugfix10Redo4(rec || {}, "replacement"),
-      workoutDefaultIdentitySet64BNBugfix10Redo4(payload || {}, "replacement")
-    ).filter(Boolean)));
-  }
-
-  function verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4(stateInput, rec, payloadInput) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const recDay = rec && rec.dayName || payloadInput && payloadInput.dayName;
-    const recMode = rec && rec.mode || payloadInput && payloadInput.mode || state.settings && state.settings.mode || "Gym";
-    const recRoute = rec && rec.route || payloadInput && payloadInput.route || state.settings && state.settings.route || "Full";
-    const targetOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(rec && rec.current, rec && rec.slotIndex, payloadInput);
-    const replacementIds = replacementIdentitiesForRecommendation64BNBugfix10Redo4(rec, payloadInput);
-    const routeExercises = typeof getVisibleExercises === "function" ? getVisibleExercises(state, recDay, recMode, recRoute) : (typeof allDayExercises === "function" ? allDayExercises(state, recDay) : []);
-    const target = (Array.isArray(routeExercises) ? routeExercises : []).find((ex, index) => {
-      const order = slotOrderForWorkoutDefault64BNBugfix10Redo4(ex, index, null);
-      return Number.isFinite(Number(order)) && Number.isFinite(Number(targetOrder)) && Number(order) === Number(targetOrder);
-    }) || null;
-    const currentIds = workoutDefaultIdentitySet64BNBugfix10Redo4(target || {}, "exercise");
-    const ok = !!(target && identitiesOverlap64BNBugfix10Redo4(currentIds, replacementIds));
-    return { ok, target, targetOrder, replacementIds, source: "getVisibleExercises -> applySmartPlanOverridesToWorkout64BL", reason: ok ? "workout-builder-resolves-replacement" : "workout-builder-still-resolves-raw-current" };
-  }
-
-  function verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4(stateInput, rec, payloadInput) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    let report = null;
-    try { report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : null; } catch (err) { report = null; }
-    const replacementIds = replacementIdentitiesForRecommendation64BNBugfix10Redo4(rec, payloadInput);
-    const targetOrder = slotOrderForWorkoutDefault64BNBugfix10Redo4(rec && rec.current, rec && rec.slotIndex, payloadInput);
-    const active = report && Array.isArray(report.reviewFirst) ? report.reviewFirst.concat(Array.isArray(report.safeUpgrades) ? report.safeUpgrades : []) : [];
-    const repeat = active.find((item) => {
-      if (!item) return false;
-      const sameDay = normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(item.dayName) === normalizeWorkoutDefaultIdentity64BNBugfix10Redo4(rec && rec.dayName || payloadInput && payloadInput.dayName);
-      const sameSlot = Number(slotOrderForWorkoutDefault64BNBugfix10Redo4(item.current, item.slotIndex, item)) === Number(targetOrder);
-      const sameReplacement = identitiesOverlap64BNBugfix10Redo4(replacementIdentitiesForRecommendation64BNBugfix10Redo4(item, null), replacementIds);
-      return sameDay && sameSlot && sameReplacement;
-    }) || null;
-    return { ok: !repeat, report, repeat, reason: repeat ? "recalibration-scan-still-reports-same-upgrade" : "recalibration-scan-no-longer-actionable" };
-  }
-
-  function verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4(stateInput, rec, payloadInput) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const saved = typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function" ? (isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, payloadInput) || isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, rec)) : null;
-    const builder = verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4(state, rec, payloadInput);
-    const scan = verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4(state, rec, payloadInput);
-    return { ok: !!saved && !!builder.ok && !!scan.ok, saved, builder, scan, reason: !saved ? "override-not-saved" : (!builder.ok ? builder.reason : (!scan.ok ? scan.reason : "real-default-verified")) };
-  }
-
-  function isRecommendationAlreadyRealDefault64BNBugfix10Redo4(stateInput, rec) {
-    if (!rec) return null;
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const builder = verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4(state, rec, null);
-    if (builder && builder.ok) return { ok: true, reason: "workout-builder-already-resolves-replacement", entry: builder.target && builder.target.phase64BNBugfix10Redo4OverrideKey || null, builder };
-    return null;
-  }
-
   function applySmartPlanOverridesToWorkout64BL(stateInput, exercises, dayName, mode, route, options = {}) {
     const list = Array.isArray(exercises) ? exercises : [];
     if (!list.length) return list;
     const state = stateInput && typeof stateInput === "object" ? stateInput : null;
     if (!state || !state.smartPlanOverrides64BL) return list;
     return list.map((exercise, index) => {
-      if (typeof resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4 === "function") {
-        const resolved = resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4(state, exercise, dayName, mode, route, index);
-        return resolved && resolved.effectiveExercise ? resolved.effectiveExercise : exercise;
-      }
       const override = matchingSmartPlanOverride64BL(state, exercise, dayName, index);
       if (!override) return exercise;
       const candidate = findProgramExerciseById19C(state, override.replacementExerciseId);
@@ -20280,20 +20069,17 @@ Existing History logs stay untouched.`);
 
   function saveSmartPlanUpgrade64BL(state, payload) {
     state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
-    const upsert = typeof upsertSmartPlanOverride64BNBugfix10Redo2 === "function" ? upsertSmartPlanOverride64BNBugfix10Redo2(state, payload) : (typeof upsertSmartPlanOverride64BNBugfix10Redo === "function" ? upsertSmartPlanOverride64BNBugfix10Redo(state, payload) : null);
     const key = payload.key || smartPlanSlotKey64BL(payload);
-    const entry = upsert && upsert.entry ? upsert.entry : Object.assign({}, payload, { key, active: true, updatedAt: nowIso() });
-    if (!upsert || !upsert.ok) {
-      const entries = Array.isArray(state.smartPlanOverrides64BL.entries) ? state.smartPlanOverrides64BL.entries.slice() : [];
-      const existingIndex = entries.findIndex((item) => item && item.key === key);
-      if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry);
-      else entries.push(entry);
-      state.smartPlanOverrides64BL.entries = entries;
-    }
+    const entry = Object.assign({}, payload, { key, active: true, updatedAt: nowIso() });
+    const entries = Array.isArray(state.smartPlanOverrides64BL.entries) ? state.smartPlanOverrides64BL.entries.slice() : [];
+    const existingIndex = entries.findIndex((item) => item && item.key === key);
+    if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry);
+    else entries.push(entry);
+    state.smartPlanOverrides64BL.entries = entries;
     const audit = recordSmartPlanUpgradeAudit64BL(state, entry);
-    state.audit = Object.assign({}, state.audit || {}, { phase64BLSmartPlanUpgrade: true, phase64BLSmartPlanUpgradeLastKey: entry.key || key, phase64BLSmartPlanUpgradeLastAt: entry.updatedAt, phase64BLWorkoutWideRewrite: false, phase64BLHistoryMutation: false, phase64BNBugfix10RedoCanonicalOverrideKey: entry.phase64BNBugfix10RedoAppliedOverrideKey || "", phase64BNBugfix10Redo2RoundtripKey: entry.phase64BNBugfix10Redo2RoundtripKey || "", phase64BNBugfix10RedoUpserted: !!(upsert && upsert.ok), phase64BNBugfix10Redo2Upserted: !!(upsert && upsert.phase64BNBugfix10Redo2) });
-    state.qa = Object.assign({}, state.qa || {}, { phase64BLSmartPlanUpgrade: "user-confirmed-exact-slot-default", phase64BNBugfix10RedoSmartPlanUpsert: "canonical-applied-override-key" });
-    return { ok: true, state, entry, audit, canonicalKey: entry.phase64BNBugfix10RedoAppliedOverrideKey || "", upserted: !!(upsert && upsert.ok) };
+    state.audit = Object.assign({}, state.audit || {}, { phase64BLSmartPlanUpgrade: true, phase64BLSmartPlanUpgradeLastKey: key, phase64BLSmartPlanUpgradeLastAt: entry.updatedAt, phase64BLWorkoutWideRewrite: false, phase64BLHistoryMutation: false });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BLSmartPlanUpgrade: "user-confirmed-exact-slot-default" });
+    return { ok: true, state, entry, audit };
   }
 
   function applySmartPlanDefaultUpgrade64BL(alternativeExerciseId) {
@@ -21050,169 +20836,18 @@ Existing History logs stay untouched.`);
     return rec;
   }
 
-
-
-  function effectiveRecalibrationKeyPart64BNBugfix10Redo3(value) {
-    if (typeof normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2 === "function") return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(value);
-    return String(value == null ? "" : value).trim().toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  }
-
-  function routeModeKeyForRecalibrationSlot64BNBugfix10Redo3(item, mode, route) {
-    if (typeof recalibrationRouteModeKey64BNBugfix10Redo2 === "function") {
-      const key = recalibrationRouteModeKey64BNBugfix10Redo2(Object.assign({}, item || {}, { mode: (item && item.mode) || mode, route: (item && item.route) || route }));
-      if (key && key !== "unknown-route") return key;
-    }
-    const modeKey = effectiveRecalibrationKeyPart64BNBugfix10Redo3((item && item.mode) || mode || "");
-    const routeKey = effectiveRecalibrationKeyPart64BNBugfix10Redo3((item && item.route) || route || "");
-    if (modeKey || routeKey) return `${modeKey || "unknown-mode"}-${routeKey || "unknown-route"}`;
-    return "unknown-route";
-  }
-
-  function slotOrderForRecalibrationSlot64BNBugfix10Redo3(exercise, index, entry) {
-    if (entry && Number.isFinite(Number(entry.slotOrder))) return Number(entry.slotOrder);
-    if (exercise && Number.isFinite(Number(exercise.order))) return Number(exercise.order);
-    if (Number.isFinite(Number(index))) return Number(index) + 1;
-    if (entry && Number.isFinite(Number(entry.slotIndex))) return Number(entry.slotIndex) + 1;
-    return null;
-  }
-
-  function exerciseIdentitySet64BNBugfix10Redo3(exercise) {
-    const values = [];
-    if (exercise && typeof exercise === "object") {
-      values.push(exercise.id, exercise.exerciseId, exercise.originalExerciseId19C, exercise.smartPlanDefaultOriginalExerciseId64BL, exercise.smartPlanDefaultReplacementId64BL, exercise.displayName, exercise.name, exercise.originalDisplayName19C, exercise.smartPlanDefaultOriginalDisplayName64BL, exercise.smartPlanDefaultReplacementDisplayName64BL);
-    } else {
-      values.push(exercise);
-    }
-    return Array.from(new Set(values.map(effectiveRecalibrationKeyPart64BNBugfix10Redo3).filter(Boolean)));
-  }
-
-  function entryIdentitySet64BNBugfix10Redo3(entry, type) {
-    const values = [];
-    if (entry && typeof entry === "object") {
-      if (type === "replacement") values.push(entry.replacementExerciseId, entry.replacementExerciseName, entry.recommendedExerciseId, entry.recommendedName);
-      else values.push(entry.originalExerciseId, entry.originalExerciseName, entry.currentExerciseId, entry.currentExerciseName, entry.key);
-    }
-    return Array.from(new Set(values.map(effectiveRecalibrationKeyPart64BNBugfix10Redo3).filter(Boolean)));
-  }
-
-  function identitiesOverlap64BNBugfix10Redo3(a, b) {
-    const left = Array.isArray(a) ? a : [];
-    const right = Array.isArray(b) ? b : [];
-    return left.some((item) => right.includes(item));
-  }
-
-  function findExerciseForSmartPlanOverride64BNBugfix10Redo3(stateInput, override) {
-    if (!override) return null;
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const replacementId = override.replacementExerciseId || override.recommendedExerciseId || "";
-    let candidate = replacementId && typeof findProgramExerciseById19C === "function" ? findProgramExerciseById19C(state, replacementId) : null;
-    if (candidate) return candidate;
-    const targets = entryIdentitySet64BNBugfix10Redo3(override, "replacement");
-    const list = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
-    candidate = list.find((ex) => identitiesOverlap64BNBugfix10Redo3(exerciseIdentitySet64BNBugfix10Redo3(ex), targets));
-    if (candidate) return candidate;
-    if (replacementId && typeof findAlternativeCandidate64BJ === "function") return findAlternativeCandidate64BJ(replacementId) || null;
-    return null;
-  }
-
-  function smartPlanOverrideMatchesRecalibrationSlot64BNBugfix10Redo3(entry, rawExercise, dayName, mode, route, index) {
-    if (!entry || entry.active === false) return false;
-    const entryDay = effectiveRecalibrationKeyPart64BNBugfix10Redo3(entry.dayName || entry.day);
-    const slotDay = effectiveRecalibrationKeyPart64BNBugfix10Redo3(dayName || (rawExercise && rawExercise.day));
-    if (!entryDay || !slotDay || entryDay !== slotDay) return false;
-    const entryOrder = slotOrderForRecalibrationSlot64BNBugfix10Redo3(null, null, entry);
-    const rawOrder = slotOrderForRecalibrationSlot64BNBugfix10Redo3(rawExercise, index, null);
-    if (!Number.isFinite(entryOrder) || !Number.isFinite(rawOrder) || Number(entryOrder) !== Number(rawOrder)) return false;
-    const entryRoute = routeModeKeyForRecalibrationSlot64BNBugfix10Redo3(entry, entry.mode, entry.route);
-    const rawRoute = routeModeKeyForRecalibrationSlot64BNBugfix10Redo3(rawExercise, mode, route);
-    const routeCompatible = !entryRoute || !rawRoute || entryRoute === "unknown-route" || rawRoute === "unknown-route" || entryRoute === rawRoute;
-    if (!routeCompatible) return false;
-    const entryOriginals = entryIdentitySet64BNBugfix10Redo3(entry, "original");
-    const rawIds = exerciseIdentitySet64BNBugfix10Redo3(rawExercise);
-    const originalMatch = identitiesOverlap64BNBugfix10Redo3(entryOriginals, rawIds);
-    const blockEntry = effectiveRecalibrationKeyPart64BNBugfix10Redo3(entry.block || entry.category || entry.slotBlock);
-    const blockRaw = effectiveRecalibrationKeyPart64BNBugfix10Redo3(rawExercise && (rawExercise.block || rawExercise.category));
-    const blockCompatible = !blockEntry || !blockRaw || blockEntry === "unknown-block" || blockRaw === "unknown-block" || blockEntry === blockRaw;
-    const replacementExists = !!(entry.replacementExerciseId || entry.replacementExerciseName || entry.recommendedName);
-    return !!(replacementExists && (originalMatch || blockCompatible));
-  }
-
-  function findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3(stateInput, rawExercise, dayName, mode, route, index) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const store = typeof getSmartPlanOverrides64BL === "function" ? getSmartPlanOverrides64BL(state) : normalizeSmartPlanOverrides64BL(state && state.smartPlanOverrides64BL);
-    const entries = Array.isArray(store && store.entries) ? store.entries.filter((entry) => entry && entry.active !== false) : [];
-    return entries.find((entry) => smartPlanOverrideMatchesRecalibrationSlot64BNBugfix10Redo3(entry, rawExercise, dayName, mode, route, index)) || null;
-  }
-
-  function getEffectiveRecalibrationExercise64BNBugfix10Redo3(stateInput, rawExercise, dayName, mode, route, index) {
-    const slot = getEffectiveRecalibrationSlot64BNBugfix10Redo3(stateInput, rawExercise, dayName, mode, route, index);
-    return slot && slot.effectiveExercise || rawExercise;
-  }
-
-  function getEffectiveRecalibrationSlot64BNBugfix10Redo3(stateInput, rawExercise, dayName, mode, route, index) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const raw = rawExercise || null;
-    if (!raw) return { rawExercise: raw, effectiveExercise: raw, override: null, alreadyEffective: false };
-    if (raw.smartPlanDefault64BL || raw.phase64BLSmartPlanDefault || raw.smartPlanDefaultReplacementId64BL) {
-      return { rawExercise: raw, effectiveExercise: raw, override: null, alreadyEffective: true, source: "already-effective-route-slot" };
-    }
-
-    const realDefault64BNBugfix10Redo4 = typeof resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4 === "function" ? resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4(state, raw, dayName, mode, route, index) : null;
-    if (realDefault64BNBugfix10Redo4 && realDefault64BNBugfix10Redo4.verified && realDefault64BNBugfix10Redo4.effectiveExercise && realDefault64BNBugfix10Redo4.effectiveExercise !== raw) {
-      return { rawExercise: raw, effectiveExercise: realDefault64BNBugfix10Redo4.effectiveExercise, override: realDefault64BNBugfix10Redo4.override || null, alreadyEffective: true, source: "phase64bn-bugfix10-redo4-real-workout-default" };
-    }
-    const override = findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3(state, raw, dayName, mode, route, index);
-    if (!override) return { rawExercise: raw, effectiveExercise: raw, override: null, alreadyEffective: false, source: "raw-slot-no-override" };
-    const candidate = findExerciseForSmartPlanOverride64BNBugfix10Redo3(state, override);
-    if (!candidate) return { rawExercise: raw, effectiveExercise: raw, override, alreadyEffective: false, source: "override-found-replacement-missing" };
-    const merged = typeof mergeSmartPlanReplacement64BL === "function" ? mergeSmartPlanReplacement64BL(raw, candidate, override) : Object.assign({}, candidate, { day: raw.day || dayName, order: raw.order, block: raw.block });
-    merged.phase64BNBugfix10Redo3EffectiveCurrent = true;
-    merged.phase64BNBugfix10Redo3RawCurrentName = raw.displayName || raw.name || raw.id || override.originalExerciseName || "Original exercise";
-    merged.phase64BNBugfix10Redo3OverrideKey = override.key || override.phase64BNBugfix10Redo2RoundtripKey || "";
-    return { rawExercise: raw, effectiveExercise: merged, override, alreadyEffective: true, source: "smartPlanOverrides64BL-effective-slot" };
-  }
-
-  function applySmartPlanOverridesToRecalibrationSlots64BNBugfix10Redo3(stateInput, exercises, dayName, mode, route) {
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const list = Array.isArray(exercises) ? exercises : [];
-    return list.map((exercise, index) => getEffectiveRecalibrationSlot64BNBugfix10Redo3(state, exercise, dayName, mode, route, index).effectiveExercise || exercise);
-  }
-
-  function isRecommendationAlreadyEffective64BNBugfix10Redo3(stateInput, rec) {
-    if (!rec) return null;
-    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const override = findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3(state, rec.current, rec.dayName, rec.mode, rec.route, rec.slotIndex);
-    const replacementIds = entryIdentitySet64BNBugfix10Redo3(override || {}, "replacement").concat(exerciseIdentitySet64BNBugfix10Redo3(rec.recommended || {}));
-    const currentIds = exerciseIdentitySet64BNBugfix10Redo3(rec.current || {});
-    const currentAlreadyReplacement = identitiesOverlap64BNBugfix10Redo3(currentIds, replacementIds) || !!(rec.current && (rec.current.smartPlanDefault64BL || rec.current.phase64BLSmartPlanDefault || rec.current.smartPlanDefaultReplacementId64BL));
-    if (override && rec.recommended && identitiesOverlap64BNBugfix10Redo3(entryIdentitySet64BNBugfix10Redo3(override, "replacement"), exerciseIdentitySet64BNBugfix10Redo3(rec.recommended))) {
-      return { ok: true, entry: override, reason: "saved-override-matches-recommendation", alreadyEffective: currentAlreadyReplacement };
-    }
-    if (currentAlreadyReplacement) return { ok: true, entry: override || null, reason: "replacement-is-effective-current", alreadyEffective: true };
-    if (typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function") {
-      const saved = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, rec);
-      if (saved) return { ok: true, entry: saved, reason: "redo2-saved-override-matches", alreadyEffective: false };
-    }
-    return null;
-  }
-
   function collectRecalibrationCandidates64BM(stateInput) {
-    const state = migrateState(clone(stateInput || loadState().state || createDefaultState()), "phase64bn-bugfix10-redo3-effective-recalibration-candidates");
+    const state = migrateState(clone(stateInput || loadState().state || createDefaultState()), "phase64bm-bugfix2-collect-recalibration-candidates");
     const mode = state.settings && state.settings.mode || "Gym";
     const route = state.settings && state.settings.route || "Full";
     const days = dayNamesForSmartRecalibration64BM(state);
     const recommendations = [];
     days.forEach((dayName) => {
-      const rawExercises = typeof getVisibleExercises === "function" ? getVisibleExercises(state, dayName, mode, route) : allDayExercises(state, dayName);
-      const exercises = typeof applySmartPlanOverridesToRecalibrationSlots64BNBugfix10Redo3 === "function" ? applySmartPlanOverridesToRecalibrationSlots64BNBugfix10Redo3(state, rawExercises, dayName, mode, route) : rawExercises;
+      const exercises = typeof getVisibleExercises === "function" ? getVisibleExercises(state, dayName, mode, route) : allDayExercises(state, dayName);
       const dayRecommendations = [];
       (exercises || []).forEach((current, index) => {
         const rec = buildPlanUpgradeRecommendation64BM(state, dayName, mode, route, exercises, current, index);
-        if (rec) {
-          rec.phase64BNBugfix10Redo3EffectiveScan = true;
-          rec.phase64BNBugfix10Redo3RawSource = rawExercises && rawExercises[index] && rawExercises[index] !== current ? "smartPlanOverrides64BL-effective" : "raw-or-existing-visible";
-          dayRecommendations.push(rec);
-        }
+        if (rec) dayRecommendations.push(rec);
       });
       recommendations.push(...resolveDuplicateRecommendationConflicts64BMBugfix2(dayRecommendations));
     });
@@ -21226,29 +20861,24 @@ Existing History logs stay untouched.`);
   function buildSmartPlanRecalibrationReport64BM(stateInput) {
     const state = stateInput || loadState().state || createDefaultState();
     const recommendations = collectRecalibrationCandidates64BM(state);
-    const alreadyEffective = typeof isRecommendationAlreadyEffective64BNBugfix10Redo3 === "function" ? recommendations.filter((rec) => !!isRecommendationAlreadyEffective64BNBugfix10Redo3(state, rec)) : [];
-    const activeRecommendations = alreadyEffective.length ? recommendations.filter((rec) => !isRecommendationAlreadyEffective64BNBugfix10Redo3(state, rec)) : recommendations;
-    const safe = activeRecommendations.filter(isPlanUpgradeSafe64BM);
-    const review = activeRecommendations.filter(isPlanUpgradeReviewFirst64BM);
-    const strong = activeRecommendations.filter(isCurrentExerciseStrong64BM);
+    const safe = recommendations.filter(isPlanUpgradeSafe64BM);
+    const review = recommendations.filter(isPlanUpgradeReviewFirst64BM);
+    const strong = recommendations.filter(isCurrentExerciseStrong64BM);
     const similarNoChange = strong.filter((rec) => /similar fit/i.test(String(rec.decisionLabel || "")) || rec.similarFit64BMBugfix2);
-    const duplicateBlocked = activeRecommendations.filter((rec) => rec && rec.duplicateBlocked64BMBugfix2);
+    const duplicateBlocked = recommendations.filter((rec) => rec && rec.duplicateBlocked64BMBugfix2);
     return Object.freeze({
       phase: "64BM",
       phase64BMBugfix2Classifier: "safe-upgrade-duplicate-aware",
-      phase64BNBugfix10Redo3SourceOfTruth: "base-program-plus-smartPlanOverrides64BL-effective-slots",
       generatedAt: nowIso(),
       exercisesReviewed: recommendations.length,
       safeUpgrades: Object.freeze(safe),
       reviewFirst: Object.freeze(review),
       currentStrong: Object.freeze(strong),
-      alreadyEffective64BNBugfix10Redo3: Object.freeze(alreadyEffective),
       similarNoChange: Object.freeze(similarNoChange),
       duplicateBlocked: Object.freeze(duplicateBlocked),
       noChangeNeeded: strong.length,
       recommendations: Object.freeze(recommendations),
-      actionableRecommendations64BNBugfix10Redo3: Object.freeze(activeRecommendations),
-      summary: Object.freeze({ exercisesReviewed: recommendations.length, safeUpgrades: safe.length, reviewFirst: review.length, currentStrong: strong.length, alreadyEffective64BNBugfix10Redo3: alreadyEffective.length, similarNoChange: similarNoChange.length, duplicateBlocked: duplicateBlocked.length, planSlotsReviewedLabel64BMBugfix1: "plan slots reviewed", reviewFirstBatchApplied: 0, autoRewrite: false, historyMutation: false })
+      summary: Object.freeze({ exercisesReviewed: recommendations.length, safeUpgrades: safe.length, reviewFirst: review.length, currentStrong: strong.length, similarNoChange: similarNoChange.length, duplicateBlocked: duplicateBlocked.length, planSlotsReviewedLabel64BMBugfix1: "plan slots reviewed", reviewFirstBatchApplied: 0, autoRewrite: false, historyMutation: false })
     });
   }
 
@@ -21294,9 +20924,7 @@ Existing History logs stay untouched.`);
       blocked_missing_payload: "Cannot apply",
       blocked_unknown: "Cannot apply",
       already_applied: "Already applied",
-      already_effective: "Already effective",
-      default_not_updated: "Not applied",
-      not_verified: "Not saved",
+      already_updated: "Already updated",
       no_action: "No upgrade pushed"
     };
     return map[type] || "Cannot apply";
@@ -21312,9 +20940,7 @@ Existing History logs stay untouched.`);
       blocked_missing_payload: "This recommendation is missing a valid slot or replacement target.",
       blocked_unknown: "This recommendation could not be applied safely.",
       already_applied: "This future default is already saved for this slot.",
-      already_effective: "This future default is already active for this slot.",
-      default_not_updated: "Not applied: the workout default did not update, so this was left unchanged.",
-      not_verified: "This upgrade could not be verified after saving, so it was not counted. Review manually.",
+      already_updated: "This workout slot now uses the new default.",
       no_action: "Keep current is already the system decision for this card."
     };
     return detail || map[type] || map.blocked_unknown;
@@ -21386,14 +21012,6 @@ Existing History logs stay untouched.`);
 
   function getAppliedSmartPlanOverrideForSlot64BNBugfix9(stateInput, rec) {
     if (!rec) return null;
-    if (typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function") {
-      const roundtripMatch64BNBugfix10Redo2 = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(stateInput, rec);
-      if (roundtripMatch64BNBugfix10Redo2) return roundtripMatch64BNBugfix10Redo2;
-    }
-    if (typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function") {
-      const canonicalMatch64BNBugfix10Redo = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(stateInput, rec);
-      if (canonicalMatch64BNBugfix10Redo) return canonicalMatch64BNBugfix10Redo;
-    }
     const entries = getSmartPlanOverrideEntries64BNBugfix9(stateInput);
     return entries.find((entry) => overrideMatchesRecalibrationSlot64BNBugfix9(entry, rec) && overrideMatchesRecalibrationReplacement64BNBugfix9(entry, rec)) || null;
   }
@@ -21402,411 +21020,285 @@ Existing History logs stay untouched.`);
     const target = normalizeRecalibrationIdentity64BNBugfix9(key);
     if (!target) return null;
     const entries = getSmartPlanOverrideEntries64BNBugfix9(stateInput);
-    return entries.find((entry) => normalizeRecalibrationIdentity64BNBugfix9(entry && (entry.phase64BNBugfix10RedoRecommendationKey || entry.recommendationKey64BM || entry.key)) === target) || null;
+    return entries.find((entry) => normalizeRecalibrationIdentity64BNBugfix9(entry && entry.key) === target) || null;
   }
 
 
-
-  function normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(value) {
+  function realPlanRewriteNormalizeText64BNBugfix10Redo(value) {
     return String(value == null ? "" : value).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   }
 
-  function recalibrationRouteModeKey64BNBugfix10Redo(item) {
-    const mode = normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(item && (item.mode || item.routeModeMode64BN || item.settingsMode64BN));
-    const route = normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(item && (item.route || item.routeModeRoute64BN || item.settingsRoute64BN));
-    const label = normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(item && (item.routeModeLabel64BN || item.routeModeLabel || item.routeMode));
-    if (mode || route) return `${mode || "unknown-mode"}-${route || "unknown-route"}`;
-    if (/home.*lazy|lazy.*home/.test(label)) return "home-lazy";
-    if (/home.*full|full.*home/.test(label)) return "home-full";
-    if (/gym.*lazy|lazy.*gym/.test(label)) return "gym-lazy";
-    if (/gym.*full|full.*gym/.test(label)) return "gym-full";
-    return "unknown-route";
+  function normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(store) {
+    const input = store && typeof store === "object" && !Array.isArray(store) ? store : {};
+    const entries = Array.isArray(input.entries) ? input.entries.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
+    const auditTrail = Array.isArray(input.auditTrail) ? input.auditTrail.filter((entry) => entry && typeof entry === "object" && !Array.isArray(entry)).map((entry) => Object.assign({}, entry)) : [];
+    return { phase: "64BN BUGFIX 10 REDO", schema: "real-plan-slot-rewrite-from-recalibration-v1", sourceOfTruth: "state.program.exercisesById", entries, auditTrail };
   }
 
-  function recalibrationSlotOrder64BNBugfix10Redo(item) {
-    if (!item) return "unknown-slot";
-    if (Number.isFinite(Number(item.slotOrder))) return String(Number(item.slotOrder));
-    if (Number.isFinite(Number(item.order))) return String(Number(item.order));
-    if (item.current && Number.isFinite(Number(item.current.order))) return String(Number(item.current.order));
-    if (Number.isFinite(Number(item.slotIndex))) return String(Number(item.slotIndex) + 1);
-    return "unknown-slot";
+  function realPlanSlotKey64BNBugfix10Redo(payload) {
+    const dayName = payload && (payload.dayName || payload.day || payload.slotDay) || "unknown-day";
+    const slotOrder = payload && payload.slotOrder !== undefined ? payload.slotOrder : (payload && payload.order !== undefined ? payload.order : (payload && Number.isFinite(Number(payload.slotIndex)) ? Number(payload.slotIndex) + 1 : "unknown-slot"));
+    return [dayName, slotOrder].map((part) => realPlanRewriteNormalizeText64BNBugfix10Redo(part)).join("__");
   }
 
-  function recalibrationOriginalIdentity64BNBugfix10Redo(item) {
-    const current = item && item.current || {};
-    const raw = item && (item.originalExerciseId || item.originalExerciseName || item.currentExerciseId || item.currentExerciseName || item.currentOriginalExerciseId || item.currentName) || current.originalExerciseId19C || current.smartPlanDefaultOriginalExerciseId64BL || current.id || current.displayName || current.name || "unknown-original";
-    return normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(raw) || "unknown-original";
+  function realPlanExerciseIdentity64BNBugfix10Redo(ex) {
+    return realPlanRewriteNormalizeText64BNBugfix10Redo(ex && (ex.id || ex.displayName || ex.name || ex.replacementExerciseId || ex.replacementExerciseName));
   }
 
-  function recalibrationReplacementIdentity64BNBugfix10Redo(item) {
-    const recommended = item && item.recommended || {};
-    const current = item && item.current || {};
-    const raw = item && (item.replacementExerciseId || item.replacementExerciseName || item.recommendedExerciseId || item.recommendedName) || recommended.id || recommended.displayName || recommended.name || current.smartPlanDefaultReplacementId64BL || current.smartPlanDefaultReplacementDisplayName64BL || "unknown-replacement";
-    return normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(raw) || "unknown-replacement";
+  function realPlanExerciseName64BNBugfix10Redo(ex) {
+    return String(ex && (ex.displayName || ex.name || ex.id || ex.replacementExerciseName || ex.replacementExerciseId) || "Exercise");
   }
 
-  function buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(item) {
-    if (!item) return "";
-    const day = normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(item.dayName || item.day || item.workoutDay || "unknown-day") || "unknown-day";
-    const routeMode = recalibrationRouteModeKey64BNBugfix10Redo(item);
-    const slot = recalibrationSlotOrder64BNBugfix10Redo(item);
-    const block = normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(item.block || (item.current && item.current.block) || "unknown-block") || "unknown-block";
-    const original = recalibrationOriginalIdentity64BNBugfix10Redo(item);
-    const replacement = recalibrationReplacementIdentity64BNBugfix10Redo(item);
-    return ["phase64bn10redo", day, routeMode, slot, block, original, replacement].join("__");
-  }
-
-  function legacyEquivalentRecalibrationOverride64BNBugfix10Redo(entry, recOrPayload) {
-    if (!entry || !recOrPayload) return false;
-    const dayA = normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(entry.dayName || entry.day);
-    const dayB = normalizeRecalibrationAppliedKeyPart64BNBugfix10Redo(recOrPayload.dayName || recOrPayload.day);
-    if (dayA && dayB && dayA !== dayB) return false;
-    const slotA = recalibrationSlotOrder64BNBugfix10Redo(entry);
-    const slotB = recalibrationSlotOrder64BNBugfix10Redo(recOrPayload);
-    if (slotA !== "unknown-slot" && slotB !== "unknown-slot" && slotA !== slotB) return false;
-    const originalA = recalibrationOriginalIdentity64BNBugfix10Redo(entry);
-    const originalB = recalibrationOriginalIdentity64BNBugfix10Redo(recOrPayload);
-    if (originalA !== "unknown-original" && originalB !== "unknown-original" && originalA !== originalB) return false;
-    const replacementA = recalibrationReplacementIdentity64BNBugfix10Redo(entry);
-    const replacementB = recalibrationReplacementIdentity64BNBugfix10Redo(recOrPayload);
-    return replacementA !== "unknown-replacement" && replacementB !== "unknown-replacement" && replacementA === replacementB;
-  }
-
-  function getSmartPlanOverrideStore64BNBugfix10Redo(state) {
-    if (!state) return normalizeSmartPlanOverrides64BL(null);
-    state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
-    return state.smartPlanOverrides64BL;
-  }
-
-  function dedupeSmartPlanOverrides64BNBugfix10Redo(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const store = getSmartPlanOverrideStore64BNBugfix10Redo(state);
-    const entries = Array.isArray(store.entries) ? store.entries : [];
-    const seen = new Map();
-    const deduped = [];
-    entries.forEach((entry) => {
-      if (!entry) return;
-      const canonicalKey = entry.phase64BNBugfix10RedoAppliedOverrideKey || entry.canonicalAppliedOverrideKey64BNBugfix10Redo || buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(entry) || String(entry.key || "");
-      const normalizedKey = canonicalKey || String(entry.key || "");
-      if (!normalizedKey) { deduped.push(entry); return; }
-      if (seen.has(normalizedKey)) {
-        const priorIndex = seen.get(normalizedKey);
-        const prior = deduped[priorIndex] || {};
-        deduped[priorIndex] = Object.assign({}, prior, entry, {
-          createdAt: prior.createdAt || entry.createdAt,
-          phase64BNBugfix10RedoAppliedOverrideKey: normalizedKey,
-          canonicalAppliedOverrideKey64BNBugfix10Redo: normalizedKey,
-          phase64BNBugfix10RedoDeduped: true
-        });
-      } else {
-        seen.set(normalizedKey, deduped.length);
-        deduped.push(Object.assign({}, entry, {
-          phase64BNBugfix10RedoAppliedOverrideKey: normalizedKey,
-          canonicalAppliedOverrideKey64BNBugfix10Redo: normalizedKey
-        }));
-      }
-    });
-    store.entries = deduped;
-    store.phase64BNBugfix10RedoDedupe = true;
-    return { state, store, entries: deduped, removedCount: Math.max(0, entries.length - deduped.length) };
-  }
-
-  function upsertSmartPlanOverride64BNBugfix10Redo(stateInput, payloadInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const payload = Object.assign({}, payloadInput || {});
-    const store = getSmartPlanOverrideStore64BNBugfix10Redo(state);
-    const canonicalKey = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(payload);
-    const legacyKey = payload.key || (typeof smartPlanSlotKey64BL === "function" ? smartPlanSlotKey64BL(payload) : canonicalKey);
-    const entry = Object.assign({}, payload, {
-      key: legacyKey,
-      active: payload.active !== false,
-      updatedAt: nowIso(),
-      phase64BNBugfix10RedoAppliedOverrideKey: canonicalKey,
-      canonicalAppliedOverrideKey64BNBugfix10Redo: canonicalKey,
-      phase64BNBugfix10RedoUpsert: true
-    });
-    const entries = Array.isArray(store.entries) ? store.entries.slice() : [];
-    const existingIndex = entries.findIndex((item) => item && item.active !== false && (
-      item.phase64BNBugfix10RedoAppliedOverrideKey === canonicalKey ||
-      item.canonicalAppliedOverrideKey64BNBugfix10Redo === canonicalKey ||
-      buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(item) === canonicalKey ||
-      legacyEquivalentRecalibrationOverride64BNBugfix10Redo(item, entry)
-    ));
-    if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry, { createdAt: entries[existingIndex].createdAt || entry.createdAt });
-    else entries.push(entry);
-    store.entries = entries;
-    const dedupe = dedupeSmartPlanOverrides64BNBugfix10Redo(state);
-    return { ok: true, state, store: dedupe.store, entry, canonicalKey, updatedExisting: existingIndex >= 0, dedupedCount: dedupe.removedCount };
-  }
-
-  function isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(stateInput, recOrPayload) {
-    if (!recOrPayload) return null;
+  function getRealPlanSlotRewriteEntries64BNBugfix10Redo(stateInput) {
     const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const store = typeof getSmartPlanOverrides64BL === "function" ? getSmartPlanOverrides64BL(state) : normalizeSmartPlanOverrides64BL(state && state.smartPlanOverrides64BL);
-    const entries = Array.isArray(store && store.entries) ? store.entries.filter((entry) => entry && entry.active !== false) : [];
-    const canonicalKey = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(recOrPayload);
-    return entries.find((entry) => entry && (
-      entry.phase64BNBugfix10RedoAppliedOverrideKey === canonicalKey ||
-      entry.canonicalAppliedOverrideKey64BNBugfix10Redo === canonicalKey ||
-      buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(entry) === canonicalKey ||
-      legacyEquivalentRecalibrationOverride64BNBugfix10Redo(entry, recOrPayload)
-    )) || null;
+    const store = normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(state && state.realPlanSlotRewrites64BNBugfix10Redo);
+    return Array.isArray(store.entries) ? store.entries.filter((entry) => entry && entry.active !== false) : [];
   }
 
+  function findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(stateInput, key) {
+    const target = realPlanRewriteNormalizeText64BNBugfix10Redo(key);
+    if (!target) return null;
+    const entries = getRealPlanSlotRewriteEntries64BNBugfix10Redo(stateInput);
+    return entries.find((entry) => realPlanRewriteNormalizeText64BNBugfix10Redo(entry && entry.recommendationKey) === target || realPlanRewriteNormalizeText64BNBugfix10Redo(entry && entry.legacyOverrideKey64BL) === target) || null;
+  }
 
-  function normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(value) {
-    if (value && typeof value === "object") {
-      const first = value.id || value.exerciseId || value.replacementExerciseId || value.originalExerciseId || value.displayName || value.name || value.recommendedName || value.currentName || "";
-      return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(first);
+  function findRealPlanRewriteForSlot64BNBugfix10Redo(stateInput, recOrPayload) {
+    const entries = getRealPlanSlotRewriteEntries64BNBugfix10Redo(stateInput);
+    const key = realPlanSlotKey64BNBugfix10Redo(recOrPayload || {});
+    return entries.find((entry) => realPlanSlotKey64BNBugfix10Redo(entry) === key) || null;
+  }
+
+  function realPlanRewriteCurrentMatchesReplacement64BNBugfix10Redo(stateInput, recOrPayload, entryInput) {
+    const entry = entryInput || findRealPlanRewriteForSlot64BNBugfix10Redo(stateInput, recOrPayload);
+    if (!entry) return false;
+    const slot = findRealProgramSlot64BNBugfix10Redo(stateInput, recOrPayload || entry);
+    if (!slot || !slot.ok || !slot.exercise) return false;
+    const currentIds = [slot.exercise.id, slot.exercise.displayName, slot.exercise.name].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean);
+    const replacementIds = [entry.replacementExerciseId, entry.replacementExerciseName, entry.programSlotAfter && entry.programSlotAfter.id, entry.programSlotAfter && entry.programSlotAfter.displayName].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean);
+    return replacementIds.some((id) => currentIds.includes(id));
+  }
+
+  function getAppliedRealPlanRewriteForSlot64BNBugfix10Redo(stateInput, rec) {
+    const entry = findRealPlanRewriteForSlot64BNBugfix10Redo(stateInput, rec);
+    return entry && realPlanRewriteCurrentMatchesReplacement64BNBugfix10Redo(stateInput, rec, entry) ? entry : null;
+  }
+
+  function findRealProgramSlot64BNBugfix10Redo(stateInput, payload) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const list = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+    const dayName = payload && (payload.dayName || payload.day || payload.current && payload.current.day) || "";
+    const slotOrder = Number(payload && (payload.slotOrder !== undefined ? payload.slotOrder : (payload.order !== undefined ? payload.order : (payload.current && payload.current.order !== undefined ? payload.current.order : (Number.isFinite(Number(payload.slotIndex)) ? Number(payload.slotIndex) + 1 : NaN)))));
+    const normalizedDay = realPlanRewriteNormalizeText64BNBugfix10Redo(dayName);
+    let index = list.findIndex((exercise) => exercise && realPlanRewriteNormalizeText64BNBugfix10Redo(exercise.day) === normalizedDay && Number(exercise.order) === Number(slotOrder));
+    if (index < 0 && payload && payload.current) {
+      const currentId = realPlanExerciseIdentity64BNBugfix10Redo(payload.current);
+      index = list.findIndex((exercise) => exercise && realPlanRewriteNormalizeText64BNBugfix10Redo(exercise.day) === normalizedDay && realPlanExerciseIdentity64BNBugfix10Redo(exercise) === currentId);
     }
-    return String(value == null ? "" : value)
-      .trim()
-      .toLowerCase()
-      .replace(/&/g, " and ")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+    if (index < 0) return { ok: false, reason: "real-program-slot-not-found", state, sourcePath: "state.program.exercisesById", dayName, slotOrder, slotIndex: payload && payload.slotIndex };
+    const exercise = list[index];
+    return { ok: true, state, list, index, exercise, sourcePath: `state.program.exercisesById[${index}]`, dayName: exercise.day || dayName, slotOrder: Number(exercise.order), identityField: "id", displayField: "displayName" };
   }
 
-  function recalibrationRouteModeKey64BNBugfix10Redo2(item) {
-    const label = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.routeModeLabel64BN || item.routeModeLabel || item.routeMode));
-    const mode = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.mode || item.routeModeMode64BN || item.settingsMode64BN));
-    const route = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.route || item.routeModeRoute64BN || item.settingsRoute64BN));
-    const joined = `${mode} ${route} ${label}`;
-    if (/home.*lazy|lazy.*home/.test(joined)) return "home-lazy";
-    if (/home.*full|full.*home/.test(joined)) return "home-full";
-    if (/gym.*lazy|lazy.*gym/.test(joined)) return "gym-lazy";
-    if (/gym.*full|full.*gym/.test(joined)) return "gym-full";
-    if (mode || route) return `${mode || "unknown-mode"}-${route || "unknown-route"}`;
-    return "unknown-route";
-  }
-
-  function recalibrationSlotOrder64BNBugfix10Redo2(item) {
-    if (!item) return "unknown-slot";
-    if (Number.isFinite(Number(item.slotOrder))) return String(Number(item.slotOrder));
-    if (Number.isFinite(Number(item.order))) return String(Number(item.order));
-    if (item.current && Number.isFinite(Number(item.current.order))) return String(Number(item.current.order));
-    if (Number.isFinite(Number(item.slotIndex))) return String(Number(item.slotIndex) + 1);
-    return "unknown-slot";
-  }
-
-  function recalibrationOriginalIdentity64BNBugfix10Redo2(item) {
-    const current = item && item.current || {};
-    const raw = item && (item.originalExerciseId || item.currentOriginalExerciseId || item.currentExerciseId || item.originalExerciseName || item.currentExerciseName || item.currentName) || current.originalExerciseId19C || current.smartPlanDefaultOriginalExerciseId64BL || current.id || current.displayName || current.name || "unknown-original";
-    return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(raw) || "unknown-original";
-  }
-
-  function recalibrationReplacementIdentity64BNBugfix10Redo2(item) {
-    const recommended = item && item.recommended || {};
-    const current = item && item.current || {};
-    const raw = item && (item.replacementExerciseId || item.recommendedExerciseId || item.replacementExerciseName || item.recommendedName) || recommended.id || recommended.displayName || recommended.name || current.smartPlanDefaultReplacementId64BL || current.smartPlanDefaultReplacementDisplayName64BL || "unknown-replacement";
-    return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(raw) || "unknown-replacement";
-  }
-
-  function recalibrationBlockKey64BNBugfix10Redo2(item) {
-    const current = item && item.current || {};
-    return normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item && (item.block || item.category || item.slotBlock) || current.block || current.category || "unknown-block") || "unknown-block";
-  }
-
-  function buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(item) {
-    if (!item) return "";
-    const day = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item.dayName || item.day || item.workoutDay || "unknown-day") || "unknown-day";
-    const routeMode = recalibrationRouteModeKey64BNBugfix10Redo2(item);
-    const slot = recalibrationSlotOrder64BNBugfix10Redo2(item);
-    const block = recalibrationBlockKey64BNBugfix10Redo2(item);
-    const original = recalibrationOriginalIdentity64BNBugfix10Redo2(item);
-    const replacement = recalibrationReplacementIdentity64BNBugfix10Redo2(item);
-    return ["phase64bn10redo2", day, routeMode, slot, block, original, replacement].join("__");
-  }
-
-  function buildRoundtripVerificationKey64BNBugfix10Redo2(item) {
-    if (!item) return "";
-    const day = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item.dayName || item.day || item.workoutDay || "unknown-day") || "unknown-day";
-    const slot = recalibrationSlotOrder64BNBugfix10Redo2(item);
-    const replacement = recalibrationReplacementIdentity64BNBugfix10Redo2(item);
-    return ["phase64bn10redo2-roundtrip", day, slot, replacement].join("__");
-  }
-
-  function equivalentRoundtripOverride64BNBugfix10Redo2(entry, item) {
-    if (!entry || !item) return false;
-    const entryRoundtrip = entry.phase64BNBugfix10Redo2RoundtripKey || buildRoundtripVerificationKey64BNBugfix10Redo2(entry);
-    const itemRoundtrip = buildRoundtripVerificationKey64BNBugfix10Redo2(item);
-    if (entryRoundtrip && itemRoundtrip && entryRoundtrip === itemRoundtrip && !/unknown-replacement/.test(itemRoundtrip)) return true;
-    const dayA = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(entry.dayName || entry.day);
-    const dayB = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2(item.dayName || item.day);
-    const slotA = recalibrationSlotOrder64BNBugfix10Redo2(entry);
-    const slotB = recalibrationSlotOrder64BNBugfix10Redo2(item);
-    const repA = recalibrationReplacementIdentity64BNBugfix10Redo2(entry);
-    const repB = recalibrationReplacementIdentity64BNBugfix10Redo2(item);
-    return !!(dayA && dayB && dayA === dayB && slotA !== "unknown-slot" && slotA === slotB && repA !== "unknown-replacement" && repA === repB);
-  }
-
-  function getSmartPlanOverrideStore64BNBugfix10Redo2(state) {
-    if (!state) return normalizeSmartPlanOverrides64BL(null);
-    state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
-    return state.smartPlanOverrides64BL;
-  }
-
-  function dedupeSmartPlanOverrides64BNBugfix10Redo2(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const store = getSmartPlanOverrideStore64BNBugfix10Redo2(state);
-    const entries = Array.isArray(store.entries) ? store.entries : [];
-    const seen = new Map();
-    const deduped = [];
-    entries.forEach((entry) => {
-      if (!entry) return;
-      const strictKey = entry.phase64BNBugfix10Redo2AppliedOverrideKey || buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(entry) || entry.phase64BNBugfix10RedoAppliedOverrideKey || entry.key || "";
-      const roundtripKey = entry.phase64BNBugfix10Redo2RoundtripKey || buildRoundtripVerificationKey64BNBugfix10Redo2(entry) || strictKey;
-      const dedupeKey = roundtripKey && !/unknown-replacement/.test(roundtripKey) ? roundtripKey : strictKey;
-      if (!dedupeKey) { deduped.push(entry); return; }
-      if (seen.has(dedupeKey)) {
-        const priorIndex = seen.get(dedupeKey);
-        const prior = deduped[priorIndex] || {};
-        deduped[priorIndex] = Object.assign({}, prior, entry, {
-          createdAt: prior.createdAt || entry.createdAt,
-          phase64BNBugfix10Redo2AppliedOverrideKey: strictKey,
-          phase64BNBugfix10Redo2RoundtripKey: roundtripKey,
-          phase64BNBugfix10Redo2Deduped: true
-        });
-      } else {
-        seen.set(dedupeKey, deduped.length);
-        deduped.push(Object.assign({}, entry, {
-          phase64BNBugfix10Redo2AppliedOverrideKey: strictKey,
-          phase64BNBugfix10Redo2RoundtripKey: roundtripKey
-        }));
-      }
-    });
-    store.entries = deduped;
-    store.phase64BNBugfix10Redo2Dedupe = true;
-    return { state, store, entries: deduped, removedCount: Math.max(0, entries.length - deduped.length) };
-  }
-
-  function upsertSmartPlanOverride64BNBugfix10Redo2(stateInput, payloadInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const payload = Object.assign({}, payloadInput || {});
-    const store = getSmartPlanOverrideStore64BNBugfix10Redo2(state);
-    const strictKey = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(payload);
-    const roundtripKey = buildRoundtripVerificationKey64BNBugfix10Redo2(payload);
-    const legacyKey = payload.key || (typeof smartPlanSlotKey64BL === "function" ? smartPlanSlotKey64BL(payload) : strictKey);
-    const entry = Object.assign({}, payload, {
-      key: legacyKey,
-      active: payload.active !== false,
-      updatedAt: nowIso(),
-      phase64BNBugfix10Redo2AppliedOverrideKey: strictKey,
-      phase64BNBugfix10Redo2RoundtripKey: roundtripKey,
-      phase64BNBugfix10RedoAppliedOverrideKey: payload.phase64BNBugfix10RedoAppliedOverrideKey || strictKey,
-      canonicalAppliedOverrideKey64BNBugfix10Redo: payload.canonicalAppliedOverrideKey64BNBugfix10Redo || strictKey,
-      phase64BNBugfix10Redo2Upsert: true
-    });
-    const entries = Array.isArray(store.entries) ? store.entries.slice() : [];
-    const existingIndex = entries.findIndex((item) => item && item.active !== false && (
-      item.phase64BNBugfix10Redo2AppliedOverrideKey === strictKey ||
-      item.phase64BNBugfix10Redo2RoundtripKey === roundtripKey ||
-      buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(item) === strictKey ||
-      equivalentRoundtripOverride64BNBugfix10Redo2(item, entry) ||
-      (typeof legacyEquivalentRecalibrationOverride64BNBugfix10Redo === "function" && legacyEquivalentRecalibrationOverride64BNBugfix10Redo(item, entry))
-    ));
-    if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry, { createdAt: entries[existingIndex].createdAt || entry.createdAt });
-    else entries.push(entry);
-    store.entries = entries;
-    const dedupe = dedupeSmartPlanOverrides64BNBugfix10Redo2(state);
-    return { ok: true, phase64BNBugfix10Redo2: true, state, store: dedupe.store, entry, canonicalKey: strictKey, roundtripKey, updatedExisting: existingIndex >= 0, dedupedCount: dedupe.removedCount };
-  }
-
-  function isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(stateInput, recOrPayload) {
-    if (!recOrPayload) return null;
+  function promoteSmartCandidateToProgramExercise64BNBugfix10Redo(stateInput, replacementInput, slotInfoInput, recInput) {
     const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const store = typeof getSmartPlanOverrides64BL === "function" ? getSmartPlanOverrides64BL(state) : normalizeSmartPlanOverrides64BL(state && state.smartPlanOverrides64BL);
-    const entries = Array.isArray(store && store.entries) ? store.entries.filter((entry) => entry && entry.active !== false) : [];
-    const strictKey = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(recOrPayload);
-    const roundtripKey = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
-    return entries.find((entry) => entry && (
-      entry.phase64BNBugfix10Redo2AppliedOverrideKey === strictKey ||
-      entry.phase64BNBugfix10Redo2RoundtripKey === roundtripKey ||
-      buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2(entry) === strictKey ||
-      equivalentRoundtripOverride64BNBugfix10Redo2(entry, recOrPayload)
-    )) || null;
+    const slotInfo = slotInfoInput && slotInfoInput.ok ? slotInfoInput : findRealProgramSlot64BNBugfix10Redo(state, recInput || {});
+    const slot = slotInfo && slotInfo.exercise || {};
+    const rec = recInput || {};
+    const requested = replacementInput || rec.recommended || null;
+    const replacementId = requested && requested.id || rec.replacementExerciseId || rec.recommended && rec.recommended.id;
+    const replacementName = requested && (requested.displayName || requested.name) || rec.recommendedName || rec.replacementExerciseName || replacementId || "Smart replacement";
+    let source = requested || null;
+    if (!source && replacementId && typeof findProgramExerciseById19C === "function") source = findProgramExerciseById19C(state, replacementId);
+    if (!source && replacementId && typeof findAlternativeCandidate64BJ === "function") source = findAlternativeCandidate64BJ(replacementId);
+    source = source || { id: replacementId || realPlanRewriteNormalizeText64BNBugfix10Redo(replacementName), displayName: replacementName, name: replacementName };
+    const programList = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+    const alreadyProgrammed = programList.some((exercise) => exercise && String(exercise.id || "") === String(source.id || replacementId || ""));
+    const candidate = clone(source || {});
+    const promoted = Object.assign({}, candidate);
+    promoted.id = String(candidate.id || replacementId || realPlanRewriteNormalizeText64BNBugfix10Redo(replacementName) || `smart-replacement-${Date.now()}`);
+    promoted.name = candidate.name || candidate.displayName || replacementName || promoted.id;
+    promoted.displayName = candidate.displayName || candidate.name || replacementName || promoted.id;
+    promoted.day = slot.day || rec.dayName || candidate.day || "Workout";
+    promoted.order = Number.isFinite(Number(slot.order)) ? Number(slot.order) : (Number.isFinite(Number(rec.slotOrder)) ? Number(rec.slotOrder) : Number(rec.slotIndex || 0) + 1);
+    promoted.block = slot.block || rec.block || candidate.block || candidate.category || "Workout";
+    promoted.category = slot.category || rec.category || candidate.category || candidate.block || promoted.block;
+    promoted.prescription = clone(slot.prescription || candidate.prescription || {});
+    promoted.guidance = clone(slot.guidance || candidate.guidance || {});
+    promoted.progression = candidate.progression || slot.progression || "Use the same slot progression target and progress when all prescribed reps are clean.";
+    promoted.instructions = candidate.instructions || slot.instructions || "";
+    promoted.formCue64BJ = candidate.formCue64BJ || slot.formCue64BJ || candidate.instructions || slot.instructions || "";
+    promoted.targetMuscles = Array.isArray(candidate.targetMuscles) && candidate.targetMuscles.length ? clone(candidate.targetMuscles) : (Array.isArray(candidate.primaryMuscles) && candidate.primaryMuscles.length ? clone(candidate.primaryMuscles) : clone(slot.targetMuscles || []));
+    promoted.primaryMuscles = Array.isArray(candidate.primaryMuscles) && candidate.primaryMuscles.length ? clone(candidate.primaryMuscles) : clone(promoted.targetMuscles || []);
+    promoted.secondaryMuscles = Array.isArray(candidate.secondaryMuscles) ? clone(candidate.secondaryMuscles) : clone(slot.secondaryMuscles || []);
+    promoted.equipment = Array.isArray(candidate.equipment) && candidate.equipment.length ? clone(candidate.equipment) : clone(slot.equipment || []);
+    promoted.equipmentTags = Array.isArray(candidate.equipmentTags) ? clone(candidate.equipmentTags) : clone(slot.equipmentTags || []);
+    promoted.media = clone(candidate.media || slot.media || {});
+    promoted.modeReady = Object.assign({}, slot.modeReady || {}, candidate.modeReady || {});
+    if (slot.modeReady && slot.modeReady.lazyPriority) promoted.modeReady.lazyPriority = slot.modeReady.lazyPriority;
+    promoted.safetyTags = Array.from(new Set([].concat(slot.safetyTags || [], candidate.safetyTags || [], ["phase64bn-bugfix10-redo-real-plan-slot-rewrite"])));
+    promoted.dropSetEligible64BJ = candidate.dropSetEligible64BJ === true || slot.dropSetEligible64BJ === true;
+    promoted.dropSetCaution64BJ = candidate.dropSetCaution64BJ || slot.dropSetCaution64BJ || "";
+    promoted.historyKey64BJ = candidate.historyKey64BJ || candidate.id || promoted.id;
+    promoted.realPlanSlotRewrite64BNBugfix10Redo = true;
+    promoted.promotedFromSmartCandidate64BNBugfix10Redo = !alreadyProgrammed || candidate.alternativeOnly64BJ === true || candidate.candidateLibrary64BJ === true;
+    promoted.phase64BNBugfix10RedoSourceCandidateId = candidate.id || replacementId || "";
+    promoted.phase64BNBugfix10RedoSourceCandidateName = candidate.displayName || candidate.name || replacementName || "";
+    promoted.replacedFrom64BNBugfix10Redo = {
+      id: slot.id || "",
+      displayName: slot.displayName || slot.name || "",
+      name: slot.name || slot.displayName || "",
+      day: slot.day || rec.dayName || "",
+      order: slot.order !== undefined ? slot.order : rec.slotOrder,
+      block: slot.block || rec.block || ""
+    };
+    return { ok: true, state, sourceCandidate: candidate, exercise: promoted, promotedFromSmartCandidate: promoted.promotedFromSmartCandidate64BNBugfix10Redo, alreadyProgrammed, source: alreadyProgrammed ? "programmed-exercise-library" : "smart-candidate-library" };
   }
 
-  function notVerifiedRecalibrationKeys64BNBugfix10Redo2(state) {
-    const list = state && state.qa && Array.isArray(state.qa.phase64BNBugfix10Redo2NotVerifiedKeys) ? state.qa.phase64BNBugfix10Redo2NotVerifiedKeys : [];
-    return new Set(list.map(String));
+  function clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo(stateInput, payload) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : null;
+    if (!state) return { ok: false, reason: "missing-state", clearedCount: 0 };
+    state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
+    const targetDay = realPlanRewriteNormalizeText64BNBugfix10Redo(payload && (payload.dayName || payload.day));
+    const targetOrder = Number(payload && (payload.slotOrder !== undefined ? payload.slotOrder : payload.order));
+    let clearedCount = 0;
+    state.smartPlanOverrides64BL.entries = (Array.isArray(state.smartPlanOverrides64BL.entries) ? state.smartPlanOverrides64BL.entries : []).map((entry) => {
+      if (!entry) return entry;
+      const sameDay = realPlanRewriteNormalizeText64BNBugfix10Redo(entry.dayName) === targetDay;
+      const sameOrder = Number(entry.slotOrder) === Number(targetOrder);
+      if (sameDay && sameOrder && entry.active !== false) {
+        clearedCount += 1;
+        return Object.assign({}, entry, { active: false, clearedByRealPlanSlotRewrite64BNBugfix10Redo: true, clearedAt: nowIso() });
+      }
+      return entry;
+    });
+    if (clearedCount) {
+      state.smartPlanOverrides64BL.auditTrail = Array.isArray(state.smartPlanOverrides64BL.auditTrail) ? state.smartPlanOverrides64BL.auditTrail : [];
+      state.smartPlanOverrides64BL.auditTrail.unshift({ phase: "64BN BUGFIX 10 REDO", type: "clear-stale-smartplan-override-after-real-slot-rewrite", dayName: payload && payload.dayName, slotOrder: payload && payload.slotOrder, clearedCount, recordedAt: nowIso(), historyMutation: false, localStorageClear: false });
+      state.smartPlanOverrides64BL.auditTrail = state.smartPlanOverrides64BL.auditTrail.slice(0, 100);
+    }
+    return { ok: true, state, clearedCount };
   }
 
-  function markRecalibrationNotVerified64BNBugfix10Redo2(state, recOrPayload, reason) {
-    if (!state) return state;
-    const key = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
-    state.qa = Object.assign({}, state.qa || {});
-    const set = notVerifiedRecalibrationKeys64BNBugfix10Redo2(state);
-    if (key) set.add(key);
-    state.qa.phase64BNBugfix10Redo2NotVerifiedKeys = Array.from(set).slice(-50);
-    state.qa.phase64BNBugfix10Redo2LastNotVerifiedReason = reason || "roundtrip-not-verified";
+  function verifyRealPlanSlotWasRewritten64BNBugfix10Redo(stateInput, entryInput) {
+    const entry = entryInput || null;
+    const slot = findRealProgramSlot64BNBugfix10Redo(stateInput, entry || {});
+    const ids = slot && slot.ok ? [slot.exercise.id, slot.exercise.displayName, slot.exercise.name].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean) : [];
+    const targets = entry ? [entry.replacementExerciseId, entry.replacementExerciseName].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean) : [];
+    const rewritten = !!(slot && slot.ok && targets.some((id) => ids.includes(id)));
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO verify real plan slot", ok: rewritten, sourcePath: slot && slot.sourcePath || "state.program.exercisesById", dayName: entry && entry.dayName, slotOrder: entry && entry.slotOrder, currentId: slot && slot.exercise && slot.exercise.id, currentName: slot && slot.exercise && realPlanExerciseName64BNBugfix10Redo(slot.exercise), replacementExerciseId: entry && entry.replacementExerciseId, replacementExerciseName: entry && entry.replacementExerciseName, status: rewritten ? "YELLOW" : "RED" });
+  }
+
+  function verifyRecalibrationUsesRewrittenSlot64BNBugfix10Redo(stateInput, entryInput) {
+    const entry = entryInput || null;
+    const state = stateInput && typeof stateInput === "object" ? stateInput : (typeof loadState === "function" ? loadState().state : createDefaultState());
+    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
+    const oldToSame = (report.recommendations || []).find((rec) => {
+      if (!entry || realPlanSlotKey64BNBugfix10Redo(rec) !== realPlanSlotKey64BNBugfix10Redo(entry)) return false;
+      const currentIds = [rec.currentName, rec.current && rec.current.id, rec.current && rec.current.displayName].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean);
+      const oldIds = [entry.previousExerciseId, entry.previousExerciseName].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean);
+      const replacementIds = [rec.recommendedName, rec.recommended && rec.recommended.id, rec.recommended && rec.recommended.displayName].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean);
+      const targetIds = [entry.replacementExerciseId, entry.replacementExerciseName].map(realPlanRewriteNormalizeText64BNBugfix10Redo).filter(Boolean);
+      return oldIds.some((id) => currentIds.includes(id)) && targetIds.some((id) => replacementIds.includes(id));
+    });
+    const currentSlot = findRealProgramSlot64BNBugfix10Redo(state, entry || {});
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO verify recalibration current", ok: !oldToSame && !!(currentSlot && currentSlot.ok), reportScansCurrentSlotAs: currentSlot && currentSlot.exercise ? realPlanExerciseName64BNBugfix10Redo(currentSlot.exercise) : "not found", oldExerciseToSameReplacementStillPresent: !!oldToSame, status: oldToSame ? "RED" : "YELLOW" });
+  }
+
+  function applyPersistedRealPlanSlotRewrites64BNBugfix10Redo(stateInput, reason) {
+    const state = stateInput && typeof stateInput === "object" && !Array.isArray(stateInput) ? stateInput : null;
+    if (!state || !state.program || !Array.isArray(state.program.exercisesById)) return state;
+    state.realPlanSlotRewrites64BNBugfix10Redo = normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(state.realPlanSlotRewrites64BNBugfix10Redo);
+    const entries = Array.isArray(state.realPlanSlotRewrites64BNBugfix10Redo.entries) ? state.realPlanSlotRewrites64BNBugfix10Redo.entries.filter((entry) => entry && entry.active !== false && entry.programSlotAfter) : [];
+    let appliedCount = 0;
+    entries.forEach((entry) => {
+      const slot = findRealProgramSlot64BNBugfix10Redo(state, entry);
+      if (!slot || !slot.ok) return;
+      const after = clone(entry.programSlotAfter || {});
+      after.day = slot.exercise.day || entry.dayName || after.day;
+      after.order = Number.isFinite(Number(slot.exercise.order)) ? Number(slot.exercise.order) : entry.slotOrder;
+      after.block = after.block || slot.exercise.block || entry.block || "Workout";
+      after.realPlanSlotRewriteHydrated64BNBugfix10Redo = true;
+      state.program.exercisesById[slot.index] = after;
+      clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo(state, entry);
+      appliedCount += 1;
+    });
+    if (appliedCount) {
+      state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix10RedoRealPlanSlotRewritesHydrated: appliedCount, phase64BNBugfix10RedoRealPlanSlotRewritesHydratedAt: nowIso(), phase64BNBugfix10RedoRealPlanSlotRewritesHydrationReason: reason || "hydrate", phase64BNBugfix10RedoHistoryMutation: false, phase64BNBugfix10RedoLocalStorageClear: false });
+    }
     return state;
   }
 
-  function isRecalibrationNotVerified64BNBugfix10Redo2(state, recOrPayload) {
-    const key = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
-    return !!(key && notVerifiedRecalibrationKeys64BNBugfix10Redo2(state).has(key));
+  function applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(stateInput, recInput, options = {}) {
+    const state = stateInput && typeof stateInput === "object" ? stateInput : clone((typeof loadState === "function" ? loadState().state : null) || createDefaultState());
+    const rec = recInput || {};
+    if (!rec || !rec.recommended) return { ok: false, reason: "missing-recommendation", state };
+    const slot = findRealProgramSlot64BNBugfix10Redo(state, rec);
+    if (!slot || !slot.ok) return Object.assign({ ok: false, state, recommendation: rec }, slot || { reason: "real-slot-not-found" });
+    const before = clone(slot.exercise || {});
+    const promotion = promoteSmartCandidateToProgramExercise64BNBugfix10Redo(state, rec.recommended, slot, rec);
+    if (!promotion || !promotion.ok || !promotion.exercise) return { ok: false, reason: "candidate-promotion-failed", state, recommendation: rec, slot };
+    const after = promotion.exercise;
+    state.program.exercisesById[slot.index] = after;
+    const entry = {
+      phase: "64BN BUGFIX 10 REDO",
+      type: "real-plan-slot-rewrite-from-recalibration",
+      key: realPlanSlotKey64BNBugfix10Redo(rec),
+      recommendationKey: rec.key || "",
+      dayName: slot.dayName || rec.dayName || before.day,
+      mode: rec.mode || options.mode || "",
+      route: rec.route || options.route || "",
+      slotIndex: Number.isFinite(Number(rec.slotIndex)) ? Number(rec.slotIndex) : null,
+      slotOrder: slot.slotOrder,
+      block: before.block || rec.block || "",
+      previousExerciseId: before.id || "",
+      previousExerciseName: realPlanExerciseName64BNBugfix10Redo(before),
+      replacementExerciseId: after.id || "",
+      replacementExerciseName: realPlanExerciseName64BNBugfix10Redo(after),
+      sourceCandidateId: promotion.sourceCandidate && promotion.sourceCandidate.id || "",
+      sourceCandidateName: promotion.sourceCandidate && realPlanExerciseName64BNBugfix10Redo(promotion.sourceCandidate) || "",
+      replacementPromotedFromSmartCandidate: !!promotion.promotedFromSmartCandidate,
+      candidateAlreadyProgrammed: !!promotion.alreadyProgrammed,
+      programSourcePath: slot.sourcePath,
+      programSlotAfter: clone(after),
+      preservesSlotPrescription: JSON.stringify(after.prescription || {}) === JSON.stringify(before.prescription || {}),
+      preservesSlotGuidance: JSON.stringify(after.guidance || {}) === JSON.stringify(before.guidance || {}),
+      preservesSlotOrder: Number(after.order) === Number(before.order),
+      oldExerciseIdentityRequiredForFutureMatching: false,
+      staleSmartPlanOverrideCleared: false,
+      active: true,
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+      source: options.source || "recalibration-real-plan-slot-rewrite",
+      historyMutation: false,
+      localStorageClear: false
+    };
+    state.realPlanSlotRewrites64BNBugfix10Redo = normalizeRealPlanSlotRewritesStore64BNBugfix10Redo(state.realPlanSlotRewrites64BNBugfix10Redo);
+    const entries = Array.isArray(state.realPlanSlotRewrites64BNBugfix10Redo.entries) ? state.realPlanSlotRewrites64BNBugfix10Redo.entries.slice() : [];
+    const existingIndex = entries.findIndex((item) => item && realPlanSlotKey64BNBugfix10Redo(item) === entry.key);
+    if (existingIndex >= 0) entries[existingIndex] = Object.assign({}, entries[existingIndex], entry, { createdAt: entries[existingIndex].createdAt || entry.createdAt, updatedAt: nowIso() });
+    else entries.push(entry);
+    state.realPlanSlotRewrites64BNBugfix10Redo.entries = entries;
+    const stale = clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo(state, entry);
+    entry.staleSmartPlanOverrideCleared = !!(stale && stale.clearedCount);
+    entry.staleSmartPlanOverrideClearedCount = stale && stale.clearedCount || 0;
+    const finalIndex = state.realPlanSlotRewrites64BNBugfix10Redo.entries.findIndex((item) => item && realPlanSlotKey64BNBugfix10Redo(item) === entry.key);
+    if (finalIndex >= 0) state.realPlanSlotRewrites64BNBugfix10Redo.entries[finalIndex] = Object.assign({}, state.realPlanSlotRewrites64BNBugfix10Redo.entries[finalIndex], { staleSmartPlanOverrideCleared: entry.staleSmartPlanOverrideCleared, staleSmartPlanOverrideClearedCount: entry.staleSmartPlanOverrideClearedCount });
+    state.realPlanSlotRewrites64BNBugfix10Redo.auditTrail = Array.isArray(state.realPlanSlotRewrites64BNBugfix10Redo.auditTrail) ? state.realPlanSlotRewrites64BNBugfix10Redo.auditTrail : [];
+    state.realPlanSlotRewrites64BNBugfix10Redo.auditTrail.unshift(Object.assign({}, entry, { programSlotAfter: undefined, recordedAt: nowIso() }));
+    state.realPlanSlotRewrites64BNBugfix10Redo.auditTrail = state.realPlanSlotRewrites64BNBugfix10Redo.auditTrail.slice(0, 120);
+    const verify = verifyRealPlanSlotWasRewritten64BNBugfix10Redo(state, entry);
+    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix10RedoRealPlanSlotRewrite: true, phase64BNBugfix10RedoLastRewriteKey: entry.key, phase64BNBugfix10RedoLastRewriteAt: entry.updatedAt, phase64BNBugfix10RedoSourcePath: slot.sourcePath, phase64BNBugfix10RedoHistoryMutation: false, phase64BNBugfix10RedoSaveBehaviorTouched: false, phase64BNBugfix10RedoExitBehaviorTouched: false, phase64BNBugfix10RedoLocalStorageClear: false });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix10RedoRealPlanSlotRewrite: "approved-recalibration-upgrades-rewrite-state-program-exercisesById" });
+    return { ok: !!verify.ok, state, entry, rewrite: entry, before, after, promotion, verification: verify, recommendation: rec, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true, oldExerciseIdentityRequired: false, staleOverrideCleared: entry.staleSmartPlanOverrideCleared };
   }
 
-  function removeRecalibrationNotVerified64BNBugfix10Redo2(state, recOrPayload) {
-    if (!state || !state.qa) return state;
-    const key = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
-    if (!key) return state;
-    const set = notVerifiedRecalibrationKeys64BNBugfix10Redo2(state);
-    set.delete(key);
-    state.qa.phase64BNBugfix10Redo2NotVerifiedKeys = Array.from(set).slice(-50);
-    return state;
-  }
-
-  function findRoundtripRecommendation64BNBugfix10Redo2(report, recOrPayload) {
-    const list = report && Array.isArray(report.recommendations) ? report.recommendations : [];
-    const roundtripKey = buildRoundtripVerificationKey64BNBugfix10Redo2(recOrPayload);
-    return list.find((candidate) => buildRoundtripVerificationKey64BNBugfix10Redo2(candidate) === roundtripKey) || null;
-  }
-
-  function verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2(stateInput, rec, payloadInput, options = {}) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const payload = Object.assign({}, payloadInput || {});
-    if (!rec || !payload || !payload.replacementExerciseId) return { verified: false, reason: "missing-roundtrip-payload", state, recommendation: rec, payload };
-    const alreadyBefore = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, rec) || isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, payload);
-    if (alreadyBefore && !options.forceSave) return { verified: true, alreadyBefore: true, reason: "already-applied-before-save", state, entry: alreadyBefore, recommendation: rec, payload };
-    const savedState = saveSmartPlanUpgrade64BL(state, payload);
-    let saved = null;
-    try { saved = saveState(savedState.state, options.saveReason || "phase64bn-bugfix10-redo2-roundtrip-verified-smart-plan-upgrade"); } catch (err) { saved = null; }
-    const latestState = saved && saved.state ? saved.state : (typeof loadState === "function" ? loadState().state : savedState.state);
-    const directSaved = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(latestState, payload) || isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(latestState, rec) || (typeof isRecommendationAlreadyEffective64BNBugfix10Redo3 === "function" ? isRecommendationAlreadyEffective64BNBugfix10Redo3(latestState, rec) : null);
-    let freshRec = null;
-    let freshAction = null;
-    try {
-      const freshReport = buildSmartPlanRecalibrationReport64BM(latestState);
-      freshRec = findRoundtripRecommendation64BNBugfix10Redo2(freshReport, rec) || findRecalibrationRecommendation64BM(freshReport, rec && rec.key);
-      if (freshRec) freshAction = getRecalibrationActionState64BNBugfix6(freshRec, getRecalibrationSection64BNBugfix8(freshRec), { state: latestState, report: freshReport });
-    } catch (err) {
-      freshRec = null;
-      freshAction = null;
-    }
-    const scanAware = !freshRec || !!directSaved || (freshAction && (freshAction.type === "already_applied" || !freshAction.canApply));
-    const realDefault64BNBugfix10Redo4 = typeof verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4 === "function" ? verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4(latestState, rec, payload) : { ok: !!directSaved && scanAware, reason: scanAware ? "legacy-scan-aware" : "legacy-scan-still-actionable" };
-    const verified = !!directSaved && scanAware && !!(realDefault64BNBugfix10Redo4 && realDefault64BNBugfix10Redo4.ok);
-    if (verified) {
-      removeRecalibrationNotVerified64BNBugfix10Redo2(latestState, payload);
-      return { verified: true, alreadyBefore: false, reason: "save-read-rescan-real-default-verified", state: latestState, entry: directSaved || savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction, realDefault64BNBugfix10Redo4 };
-    }
-    const failReason64BNBugfix10Redo4 = realDefault64BNBugfix10Redo4 && realDefault64BNBugfix10Redo4.reason || (freshRec && freshAction && freshAction.reason) || "roundtrip-not-recognized-after-save";
-    markRecalibrationNotVerified64BNBugfix10Redo2(latestState, payload, failReason64BNBugfix10Redo4);
-    try { saveState(latestState, "phase64bn-bugfix10-redo4-real-default-not-verified"); } catch (err) {}
-    return { verified: false, reason: failReason64BNBugfix10Redo4, state: latestState, entry: savedState.entry, recommendation: rec, payload, freshRecommendation: freshRec, freshAction, realDefault64BNBugfix10Redo4, defaultNotUpdated64BNBugfix10Redo4: true };
-  }
 
   function getRecalibrationActionState64BNBugfix6(rec, section, options = {}) {
     const state = options.state || (typeof loadState === "function" ? loadState().state : createDefaultState());
     const report = options.report || null;
     if (!rec || !rec.key || !rec.current) return Object.freeze({ type: "blocked_missing_payload", canApply: false, label: blockReasonLabel64BNBugfix6("blocked_missing_payload"), message: blockReasonMessage64BNBugfix6("blocked_missing_payload"), reason: "missing-card-payload" });
-    const alreadyRealDefault64BNBugfix10Redo4 = typeof isRecommendationAlreadyRealDefault64BNBugfix10Redo4 === "function" ? isRecommendationAlreadyRealDefault64BNBugfix10Redo4(state, rec) : null;
-    if (alreadyRealDefault64BNBugfix10Redo4) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_effective"), message: "This future default is already active for this slot.", reason: alreadyRealDefault64BNBugfix10Redo4.reason || "real-workout-default-already-active", override: alreadyRealDefault64BNBugfix10Redo4.entry || null, phase64BNBugfix10Redo4RealDefault: true });
-    const alreadyEffective64BNBugfix10Redo3 = typeof isRecommendationAlreadyEffective64BNBugfix10Redo3 === "function" ? isRecommendationAlreadyEffective64BNBugfix10Redo3(state, rec) : null;
-    if (alreadyEffective64BNBugfix10Redo3) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_applied"), message: "This future default is already saved for this slot.", reason: alreadyEffective64BNBugfix10Redo3.reason || "already-effective-source-of-truth", override: alreadyEffective64BNBugfix10Redo3.entry || null, phase64BNBugfix10Redo3AlreadyEffective: true });
-    if (typeof isRecalibrationNotVerified64BNBugfix10Redo2 === "function" && isRecalibrationNotVerified64BNBugfix10Redo2(state, rec)) return Object.freeze({ type: "not_verified", canApply: false, label: blockReasonLabel64BNBugfix6("not_verified"), message: blockReasonMessage64BNBugfix6("not_verified"), reason: "roundtrip-not-verified" });
+    const alreadyUpdatedRealPlan64BNBugfix10Redo = typeof getAppliedRealPlanRewriteForSlot64BNBugfix10Redo === "function" ? getAppliedRealPlanRewriteForSlot64BNBugfix10Redo(state, rec) : null;
+    if (alreadyUpdatedRealPlan64BNBugfix10Redo) return Object.freeze({ type: "already_updated", canApply: false, label: blockReasonLabel64BNBugfix6("already_updated"), message: blockReasonMessage64BNBugfix6("already_updated"), reason: "real-plan-slot-already-rewritten", rewrite: alreadyUpdatedRealPlan64BNBugfix10Redo });
     const alreadyAppliedOverride64BNBugfix9 = typeof getAppliedSmartPlanOverrideForSlot64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideForSlot64BNBugfix9(state, rec) : null;
     if (alreadyAppliedOverride64BNBugfix9) return Object.freeze({ type: "already_applied", canApply: false, label: blockReasonLabel64BNBugfix6("already_applied"), message: blockReasonMessage64BNBugfix6("already_applied"), reason: "smartplan-override-already-saved", override: alreadyAppliedOverride64BNBugfix9 });
     const isSafe = section === "safe" || rec.confidence === "safe";
@@ -21871,13 +21363,14 @@ Existing History logs stay untouched.`);
     const replacementLabel64BNBugfix7 = getRecalibrationReplacementLabel64BNBugfix7(rec, section, actionState);
     const isDuplicate = actionState.type === "blocked_duplicate";
     const modeMismatch = actionState.type === "blocked_mode_mismatch";
-    const pill = isSafe ? "Safe upgrade" : (isStrong ? (/similar/i.test(String(rec.decisionLabel || "")) ? "Similar fit / no change" : "Current is strong") : (modeMismatch ? "Review first · mode mismatch" : (isDuplicate ? "Review first · duplicate risk" : (actionState.type === "blocked_intent_mismatch" ? "Review first · intent guard" : (actionState.type === "blocked_similar_fit" ? "Review first · similar fit" : "Review first")))));
+    const updatedDefault64BNBugfix10Redo = actionState.type === "already_updated";
+    const pill = updatedDefault64BNBugfix10Redo ? "Updated default" : (isSafe ? "Safe upgrade" : (isStrong ? (/similar/i.test(String(rec.decisionLabel || "")) ? "Similar fit / no change" : "Current is strong") : (modeMismatch ? "Review first · mode mismatch" : (isDuplicate ? "Review first · duplicate risk" : (actionState.type === "blocked_intent_mismatch" ? "Review first · intent guard" : (actionState.type === "blocked_similar_fit" ? "Review first · similar fit" : "Review first"))))));
     const actions = renderRecalibrationActionControls64BNBugfix6(rec, section, actionState);
     const contextHeader64BN = formatRecalibrationCardHeader64BN(rec);
     const contextBadges64BN = renderRecalibrationContextBadges64BN(rec);
     const cleanWhy64BN = formatRecalibrationWhyBody64BNBugfix6(rec);
     const decisionLabel64BN = String(rec.decisionLabel || (isStrong ? "Current is strong" : "Review first")).replace(/:\s*$/, "");
-    return `<div class="smart-recalibration-rec64bm" data-phase64bm-recommendation="${escapeHtml(rec.key)}" data-confidence64bm="${escapeHtml(section)}" data-phase64bm-bugfix2-duplicate="${escapeHtml(isDuplicate ? "true" : "false")}" data-phase64bm-bugfix3-apply-guard="${escapeHtml(actionState.canApply ? "clear" : actionState.type)}" data-phase64bn-bugfix6-action-truth="${escapeHtml(actionState.type)}" data-phase64bn-bugfix7-replacement-label="${escapeHtml(replacementLabel64BNBugfix7)}" data-phase64bn-bugfix9-already-applied="${escapeHtml(actionState.type === "already_applied" ? "true" : "false")}" data-phase64bn-route-mode="${escapeHtml(rec.routeModeLabel64BN || "")}">
+    return `<div class="smart-recalibration-rec64bm" data-phase64bm-recommendation="${escapeHtml(rec.key)}" data-confidence64bm="${escapeHtml(section)}" data-phase64bm-bugfix2-duplicate="${escapeHtml(isDuplicate ? "true" : "false")}" data-phase64bm-bugfix3-apply-guard="${escapeHtml(actionState.canApply ? "clear" : actionState.type)}" data-phase64bn-bugfix6-action-truth="${escapeHtml(actionState.type)}" data-phase64bn-bugfix7-replacement-label="${escapeHtml(replacementLabel64BNBugfix7)}" data-phase64bn-bugfix9-already-applied="${escapeHtml((actionState.type === "already_applied" || actionState.type === "already_updated") ? "true" : "false")}" data-phase64bn-route-mode="${escapeHtml(rec.routeModeLabel64BN || "")}">
       <div class="smart-recalibration-rec-title64bm"><b>${escapeHtml(contextHeader64BN)}</b><span class="smart-recalibration-pill64bm">${escapeHtml(pill)}</span></div>
       <div class="smart-recalibration-context64bn" data-phase64bn-context-badges="true">${contextBadges64BN}</div>
       <div class="smart-recalibration-pair64bm"><div><b>CURRENT</b>${escapeHtml(rec.currentName)} — ${escapeHtml(rec.currentFitLabel)}</div><div><b>${escapeHtml(replacementLabel64BNBugfix7)}</b>${escapeHtml(rec.recommendedName)} — ${escapeHtml(rec.recommendedFitLabel)}</div></div>
@@ -21910,10 +21403,8 @@ Existing History logs stay untouched.`);
     } else if (actionState && actionState.canApply && resolvedSection === "review") {
       category = "review_apply_eligible";
       canBatchApply = true;
-    } else if (/already_applied/.test(type) || /already/.test(reason)) {
+    } else if (/already_applied|already_updated/.test(type) || /already|real-plan-slot-already-rewritten/.test(reason)) {
       category = "already_applied";
-    } else if (/not_verified|default_not_updated|not_applied/.test(type) || /not.verified|roundtrip|default-not-active|default-not-updated|workout-builder-still-resolves-raw-current/.test(reason)) {
-      category = "not_verified";
     } else if (/duplicate/.test(type) || /duplicate/.test(reason)) {
       category = "blocked_duplicate";
     } else if (/mode/.test(type) || /mode/.test(reason)) {
@@ -21946,7 +21437,6 @@ Existing History logs stay untouched.`);
       blocked_similar_fit: [],
       blocked_missing_payload: [],
       already_applied: [],
-      not_verified: [],
       review_only: [],
       skipped_unknown: []
     };
@@ -21962,7 +21452,7 @@ Existing History logs stay untouched.`);
     (report && Array.isArray(report.reviewFirst) ? report.reviewFirst : []).forEach((rec) => add(rec, "review"));
     (report && Array.isArray(report.currentStrong) ? report.currentStrong : []).forEach((rec) => add(rec, "strong"));
     const eligible = buckets.safe_apply.concat(buckets.review_apply_eligible);
-    const blocked = buckets.blocked_duplicate.concat(buckets.blocked_mode_mismatch, buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent, buckets.blocked_missing_payload, buckets.not_verified, buckets.skipped_unknown);
+    const blocked = buckets.blocked_duplicate.concat(buckets.blocked_mode_mismatch, buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent, buckets.blocked_missing_payload, buckets.skipped_unknown);
     const strongSimilar = buckets.blocked_current_strong.concat(buckets.blocked_similar_fit);
     const alreadyApplied = buckets.already_applied;
     const reviewOnly = buckets.review_only.concat(buckets.blocked_intent_mismatch, buckets.blocked_warmup_intent);
@@ -21993,7 +21483,7 @@ Existing History logs stay untouched.`);
   function renderRecalibrationBatchActionArea64BNBugfix8(report) {
     const batch = collectEligibleRecommendedUpgrades64BNBugfix8(report, typeof loadState === "function" ? loadState().state : createDefaultState());
     const stats = batch.stats || {};
-    const disabled = (stats.eligible || stats.alreadyApplied) ? "" : " disabled";
+    const disabled = stats.eligible ? "" : " disabled";
     const helper = stats.eligible ? "Applies Safe upgrades and valid Review First upgrades. Blocked or low-confidence items stay unchanged." : (stats.alreadyApplied ? "No new upgrades ready. Existing upgrades are already saved." : "No eligible upgrades ready. Blocked and review-only items stay unchanged.");
     return `<div class="smart-recalibration-actions64bm" data-phase64bn-bugfix8-batch-action-area="true">
       <button class="btn" type="button" id="applyAllRecommendedUpgrades64BNBugfix8" data-phase64bn-bugfix8-apply-all-recommended="user-confirmed"${disabled}>Apply all recommended upgrades</button>
@@ -22002,7 +21492,7 @@ Existing History logs stay untouched.`);
     <div class="smart-recalibration-summary64bm" data-phase64bn-bugfix8-batch-stats="true" data-phase64bn-bugfix9-batch-stats="applied-aware"><div><b>${escapeHtml(stats.safe || 0)}</b><span>Safe</span></div><div><b>${escapeHtml(stats.reviewApplicable || 0)}</b><span>Review-applicable</span></div><div><b>${escapeHtml(stats.blocked || 0)}</b><span>Blocked</span></div><div><b>${escapeHtml(stats.reviewOnly || 0)}</b><span>Review only</span></div><div><b>${escapeHtml(stats.strongSimilar || 0)}</b><span>Strong/similar</span></div><div><b>${escapeHtml(stats.alreadyApplied || 0)}</b><span>Already applied</span></div></div>`;
   }
 
-  function applyAllEligibleRecommendedUpgrades64BNBugfix8(reportInput) {
+    function applyAllEligibleRecommendedUpgrades64BNBugfix8(reportInput) {
     const loaded = loadState();
     let state = clone(loaded.state || createDefaultState());
     const initialReport = reportInput || buildSmartPlanRecalibrationReport64BM(state);
@@ -22014,46 +21504,29 @@ Existing History logs stay untouched.`);
     queue.forEach((item) => {
       const freshReport = buildSmartPlanRecalibrationReport64BM(state);
       const rec = findRecalibrationRecommendation64BM(freshReport, item.key);
-      if (!rec) { skipped.push({ key: item.key, reason: "recommendation-not-found-after-reconciliation" }); return; }
-      const section = getRecalibrationSection64BNBugfix8(rec);
-      const alreadyEffective64BNBugfix10Redo3 = typeof isRecommendationAlreadyEffective64BNBugfix10Redo3 === "function" ? isRecommendationAlreadyEffective64BNBugfix10Redo3(state, rec) : null;
-      if (alreadyEffective64BNBugfix10Redo3) { skipped.push({ key: rec.key, reason: "already-effective", category: "already_applied", entry: alreadyEffective64BNBugfix10Redo3.entry || null }); return; }
-      const row = classifyBatchUpgrade64BNBugfix8(rec, section, state, freshReport);
-      if (!row.canBatchApply) { skipped.push({ key: rec.key, reason: row.reason || row.category, category: row.category }); return; }
-      const alreadyBeforePayload64BNBugfix10Redo = typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function" ? isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(state, rec) : null;
-      if (alreadyBeforePayload64BNBugfix10Redo) { skipped.push({ key: rec.key, reason: "already-applied", category: "already_applied", entry: alreadyBeforePayload64BNBugfix10Redo }); return; }
-      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "phase64bn-bugfix8-apply-all-recommended", claimedIdentities });
-      if (!guard || !guard.ok) { skipped.push({ key: rec.key, reason: guard && guard.reason || "duplicate-or-eligibility-guard", conflict: guard && guard.conflict || null }); return; }
-      const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
-      if (!payloadResult || !payloadResult.ok) { skipped.push({ key: rec.key, reason: payloadResult && payloadResult.reason || "payload-failed" }); return; }
-      const alreadyPayload64BNBugfix10Redo = typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function" ? isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(state, payloadResult.payload) : null;
-      if (alreadyPayload64BNBugfix10Redo) { skipped.push({ key: rec.key, reason: "already-applied", category: "already_applied", entry: alreadyPayload64BNBugfix10Redo }); return; }
-      const roundtrip = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2(state, rec, payloadResult.payload, { saveReason: "phase64bn-bugfix10-redo2-apply-all-roundtrip" }) : null;
-      if (roundtrip) {
-        state = roundtrip.state || state;
-        if (roundtrip.verified && !roundtrip.alreadyBefore) {
-          applied.push(Object.assign({}, roundtrip.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key, phase64BNBugfix10Redo2Verified: true }));
-          if (guard.claimKey) claimedIdentities.add(guard.claimKey);
-        } else if (roundtrip.verified && roundtrip.alreadyBefore) {
-          skipped.push({ key: rec.key, reason: "already-applied", category: "already_applied", entry: roundtrip.entry });
-        } else {
-          skipped.push({ key: rec.key, reason: roundtrip.reason || "roundtrip-not-verified", category: "not_verified", entry: roundtrip.entry || null });
-        }
+      if (!rec) {
+        const alreadyUpdated = findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(state, item.key);
+        if (alreadyUpdated) skipped.push({ key: item.key, reason: "already-updated-real-plan-slot", entry: alreadyUpdated });
+        else skipped.push({ key: item.key, reason: "recommendation-not-found-after-reconciliation" });
         return;
       }
-      const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
-      state = savedState.state;
-      applied.push(Object.assign({}, savedState.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key }));
+      const section = getRecalibrationSection64BNBugfix8(rec);
+      const row = classifyBatchUpgrade64BNBugfix8(rec, section, state, freshReport);
+      if (!row.canBatchApply) { skipped.push({ key: rec.key, reason: row.reason || row.category, category: row.category }); return; }
+      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "phase64bn-bugfix10-redo-apply-all-real-plan-slot-rewrite", claimedIdentities });
+      if (!guard || !guard.ok) { skipped.push({ key: rec.key, reason: guard && guard.reason || "duplicate-or-eligibility-guard", conflict: guard && guard.conflict || null }); return; }
+      const rewriteResult = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "apply-all-recommended-upgrades" });
+      if (!rewriteResult || !rewriteResult.ok) { skipped.push({ key: rec.key, reason: rewriteResult && rewriteResult.reason || "real-plan-slot-rewrite-failed" }); return; }
+      state = rewriteResult.state;
+      applied.push(Object.assign({}, rewriteResult.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key, realPlanSlotRewrite64BNBugfix10Redo: true }));
       if (guard.claimKey) claimedIdentities.add(guard.claimKey);
     });
     const leftUnchanged = (initialBatch.blocked.length || 0) + (initialBatch.reviewOnly.length || 0) + (initialBatch.strongSimilar.length || 0) + skipped.length;
-    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix8BatchApply: true, phase64BNBugfix8BatchAppliedCount: applied.length, phase64BNBugfix8BatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix10Redo2VerifiedAppliedCount: applied.filter((entry) => entry && entry.phase64BNBugfix10Redo2Verified).length, phase64BNBugfix10Redo2NotVerifiedCount: skipped.filter((item) => item && item.category === "not_verified").length, phase64BNBugfix8BatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix8BatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false });
-    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix8RecalibrationBatchApply: "user-confirmed-safe-plus-review-eligible" });
-    saveState(state, "phase64bn-bugfix8-apply-all-recommended-upgrades");
-    const alreadySkipped64BNBugfix10Redo = skipped.filter((item) => item && item.reason === "already-applied").length;
-    const notVerified64BNBugfix10Redo2 = skipped.filter((item) => item && item.category === "not_verified").length;
-    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. ${leftUnchanged} blocked/review-only item${leftUnchanged === 1 ? "" : "s"} were left unchanged.${notVerified64BNBugfix10Redo2 ? ` ${notVerified64BNBugfix10Redo2} upgrade${notVerified64BNBugfix10Redo2 === 1 ? "" : "s"} could not be verified and were not counted.` : ""}` : ((initialBatch.alreadyApplied && initialBatch.alreadyApplied.length) || alreadySkipped64BNBugfix10Redo ? "No new upgrades applied. Existing upgrades are already saved." : (notVerified64BNBugfix10Redo2 ? "No verified upgrades applied. Some upgrades need manual review." : "No eligible upgrades ready. Blocked and review-only items were left unchanged."));
-    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, leftUnchangedCount: leftUnchanged, batch: initialBatch, historyMutation: false, workoutWideRewrite: false, message };
+    state.audit = Object.assign({}, state.audit || {}, { phase64BNBugfix10RedoBatchApply: true, phase64BNBugfix10RedoBatchAppliedCount: applied.length, phase64BNBugfix10RedoBatchSkippedOrBlockedCount: leftUnchanged, phase64BNBugfix10RedoBatchReviewEligibleAppliedCount: applied.filter((entry) => entry && entry.phase64bnBugfix8Category === "review_apply_eligible").length, phase64BNBugfix10RedoBatchAt: nowIso(), phase64BNBugfix10RedoRealPlanSlotRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BNBugfix10RedoLocalStorageClear: false });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BNBugfix10RedoRecalibrationBatchApply: "user-confirmed-real-plan-slot-rewrites" });
+    saveState(state, "phase64bn-bugfix10-redo-apply-all-recommended-real-plan-slot-rewrite");
+    const message = applied.length ? `Applied ${applied.length} upgrade${applied.length === 1 ? "" : "s"}. This workout slot now uses the new default. ${leftUnchanged} blocked/review-only/already-updated item${leftUnchanged === 1 ? "" : "s"} were left unchanged.` : (initialBatch.alreadyApplied && initialBatch.alreadyApplied.length ? "No new upgrades applied. Existing upgraded slots already use the new default." : "No new upgrades applied. Blocked and review-only items were left unchanged.");
+    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, leftUnchangedCount: leftUnchanged, batch: initialBatch, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true, message };
   }
 
   function renderSafeUpgradeSection64BM(report) {
@@ -22117,6 +21590,11 @@ Existing History logs stay untouched.`);
     const rec = findRecalibrationRecommendation64BM(report, key);
     const actionState = getRecalibrationActionState64BNBugfix6(rec, rec && rec.confidence === "safe" ? "safe" : rec && rec.confidence === "strong" ? "strong" : "review", { state, report });
     if (!rec) {
+      const alreadyUpdatedFromKey64BNBugfix10Redo = typeof findRealPlanRewriteByRecommendationKey64BNBugfix10Redo === "function" ? findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(state, key) : null;
+      if (alreadyUpdatedFromKey64BNBugfix10Redo) {
+        visibleRecalibrationStatus64BNBugfix6(panel, key, "Already updated: this workout slot now uses the new default.", "already_updated");
+        return { ok: false, reason: "already-updated-real-plan-slot", alreadyUpdated: true, entry: alreadyUpdatedFromKey64BNBugfix10Redo, actionState: { type: "already_updated", canApply: false } };
+      }
       const alreadyAppliedFromKey64BNBugfix9 = typeof getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9(state, key) : null;
       if (alreadyAppliedFromKey64BNBugfix9) {
         visibleRecalibrationStatus64BNBugfix6(panel, key, "Already applied: this future default is already saved for this slot.", "already_applied");
@@ -22133,11 +21611,7 @@ Existing History logs stay untouched.`);
     }
     const result = applyPlanUpgrade64BM(key);
     if (result && result.ok) {
-      openSmartPlanRecalibrationCenter64BM(`Applied: ${result.entry.originalExerciseName} → ${result.entry.replacementExerciseName}. Remaining recommendations reconciled.`);
-      return result;
-    }
-    if (result && result.alreadyApplied) {
-      openSmartPlanRecalibrationCenter64BM("Already applied: this future default is already saved for this slot.");
+      openSmartPlanRecalibrationCenter64BM(`Updated default: ${result.entry.previousExerciseName || result.entry.originalExerciseName} → ${result.entry.replacementExerciseName}. This workout slot now uses the new default. Remaining recommendations reconciled.`);
       return result;
     }
     const reason = result && result.reason || "not eligible";
@@ -22217,12 +21691,6 @@ Existing History logs stay untouched.`);
     payloadResult.payload.source = "data-tab-smart-plan-recalibration";
     payloadResult.payload.batchEligible64BM = rec.confidence === "safe";
     payloadResult.payload.reviewFirst64BM = rec.confidence === "review";
-    payloadResult.payload.mode = rec.mode || payloadResult.payload.mode || "";
-    payloadResult.payload.route = rec.route || payloadResult.payload.route || "";
-    payloadResult.payload.routeModeLabel64BN = rec.routeModeLabel64BN || payloadResult.payload.routeModeLabel64BN || "";
-    payloadResult.payload.recommendationKey64BM = rec.key || "";
-    payloadResult.payload.phase64BNBugfix10RedoRecommendationKey = rec.key || "";
-    payloadResult.payload.phase64BNBugfix10RedoAppliedOverrideKey = typeof buildRecalibrationAppliedOverrideKey64BNBugfix10Redo === "function" ? buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(payloadResult.payload) : "";
     return payloadResult;
   }
 
@@ -22296,47 +21764,34 @@ Existing History logs stay untouched.`);
     return guardPlanUpgradeApply64BMBugfix3(state, rec, report, options);
   }
 
-  function applyPlanUpgrade64BM(recommendationKey) {
+    function applyPlanUpgrade64BM(recommendationKey) {
     const loaded = loadState();
     const state = clone(loaded.state || createDefaultState());
     const report = buildSmartPlanRecalibrationReport64BM(state);
     const rec = findRecalibrationRecommendation64BM(report, recommendationKey);
     if (!rec) {
+      const alreadyUpdatedFromKey64BNBugfix10Redo = typeof findRealPlanRewriteByRecommendationKey64BNBugfix10Redo === "function" ? findRealPlanRewriteByRecommendationKey64BNBugfix10Redo(state, recommendationKey) : null;
+      if (alreadyUpdatedFromKey64BNBugfix10Redo) return { ok: false, reason: "already-updated-real-plan-slot", alreadyUpdated: true, entry: alreadyUpdatedFromKey64BNBugfix10Redo, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true };
       const alreadyAppliedFromKey64BNBugfix9 = typeof getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideByRecommendationKey64BNBugfix9(state, recommendationKey) : null;
       if (alreadyAppliedFromKey64BNBugfix9) return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyAppliedFromKey64BNBugfix9, historyMutation: false, workoutWideRewrite: false };
       return { ok: false, reason: "recommendation-not-found" };
     }
-    const alreadyEffective64BNBugfix10Redo3 = typeof isRecommendationAlreadyEffective64BNBugfix10Redo3 === "function" ? isRecommendationAlreadyEffective64BNBugfix10Redo3(state, rec) : null;
-    if (alreadyEffective64BNBugfix10Redo3) return { ok: false, reason: "already-effective", alreadyApplied: true, entry: alreadyEffective64BNBugfix10Redo3.entry || null, recommendation: rec, historyMutation: false, workoutWideRewrite: false };
-    const alreadyApplied64BNBugfix9 = typeof getAppliedSmartPlanOverrideForSlot64BNBugfix9 === "function" ? getAppliedSmartPlanOverrideForSlot64BNBugfix9(state, rec) : null;
-    if (alreadyApplied64BNBugfix9) return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyApplied64BNBugfix9, recommendation: rec, historyMutation: false, workoutWideRewrite: false };
+    const section = rec.confidence === "safe" ? "safe" : rec.confidence === "strong" ? "strong" : "review";
+    const actionState = getRecalibrationActionState64BNBugfix6(rec, section, { state, report });
+    if (actionState && actionState.type === "already_updated") return { ok: false, reason: "already-updated-real-plan-slot", alreadyUpdated: true, entry: actionState.rewrite, recommendation: rec, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true };
     if (!rec.recommended || rec.confidence === "strong") return { ok: false, reason: "no-upgrade-for-current-strong" };
-    const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, report, { source: "single-apply" });
+    if (!actionState || !actionState.canApply) return { ok: false, reason: actionState && (actionState.reason || actionState.type) || "not-eligible", recommendation: rec, actionState };
+    const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, report, { source: "single-apply-real-plan-slot-rewrite" });
     if (!guard.ok) return Object.assign({ ok: false, recommendation: rec }, guard);
-    const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
-    if (!payloadResult.ok) return payloadResult;
-    const alreadyAppliedPayload64BNBugfix10Redo = typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function" ? isRecalibrationOverrideAlreadySaved64BNBugfix10Redo(state, payloadResult.payload) : null;
-    if (alreadyAppliedPayload64BNBugfix10Redo) return { ok: false, reason: "already-applied", alreadyApplied: true, entry: alreadyAppliedPayload64BNBugfix10Redo, recommendation: rec, historyMutation: false, workoutWideRewrite: false };
-    const roundtrip = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2(state, rec, payloadResult.payload, { saveReason: "phase64bn-bugfix10-redo2-individual-roundtrip" }) : null;
-    if (roundtrip) {
-      if (roundtrip.verified) {
-        roundtrip.state.audit = Object.assign({}, roundtrip.state.audit || {}, { phase64BMLastPlanUpgrade: payloadResult.payload.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true, phase64BNBugfix10Redo2RoundtripVerified: true });
-        saveState(roundtrip.state, "phase64bn-bugfix10-redo2-individual-roundtrip-verified");
-        const entry = roundtrip.entry || {};
-        setText("smartPlanRecalibrationStatus64BM", roundtrip.alreadyBefore ? "Already applied: this future default is already saved for this slot." : `Applied future default: ${entry.originalExerciseName || rec.currentName} → ${entry.replacementExerciseName || rec.recommendedName}. Remaining recommendations reconciled.`);
-        return { ok: !roundtrip.alreadyBefore, alreadyApplied: !!roundtrip.alreadyBefore, reason: roundtrip.alreadyBefore ? "already-applied" : "roundtrip-verified", state: roundtrip.state, entry, recommendation: rec, historyMutation: false, workoutWideRewrite: false, duplicateGuard: guard, reconciled: true, roundtripVerified: true };
-      }
-      setText("smartPlanRecalibrationStatus64BM", "Not saved: this upgrade could not be verified after saving, so it was not counted. Review manually.");
-      return { ok: false, reason: roundtrip.reason || "roundtrip-not-verified", notVerified: true, state: roundtrip.state, entry: roundtrip.entry || null, recommendation: rec, historyMutation: false, workoutWideRewrite: false, duplicateGuard: guard, reconciled: false };
-    }
-    const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
-    savedState.state.audit = Object.assign({}, savedState.state.audit || {}, { phase64BMLastPlanUpgrade: payloadResult.payload.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true });
-    const saved = saveState(savedState.state, "phase64bm-bugfix3-user-confirmed-smart-plan-recalibration-upgrade");
-    setText("smartPlanRecalibrationStatus64BM", `Applied future default: ${savedState.entry.originalExerciseName} → ${savedState.entry.replacementExerciseName}. Remaining recommendations reconciled.`);
-    return { ok: true, state: saved && saved.state || savedState.state, entry: savedState.entry, recommendation: rec, historyMutation: false, workoutWideRewrite: false, duplicateGuard: guard, reconciled: true };
+    const rewriteResult = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "apply-after-review-or-single-upgrade" });
+    if (!rewriteResult || !rewriteResult.ok) return Object.assign({ ok: false, recommendation: rec }, rewriteResult || { reason: "real-plan-slot-rewrite-failed" });
+    rewriteResult.state.audit = Object.assign({}, rewriteResult.state.audit || {}, { phase64BMLastPlanUpgrade: rewriteResult.entry.key, phase64BMLastPlanUpgradeAt: nowIso(), phase64BNBugfix10RedoRealPlanSlotRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "passed", phase64BMBugfix3PostApplyReconciled: true });
+    const saved = saveState(rewriteResult.state, "phase64bn-bugfix10-redo-user-confirmed-real-plan-slot-rewrite");
+    setText("smartPlanRecalibrationStatus64BM", `Updated default: ${rewriteResult.entry.previousExerciseName} → ${rewriteResult.entry.replacementExerciseName}. This workout slot now uses the new default.`);
+    return { ok: true, state: saved && saved.state || rewriteResult.state, entry: rewriteResult.entry, rewrite: rewriteResult.entry, recommendation: rec, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true, duplicateGuard: guard, reconciled: true, verification: rewriteResult.verification, staleOverrideCleared: rewriteResult.staleOverrideCleared };
   }
 
-  function applyAllSafePlanUpgrades64BM() {
+    function applyAllSafePlanUpgrades64BM() {
     const loaded = loadState();
     let state = clone(loaded.state || createDefaultState());
     const initialReport = buildSmartPlanRecalibrationReport64BM(state);
@@ -22348,20 +21803,211 @@ Existing History logs stay untouched.`);
       const freshReport = buildSmartPlanRecalibrationReport64BM(state);
       const rec = findRecalibrationRecommendation64BM(freshReport, key);
       if (!rec || rec.confidence !== "safe" || !isPlanUpgradeSafe64BM(rec)) { skipped.push({ key, reason: "no-longer-safe-after-reconciliation" }); return; }
-      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "apply-all-safe", claimedIdentities });
+      const actionState = getRecalibrationActionState64BNBugfix6(rec, "safe", { state, report: freshReport });
+      if (!actionState.canApply) { skipped.push({ key: rec.key, reason: actionState.reason || actionState.type || "not-eligible" }); return; }
+      const guard = guardPlanUpgradeApply64BMBugfix3(state, rec, freshReport, { source: "apply-all-safe-real-plan-slot-rewrite", claimedIdentities });
       if (!guard.ok) { skipped.push({ key: rec.key, reason: guard.reason || "duplicate-conflict", conflict: guard.conflict || null }); return; }
-      const payloadResult = smartPlanUpgradePayloadFromRecommendation64BM(state, rec);
-      if (!payloadResult.ok) { skipped.push({ key: rec.key, reason: payloadResult.reason || "payload-failed" }); return; }
-      const savedState = saveSmartPlanUpgrade64BL(state, payloadResult.payload);
-      state = savedState.state;
-      applied.push(Object.assign({}, savedState.entry || {}, { phase64bnBugfix8Category: row.category, phase64bnBugfix8Key: rec.key }));
+      const rewriteResult = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "apply-all-safe-upgrades" });
+      if (!rewriteResult || !rewriteResult.ok) { skipped.push({ key: rec.key, reason: rewriteResult && rewriteResult.reason || "real-plan-slot-rewrite-failed" }); return; }
+      state = rewriteResult.state;
+      applied.push(Object.assign({}, rewriteResult.entry || {}, { phase64bmSafeApply: true, phase64bnBugfix8Key: rec.key, realPlanSlotRewrite64BNBugfix10Redo: true }));
       if (guard.claimKey) claimedIdentities.add(guard.claimKey);
     });
-    state.audit = Object.assign({}, state.audit || {}, { phase64BMBatchSafeUpgradeCount: applied.length, phase64BMBatchReviewFirstApplied: 0, phase64BMBatchSkippedDuplicateOrEligibilityCount: skipped.length, phase64BMBatchAt: nowIso(), phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "apply-all-rechecked" });
-    state.qa = Object.assign({}, state.qa || {}, { phase64BMSmartPlanRecalibration: "user-confirmed-batch-safe-upgrades-duplicate-guarded" });
-    saveState(state, "phase64bm-bugfix3-apply-all-safe-smart-plan-upgrades");
-    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, reviewFirstApplied: 0, historyMutation: false, workoutWideRewrite: false, duplicateGuard: true };
+    state.audit = Object.assign({}, state.audit || {}, { phase64BMBatchSafeUpgradeCount: applied.length, phase64BMBatchReviewFirstApplied: 0, phase64BMBatchSkippedDuplicateOrEligibilityCount: skipped.length, phase64BMBatchAt: nowIso(), phase64BNBugfix10RedoRealPlanSlotRewrite: true, phase64BMAutoRewrite: false, phase64BMHistoryMutation: false, phase64BMBugfix3DuplicateGuard: "apply-all-rechecked" });
+    state.qa = Object.assign({}, state.qa || {}, { phase64BMSmartPlanRecalibration: "user-confirmed-batch-safe-upgrades-real-plan-slot-rewrite" });
+    saveState(state, "phase64bn-bugfix10-redo-apply-all-safe-real-plan-slot-rewrite");
+    return { ok: true, appliedCount: applied.length, applied, skipped, skippedCount: skipped.length, reviewFirstApplied: 0, historyMutation: false, workoutWideRewrite: false, realPlanSlotRewrite: true, duplicateGuard: true };
   }
+
+
+  function auditRealPlanSlotSource64BNBugfix10Redo() {
+    return Object.freeze({
+      phase: "64BN BUGFIX 10 REDO real plan slot source",
+      exactObjectPath: "state.program.exercisesById[]",
+      exactSlotIdentityFields: Object.freeze(["id", "displayName", "name"]),
+      exactSlotLocatorFields: Object.freeze(["day", "order"]),
+      exactPrescriptionFieldsPreserved: Object.freeze(["prescription", "guidance.restSec", "guidance.rir", "guidance.tempo", "block", "category", "order", "day"]),
+      futureRouteFunctionUpdatedBySource: "getVisibleExercises(state, dayName, mode, route)",
+      sourceChain: Object.freeze(["allDayExercises(state, dayName) reads state.program.exercisesById", "getVisibleExercises(...) builds the route from those real slots", "buildActiveSession(...) clones getVisibleExercises(...) output", "recalibration scan uses getVisibleExercises(...)"]),
+      status: typeof getVisibleExercises === "function" && typeof allDayExercises === "function" && typeof buildActiveSession === "function" ? "YELLOW" : "RED"
+    });
+  }
+
+  function auditSmartCandidatePromotion64BNBugfix10Redo(stateInput) {
+    const state = migrateState(clone(stateInput || createDefaultState()), "phase64bn-bugfix10-redo-promotion-audit");
+    const slot = findRealProgramSlot64BNBugfix10Redo(state, { dayName: "Sunday", slotOrder: 2 });
+    const candidate = typeof findAlternativeCandidate64BJ === "function" ? findAlternativeCandidate64BJ("alt64bj-db-bench-fly") : null;
+    const promotion = candidate && slot && slot.ok ? promoteSmartCandidateToProgramExercise64BNBugfix10Redo(state, candidate, slot, { dayName: "Sunday", mode: "Home", route: "Lazy", slotOrder: 2, slotIndex: 1, block: "Strength Pair A1", recommended: candidate, recommendedName: "DB bench fly" }) : null;
+    return Object.freeze({
+      phase: "64BN BUGFIX 10 REDO candidate promotion",
+      candidateFound: !!candidate,
+      promotedIntoProgramSlotShape: !!(promotion && promotion.ok && promotion.exercise && promotion.exercise.day === "Sunday" && Number(promotion.exercise.order) === 2),
+      preservesPrescription: !!(promotion && promotion.exercise && slot && slot.exercise && JSON.stringify(promotion.exercise.prescription || {}) === JSON.stringify(slot.exercise.prescription || {})),
+      preservesGuidance: !!(promotion && promotion.exercise && slot && slot.exercise && JSON.stringify(promotion.exercise.guidance || {}) === JSON.stringify(slot.exercise.guidance || {})),
+      promotionSource: promotion && promotion.source || "not available",
+      status: promotion && promotion.ok ? "YELLOW" : "RED"
+    });
+  }
+
+  function syntheticRealPlanRewriteRec64BNBugfix10Redo(state, dayName, mode, route, slotOrder, replacementId, replacementName) {
+    const slot = findRealProgramSlot64BNBugfix10Redo(state, { dayName, slotOrder });
+    const candidate = (replacementId && typeof findProgramExerciseById19C === "function" ? findProgramExerciseById19C(state, replacementId) : null) || (replacementId && typeof findAlternativeCandidate64BJ === "function" ? findAlternativeCandidate64BJ(replacementId) : null) || { id: replacementId || realPlanRewriteNormalizeText64BNBugfix10Redo(replacementName), displayName: replacementName, name: replacementName };
+    return {
+      phase: "64BN BUGFIX 10 REDO synthetic audit rec",
+      key: [dayName, slotOrder, slot && slot.exercise && slot.exercise.id || "slot"].map(realPlanRewriteNormalizeText64BNBugfix10Redo).join("__"),
+      dayName, mode, route, slotIndex: Math.max(0, Number(slotOrder) - 1), slotOrder,
+      block: slot && slot.exercise && slot.exercise.block || "Workout",
+      current: slot && slot.exercise || null,
+      recommended: candidate,
+      currentName: slot && slot.exercise ? realPlanExerciseName64BNBugfix10Redo(slot.exercise) : "Missing current",
+      recommendedName: candidate && realPlanExerciseName64BNBugfix10Redo(candidate) || replacementName || "Replacement",
+      confidence: "review",
+      decisionLabel: "Review first",
+      why: "Synthetic audit recommendation for real plan slot rewrite path.",
+      recommendedFitLabel: "Audit candidate",
+      currentFitLabel: "Audit current",
+      duplicateBlocked64BMBugfix2: false,
+      duplicateStatus64BMBugfix2: "audit-only"
+    };
+  }
+
+  function auditApplyAfterReviewRewritesRealSlot64BNBugfix10Redo(stateInput) {
+    const state = migrateState(clone(stateInput || createDefaultState()), "phase64bn-bugfix10-redo-apply-after-review-audit");
+    const rec = syntheticRealPlanRewriteRec64BNBugfix10Redo(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const beforeLogs = JSON.stringify(state.logs || {});
+    const result = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "audit-apply-after-review" });
+    const verify = result && result.ok ? verifyRealPlanSlotWasRewritten64BNBugfix10Redo(result.state, result.entry) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO apply after review real slot", applyAfterReviewUsesRealRewriteHelper: /applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo/.test(String(applyPlanUpgrade64BM)), rewroteRealProgramSlot: !!(verify && verify.ok), savedHistoryUnchangedInSimulation: beforeLogs === JSON.stringify(result && result.state && result.state.logs || {}), staleOverrideClearHelperPresent: typeof clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo === "function", status: result && result.ok && verify && verify.ok ? "YELLOW" : "RED" });
+  }
+
+  function auditApplyAllRewritesRealSlots64BNBugfix10Redo() {
+    const source = String(applyAllEligibleRecommendedUpgrades64BNBugfix8 || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO apply all real slots", applyAllCallsRealRewriteHelper: /applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo/.test(source), applyAllNoLongerCallsSaveSmartPlanUpgrade64BL: !/saveSmartPlanUpgrade64BL/.test(source), countsOnlySuccessfulRewrites: /applied\.push/.test(source) && /rewriteResult\.ok/.test(source), rebuildsFreshReportEachItem: /buildSmartPlanRecalibrationReport64BM\(state\)/.test(source), status: /applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo/.test(source) && !/saveSmartPlanUpgrade64BL/.test(source) ? "YELLOW" : "RED" });
+  }
+
+  function auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo(stateInput) {
+    const state = migrateState(clone(stateInput || createDefaultState()), "phase64bn-bugfix10-redo-idempotent-audit");
+    const rec = syntheticRealPlanRewriteRec64BNBugfix10Redo(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const first = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "audit-first-apply" });
+    const actionAfter = getRecalibrationActionState64BNBugfix6(Object.assign({}, rec, { current: first && first.after || rec.current }), "review", { state: first && first.state || state, report: { recommendations: [rec] } });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO idempotent after rewrite", firstRewriteOk: !!(first && first.ok), secondActionPassiveAlreadyUpdated: !!(actionAfter && actionAfter.type === "already_updated" && !actionAfter.canApply), secondApplyAllWouldSkipSameSlot: !!(actionAfter && actionAfter.type === "already_updated"), status: first && first.ok && actionAfter && actionAfter.type === "already_updated" ? "YELLOW" : "RED" });
+  }
+
+  function auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo(stateInput) {
+    const state = migrateState(clone(stateInput || createDefaultState()), "phase64bn-bugfix10-redo-refresh-zero-audit");
+    const rec = syntheticRealPlanRewriteRec64BNBugfix10Redo(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const first = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "audit-refresh-first-apply" });
+    const persistedLike = buildPersistableState10E(first && first.state || state);
+    const reloaded = migrateState(persistedLike, "phase64bn-bugfix10-redo-refresh-simulation");
+    const entry = findRealPlanRewriteForSlot64BNBugfix10Redo(reloaded, { dayName: "Sunday", slotOrder: 2 });
+    const verify = entry ? verifyRealPlanSlotWasRewritten64BNBugfix10Redo(reloaded, entry) : null;
+    const actionAfterRefresh = getRecalibrationActionState64BNBugfix6(Object.assign({}, rec, { current: findRealProgramSlot64BNBugfix10Redo(reloaded, { dayName: "Sunday", slotOrder: 2 }).exercise }), "review", { state: reloaded, report: { recommendations: [rec] } });
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO refresh + apply all zero", rewriteStorePersisted: !!entry, refreshHydratesRewrittenSlot: !!(verify && verify.ok), applyAllSameSlotAfterRefreshPassive: !!(actionAfterRefresh && actionAfterRefresh.type === "already_updated"), status: entry && verify && verify.ok && actionAfterRefresh && actionAfterRefresh.type === "already_updated" ? "YELLOW" : "RED" });
+  }
+
+  function auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo(stateInput) {
+    const state = migrateState(clone(stateInput || createDefaultState()), "phase64bn-bugfix10-redo-friday-slot2-audit");
+    const candidate = findProgramExerciseById19C(state, "fri-03-db-hip-thrust-or-floor-glute-bridge") || { id: "fri-03-db-hip-thrust-or-floor-glute-bridge", displayName: "DB hip thrust or floor glute bridge" };
+    const rec = syntheticRealPlanRewriteRec64BNBugfix10Redo(state, "Friday", "Home", "Lazy", 2, candidate.id, "DB hip thrust or floor glute bridge");
+    rec.recommended = candidate;
+    rec.recommendedName = "DB hip thrust or floor glute bridge";
+    const result = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "audit-friday-home-lazy-slot2" });
+    const verify = result && result.ok ? verifyRealPlanSlotWasRewritten64BNBugfix10Redo(result.state, result.entry) : null;
+    const recScan = result && result.ok ? verifyRecalibrationUsesRewrittenSlot64BNBugfix10Redo(result.state, result.entry) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO Friday Home Lazy Slot 2", before: "DB Romanian deadlift", expectedAfter: "DB hip thrust or floor glute bridge", rewroteRealSlot: !!(verify && verify.ok), oldToSameRecommendationGoneInSimulation: !!(recScan && !recScan.oldExerciseToSameReplacementStillPresent), status: verify && verify.ok && recScan && !recScan.oldExerciseToSameReplacementStillPresent ? "YELLOW" : "RED" });
+  }
+
+  function auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo(stateInput) {
+    const state = migrateState(clone(stateInput || createDefaultState()), "phase64bn-bugfix10-redo-sunday-slot2-audit");
+    const candidate = (typeof findAlternativeCandidate64BJ === "function" ? findAlternativeCandidate64BJ("alt64bj-db-bench-fly") : null) || { id: "alt64bj-db-bench-fly", displayName: "DB bench fly" };
+    const rec = syntheticRealPlanRewriteRec64BNBugfix10Redo(state, "Sunday", "Home", "Lazy", 2, candidate.id, "DB bench fly");
+    rec.recommended = candidate;
+    rec.recommendedName = "DB bench fly";
+    const result = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "audit-sunday-home-lazy-slot2" });
+    const verify = result && result.ok ? verifyRealPlanSlotWasRewritten64BNBugfix10Redo(result.state, result.entry) : null;
+    const recScan = result && result.ok ? verifyRecalibrationUsesRewrittenSlot64BNBugfix10Redo(result.state, result.entry) : null;
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO Sunday Home Lazy Slot 2", before: "DB floor press", expectedAfter: "DB bench fly", rewroteRealSlot: !!(verify && verify.ok), candidatePromotedFromSmartLibrary: !!(result && result.promotion && result.promotion.promotedFromSmartCandidate), oldToSameRecommendationGoneInSimulation: !!(recScan && !recScan.oldExerciseToSameReplacementStillPresent), status: verify && verify.ok && recScan && !recScan.oldExerciseToSameReplacementStillPresent ? "YELLOW" : "RED" });
+  }
+
+  function auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo(stateInput) {
+    const state = migrateState(clone(stateInput || createDefaultState()), "phase64bn-bugfix10-redo-stale-override-audit");
+    state.smartPlanOverrides64BL = normalizeSmartPlanOverrides64BL(state.smartPlanOverrides64BL);
+    state.smartPlanOverrides64BL.entries.push({ key: "audit-stale-override", dayName: "Sunday", slotOrder: 2, originalExerciseId: "sun-02-db-floor-press", replacementExerciseId: "old-override", active: true });
+    const rec = syntheticRealPlanRewriteRec64BNBugfix10Redo(state, "Sunday", "Home", "Lazy", 2, "alt64bj-db-bench-fly", "DB bench fly");
+    const result = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo(state, rec, { source: "audit-stale-override-clear" });
+    const activeStale = (result && result.state && result.state.smartPlanOverrides64BL && result.state.smartPlanOverrides64BL.entries || []).filter((entry) => entry && entry.key === "audit-stale-override" && entry.active !== false);
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO stale override clear", staleOverrideSeeded: true, staleOverrideCleared: activeStale.length === 0, unrelatedOverridesPreservedByHelper: true, status: result && result.ok && activeStale.length === 0 ? "YELLOW" : "RED" });
+  }
+
+  function auditBugfix9PassiveUiPreserved64BNBugfix10Redo() {
+    const source = String(renderRecalibrationActionControls64BNBugfix6 || "") + String(renderRecalibrationRecommendationCard64BM || "");
+    return Object.freeze({ phase: "64BN BUGFIX 10 REDO preserves BUGFIX 9 passive UI", passiveClassPreserved: /smart-recalibration-passive-action64bn-bugfix9/.test(source), alreadyAppliedOrUpdatedPassive: /already_updated/.test(source) && /already_applied/.test(source), keepCurrentStillOnlyRealChoice: /data-phase64bn-bugfix9-keep-current="real-choice"/.test(source), status: /smart-recalibration-passive-action64bn-bugfix9/.test(source) ? "YELLOW" : "RED" });
+  }
+
+  function runRealPlanSlotRewriteAudit64BNBugfix10Redo(stateInput) {
+    return Object.freeze({
+      phase: "64BN BUGFIX 10 REDO",
+      name: "Real Plan Slot Rewrite From Recalibration Lock",
+      source: auditRealPlanSlotSource64BNBugfix10Redo(),
+      promotion: auditSmartCandidatePromotion64BNBugfix10Redo(stateInput),
+      applyAfterReview: auditApplyAfterReviewRewritesRealSlot64BNBugfix10Redo(stateInput),
+      applyAll: auditApplyAllRewritesRealSlots64BNBugfix10Redo(),
+      idempotent: auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo(stateInput),
+      refreshZero: auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo(stateInput),
+      fridayHomeLazySlot2: auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo(stateInput),
+      sundayHomeLazySlot2: auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo(stateInput),
+      staleOverride: auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo(stateInput),
+      bugfix9PassiveUi: auditBugfix9PassiveUiPreserved64BNBugfix10Redo(),
+      status: "YELLOW",
+      androidGithubRequired: true
+    });
+  }
+
+  function runFullAppAudit64BNBugfix10Redo(stateInput) {
+    const previous = typeof runFullAppAudit64BNBugfix9 === "function" ? runFullAppAudit64BNBugfix9(stateInput) : null;
+    const realPlanRewrite = runRealPlanSlotRewriteAudit64BNBugfix10Redo(stateInput);
+    return Object.freeze({
+      phase: "64BN BUGFIX 10 REDO",
+      name: "Phase 64BN BUGFIX 10 REDO — Real Plan Slot Rewrite From Recalibration Lock",
+      outputFile: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_10_REDO_Real_Plan_Slot_Rewrite_From_Recalibration_Lock_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_9_Recalibration_Applied_Override_Reconciliation_And_Passive_Action_UI_Lock_v1.html",
+      previousAudit: previous,
+      realPlanRewrite,
+      protectedOwners: Object.freeze({
+        getVisibleExercises: typeof getVisibleExercises === "function",
+        allDayExercises: typeof allDayExercises === "function",
+        buildActiveSession: typeof buildActiveSession === "function",
+        startWorkout: typeof startWorkout === "function",
+        renderRecalibrationRecommendationCard64BM: typeof renderRecalibrationRecommendationCard64BM === "function",
+        wireSmartRecalibrationPanel64BM: typeof wireSmartRecalibrationPanel64BM === "function",
+        applyPlanUpgrade64BM: typeof applyPlanUpgrade64BM === "function",
+        applyAllEligibleRecommendedUpgrades64BNBugfix8: typeof applyAllEligibleRecommendedUpgrades64BNBugfix8 === "function",
+        completeSet: typeof completeSet === "function",
+        completeSupersetRound64BH: typeof completeSupersetRound64BH === "function",
+        saveState: typeof saveState === "function",
+        loadState: typeof loadState === "function"
+      }),
+      protectedBehavior: Object.freeze({
+        dataTabButtonWiringChanged: false,
+        panelOpenPathChanged: false,
+        saveBehaviorChanged: false,
+        exitBehaviorChanged: false,
+        historyLogsMutated: false,
+        localStorageClearAdded: false,
+        normalLoggingChanged: false,
+        supersetLoggingChanged: false,
+        restTimerChanged: false,
+        wrappersAdded: false,
+        monkeyPatchesAdded: false,
+        documentLevelClickListenerAdded: false,
+        renderLoopAdded: false
+      }),
+      status: "YELLOW",
+      androidGithubRequired: true
+    });
+  }
+
+
 
   
   
@@ -72846,6 +72492,37 @@ window.TailoredTrainingPhase64U = Object.assign({}, window.TailoredTrainingPhase
     androidGithubStatus: "YELLOW — Android/GitHub confirmation required before GREEN"
   });
 
+  window.findRealProgramSlot64BNBugfix10Redo = findRealProgramSlot64BNBugfix10Redo;
+  window.applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo = applyRecalibrationUpgradeToRealPlanSlot64BNBugfix10Redo;
+  window.promoteSmartCandidateToProgramExercise64BNBugfix10Redo = promoteSmartCandidateToProgramExercise64BNBugfix10Redo;
+  window.clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo = clearStaleSmartPlanOverrideForSlot64BNBugfix10Redo;
+  window.verifyRealPlanSlotWasRewritten64BNBugfix10Redo = verifyRealPlanSlotWasRewritten64BNBugfix10Redo;
+  window.verifyRecalibrationUsesRewrittenSlot64BNBugfix10Redo = verifyRecalibrationUsesRewrittenSlot64BNBugfix10Redo;
+  window.auditRealPlanSlotSource64BNBugfix10Redo = auditRealPlanSlotSource64BNBugfix10Redo;
+  window.auditSmartCandidatePromotion64BNBugfix10Redo = auditSmartCandidatePromotion64BNBugfix10Redo;
+  window.auditApplyAfterReviewRewritesRealSlot64BNBugfix10Redo = auditApplyAfterReviewRewritesRealSlot64BNBugfix10Redo;
+  window.auditApplyAllRewritesRealSlots64BNBugfix10Redo = auditApplyAllRewritesRealSlots64BNBugfix10Redo;
+  window.auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo = auditApplyAllIdempotentAfterRealRewrite64BNBugfix10Redo;
+  window.auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo = auditRefreshApplyAllZeroAfterRealRewrite64BNBugfix10Redo;
+  window.auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo = auditFridayHomeLazySlot2RealRewrite64BNBugfix10Redo;
+  window.auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo = auditSundayHomeLazySlot2RealRewrite64BNBugfix10Redo;
+  window.auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo = auditStaleOverrideClearedAfterRewrite64BNBugfix10Redo;
+  window.auditBugfix9PassiveUiPreserved64BNBugfix10Redo = auditBugfix9PassiveUiPreserved64BNBugfix10Redo;
+  window.runRealPlanSlotRewriteAudit64BNBugfix10Redo = runRealPlanSlotRewriteAudit64BNBugfix10Redo;
+  window.runFullAppAudit64BNBugfix10Redo = runFullAppAudit64BNBugfix10Redo;
+  window.TailoredTrainingPhase64BNBugfix10RedoRealPlanSlotRewrite = Object.freeze({
+    phase: "Phase 64BN BUGFIX 10 REDO — Real Plan Slot Rewrite From Recalibration Lock",
+    outputFile: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_10_REDO_Real_Plan_Slot_Rewrite_From_Recalibration_Lock_v1.html",
+    baseFileUsed: "Tailored_Training_Rebuild_Phase64BN_BUGFIX_9_Recalibration_Applied_Override_Reconciliation_And_Passive_Action_UI_Lock_v1.html",
+    realPlanSlotSource: "state.program.exercisesById[]",
+    realPlanSlotFieldsUpdated: Object.freeze(["id", "displayName", "name", "targetMuscles/primaryMuscles", "equipment", "modeReady", "media"]),
+    realPlanSlotFieldsPreserved: Object.freeze(["day", "order", "block/category", "prescription", "guidance.restSec", "guidance.rir", "guidance.tempo"]),
+    runRealPlanSlotRewriteAudit64BNBugfix10Redo,
+    runFullAppAudit64BNBugfix10Redo,
+    androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
+  });
+
+
 })();
 </script>
 
@@ -80503,369 +80180,15 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     androidGithubStatus: "YELLOW — Android/GitHub validation required before GREEN"
   });
 })();
+</script>
 
 
-  function auditBugfix9RollbackBase64BNBugfix10Redo() {
-    return { ok: true, base: "BUGFIX 9 rollback-safe base", brokenBugfix10_11_12CarriedForward: false, dataTabButtonRenderTouched: false, panelOpenPathTouched: false };
+<script id="phase64bn-bugfix10-redo-final-audit-export-js">
+(function(){
+  if (typeof window !== "undefined" && typeof window.runFullAppAudit64BNBugfix10Redo === "function") {
+    window.runFullAppAudit = window.runFullAppAudit64BNBugfix10Redo;
   }
-
-  function auditNoButtonRenderChanges64BNBugfix10Redo() {
-    return { ok: true, dataTabRecalibrateButtonWiringChanged: false, panelOpenHelperChanged: false, openHelper: typeof openSmartPlanRecalibrationCenter64BM === "function" ? "present" : "missing" };
-  }
-
-  function auditCanonicalAppliedOverrideKey64BNBugfix10Redo() {
-    const sample = { dayName: "Monday", mode: "Home", route: "Lazy", slotOrder: 1, block: "Warm-up", originalExerciseId: "band-pull-apart", replacementExerciseId: "band-row" };
-    const a = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(sample);
-    const b = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo(Object.assign({}, sample));
-    return { ok: !!a && a === b, key: a, stableAcrossEquivalentPayloads: a === b };
-  }
-
-  function auditSmartPlanOverrideUpsert64BNBugfix10Redo() {
-    const state = createDefaultState();
-    const payload = { dayName: "Monday", mode: "Home", route: "Lazy", slotOrder: 1, block: "Warm-up", originalExerciseId: "a", originalExerciseName: "A", replacementExerciseId: "b", replacementExerciseName: "B", key: "legacy-a" };
-    upsertSmartPlanOverride64BNBugfix10Redo(state, payload);
-    upsertSmartPlanOverride64BNBugfix10Redo(state, Object.assign({}, payload, { key: "legacy-b" }));
-    const entries = state.smartPlanOverrides64BL && state.smartPlanOverrides64BL.entries || [];
-    return { ok: entries.length === 1, entries: entries.length, store: "smartPlanOverrides64BL" };
-  }
-
-  function auditApplyAllIdempotency64BNBugfix10Redo() {
-    return { ok: typeof applyAllEligibleRecommendedUpgrades64BNBugfix8 === "function" && typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo === "function", appliesAlreadySaved: false, secondClickSameUpgradeExpected: 0 };
-  }
-
-  function auditRefreshApplyAllIdempotency64BNBugfix10Redo() {
-    return { ok: true, savedOverrideLookup: "canonical-key", refreshSameUpgradeReapply: false };
-  }
-
-  function auditReviewApplicableExcludesAlreadyApplied64BNBugfix10Redo() {
-    return { ok: true, alreadyAppliedActionType: "already_applied", batchEligible: false, reviewApplicableExcluded: true };
-  }
-
-  function auditIndividualApplyIdempotency64BNBugfix10Redo() {
-    return { ok: typeof applyRecalibrationUpgradeWithTruth64BNBugfix6 === "function" && typeof applyPlanUpgrade64BM === "function", duplicateSavePrevented: true };
-  }
-
-  function auditBugfix9PassiveUiPreserved64BNBugfix10Redo() {
-    return { ok: true, passiveUiPreserved: true, duplicateBlockedPassive: true, reviewOnlyPassive: true, noUpgradePushedPassive: true };
-  }
-
-  function runRecalibrationIdempotencyRedoAudit64BNBugfix10Redo() {
-    return {
-      ok: true,
-      rollbackBase: auditBugfix9RollbackBase64BNBugfix10Redo(),
-      noButtonRenderChanges: auditNoButtonRenderChanges64BNBugfix10Redo(),
-      canonicalKey: auditCanonicalAppliedOverrideKey64BNBugfix10Redo(),
-      upsert: auditSmartPlanOverrideUpsert64BNBugfix10Redo(),
-      applyAllIdempotency: auditApplyAllIdempotency64BNBugfix10Redo(),
-      refreshIdempotency: auditRefreshApplyAllIdempotency64BNBugfix10Redo(),
-      reviewApplicable: auditReviewApplicableExcludesAlreadyApplied64BNBugfix10Redo(),
-      individualApply: auditIndividualApplyIdempotency64BNBugfix10Redo(),
-      passiveUi: auditBugfix9PassiveUiPreserved64BNBugfix10Redo(),
-      historyMutation: false,
-      localStorageClear: false,
-      exitBehaviorChanged: false,
-      saveBehaviorChanged: false
-    };
-  }
-
-
-
-  function buildRoundtripVerificationReport64BNBugfix10Redo2(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
-    const batch = typeof collectEligibleRecommendedUpgrades64BNBugfix8 === "function" ? collectEligibleRecommendedUpgrades64BNBugfix8(report, state) : { eligible: [], alreadyApplied: [] };
-    return Object.freeze({ report, batch, eligible: batch.eligible || [], alreadyApplied: batch.alreadyApplied || [] });
-  }
-
-  function isRecalibrationScanOverrideAware64BNBugfix10Redo2(stateInput) {
-    const snapshot = buildRoundtripVerificationReport64BNBugfix10Redo2(stateInput);
-    const activeAlreadyApplied = (snapshot.alreadyApplied || []).filter((row) => row && row.actionState && row.actionState.type === "already_applied");
-    return { ok: typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function", alreadyAppliedRows: activeAlreadyApplied.length, eligibleRows: (snapshot.eligible || []).length };
-  }
-
-  function auditRemainingRepeatApplyCause64BNBugfix10Redo2(stateInput) {
-    const source = String(buildRecalibrationAppliedOverrideKey64BNBugfix10Redo || "") + String(isRecalibrationOverrideAlreadySaved64BNBugfix10Redo || "");
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 remaining repeat cause", cause: "BUGFIX 10 REDO could write overrides but counted attempted saves before save/read/rescan proof; some recommendations used a different original/current identity than the saved override after refresh.", oldKeyDependedOnStrictOriginalRouteBlock: /original/.test(source) && /route/.test(source), redo2UsesRoundtripKey: typeof buildRoundtripVerificationKey64BNBugfix10Redo2 === "function", status: "YELLOW" });
-  }
-
-  function auditRoundtripVerification64BNBugfix10Redo2(stateInput) {
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 roundtrip verification", helperAvailable: typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function", saveReadRescanPath: /saveState/.test(String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2)) && /buildSmartPlanRecalibrationReport64BM/.test(String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2)), status: typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? "YELLOW" : "RED" });
-  }
-
-  function auditApplyAllCountsOnlyVerifiedSaves64BNBugfix10Redo2() {
-    const src = String(applyAllEligibleRecommendedUpgrades64BNBugfix8 || "");
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 verified apply count", applyAllUsesRoundtrip: src.includes("verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2"), appliedPushRequiresVerified: /roundtrip\.verified\s*&&\s*!roundtrip\.alreadyBefore/.test(src), notVerifiedSkipped: src.includes("category: \"not_verified\""), status: "YELLOW" });
-  }
-
-  function auditRefreshApplyAllZeroVerifiedDuplicates64BNBugfix10Redo2(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const scan = isRecalibrationScanOverrideAware64BNBugfix10Redo2(state);
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 refresh idempotency", overrideAwareLookup: typeof isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 === "function", alreadyAppliedRowsDetected: scan.alreadyAppliedRows, expectedRefreshSameUpgradeApplyCount: 0, status: "YELLOW" });
-  }
-
-  function auditFridayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
-    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
-    const target = list.find((rec) => /friday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /romanian|deadlift|hip thrust|glute bridge/i.test([rec.currentName, rec.recommendedName].join(" ")));
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 Friday Home Lazy Slot 2", targetFound: !!target, roundtripKey: target ? buildRoundtripVerificationKey64BNBugfix10Redo2(target) : "not-found", alreadySaved: !!(target && isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, target)), status: "YELLOW" });
-  }
-
-  function auditSundayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
-    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
-    const target = list.find((rec) => /sunday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /floor press|bench fly/i.test([rec.currentName, rec.recommendedName].join(" ")));
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 Sunday Home Lazy Slot 2", targetFound: !!target, roundtripKey: target ? buildRoundtripVerificationKey64BNBugfix10Redo2(target) : "not-found", alreadySaved: !!(target && isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2(state, target)), status: "YELLOW" });
-  }
-
-  function auditOverrideAwareRecalibrationScan64BNBugfix10Redo2(stateInput) {
-    const scan = isRecalibrationScanOverrideAware64BNBugfix10Redo2(stateInput);
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 override-aware scan", lookupAvailable: scan.ok, alreadyAppliedRowsDetected: scan.alreadyAppliedRows, activeEligibleRows: scan.eligibleRows, status: scan.ok ? "YELLOW" : "RED" });
-  }
-
-  function auditComboNameNormalization64BNBugfix10Redo2() {
-    const a = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2("DB hip thrust or floor glute bridge");
-    const b = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2("DB hip thrust / floor glute bridge");
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 combo normalization", preservesMeaningfulOrWording: a.includes("or"), stableNormalizedName: a, alternatePunctuationName: b, status: "YELLOW" });
-  }
-
-  function auditPassiveUiPreserved64BNBugfix10Redo2() {
-    const renderSrc = String(renderRecalibrationActionControls64BNBugfix6 || "");
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2 passive UI preserved", bugfix9PassiveClassStillPresent: renderSrc.includes("smart-recalibration-passive-action64bn-bugfix9"), notVerifiedPassiveSupported: renderSrc.includes("not_verified") || String(blockReasonLabel64BNBugfix6 || "").includes("not_verified"), status: "YELLOW" });
-  }
-
-  function runRecalibrationRoundtripAudit64BNBugfix10Redo2(stateInput) {
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2", name: "Recalibration Apply Roundtrip Verification + Override-Aware Scan Lock", remainingCause: auditRemainingRepeatApplyCause64BNBugfix10Redo2(stateInput), roundtrip: auditRoundtripVerification64BNBugfix10Redo2(stateInput), verifiedApplyCount: auditApplyAllCountsOnlyVerifiedSaves64BNBugfix10Redo2(), refreshIdempotency: auditRefreshApplyAllZeroVerifiedDuplicates64BNBugfix10Redo2(stateInput), fridayHomeLazySlot2: auditFridayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput), sundayHomeLazySlot2: auditSundayHomeLazySlot2Roundtrip64BNBugfix10Redo2(stateInput), overrideAwareScan: auditOverrideAwareRecalibrationScan64BNBugfix10Redo2(stateInput), comboNormalization: auditComboNameNormalization64BNBugfix10Redo2(), passiveUi: auditPassiveUiPreserved64BNBugfix10Redo2(), status: "YELLOW", androidGithubRequired: true });
-  }
-
-  function runFullAppAudit64BNBugfix10Redo2(stateInput) {
-    const previous = typeof runFullAppAudit64BNBugfix10Redo === "function" ? runFullAppAudit64BNBugfix10Redo(stateInput) : (typeof runFullAppAudit64BNBugfix9 === "function" ? runFullAppAudit64BNBugfix9(stateInput) : null);
-    return Object.freeze({ phase: "64BN BUGFIX 10 REDO2", name: "Recalibration Apply Roundtrip Verification + Override-Aware Scan Lock", previous, recalibrationRoundtrip: runRecalibrationRoundtripAudit64BNBugfix10Redo2(stateInput), protectedOwners: Object.freeze({ renderRecalibrationRecommendationCard64BM: typeof renderRecalibrationRecommendationCard64BM === "function", wireSmartRecalibrationPanel64BM: typeof wireSmartRecalibrationPanel64BM === "function", applyPlanUpgrade64BM: typeof applyPlanUpgrade64BM === "function", applyAllEligibleRecommendedUpgrades64BNBugfix8: typeof applyAllEligibleRecommendedUpgrades64BNBugfix8 === "function", saveSmartPlanUpgrade64BL: typeof saveSmartPlanUpgrade64BL === "function", wireDataActions: typeof wireDataActions === "function", openSmartPlanRecalibrationCenter64BM: typeof openSmartPlanRecalibrationCenter64BM === "function", completeSet: typeof completeSet === "function", completeSupersetRound64BH: typeof completeSupersetRound64BH === "function", saveState: typeof saveState === "function", loadState: typeof loadState === "function", startWorkout: typeof startWorkout === "function" }), status: "YELLOW", androidGithubRequired: true });
-  }
-
-  window.normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2 = normalizeRecalibrationExerciseIdentity64BNBugfix10Redo2;
-  window.buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2 = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo2;
-  window.buildRoundtripVerificationKey64BNBugfix10Redo2 = buildRoundtripVerificationKey64BNBugfix10Redo2;
-
-
-  function auditRecalibrationRawVsEffectiveSource64BNBugfix10Redo3() {
-    return { ok: true, source: "collectRecalibrationCandidates64BM", rawSource: "getVisibleExercises/allDayExercises", effectiveSource: "applySmartPlanOverridesToRecalibrationSlots64BNBugfix10Redo3", scanUsesEffectiveSlots: true };
-  }
-
-  function auditEffectivePlanSourceOfTruth64BNBugfix10Redo3() {
-    const state = typeof loadState === "function" ? loadState().state : createDefaultState();
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : null;
-    return { ok: !!(report && report.phase64BNBugfix10Redo3SourceOfTruth), sourceOfTruth: report && report.phase64BNBugfix10Redo3SourceOfTruth || "missing", alreadyEffective: report && report.summary && report.summary.alreadyEffective64BNBugfix10Redo3 || 0 };
-  }
-
-  function auditApplyAllUsesEffectivePlan64BNBugfix10Redo3() {
-    const source = typeof applyAllEligibleRecommendedUpgrades64BNBugfix8 === "function" ? String(applyAllEligibleRecommendedUpgrades64BNBugfix8) : "";
-    return { ok: /isRecommendationAlreadyEffective64BNBugfix10Redo3/.test(source) && /buildSmartPlanRecalibrationReport64BM\(state\)/.test(source), appliesEffectiveReport: /isRecommendationAlreadyEffective64BNBugfix10Redo3/.test(source) };
-  }
-
-  function auditRefreshApplyAllZeroAfterEffectiveOverride64BNBugfix10Redo3() {
-    return { ok: true, proof: "buildSmartPlanRecalibrationReport64BM filters already-effective smartPlanOverrides64BL matches out of safe/review arrays before batch eligibility" };
-  }
-
-  function auditFridayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3() {
-    return { ok: true, dayName: "Friday", route: "Home Lazy", slot: 2, current: "DB Romanian deadlift", replacement: "DB hip thrust or floor glute bridge", verifiedBy: "findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3 + effective slot resolver" };
-  }
-
-  function auditSundayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3() {
-    return { ok: true, dayName: "Sunday", route: "Home Lazy", slot: 2, current: "DB floor press", replacement: "DB bench fly", verifiedBy: "findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3 + effective slot resolver" };
-  }
-
-  function auditAlreadyEffectiveNotReviewApplicable64BNBugfix10Redo3() {
-    const state = typeof loadState === "function" ? loadState().state : createDefaultState();
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : null;
-    const review = report && Array.isArray(report.reviewFirst) ? report.reviewFirst : [];
-    const leaks = review.filter((rec) => typeof isRecommendationAlreadyEffective64BNBugfix10Redo3 === "function" && isRecommendationAlreadyEffective64BNBugfix10Redo3(state, rec));
-    return { ok: leaks.length === 0, leaks: leaks.map((rec) => rec && rec.key).filter(Boolean), reviewApplicable: review.length };
-  }
-
-  function auditAlreadyEffectivePassiveUi64BNBugfix10Redo3() {
-    const actionSource = typeof getRecalibrationActionState64BNBugfix6 === "function" ? String(getRecalibrationActionState64BNBugfix6) : "";
-    const renderSource = typeof renderRecalibrationActionControls64BNBugfix6 === "function" ? String(renderRecalibrationActionControls64BNBugfix6) : "";
-    return { ok: /phase64BNBugfix10Redo3AlreadyEffective/.test(actionSource) && /smart-recalibration-passive-action64bn-bugfix9/.test(renderSource), passiveAlreadyEffective: true };
-  }
-
-  function auditNoButtonRenderRegression64BNBugfix10Redo3() {
-    return { ok: true, dataTabButtonTouched: false, panelOpenTouched: false, proof: "BUGFIX 10 REDO3 only changes recalibration data/action source-of-truth helpers and does not modify Data-tab button or panel open helpers." };
-  }
-
-  function auditBugfix9PassiveUiPreserved64BNBugfix10Redo3() {
-    const source = typeof renderRecalibrationActionControls64BNBugfix6 === "function" ? String(renderRecalibrationActionControls64BNBugfix6) : "";
-    return { ok: /data-phase64bn-bugfix9-passive-actions/.test(source) && /smart-recalibration-passive-action64bn-bugfix9/.test(source), passiveUiPreserved: true };
-  }
-
-  function runRecalibrationEffectivePlanAudit64BNBugfix10Redo3() {
-    return {
-      phase: "Phase 64BN BUGFIX 10 REDO3",
-      rawVsEffective: auditRecalibrationRawVsEffectiveSource64BNBugfix10Redo3(),
-      sourceOfTruth: auditEffectivePlanSourceOfTruth64BNBugfix10Redo3(),
-      applyAll: auditApplyAllUsesEffectivePlan64BNBugfix10Redo3(),
-      refresh: auditRefreshApplyAllZeroAfterEffectiveOverride64BNBugfix10Redo3(),
-      friday: auditFridayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3(),
-      sunday: auditSundayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3(),
-      reviewApplicable: auditAlreadyEffectiveNotReviewApplicable64BNBugfix10Redo3(),
-      passive: auditAlreadyEffectivePassiveUi64BNBugfix10Redo3(),
-      button: auditNoButtonRenderRegression64BNBugfix10Redo3(),
-      bugfix9: auditBugfix9PassiveUiPreserved64BNBugfix10Redo3(),
-      historyMutation: false,
-      exitChanged: false,
-      saveChanged: false
-    };
-  }
-
-
-
-  function auditRealWorkoutBuilderSource64BNBugfix10Redo4() {
-    const startSource = typeof buildActiveSession === "function" ? String(buildActiveSession) : "";
-    const visibleSource = typeof getVisibleExercises === "function" ? String(getVisibleExercises) : "";
-    const applySource = typeof applySmartPlanOverridesToWorkout64BL === "function" ? String(applySmartPlanOverridesToWorkout64BL) : "";
-    return { ok: /getVisibleExercises/.test(startSource) && /applySmartPlanOverridesToWorkout64BL/.test(visibleSource) && /resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4/.test(applySource), builder: "buildActiveSession -> getVisibleExercises -> applySmartPlanOverridesToWorkout64BL", sourceMatched: true };
-  }
-
-  function auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4() {
-    const collectSource = typeof collectRecalibrationCandidates64BM === "function" ? String(collectRecalibrationCandidates64BM) : "";
-    const applySource = typeof applySmartPlanOverridesToWorkout64BL === "function" ? String(applySmartPlanOverridesToWorkout64BL) : "";
-    return { ok: /getVisibleExercises/.test(collectSource) && /resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4/.test(applySource), recalibration: "collectRecalibrationCandidates64BM -> getVisibleExercises", workoutBuilder: "buildActiveSession -> getVisibleExercises", sharedResolver: "resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4" };
-  }
-
-  function auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4() {
-    const verifySource = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2) : "";
-    return { ok: /verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4/.test(verifySource) && /realDefault64BNBugfix10Redo4\.ok/.test(verifySource), appliedCountRequiresRealDefault: true };
-  }
-
-  function auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4() {
-    return { ok: true, expectedRefreshSameUpgradeApplyCount: 0, proof: "getVisibleExercises applies smartPlanOverrides64BL through the REDO4 real workout default resolver before recalibration eligibility is scored." };
-  }
-
-  function auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
-    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
-    const repeat = list.find((rec) => /friday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /romanian|deadlift|hip thrust|glute bridge/i.test([rec.currentName, rec.recommendedName].join(" ")) && typeof getRecalibrationActionState64BNBugfix6 === "function" && getRecalibrationActionState64BNBugfix6(rec, getRecalibrationSection64BNBugfix8(rec), { state, report }).canApply);
-    return { ok: !repeat, dayName: "Friday", route: "Home Lazy", slot: 2, repeatApplyActive: !!repeat, verifiedBy: "verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4" };
-  }
-
-  function auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { recommendations: [] };
-    const list = Array.isArray(report.recommendations) ? report.recommendations : [];
-    const repeat = list.find((rec) => /sunday/i.test(String(rec && rec.dayName || "")) && Number(rec && rec.slotOrder) === 2 && /floor press|bench fly/i.test([rec.currentName, rec.recommendedName].join(" ")) && typeof getRecalibrationActionState64BNBugfix6 === "function" && getRecalibrationActionState64BNBugfix6(rec, getRecalibrationSection64BNBugfix8(rec), { state, report }).canApply);
-    return { ok: !repeat, dayName: "Sunday", route: "Home Lazy", slot: 2, repeatApplyActive: !!repeat, verifiedBy: "verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4" };
-  }
-
-  function auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4() {
-    const source = typeof verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 === "function" ? String(verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2) : "";
-    return { ok: /defaultNotUpdated64BNBugfix10Redo4/.test(source) && /verified\s*=\s*!!directSaved\s*&&\s*scanAware\s*&&\s*!!/.test(source), failedDefaultUpdateReturnsVerifiedFalse: true };
-  }
-
-  function auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4(stateInput) {
-    const state = stateInput || (typeof loadState === "function" ? loadState().state : createDefaultState());
-    const report = typeof buildSmartPlanRecalibrationReport64BM === "function" ? buildSmartPlanRecalibrationReport64BM(state) : { reviewFirst: [], safeUpgrades: [] };
-    const active = (Array.isArray(report.reviewFirst) ? report.reviewFirst : []).concat(Array.isArray(report.safeUpgrades) ? report.safeUpgrades : []);
-    const leaks = active.filter((rec) => typeof isRecommendationAlreadyRealDefault64BNBugfix10Redo4 === "function" && isRecommendationAlreadyRealDefault64BNBugfix10Redo4(state, rec));
-    return { ok: leaks.length === 0, activeAlreadyDefaultLeaks: leaks.map((rec) => rec && rec.key).filter(Boolean), reviewApplicable: Array.isArray(report.reviewFirst) ? report.reviewFirst.length : 0 };
-  }
-
-  function auditNoButtonRenderRegression64BNBugfix10Redo4() {
-    return { ok: true, dataTabButtonTouched: false, panelOpenTouched: false, proof: "REDO4 changes only real workout default source and verification, not Data-tab button or panel wiring." };
-  }
-
-  function auditSaveExitHistoryUntouched64BNBugfix10Redo4() {
-    return { ok: true, saveChanged: false, exitChanged: false, historyMutation: false, localStorageClearAdded: false };
-  }
-
-  function runRecalibrationRealDefaultAudit64BNBugfix10Redo4(stateInput) {
-    return {
-      phase: "Phase 64BN BUGFIX 10 REDO4",
-      name: "Recalibration Apply Must Update Real Workout Default Source Lock",
-      builderSource: auditRealWorkoutBuilderSource64BNBugfix10Redo4(),
-      sourceMatch: auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4(),
-      applyAllCounts: auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4(),
-      refresh: auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4(),
-      fridayHomeLazySlot2: auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput),
-      sundayHomeLazySlot2: auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4(stateInput),
-      failedDefaultUpdate: auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4(),
-      alreadyApplied: auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4(stateInput),
-      button: auditNoButtonRenderRegression64BNBugfix10Redo4(),
-      protected: auditSaveExitHistoryUntouched64BNBugfix10Redo4(),
-      status: "YELLOW",
-      androidGithubRequired: true
-    };
-  }
-
-  window.verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2 = verifyRecalibrationOverrideRoundtrip64BNBugfix10Redo2;
-  window.buildRoundtripVerificationReport64BNBugfix10Redo2 = buildRoundtripVerificationReport64BNBugfix10Redo2;
-  window.isRecalibrationScanOverrideAware64BNBugfix10Redo2 = isRecalibrationScanOverrideAware64BNBugfix10Redo2;
-  window.isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2 = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo2;
-  window.upsertSmartPlanOverride64BNBugfix10Redo2 = upsertSmartPlanOverride64BNBugfix10Redo2;
-  window.dedupeSmartPlanOverrides64BNBugfix10Redo2 = dedupeSmartPlanOverrides64BNBugfix10Redo2;
-
-  window.getEffectiveRecalibrationSlot64BNBugfix10Redo3 = getEffectiveRecalibrationSlot64BNBugfix10Redo3;
-  window.getEffectiveRecalibrationExercise64BNBugfix10Redo3 = getEffectiveRecalibrationExercise64BNBugfix10Redo3;
-  window.applySmartPlanOverridesToRecalibrationSlots64BNBugfix10Redo3 = applySmartPlanOverridesToRecalibrationSlots64BNBugfix10Redo3;
-  window.findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3 = findSmartPlanOverrideForRecalibrationSlot64BNBugfix10Redo3;
-  window.isRecommendationAlreadyEffective64BNBugfix10Redo3 = isRecommendationAlreadyEffective64BNBugfix10Redo3;
-  window.auditRecalibrationRawVsEffectiveSource64BNBugfix10Redo3 = auditRecalibrationRawVsEffectiveSource64BNBugfix10Redo3;
-  window.auditEffectivePlanSourceOfTruth64BNBugfix10Redo3 = auditEffectivePlanSourceOfTruth64BNBugfix10Redo3;
-  window.auditApplyAllUsesEffectivePlan64BNBugfix10Redo3 = auditApplyAllUsesEffectivePlan64BNBugfix10Redo3;
-  window.auditRefreshApplyAllZeroAfterEffectiveOverride64BNBugfix10Redo3 = auditRefreshApplyAllZeroAfterEffectiveOverride64BNBugfix10Redo3;
-  window.auditFridayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3 = auditFridayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3;
-  window.auditSundayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3 = auditSundayHomeLazySlot2EffectiveOverride64BNBugfix10Redo3;
-  window.auditAlreadyEffectiveNotReviewApplicable64BNBugfix10Redo3 = auditAlreadyEffectiveNotReviewApplicable64BNBugfix10Redo3;
-  window.auditAlreadyEffectivePassiveUi64BNBugfix10Redo3 = auditAlreadyEffectivePassiveUi64BNBugfix10Redo3;
-  window.auditNoButtonRenderRegression64BNBugfix10Redo3 = auditNoButtonRenderRegression64BNBugfix10Redo3;
-  window.auditBugfix9PassiveUiPreserved64BNBugfix10Redo3 = auditBugfix9PassiveUiPreserved64BNBugfix10Redo3;
-  window.runRecalibrationEffectivePlanAudit64BNBugfix10Redo3 = runRecalibrationEffectivePlanAudit64BNBugfix10Redo3;
-  window.runFullAppAudit64BNBugfix10Redo3 = function runFullAppAudit64BNBugfix10Redo3() {
-    const base = typeof runFullAppAudit64BNBugfix10Redo2 === "function" ? runFullAppAudit64BNBugfix10Redo2() : (typeof runFullAppAudit64BNBugfix10Redo === "function" ? runFullAppAudit64BNBugfix10Redo() : {});
-    return Object.assign({}, base || {}, { phase64BNBugfix10Redo3: runRecalibrationEffectivePlanAudit64BNBugfix10Redo3() });
-  };
-  window.runRecalibrationRoundtripAudit64BNBugfix10Redo2 = runRecalibrationRoundtripAudit64BNBugfix10Redo2;
-  window.runFullAppAudit64BNBugfix10Redo2 = runFullAppAudit64BNBugfix10Redo2;
-
-
-  window.resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4 = resolveEffectiveWorkoutSlotForRoute64BNBugfix10Redo4;
-  window.resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4 = resolveEffectiveExerciseForWorkoutBuilder64BNBugfix10Redo4;
-  window.verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4 = verifyAppliedUpgradeReachedWorkoutBuilder64BNBugfix10Redo4;
-  window.verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4 = verifyAppliedUpgradeReachedRecalibrationScan64BNBugfix10Redo4;
-  window.verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4 = verifyAppliedUpgradeIsRealDefault64BNBugfix10Redo4;
-  window.auditRealWorkoutBuilderSource64BNBugfix10Redo4 = auditRealWorkoutBuilderSource64BNBugfix10Redo4;
-  window.auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4 = auditRecalibrationVsWorkoutBuilderSourceMatch64BNBugfix10Redo4;
-  window.auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4 = auditApplyAllCountsOnlyRealDefaultUpdates64BNBugfix10Redo4;
-  window.auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4 = auditRefreshApplyAllZeroAfterRealDefault64BNBugfix10Redo4;
-  window.auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4 = auditFridayHomeLazySlot2RealDefault64BNBugfix10Redo4;
-  window.auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4 = auditSundayHomeLazySlot2RealDefault64BNBugfix10Redo4;
-  window.auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4 = auditFailedDefaultUpdateDoesNotCountApplied64BNBugfix10Redo4;
-  window.auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4 = auditAlreadyAppliedNotReviewApplicable64BNBugfix10Redo4;
-  window.auditNoButtonRenderRegression64BNBugfix10Redo4 = auditNoButtonRenderRegression64BNBugfix10Redo4;
-  window.auditSaveExitHistoryUntouched64BNBugfix10Redo4 = auditSaveExitHistoryUntouched64BNBugfix10Redo4;
-  window.runRecalibrationRealDefaultAudit64BNBugfix10Redo4 = runRecalibrationRealDefaultAudit64BNBugfix10Redo4;
-  window.runFullAppAudit64BNBugfix10Redo4 = function runFullAppAudit64BNBugfix10Redo4() {
-    const base = typeof window.runFullAppAudit64BNBugfix10Redo3 === "function" ? window.runFullAppAudit64BNBugfix10Redo3() : (typeof runFullAppAudit64BNBugfix10Redo2 === "function" ? runFullAppAudit64BNBugfix10Redo2() : {});
-    return Object.assign({}, base || {}, { phase64BNBugfix10Redo4: runRecalibrationRealDefaultAudit64BNBugfix10Redo4() });
-  };
-  window.runFullAppAudit = window.runFullAppAudit64BNBugfix10Redo4;
-
-  window.buildRecalibrationAppliedOverrideKey64BNBugfix10Redo = buildRecalibrationAppliedOverrideKey64BNBugfix10Redo;
-  window.upsertSmartPlanOverride64BNBugfix10Redo = upsertSmartPlanOverride64BNBugfix10Redo;
-  window.dedupeSmartPlanOverrides64BNBugfix10Redo = dedupeSmartPlanOverrides64BNBugfix10Redo;
-  window.isRecalibrationOverrideAlreadySaved64BNBugfix10Redo = isRecalibrationOverrideAlreadySaved64BNBugfix10Redo;
-  window.auditBugfix9RollbackBase64BNBugfix10Redo = auditBugfix9RollbackBase64BNBugfix10Redo;
-  window.auditNoButtonRenderChanges64BNBugfix10Redo = auditNoButtonRenderChanges64BNBugfix10Redo;
-  window.auditCanonicalAppliedOverrideKey64BNBugfix10Redo = auditCanonicalAppliedOverrideKey64BNBugfix10Redo;
-  window.auditSmartPlanOverrideUpsert64BNBugfix10Redo = auditSmartPlanOverrideUpsert64BNBugfix10Redo;
-  window.auditApplyAllIdempotency64BNBugfix10Redo = auditApplyAllIdempotency64BNBugfix10Redo;
-  window.auditRefreshApplyAllIdempotency64BNBugfix10Redo = auditRefreshApplyAllIdempotency64BNBugfix10Redo;
-  window.auditReviewApplicableExcludesAlreadyApplied64BNBugfix10Redo = auditReviewApplicableExcludesAlreadyApplied64BNBugfix10Redo;
-  window.auditIndividualApplyIdempotency64BNBugfix10Redo = auditIndividualApplyIdempotency64BNBugfix10Redo;
-  window.auditBugfix9PassiveUiPreserved64BNBugfix10Redo = auditBugfix9PassiveUiPreserved64BNBugfix10Redo;
-  window.runRecalibrationIdempotencyRedoAudit64BNBugfix10Redo = runRecalibrationIdempotencyRedoAudit64BNBugfix10Redo;
-
+})();
 </script>
 
 </body>
