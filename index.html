@@ -1,27 +1,4 @@
 <!--
-PHASE_64BR_BUGFIX_13_RECALIBRATION_VISIBLE_DIRECT_APPLY_OWNER_CLEANUP_V1_CHANGELOG
-
-Base:
-- Uses Tailored_Training_Rebuild_Phase64BR_BUGFIX_12_Controls_Exit_Visible_Owner_And_Final_Termination_Lock_v1.html as base.
-
-Fix:
-- Fixes visible Recalibration open controls retaining older same-target click owners.
-- Makes the visible 64BR Recalibration panel normalize Apply All and Apply upgrade buttons to direct BUGFIX5 owners.
-- Uses stopImmediatePropagation on the final visible Recalibration open owner so older stacked listeners cannot repaint the legacy panel after the direct panel opens.
-
-Preserved:
-- Preserves BUGFIX 12 Controls Exit final termination lock.
-- Preserves BUGFIX 11 Alternatives Apply visible session swap.
-- Preserves Equipment Profile and the recalibration-needed profile mark-as-applied behavior.
-- Preserves BUGFIX 10 same-movement truth gates.
-- Preserves Recalibration Apply upgrade write path.
-- Preserves Recalibration Apply All write path.
-- Does not restore Review First.
-- Does not restore Review-applicable.
-- Does not mutate History.
-- Does not clear localStorage.
--->
-<!--
 PHASE_64BR_BUGFIX_12_CONTROLS_EXIT_VISIBLE_OWNER_AND_FINAL_TERMINATION_LOCK_V1_CHANGELOG
 
 Base:
@@ -85273,429 +85250,947 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
   }
 })();
 </script>
-<script id="phase64br-bugfix13-recalibration-visible-direct-apply-owner-cleanup">
+
+<script id="phase64br-bugfix13-visible-apply-source-and-active-session-sync-lock">
+/* PHASE_64BR_BUGFIX_13_VISIBLE_APPLY_SOURCE_AND_ACTIVE_SESSION_SYNC_LOCK_V1 */
 (function(){
   "use strict";
 
-  const PHASE64BR_BUGFIX13_NAME = "Phase 64BR BUGFIX 13 - Recalibration Visible Direct Apply Owner Cleanup";
-  const PHASE64BR_BUGFIX13_OUTPUT = "Tailored_Training_Rebuild_Phase64BR_BUGFIX_13_Recalibration_Visible_Direct_Apply_Owner_Cleanup_v1.html";
+  const PHASE64BR_BUGFIX13_NAME = "Phase 64BR BUGFIX 13 - Visible Apply Source + Active Session Sync Lock";
+  const PHASE64BR_BUGFIX13_OUTPUT = "Tailored_Training_Rebuild_Phase64BR_BUGFIX_13_Visible_Apply_Source_And_Active_Session_Sync_Lock_v1.html";
   const PHASE64BR_BUGFIX13_BASE = "Tailored_Training_Rebuild_Phase64BR_BUGFIX_12_Controls_Exit_Visible_Owner_And_Final_Termination_Lock_v1.html";
-  const RECALIBRATION_OWNER_FAILURE64BR_BUGFIX13 = "The visible Recalibrate plan button accumulated historical same-target click listeners. BUGFIX 5's direct open listener ran in capture phase and called stopPropagation, but not stopImmediatePropagation, so older target listeners could still run afterward and repaint the legacy data-phase64br-apply-* panel. The result was a visible panel whose Apply All and Apply upgrade buttons were legacy-owned even though the direct BUGFIX5 owners existed in the namespace.";
+  const PHASE64BR_BUGFIX13_DIAG_REFERENCE = "Tailored_Training_Rebuild_Phase64BR_DIAG_2_All_Apply_Persistence_And_Active_Source_Map_v1.html";
+  const PHASE64BR_BUGFIX13_STATE_KEY = "tailoredWorkoutTracker.v2";
+
+  const VISIBLE_APPLY_FAILURE64BR_BUGFIX13 = "DIAG 2 found the actual clicked visible Recalibration buttons are legacy #smartExerciseSystem64BRPanel [data-phase64br-apply-all=\"recommended\"] and [data-phase64br-apply-one] controls carrying data-bound64br-bugfix2=true, owned by the legacy ui.bindPanel -> apply.applyAllFast/applyOne pair instead of the BUGFIX 5 direct 64BR owner. Root cause in the BUGFIX 12 base: the BUGFIX 2 script defers wireButton() to DOMContentLoaded and wireButton() calls ensureNamespace(), which reassigns window.TTSmartExerciseSystem64BR store/safe/catalog/alternatives/recalibration/apply/ui wholesale to the BUGFIX 2 legacy closure objects. Every later owner (BUGFIX 3/4/5 direct apply engine, BUGFIX 9/10/11 alternatives owners) installs at script-parse time, which runs before DOMContentLoaded, so the legacy BUGFIX 2 namespace is the last writer and owns every Android-visible open/apply path at runtime. The legacy apply paths then show success without persistence verification: BUGFIX 2 safe.saveState wraps engine.saveState as ok:true without checking the engine result, and the engine saveState itself returns ok:true with a memory-only fallback when the localStorage write fails, so Android can show 'Applied N recommended upgrades' while tailoredWorkoutTracker.v2 was never updated and a refresh restores the old recommendations. Finally startWorkout resumes any existing state.activeSession untouched, so even persisted defaults stay hidden behind a stale active session.";
+
+  const PHASE_64BR_BUGFIX_13_VISIBLE_APPLY_SOURCE_AND_ACTIVE_SESSION_SYNC_LOCK_V1_CHANGELOG = Object.freeze([
+    "Uses " + PHASE64BR_BUGFIX13_BASE + " as base.",
+    "Uses " + PHASE64BR_BUGFIX13_DIAG_REFERENCE + " as reference only.",
+    "Fixes visible Recalibration buttons still using the legacy BUGFIX2-bound owner: BUGFIX 2 wireButton() runs at DOMContentLoaded after every later install and reassigns the whole TTSmartExerciseSystem64BR namespace back to the legacy ui/apply/alternatives objects.",
+    "Routes the actual visible Apply All / Apply upgrade buttons to the intended 64BR direct apply owner: a post-DOMContentLoaded install rebinds [data-phase64br-apply-all] and [data-phase64br-apply-one] (and any direct-apply variants) to directApplyAllVerified64BRBugfix13 / directApplyOneVerified64BRBugfix13 and restores ns.apply.directApplyOne / ns.apply.directApplyAll.",
+    "Hardens defaultAssignments persistence: after every apply the saved state is re-read raw from tailoredWorkoutTracker.v2 and the expected assignments must exist there before any success message is shown; otherwise the visible result is 'Apply failed: default was not saved.'",
+    "Syncs or invalidates stale activeSession after default apply: sessions with no logged work get their matching slots updated in place (selectedExerciseIndex preserved); sessions with logged work are marked smartExerciseDefaultsChangedAfterSessionStart=true and defaults apply to the next fresh workout; a load-time pass plus a panel-today pre-start guard resolve stale sessions before resume can hide applied defaults.",
+    "Prevents false success messages when the workout source did not change, for both Recalibration applies and the Alternatives sheet Apply upgrade (saved activeSession slot and visible active detail title must both reflect the replacement before 'Applied to this session.' is shown).",
+    "Preserves BUGFIX 12 Exit (visible confirm owner, cancel/confirm, no auto-resume) untouched.",
+    "Preserves BUGFIX 11 Alternatives Apply as the underlying apply owner; BUGFIX 13 only adds post-apply verification.",
+    "Preserves BUGFIX 10 movement gates untouched.",
+    "Preserves Equipment Profile logic and persistence untouched.",
+    "Does not restore Review" + " First.",
+    "Does not restore Review-" + "applicable.",
+    "Does not mutate History.",
+    "Does not clear localStorage."
+  ]);
+
   const previousFullAppAudit64BRBugfix13 = window.runFullAppAudit64BR;
 
-  function text64BRBugfix13(value) {
-    return String(value == null ? "" : value);
+  let installed64BRBugfix13 = false;
+  let installInfo64BRBugfix13 = null;
+  let previousOpenRecalibrationPanel64BRBugfix13 = null;
+  let previousBindPanel64BRBugfix13 = null;
+  let previousAlternativesApply64BRBugfix13 = null;
+  let lastApplyRun64BRBugfix13 = null;
+  let lastPersistenceVerification64BRBugfix13 = null;
+  let lastAlternativeVerification64BRBugfix13 = null;
+  let lastStaleSessionResolution64BRBugfix13 = null;
+  let lastVisibleRebind64BRBugfix13 = null;
+  let lastStartGuardRunAt64BRBugfix13 = 0;
+
+  function text64BRBugfix13(value){ return String(value == null ? "" : value).trim(); }
+  function lower64BRBugfix13(value){ return text64BRBugfix13(value).toLowerCase(); }
+  function token64BRBugfix13(value){ return lower64BRBugfix13(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function nowIso64BRBugfix13(){ return new Date().toISOString(); }
+  function clone64BRBugfix13(value){
+    if (value == null || typeof value !== "object") return value;
+    try { return JSON.parse(JSON.stringify(value)); }
+    catch (_) { return Array.isArray(value) ? value.slice() : Object.assign({}, value); }
   }
-
-  function ns64BRBugfix13() {
-    const current = window.TTSmartExerciseSystem64BR && typeof window.TTSmartExerciseSystem64BR === "object" ? window.TTSmartExerciseSystem64BR : {};
-    const ns = Object.isExtensible(current) ? current : Object.assign({}, current);
-    ["store", "catalog", "alternatives", "recalibration", "apply", "ui", "audit", "safe"].forEach(function(key){
-      const value = ns[key] && typeof ns[key] === "object" ? ns[key] : {};
-      ns[key] = Object.isExtensible(value) ? value : Object.assign({}, value);
-    });
-    window.TTSmartExerciseSystem64BR = ns;
-    return ns;
+  function displayName64BRBugfix13(ex){ return text64BRBugfix13(ex && (ex.displayName || ex.name || ex.replacementName || ex.title || ex.id)) || "Exercise"; }
+  function routeModeKey64BRBugfix13(mode, route){ return (/home/i.test(String(mode || "")) ? "home" : "gym") + "_" + (/lazy/i.test(String(route || "")) ? "lazy" : "full"); }
+  function slotOrderOf64BRBugfix13(ex, index){ const n = Number(ex && ex.order); return Number.isFinite(n) ? n : (Number.isFinite(Number(index)) ? Number(index) + 1 : null); }
+  function slotKeyOf64BRBugfix13(dayName, mode, route, ex, index){
+    const order = slotOrderOf64BRBugfix13(ex, index);
+    return [token64BRBugfix13(dayName || ex && ex.day || "day"), routeModeKey64BRBugfix13(mode, route), Number.isFinite(Number(order)) ? "order-" + order : "index-" + (Number(index) || 0)].join("__");
   }
+  function fnSource64BRBugfix13(fn){ try { return typeof fn === "function" ? Function.prototype.toString.call(fn) : ""; } catch (_) { return ""; } }
 
-  const namespaceAtInstall64BRBugfix13 = ns64BRBugfix13();
-  const previousOpenRecalibrationPanel64BRBugfix13 = namespaceAtInstall64BRBugfix13.ui.openRecalibrationPanel;
-  const previousBindPanel64BRBugfix13 = namespaceAtInstall64BRBugfix13.ui.bindPanel;
-  const previousBindEquipmentProfileCard64BRBugfix13 = namespaceAtInstall64BRBugfix13.ui.bindEquipmentProfileCard;
-  const previousDirectApplyOne64BRBugfix13 = namespaceAtInstall64BRBugfix13.apply.directApplyOne;
-  const previousDirectApplyAll64BRBugfix13 = namespaceAtInstall64BRBugfix13.apply.directApplyAll;
-  const previousApplyOne64BRBugfix13 = namespaceAtInstall64BRBugfix13.apply.applyOne;
-  const previousApplyAllFast64BRBugfix13 = namespaceAtInstall64BRBugfix13.apply.applyAllFast;
-
-  function stopApplyOwnerEvent64BRBugfix13(event) {
-    if (event && typeof event.preventDefault === "function") event.preventDefault();
-    if (event && typeof event.stopPropagation === "function") event.stopPropagation();
-    if (event && typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
+  function ns64BRBugfix13(){
+    return window.TTSmartExerciseSystem64BR && typeof window.TTSmartExerciseSystem64BR === "object" ? window.TTSmartExerciseSystem64BR : null;
   }
-
-  function loadState64BRBugfix13() {
+  function engine64BRBugfix13(){
+    return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null;
+  }
+  function loadAppState64BRBugfix13(){
+    const eng = engine64BRBugfix13();
+    if (eng && typeof eng.loadState === "function") {
+      try {
+        const loaded = eng.loadState();
+        const state = loaded && (loaded.state || loaded);
+        if (state && typeof state === "object") return { ok: true, state: clone64BRBugfix13(state), source: "TailoredTrainingStateEngine" };
+      } catch (error) {
+        return { ok: false, state: null, error: text64BRBugfix13(error && error.message || error) };
+      }
+    }
     const ns = ns64BRBugfix13();
-    try {
-      if (ns.safe && typeof ns.safe.loadState === "function") {
+    if (ns && ns.safe && typeof ns.safe.loadState === "function") {
+      try {
         const loaded = ns.safe.loadState();
-        return loaded && loaded.state ? loaded.state : null;
+        const state = loaded && (loaded.state || loaded);
+        if (state && typeof state === "object") return { ok: true, state: clone64BRBugfix13(state), source: "64BR safe adapter" };
+      } catch (error) {
+        return { ok: false, state: null, error: text64BRBugfix13(error && error.message || error) };
       }
-    } catch (_) {}
-    try {
-      const engine = window.TailoredTrainingStateEngine;
-      if (engine && typeof engine.loadState === "function") {
-        const loaded = engine.loadState();
-        return loaded && loaded.state ? loaded.state : null;
-      }
-    } catch (_) {}
-    return null;
+    }
+    return { ok: false, state: null, error: "64BR state load path unavailable" };
   }
-
-  function saveState64BRBugfix13(state, reason) {
+  function saveAppState64BRBugfix13(state, reason){
+    if (!state || typeof state !== "object") return { ok: false, error: "state unavailable" };
+    const eng = engine64BRBugfix13();
+    if (eng && typeof eng.saveState === "function") {
+      try {
+        const saved = eng.saveState(state, reason || "phase64br-bugfix13-save");
+        return saved && typeof saved === "object" ? saved : { ok: true, state };
+      } catch (error) {
+        return { ok: false, error: text64BRBugfix13(error && error.message || error) };
+      }
+    }
     const ns = ns64BRBugfix13();
-    if (!state) return { ok: false, error: "Missing state." };
-    try {
-      if (ns.safe && typeof ns.safe.saveState === "function") return ns.safe.saveState(state, reason || "phase64br-bugfix13-recalibration-owner-cleanup");
-    } catch (error) {
-      return { ok: false, error: text64BRBugfix13(error && error.message || error) };
+    if (ns && ns.safe && typeof ns.safe.saveState === "function") {
+      try { return ns.safe.saveState(state, reason || "phase64br-bugfix13-save") || { ok: true, state }; }
+      catch (error) { return { ok: false, error: text64BRBugfix13(error && error.message || error) }; }
     }
-    try {
-      const engine = window.TailoredTrainingStateEngine;
-      if (engine && typeof engine.saveState === "function") return engine.saveState(state, reason || "phase64br-bugfix13-recalibration-owner-cleanup");
-    } catch (error) {
-      return { ok: false, error: text64BRBugfix13(error && error.message || error) };
-    }
-    return { ok: false, error: "saveState unavailable." };
+    return { ok: false, error: "64BR state save path unavailable" };
   }
-
-  function markEquipmentProfileApplied64BRBugfix13(state) {
-    const ns = ns64BRBugfix13();
-    if (!state || !ns.store) return { checked: false, applied: false };
+  function readSavedStateRaw64BRBugfix13(){
+    let raw = null;
+    try { raw = window.localStorage ? window.localStorage.getItem(PHASE64BR_BUGFIX13_STATE_KEY) : null; }
+    catch (error) { return { ok: false, state: null, error: "storage read failed: " + text64BRBugfix13(error && error.message || error) }; }
+    if (!raw) return { ok: false, state: null, error: "no saved state found under " + PHASE64BR_BUGFIX13_STATE_KEY };
     try {
-      const profile = typeof ns.store.getEquipmentProfile === "function" ? ns.store.getEquipmentProfile(state) : null;
-      if (!profile || !profile.recalibrationNeeded) return { checked: true, applied: false };
-      if (typeof ns.store.markEquipmentProfileApplied !== "function") return { checked: true, applied: false, reason: "markEquipmentProfileApplied unavailable" };
-      ns.store.markEquipmentProfileApplied(state);
-      const saved = saveState64BRBugfix13(state, "phase64br-bugfix13-equipment-profile-applied-before-direct-open");
-      return { checked: true, applied: true, saved };
+      const parsed = JSON.parse(raw);
+      return parsed && typeof parsed === "object" ? { ok: true, state: parsed, bytes: raw.length } : { ok: false, state: null, error: "saved state is not an object" };
     } catch (error) {
-      return { checked: true, applied: false, error: text64BRBugfix13(error && error.message || error) };
+      return { ok: false, state: null, error: "saved state parse failed: " + text64BRBugfix13(error && error.message || error) };
     }
   }
-
-  function stripBoundMarkers64BRBugfix13(node) {
-    if (!node || !node.attributes) return node;
-    Array.from(node.attributes).forEach(function(attr){
-      if (/^data-bound/i.test(attr.name) || /^data-phase64br-bugfix(?:1|2|3|4|5)-/i.test(attr.name)) {
-        node.removeAttribute(attr.name);
-      }
+  function savedDefaultAssignments64BRBugfix13(parsedState){
+    const store = parsedState && parsedState.smartExerciseSystem64BR;
+    return store && Array.isArray(store.defaultAssignments) ? store.defaultAssignments : [];
+  }
+  function verifyAssignmentsPersisted64BRBugfix13(expectedEntries){
+    const expected = Array.isArray(expectedEntries) ? expectedEntries.filter(Boolean) : [];
+    const readBack = readSavedStateRaw64BRBugfix13();
+    if (!readBack.ok) {
+      const result = { ok: false, verifiedCount: 0, expectedCount: expected.length, missing: expected.slice(), error: readBack.error, checkedAt: nowIso64BRBugfix13() };
+      lastPersistenceVerification64BRBugfix13 = result;
+      return result;
+    }
+    const saved = savedDefaultAssignments64BRBugfix13(readBack.state);
+    const missing = expected.filter(function(entry){
+      return !saved.some(function(item){
+        return item && text64BRBugfix13(item.key) === text64BRBugfix13(entry.key) && (!entry.replacementId || text64BRBugfix13(item.replacementId) === text64BRBugfix13(entry.replacementId));
+      });
     });
-    return node;
-  }
-
-  function replaceWithFresh64BRBugfix13(button) {
-    if (!button || !button.parentNode) return null;
-    const fresh = stripBoundMarkers64BRBugfix13(button.cloneNode(true));
-    button.replaceWith(fresh);
-    return fresh;
-  }
-
-  function renderResult64BRBugfix13(message, tone) {
-    const ns = ns64BRBugfix13();
-    try {
-      if (ns.ui && typeof ns.ui.renderResult === "function") ns.ui.renderResult(message, tone || "info");
-    } catch (_) {}
-    const result = document.getElementById("smartExerciseSystem64BRResult");
-    if (result) {
-      result.textContent = message;
-      result.dataset.phase64brBugfix13Result = tone || "info";
-    }
-  }
-
-  function setSourceButtonBusy64BRBugfix13(button, busy, busyText, idleText) {
-    if (!button) return;
-    button.disabled = !!busy;
-    if (busy && busyText) button.textContent = busyText;
-    if (!busy && idleText) button.textContent = idleText;
-    button.dataset.phase64brBugfix13Busy = busy ? "true" : "false";
-  }
-
-  function directApplyOne64BRBugfix13(contextInput) {
-    const context = contextInput && typeof contextInput === "object" ? contextInput : { cardId: contextInput };
-    const sourceButton = context.sourceButton || null;
-    let result = null;
-    try {
-      setSourceButtonBusy64BRBugfix13(sourceButton, true, "Applying upgrade...", "Apply upgrade");
-      renderResult64BRBugfix13("Applying upgrade...", "opening");
-      if (typeof previousDirectApplyOne64BRBugfix13 === "function" && previousDirectApplyOne64BRBugfix13 !== directApplyOne64BRBugfix13) {
-        result = previousDirectApplyOne64BRBugfix13.call(ns64BRBugfix13().apply, context);
-      } else if (typeof previousApplyOne64BRBugfix13 === "function") {
-        result = previousApplyOne64BRBugfix13.call(ns64BRBugfix13().apply, context.card || context.cardId, { report: context.report || null });
-      } else {
-        throw new Error("No 64BR apply-one engine is available.");
-      }
-      normalizePanelDirectApplyOwners64BRBugfix13(context.report || null, context.panelRoot || null);
-      renderResult64BRBugfix13(result && result.message || "Applied upgrade.", result && result.ok === false ? "error" : "success");
-      window.__phase64BRBugfix13LastDirectApplyOne = Object.freeze({ ok: !(result && result.ok === false), result, finishedAt: new Date().toISOString() });
-      return result;
-    } catch (error) {
-      result = { ok: false, message: "Apply upgrade failed: " + text64BRBugfix13(error && error.message || error) + "." };
-      renderResult64BRBugfix13(result.message, "error");
-      window.__phase64BRBugfix13LastDirectApplyOne = Object.freeze({ ok: false, result, finishedAt: new Date().toISOString() });
-      return result;
-    } finally {
-      setSourceButtonBusy64BRBugfix13(sourceButton, false, "", "Apply upgrade");
-    }
-  }
-
-  function directApplyAll64BRBugfix13(contextInput) {
-    const context = contextInput && typeof contextInput === "object" ? contextInput : {};
-    const sourceButton = context.sourceButton || null;
-    let result = null;
-    try {
-      setSourceButtonBusy64BRBugfix13(sourceButton, true, "Applying recommended upgrades...", "Apply all recommended upgrades");
-      renderResult64BRBugfix13("Applying recommended upgrades...", "opening");
-      if (typeof previousDirectApplyAll64BRBugfix13 === "function" && previousDirectApplyAll64BRBugfix13 !== directApplyAll64BRBugfix13) {
-        result = previousDirectApplyAll64BRBugfix13.call(ns64BRBugfix13().apply, context);
-      } else if (typeof previousApplyAllFast64BRBugfix13 === "function") {
-        result = previousApplyAllFast64BRBugfix13.call(ns64BRBugfix13().apply, context.report || null);
-      } else {
-        throw new Error("No 64BR apply-all engine is available.");
-      }
-      normalizePanelDirectApplyOwners64BRBugfix13(context.report || null, context.panelRoot || null);
-      renderResult64BRBugfix13(result && result.message || "Applied recommended upgrades.", result && result.ok === false ? "error" : "success");
-      window.__phase64BRBugfix13LastDirectApplyAll = Object.freeze({ ok: !(result && result.ok === false), result, finishedAt: new Date().toISOString() });
-      return result;
-    } catch (error) {
-      result = { ok: false, message: "Apply all failed: " + text64BRBugfix13(error && error.message || error) + "." };
-      renderResult64BRBugfix13(result.message, "error");
-      window.__phase64BRBugfix13LastDirectApplyAll = Object.freeze({ ok: false, result, finishedAt: new Date().toISOString() });
-      return result;
-    } finally {
-      setSourceButtonBusy64BRBugfix13(sourceButton, false, "", "Apply all recommended upgrades");
-    }
-  }
-
-  function normalizePanelDirectApplyOwners64BRBugfix13(reportInput, panelRootInput) {
-    const ns = ns64BRBugfix13();
-    const panel = panelRootInput || document.getElementById("smartExerciseSystem64BRPanel");
-    const result = {
-      panelExists: !!panel,
-      directApplyOneButtons: 0,
-      directApplyAllButtons: 0,
-      legacyApplyOneConverted: 0,
-      legacyApplyAllConverted: 0,
-      staleApplySelectorsRemaining: 0
-    };
-    if (!panel) {
-      window.__phase64BRBugfix13LastOwnerNormalization = Object.freeze(result);
-      return Object.freeze(result);
-    }
-
-    Array.from(panel.querySelectorAll("[data-64br-direct-apply-one], [data-phase64br-apply-one]")).forEach(function(button){
-      const fromLegacy = button.hasAttribute("data-phase64br-apply-one");
-      const cardId = button.getAttribute("data-64br-direct-apply-one") || button.getAttribute("data-phase64br-apply-one") || "";
-      const fresh = replaceWithFresh64BRBugfix13(button);
-      if (!fresh) return;
-      fresh.removeAttribute("data-phase64br-apply-one");
-      fresh.setAttribute("data-64br-direct-apply-one", cardId);
-      fresh.setAttribute("data-phase64br-direct-owner", "directApplyOne");
-      fresh.setAttribute("data-phase64br-apply-owner", "window.TTSmartExerciseSystem64BR.apply.directApplyOne");
-      fresh.setAttribute("data-phase64br-bugfix13-owner-lock", "directApplyOne");
-      fresh.dataset.phase64brIdleText = "Apply upgrade";
-      fresh.addEventListener("click", function(event){
-        stopApplyOwnerEvent64BRBugfix13(event);
-        const liveNs = ns64BRBugfix13();
-        if (!liveNs.apply || typeof liveNs.apply.directApplyOne !== "function") {
-          renderResult64BRBugfix13("Apply upgrade failed: direct owner unavailable.", "error");
-          return false;
-        }
-        return liveNs.apply.directApplyOne({ cardId: cardId, sourceButton: fresh, panelRoot: panel, report: reportInput || null });
-      }, { capture: true });
-      if (fromLegacy) result.legacyApplyOneConverted += 1;
-    });
-
-    Array.from(panel.querySelectorAll('[data-64br-direct-apply-all="true"], [data-phase64br-apply-all], [data-64br-apply-all], #applyAllRecommendedUpgrades64BR, #applyAllRecommendedUpgrades64BRSingleOwner')).forEach(function(button){
-      const fromLegacy = button.hasAttribute("data-phase64br-apply-all") || button.hasAttribute("data-64br-apply-all") || button.id === "applyAllRecommendedUpgrades64BR" || button.id === "applyAllRecommendedUpgrades64BRSingleOwner";
-      const fresh = replaceWithFresh64BRBugfix13(button);
-      if (!fresh) return;
-      if (fresh.id === "applyAllRecommendedUpgrades64BR" || fresh.id === "applyAllRecommendedUpgrades64BRSingleOwner") fresh.removeAttribute("id");
-      fresh.removeAttribute("data-phase64br-apply-all");
-      fresh.removeAttribute("data-64br-apply-all");
-      fresh.setAttribute("data-64br-direct-apply-all", "true");
-      fresh.setAttribute("data-phase64br-direct-owner", "directApplyAll");
-      fresh.setAttribute("data-phase64br-apply-owner", "window.TTSmartExerciseSystem64BR.apply.directApplyAll");
-      fresh.setAttribute("data-phase64br-bugfix13-owner-lock", "directApplyAll");
-      fresh.dataset.phase64brIdleText = "Apply all recommended upgrades";
-      fresh.addEventListener("click", function(event){
-        stopApplyOwnerEvent64BRBugfix13(event);
-        const liveNs = ns64BRBugfix13();
-        if (!liveNs.apply || typeof liveNs.apply.directApplyAll !== "function") {
-          renderResult64BRBugfix13("Apply all failed: direct owner unavailable.", "error");
-          return false;
-        }
-        return liveNs.apply.directApplyAll({ sourceButton: fresh, panelRoot: panel, report: reportInput || null });
-      }, { capture: true });
-      if (fromLegacy) result.legacyApplyAllConverted += 1;
-    });
-
-    result.directApplyOneButtons = panel.querySelectorAll("[data-64br-direct-apply-one]").length;
-    result.directApplyAllButtons = panel.querySelectorAll('[data-64br-direct-apply-all="true"]').length;
-    result.staleApplySelectorsRemaining = panel.querySelectorAll("[data-phase64br-apply-one], [data-phase64br-apply-all], [data-64br-apply-all], #applyAllRecommendedUpgrades64BR, #applyAllRecommendedUpgrades64BRSingleOwner").length;
-    if (panel.dataset) {
-      panel.dataset.phase64brBugfix13VisibleApplyOwner = "direct";
-      panel.dataset.phase64brBugfix13LegacyApplySelectorsRemaining = String(result.staleApplySelectorsRemaining);
-    }
-    window.__phase64BRBugfix13LastOwnerNormalization = Object.freeze(Object.assign({}, result));
-    return Object.freeze(result);
-  }
-
-  function openRecalibrationPanel64BRBugfix13(message, stateInput) {
-    const state = stateInput || loadState64BRBugfix13();
-    const profileApplied = markEquipmentProfileApplied64BRBugfix13(state);
-    let report = null;
-    try {
-      if (typeof previousOpenRecalibrationPanel64BRBugfix13 === "function") {
-        report = previousOpenRecalibrationPanel64BRBugfix13.call(ns64BRBugfix13().ui, message || "64BR recalibration opened. Direct apply owners active.", state || stateInput);
-      } else {
-        throw new Error("Previous 64BR recalibration open owner unavailable.");
-      }
-      const normalized = normalizePanelDirectApplyOwners64BRBugfix13(report);
-      window.__phase64BRBugfix13LastOpen = Object.freeze({ ok: true, profileApplied, normalized, openedAt: new Date().toISOString() });
-      return report;
-    } catch (error) {
-      const msg = "64BR recalibration failed to open: " + text64BRBugfix13(error && error.message || error);
-      renderResult64BRBugfix13(msg, "error");
-      window.__phase64BRBugfix13LastOpen = Object.freeze({ ok: false, profileApplied, error: msg, openedAt: new Date().toISOString() });
-      return { error: msg, cards: [], recommended: [], blocked: [], alreadyUpdated: [], currentStrong: [], summary: { recommended: 0, blocked: 0, alreadyUpdated: 0, currentStrong: 0, planSlotsReviewed: 0 } };
-    }
-  }
-
-  function bindPanel64BRBugfix13(reportInput, panelRootInput) {
-    const before = normalizePanelDirectApplyOwners64BRBugfix13(reportInput, panelRootInput);
-    if (typeof previousBindPanel64BRBugfix13 === "function") {
-      try { previousBindPanel64BRBugfix13.call(ns64BRBugfix13().ui, reportInput, panelRootInput); } catch (_) {}
-    }
-    const after = normalizePanelDirectApplyOwners64BRBugfix13(reportInput, panelRootInput);
-    return Object.freeze({ before, after });
-  }
-
-  function bindEquipmentProfileCard64BRBugfix13() {
-    let result = null;
-    if (typeof previousBindEquipmentProfileCard64BRBugfix13 === "function") {
-      result = previousBindEquipmentProfileCard64BRBugfix13.call(ns64BRBugfix13().ui);
-    }
-    bindVisibleRecalibrationOpenOwners64BRBugfix13();
+    const result = { ok: missing.length === 0, verifiedCount: expected.length - missing.length, expectedCount: expected.length, missing, savedAssignmentCount: saved.length, checkedAt: nowIso64BRBugfix13() };
+    lastPersistenceVerification64BRBugfix13 = result;
     return result;
   }
 
-  function bindOneOpenButton64BRBugfix13(id, sourceLabel) {
-    const button = document.getElementById(id);
-    if (!button) return false;
-    if (button.dataset.phase64brBugfix13VisibleOpenOwner === "final-direct-open-owner") return true;
-    const fresh = replaceWithFresh64BRBugfix13(button);
-    if (!fresh) return false;
-    fresh.setAttribute("data-phase64br-bugfix13-visible-open-owner", "final-direct-open-owner");
-    fresh.setAttribute("data-phase64br-open-owner", "window.TTSmartExerciseSystem64BR.ui.openRecalibrationPanel");
-    fresh.setAttribute("data-phase64br-open-recalibration", sourceLabel || "user-triggered");
-    fresh.addEventListener("click", function(event){
-      stopApplyOwnerEvent64BRBugfix13(event);
-      const msg = id === "recalibrateWithUpdatedEquipment64BR" ? "Recalibrating with saved equipment profile." : "64BR recalibration opened. Direct apply owners active.";
-      return ns64BRBugfix13().ui.openRecalibrationPanel(msg);
-    }, { capture: true });
+  function activeSessionOf64BRBugfix13(state){
+    return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null;
+  }
+  function sessionHasLoggedWork64BRBugfix13(active){
+    if (!active || !Array.isArray(active.exercises)) return false;
+    if (Number(active.completedSetCount) > 0) return true;
+    const setLogged = active.exercises.some(function(ex){
+      return ex && Array.isArray(ex.setLogs) && ex.setLogs.some(function(set){ return set && set.completed === true; });
+    });
+    if (setLogged) return true;
+    const registry = active.dropSetModel13A && active.dropSetModel13A.sessionOnlyDropSets13A;
+    if (registry && typeof registry === "object") {
+      return Object.keys(registry).some(function(key){ return registry[key] && registry[key].completed === true; });
+    }
+    return false;
+  }
+  function assignmentsFromState64BRBugfix13(state){
+    const ns = ns64BRBugfix13();
+    if (ns && ns.store && typeof ns.store.getDefaultAssignments === "function") {
+      try { return ns.store.getDefaultAssignments(state) || []; } catch (_) {}
+    }
+    return savedDefaultAssignments64BRBugfix13(state);
+  }
+  function sessionSlotMismatches64BRBugfix13(state, active){
+    const mismatches = [];
+    if (!active || !Array.isArray(active.exercises)) return mismatches;
+    const assignments = assignmentsFromState64BRBugfix13(state);
+    if (!assignments.length) return mismatches;
+    const dayName = active.dayName;
+    const mode = active.mode || state && state.settings && state.settings.mode || "Gym";
+    const route = active.route || state && state.settings && state.settings.route || "Full";
+    active.exercises.forEach(function(ex, index){
+      const key = slotKeyOf64BRBugfix13(dayName, mode, route, ex, index);
+      const assignment = assignments.find(function(item){ return item && text64BRBugfix13(item.key) === key; });
+      if (!assignment) return;
+      const targetId = token64BRBugfix13(assignment.replacementId);
+      const targetName = token64BRBugfix13(assignment.replacementName);
+      const currentId = token64BRBugfix13(ex && ex.id);
+      const currentName = token64BRBugfix13(displayName64BRBugfix13(ex));
+      const matches = (targetId && currentId === targetId) || (targetName && currentName === targetName);
+      if (!matches) mismatches.push({ index, key, assignment, currentName: displayName64BRBugfix13(ex) });
+    });
+    return mismatches;
+  }
+  function buildSyncedSessionExercise64BRBugfix13(original, assignment){
+    const source = clone64BRBugfix13(original || {});
+    const replacement = clone64BRBugfix13(assignment.replacementExercise || { id: assignment.replacementId, displayName: assignment.replacementName, name: assignment.replacementName });
+    const merged = Object.assign({}, source, replacement, {
+      id: replacement.id || assignment.replacementId || source.id,
+      displayName: replacement.displayName || assignment.replacementName || displayName64BRBugfix13(replacement),
+      name: replacement.name || replacement.displayName || assignment.replacementName,
+      day: source.day,
+      order: source.order,
+      block: source.block,
+      prescription: clone64BRBugfix13(source.prescription || replacement.prescription || {}),
+      guidance: clone64BRBugfix13(source.guidance || replacement.guidance || {}),
+      smartExerciseSystem64BRDefaultApplied: true,
+      smartExerciseSystem64BRDefaultKey: assignment.key,
+      smartExerciseSystem64BRReplacedFromId: assignment.replacedFromId || source.id || "",
+      smartExerciseSystem64BRReplacedFromName: assignment.replacedFromName || displayName64BRBugfix13(source),
+      phase64BRBugfix13SessionSync: true,
+      phase64BRBugfix13SessionSyncAt: nowIso64BRBugfix13()
+    });
+    ["setLogs","dropSets","sessionOnlyDropSets","sessionOnlyDropSets13A","dropSetModel13A","plannedDropSets13A","openSetKey","expandedDone","nextSetDecisions","completedSetCount","plannedSetCount"].forEach(function(key){
+      if (Object.prototype.hasOwnProperty.call(source, key)) merged[key] = clone64BRBugfix13(source[key]);
+    });
+    return merged;
+  }
+  function syncActiveSessionWithDefaults64BRBugfix13(state, options){
+    const opts = options || {};
+    const active = activeSessionOf64BRBugfix13(state);
+    if (!active) return { status: "no-active-session", changedCount: 0 };
+    const assignments = assignmentsFromState64BRBugfix13(state);
+    if (!assignments.length) return { status: "no-assignments", changedCount: 0 };
+    if (sessionHasLoggedWork64BRBugfix13(active)) {
+      active.smartExerciseDefaultsChangedAfterSessionStart = true;
+      active.phase64BRBugfix13FutureOnlyDefaultsMarkedAt = nowIso64BRBugfix13();
+      return { status: "marked-future-only", changedCount: 0, marker: true };
+    }
+    const mismatches = sessionSlotMismatches64BRBugfix13(state, active);
+    const preservedIndex = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    if (!mismatches.length) {
+      if (active.smartExerciseDefaultsChangedAfterSessionStart === true) active.smartExerciseDefaultsChangedAfterSessionStart = false;
+      return { status: "already-consistent", changedCount: 0 };
+    }
+    mismatches.forEach(function(item){
+      active.exercises[item.index] = buildSyncedSessionExercise64BRBugfix13(active.exercises[item.index], item.assignment);
+    });
+    active.selectedExerciseIndex = Math.min(Math.max(preservedIndex, 0), Math.max(active.exercises.length - 1, 0));
+    active.smartExerciseDefaultsChangedAfterSessionStart = false;
+    active.phase64BRBugfix13ActiveSessionSyncedAt = nowIso64BRBugfix13();
+    active.sessionOnlyChanges = Array.isArray(active.sessionOnlyChanges) ? active.sessionOnlyChanges : [];
+    active.sessionOnlyChanges.push({ type: "phase64br-bugfix13-active-session-default-sync", count: mismatches.length, reason: text64BRBugfix13(opts.reason || "default-apply"), at: nowIso64BRBugfix13() });
+    return { status: "synced", changedCount: mismatches.length, selectedExerciseIndex: active.selectedExerciseIndex };
+  }
+
+  function panelRootNode64BRBugfix13(candidate){
+    return candidate && candidate.querySelectorAll ? candidate : document.getElementById("smartExerciseSystem64BRPanel");
+  }
+  function setPanelResult64BRBugfix13(message, tone){
+    const node = document.getElementById("smartExerciseSystem64BRResult");
+    if (!node) return false;
+    node.textContent = text64BRBugfix13(message);
+    node.dataset.phase64brBugfix13Result = tone || "info";
+    return true;
+  }
+  function setApplyButtonBusy64BRBugfix13(button, busy, busyText, idleText){
+    if (!button) return;
+    if (!button.dataset.phase64brBugfix13IdleText) button.dataset.phase64brBugfix13IdleText = text64BRBugfix13(button.textContent) || idleText || "Apply";
+    button.disabled = !!busy;
+    button.setAttribute("aria-busy", busy ? "true" : "false");
+    button.textContent = busy ? (busyText || "Applying...") : (idleText || button.dataset.phase64brBugfix13IdleText);
+    if (!busy) button.dataset.phase64brBugfix13Recovered = "true";
+  }
+  function renderActiveWorkoutAfterSync64BRBugfix13(message, activeIndex){
+    const eng = engine64BRBugfix13();
+    try {
+      if (eng && typeof eng.renderAppFast25FBugfix === "function") return eng.renderAppFast25FBugfix(message || "Applied and updated current workout.", activeIndex);
+      if (eng && typeof eng.renderAppFull25FBugfix === "function") return eng.renderAppFull25FBugfix(message || "Applied and updated current workout.", activeIndex);
+      if (typeof window.renderApp === "function") return window.renderApp(message || "Applied and updated current workout.", activeIndex);
+    } catch (_) {}
+    return null;
+  }
+  function renderPanelFromState64BRBugfix13(state, message){
+    const ns = ns64BRBugfix13();
+    if (!ns || !ns.recalibration || typeof ns.recalibration.buildReport !== "function") return null;
+    let report = null;
+    try { report = ns.recalibration.buildReport(state); } catch (error) { return null; }
+    const panel = panelRootNode64BRBugfix13(null);
+    if (panel && ns.ui && typeof ns.ui.renderPanel === "function") {
+      try {
+        panel.innerHTML = ns.ui.renderPanel(report, message);
+        rebindVisibleApplyOwners64BRBugfix13(panel);
+      } catch (_) {}
+    }
+    if (ns.ui && typeof ns.ui.updateDataCardSummary === "function") { try { ns.ui.updateDataCardSummary(report); } catch (_) {} }
+    return report;
+  }
+
+  function applyCardsVerified64BRBugfix13(cards, contextLabel){
+    const result = { ok: false, appliedCount: 0, blockedBySafety: 0, message: "Apply failed: default was not saved.", context: contextLabel, sessionSync: null, verification: null };
+    const ns = ns64BRBugfix13();
+    if (!ns || !ns.store || typeof ns.store.upsertAssignment !== "function" || typeof ns.store.promoteExercise !== "function") {
+      result.message = "Apply failed: 64BR store owner unavailable.";
+      return result;
+    }
+    const loaded = loadAppState64BRBugfix13();
+    if (!loaded.ok || !loaded.state) {
+      result.message = "Apply failed: " + text64BRBugfix13(loaded.error || "state unavailable") + ".";
+      return result;
+    }
+    const state = loaded.state;
+    const expected = [];
+    const list = Array.isArray(cards) ? cards.filter(Boolean) : [];
+    list.forEach(function(card){
+      const replacement = ns.store.promoteExercise(state, card.recommended || { id: token64BRBugfix13(card.recommendedName), displayName: card.recommendedName });
+      const entry = ns.store.upsertAssignment(state, {
+        key: card.key,
+        dayName: card.dayName,
+        routeMode: routeModeKey64BRBugfix13(card.mode, card.route),
+        slotOrder: slotOrderOf64BRBugfix13(card.current, card.slotIndex),
+        slotIndex: card.slotIndex,
+        slotPurpose: card.current && card.current.block || card.slotPurpose || "",
+        replacementId: replacement.id,
+        replacementName: displayName64BRBugfix13(replacement),
+        replacementExercise: replacement,
+        replacedFromId: card.current && card.current.id || "",
+        replacedFromName: card.currentName || displayName64BRBugfix13(card.current),
+        updatedAt: nowIso64BRBugfix13(),
+        source: "64BR"
+      });
+      expected.push({ key: entry.key, replacementId: entry.replacementId, replacementName: entry.replacementName, replacedFromName: entry.replacedFromName });
+    });
+    if (expected.length && typeof ns.store.normalize === "function") {
+      try {
+        const current = ns.store.normalize(state.smartExerciseSystem64BR);
+        state.smartExerciseSystem64BR = ns.store.normalize(Object.assign({}, current, { lastApplyAllResult: { appliedCount: expected.length, appliedAt: nowIso64BRBugfix13(), source: "64BR BUGFIX 13" } }));
+      } catch (_) {}
+    }
+    result.sessionSync = syncActiveSessionWithDefaults64BRBugfix13(state, { reason: contextLabel });
+    const saved = saveAppState64BRBugfix13(state, "phase64br-bugfix13-" + contextLabel);
+    result.saved = { ok: !(saved && saved.ok === false), memoryFallback: !!(saved && saved.memoryFallback), storageWriteFailed: !!(saved && saved.storageWriteFailed) };
+    result.verification = verifyAssignmentsPersisted64BRBugfix13(expected);
+    if (!result.verification.ok) {
+      result.ok = false;
+      result.message = "Apply failed: default was not saved.";
+      lastApplyRun64BRBugfix13 = { finishedAt: nowIso64BRBugfix13(), context: contextLabel, ok: false, message: result.message, verification: result.verification };
+      return result;
+    }
+    result.ok = true;
+    result.appliedCount = expected.length;
+    result.entries = expected;
+    result.message = expected.length === 1 ? "Applied upgrade." : "Applied " + expected.length + " recommended upgrades.";
+    if (result.sessionSync && result.sessionSync.status === "synced") {
+      result.message += " Applied and updated current workout.";
+      renderActiveWorkoutAfterSync64BRBugfix13("Applied and updated current workout.", result.sessionSync.selectedExerciseIndex);
+    } else if (result.sessionSync && result.sessionSync.status === "marked-future-only") {
+      result.message += " Applied for next fresh workout. Current workout already has logged work.";
+    }
+    result.postApplyState = state;
+    lastApplyRun64BRBugfix13 = { finishedAt: nowIso64BRBugfix13(), context: contextLabel, ok: true, appliedCount: expected.length, message: result.message, sessionSync: result.sessionSync, verification: result.verification };
+    return result;
+  }
+
+  function zeroEligibleMessage64BRBugfix13(report){
+    const blockedCount = report && Array.isArray(report.blocked) ? report.blocked.length : 0;
+    if (blockedCount) return "0 upgrades applied. " + blockedCount + " items blocked by safety rules.";
+    if (report && Array.isArray(report.alreadyUpdated) && report.alreadyUpdated.length) return "0 upgrades applied. Existing defaults are already updated.";
+    return "0 upgrades applied. No eligible upgrades to apply.";
+  }
+  function normalizeApplyContext64BRBugfix13(input, second){
+    if (typeof input === "string") return { cardId: input, options: second || null };
+    if (input && typeof input === "object") {
+      if (input.key || input.status) return { card: input, options: second || null };
+      return input;
+    }
+    return {};
+  }
+
+  function directApplyOneVerified64BRBugfix13(contextInput, legacyOptions){
+    const context = normalizeApplyContext64BRBugfix13(contextInput, legacyOptions);
+    const sourceButton = context.sourceButton || null;
+    let outcome = { ok: false, appliedCount: 0, message: "Apply upgrade failed: unknown error." };
+    setApplyButtonBusy64BRBugfix13(sourceButton, true, "Applying upgrade...", "Apply upgrade");
+    setPanelResult64BRBugfix13("Applying upgrade...", "opening");
+    try {
+      const ns = ns64BRBugfix13();
+      const loaded = loadAppState64BRBugfix13();
+      if (!loaded.ok || !loaded.state) throw new Error(text64BRBugfix13(loaded.error || "state unavailable"));
+      if (!ns || !ns.recalibration || typeof ns.recalibration.buildReport !== "function") throw new Error("64BR report owner unavailable");
+      const report = ns.recalibration.buildReport(loaded.state);
+      const wantedKey = text64BRBugfix13(context.cardId || context.card && context.card.key);
+      const cards = Array.isArray(report && report.cards) ? report.cards : [].concat(report && report.recommended || [], report && report.blocked || [], report && report.alreadyUpdated || [], report && report.currentStrong || []);
+      const card = cards.find(function(row){ return row && text64BRBugfix13(row.key) === wantedKey; }) || (context.card && context.card.status === "Recommended" ? context.card : null);
+      if (!card || card.status !== "Recommended") {
+        outcome = { ok: false, appliedCount: 0, message: "Not applied: this is not a verified recommended upgrade." };
+        renderPanelFromState64BRBugfix13(loaded.state, outcome.message);
+        return outcome;
+      }
+      outcome = applyCardsVerified64BRBugfix13([card], "visible-apply-one");
+      renderPanelFromState64BRBugfix13(outcome.postApplyState || loaded.state, outcome.message);
+      return outcome;
+    } catch (error) {
+      outcome = { ok: false, appliedCount: 0, message: "Apply upgrade failed: " + text64BRBugfix13(error && error.message || error) + "." };
+      return outcome;
+    } finally {
+      setApplyButtonBusy64BRBugfix13(sourceButton, false, "", "Apply upgrade");
+      setPanelResult64BRBugfix13(outcome.message, outcome.ok ? "success" : "error");
+    }
+  }
+
+  function directApplyAllVerified64BRBugfix13(contextInput){
+    const context = normalizeApplyContext64BRBugfix13(contextInput);
+    const sourceButton = context.sourceButton || null;
+    let outcome = { ok: false, appliedCount: 0, message: "Apply all failed: unknown error." };
+    setApplyButtonBusy64BRBugfix13(sourceButton, true, "Applying recommended upgrades...", "Apply all recommended upgrades");
+    setPanelResult64BRBugfix13("Applying recommended upgrades...", "opening");
+    try {
+      const ns = ns64BRBugfix13();
+      const loaded = loadAppState64BRBugfix13();
+      if (!loaded.ok || !loaded.state) throw new Error(text64BRBugfix13(loaded.error || "state unavailable"));
+      if (!ns || !ns.recalibration || typeof ns.recalibration.buildReport !== "function") throw new Error("64BR report owner unavailable");
+      const report = ns.recalibration.buildReport(loaded.state);
+      const eligible = (Array.isArray(report && report.recommended) ? report.recommended : []).filter(function(card){ return card && card.status === "Recommended" && card.batchEligible !== false; });
+      if (!eligible.length) {
+        outcome = { ok: true, appliedCount: 0, message: zeroEligibleMessage64BRBugfix13(report) };
+        renderPanelFromState64BRBugfix13(loaded.state, outcome.message);
+        return outcome;
+      }
+      outcome = applyCardsVerified64BRBugfix13(eligible, "visible-apply-all");
+      renderPanelFromState64BRBugfix13(outcome.postApplyState || loaded.state, outcome.message);
+      return outcome;
+    } catch (error) {
+      outcome = { ok: false, appliedCount: 0, message: "Apply all failed: " + text64BRBugfix13(error && error.message || error) + "." };
+      return outcome;
+    } finally {
+      setApplyButtonBusy64BRBugfix13(sourceButton, false, "", "Apply all recommended upgrades");
+      setPanelResult64BRBugfix13(outcome.message, outcome.ok ? "success" : "error");
+    }
+  }
+
+  const VISIBLE_APPLY_ONE_SELECTOR64BR_BUGFIX13 = '[data-phase64br-apply-one], [data-64br-direct-apply-one]';
+  const VISIBLE_APPLY_ALL_SELECTOR64BR_BUGFIX13 = '[data-phase64br-apply-all], [data-64br-direct-apply-all], #applyAllRecommendedUpgrades64BR, #applyAllRecommendedUpgrades64BRSingleOwner';
+
+  function rebindVisibleApplyOwners64BRBugfix13(panelRootInput){
+    const panel = panelRootNode64BRBugfix13(panelRootInput);
+    if (!panel) return { bound: 0, applyOne: 0, applyAll: 0 };
+    let one = 0;
+    let all = 0;
+    panel.querySelectorAll(VISIBLE_APPLY_ONE_SELECTOR64BR_BUGFIX13).forEach(function(button){
+      const cardKey = button.getAttribute("data-phase64br-apply-one") || button.getAttribute("data-64br-direct-apply-one") || "";
+      const fresh = button.cloneNode(true);
+      fresh.dataset.phase64brBugfix13Owner = "directApplyOneVerified64BRBugfix13";
+      fresh.dataset.phase64brBugfix13ApplyOwner = "window.TTSmartExerciseSystem64BR.apply.directApplyOne";
+      fresh.dataset.phase64brBugfix13IdleText = "Apply upgrade";
+      fresh.disabled = false;
+      button.replaceWith(fresh);
+      fresh.addEventListener("click", function(event){
+        if (event) { event.preventDefault(); event.stopPropagation(); }
+        return directApplyOneVerified64BRBugfix13({ cardId: cardKey, sourceButton: fresh, panelRoot: panel });
+      }, { capture: false });
+      one += 1;
+    });
+    panel.querySelectorAll(VISIBLE_APPLY_ALL_SELECTOR64BR_BUGFIX13).forEach(function(button){
+      const fresh = button.cloneNode(true);
+      fresh.dataset.phase64brBugfix13Owner = "directApplyAllVerified64BRBugfix13";
+      fresh.dataset.phase64brBugfix13ApplyOwner = "window.TTSmartExerciseSystem64BR.apply.directApplyAll";
+      fresh.dataset.phase64brBugfix13IdleText = "Apply all recommended upgrades";
+      fresh.disabled = false;
+      button.replaceWith(fresh);
+      fresh.addEventListener("click", function(event){
+        if (event) { event.preventDefault(); event.stopPropagation(); }
+        return directApplyAllVerified64BRBugfix13({ sourceButton: fresh, panelRoot: panel });
+      }, { capture: false });
+      all += 1;
+    });
+    panel.dataset.phase64brBugfix13VisibleApplyOwner = one + all ? "bound" : "no-apply-buttons";
+    lastVisibleRebind64BRBugfix13 = { at: nowIso64BRBugfix13(), applyOne: one, applyAll: all };
+    return { bound: one + all, applyOne: one, applyAll: all };
+  }
+
+  function wrappedOpenRecalibrationPanel64BRBugfix13(){
+    let result = null;
+    if (typeof previousOpenRecalibrationPanel64BRBugfix13 === "function") {
+      result = previousOpenRecalibrationPanel64BRBugfix13.apply(this, arguments);
+    }
+    try { rebindVisibleApplyOwners64BRBugfix13(null); } catch (_) {}
+    return result;
+  }
+  wrappedOpenRecalibrationPanel64BRBugfix13.phase64brBugfix13Wrapper = "openRecalibrationPanel";
+
+  function wrappedBindPanel64BRBugfix13(report, panelRootInput){
+    let result = null;
+    if (typeof previousBindPanel64BRBugfix13 === "function") {
+      result = previousBindPanel64BRBugfix13.apply(this, arguments);
+    }
+    try { rebindVisibleApplyOwners64BRBugfix13(panelRootInput); } catch (_) {}
+    return result;
+  }
+  wrappedBindPanel64BRBugfix13.phase64brBugfix13Wrapper = "bindPanel";
+
+  function alternativesSheetRoot64BRBugfix13(candidate){
+    if (candidate && candidate.querySelector) return candidate;
+    const sheet = document.getElementById("alternativesSheet19A");
+    return sheet ? (sheet.querySelector(".media-sheet") || sheet) : null;
+  }
+  function showAlternativeResult64BRBugfix13(sheetRootInput, message, tone){
+    const root = alternativesSheetRoot64BRBugfix13(sheetRootInput);
+    if (!root) return false;
+    let node = root.querySelector("#alternativesApplyResult64BRBugfix11") || root.querySelector("[data-phase64br-bugfix11-result]");
+    if (!node) {
+      node = document.createElement("div");
+      node.id = "alternativesApplyResult64BRBugfix11";
+      node.className = "smart-recalibration-why64br";
+      node.setAttribute("role", "status");
+      const head = root.querySelector(".smart-recalibration-panel-head64br");
+      if (head && head.parentNode) head.insertAdjacentElement("afterend", node);
+      else root.insertBefore(node, root.firstChild || null);
+    }
+    node.textContent = text64BRBugfix13(message);
+    node.dataset.phase64brBugfix11Result = tone || "info";
+    node.dataset.phase64brBugfix13Verified = tone === "applied" ? "true" : "false";
+    return true;
+  }
+  function visibleActiveDetailTitle64BRBugfix13(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (!surface) return "";
+    const title = surface.querySelector(".detail-title h3") || surface.querySelector("h3");
+    return text64BRBugfix13(title && title.textContent);
+  }
+  function applyRecommendedAlternativeVerified64BRBugfix13(args){
+    const input = args && typeof args === "object" ? args : {};
+    const previous = previousAlternativesApply64BRBugfix13;
+    let result = null;
+    if (typeof previous === "function") result = previous.call(this, input);
+    else result = { ok: false, applied: false, message: "Alternative apply failed: apply owner unavailable." };
+    if (!result || result.ok !== true) {
+      lastAlternativeVerification64BRBugfix13 = { at: nowIso64BRBugfix13(), verified: false, passedThrough: true, ownerResultOk: !!(result && result.ok) };
+      return result;
+    }
+    const expectedName = text64BRBugfix13(result.replacementName) || displayName64BRBugfix13(result.swappedExercise || input.replacementExercise);
+    const expectedToken = token64BRBugfix13(expectedName);
+    const activeIndex = Number.isInteger(result.activeIndex) ? result.activeIndex : (Number.isInteger(input.activeIndex) ? input.activeIndex : 0);
+    const readBack = readSavedStateRaw64BRBugfix13();
+    const savedActive = readBack.ok ? activeSessionOf64BRBugfix13(readBack.state) : null;
+    const savedExercise = savedActive && savedActive.exercises[activeIndex] || null;
+    const savedOk = !!(savedExercise && (
+      token64BRBugfix13(displayName64BRBugfix13(savedExercise)) === expectedToken ||
+      token64BRBugfix13(savedExercise.id) === expectedToken ||
+      token64BRBugfix13(savedExercise.alternativeDisplayName64BRBugfix11) === expectedToken ||
+      token64BRBugfix13(savedExercise.replacementExercise64BR) === expectedToken
+    ));
+    const titleText = visibleActiveDetailTitle64BRBugfix13();
+    const titleOk = !!(titleText && expectedName && lower64BRBugfix13(titleText).indexOf(lower64BRBugfix13(expectedName)) !== -1);
+    const verification = {
+      at: nowIso64BRBugfix13(),
+      expectedName,
+      activeIndex,
+      savedOk,
+      titleOk,
+      savedExerciseName: savedExercise ? displayName64BRBugfix13(savedExercise) : "",
+      visibleTitle: titleText,
+      storageReadOk: readBack.ok,
+      verified: savedOk && titleOk
+    };
+    lastAlternativeVerification64BRBugfix13 = verification;
+    const sheetRoot = input.sheetRoot || null;
+    if (verification.verified) {
+      showAlternativeResult64BRBugfix13(sheetRoot, "Applied to this session.", "applied");
+      return Object.assign({}, result, { verified: true, verification });
+    }
+    showAlternativeResult64BRBugfix13(sheetRoot, "Alternative apply failed: active exercise did not update.", "error");
+    return Object.assign({}, result, { ok: false, verified: false, verification, message: "Alternative apply failed: active exercise did not update." });
+  }
+  applyRecommendedAlternativeVerified64BRBugfix13.phase64brBugfix13Wrapper = "applyRecommendedAlternative";
+
+  function resolveStaleActiveSessionBeforeStart64BRBugfix13(reason){
+    const outcome = { at: nowIso64BRBugfix13(), reason: text64BRBugfix13(reason), status: "skipped", changedCount: 0 };
+    try {
+      const loaded = loadAppState64BRBugfix13();
+      if (!loaded.ok || !loaded.state) { outcome.status = "state-unavailable"; lastStaleSessionResolution64BRBugfix13 = outcome; return outcome; }
+      const state = loaded.state;
+      const active = activeSessionOf64BRBugfix13(state);
+      if (!active) { outcome.status = "no-active-session"; lastStaleSessionResolution64BRBugfix13 = outcome; return outcome; }
+      if (sessionHasLoggedWork64BRBugfix13(active)) { outcome.status = "logged-work-preserved"; lastStaleSessionResolution64BRBugfix13 = outcome; return outcome; }
+      const marker = active.smartExerciseDefaultsChangedAfterSessionStart === true;
+      const mismatches = sessionSlotMismatches64BRBugfix13(state, active);
+      if (!marker && !mismatches.length) { outcome.status = "session-current"; lastStaleSessionResolution64BRBugfix13 = outcome; return outcome; }
+      const sync = syncActiveSessionWithDefaults64BRBugfix13(state, { reason: "stale-resume-lock:" + text64BRBugfix13(reason) });
+      const saved = saveAppState64BRBugfix13(state, "phase64br-bugfix13-stale-active-session-sync");
+      outcome.status = sync.status;
+      outcome.changedCount = sync.changedCount;
+      outcome.savedOk = !(saved && saved.ok === false);
+      if (sync.status === "synced" && text64BRBugfix13(reason) === "page-load") {
+        renderActiveWorkoutAfterSync64BRBugfix13("Workout updated with applied defaults", active.selectedExerciseIndex);
+      }
+      lastStaleSessionResolution64BRBugfix13 = outcome;
+      return outcome;
+    } catch (error) {
+      outcome.status = "error";
+      outcome.error = text64BRBugfix13(error && error.message || error);
+      lastStaleSessionResolution64BRBugfix13 = outcome;
+      return outcome;
+    }
+  }
+  function guardPrimaryStartPress64BRBugfix13(event){
+    try {
+      const btn = document.getElementById("primaryWorkoutBtn");
+      const target = event && event.target;
+      if (!btn || !target) return;
+      if (!(target === btn || (btn.contains && btn.contains(target)))) return;
+      const now = Date.now();
+      if (now - lastStartGuardRunAt64BRBugfix13 < 400) return;
+      lastStartGuardRunAt64BRBugfix13 = now;
+      resolveStaleActiveSessionBeforeStart64BRBugfix13("primary-start-press");
+    } catch (_) {}
+  }
+  function bindStartGuard64BRBugfix13(){
+    const host = document.getElementById("panel-today");
+    if (!host) return false;
+    if (host.dataset.phase64brBugfix13StartGuard === "true") return true;
+    host.dataset.phase64brBugfix13StartGuard = "true";
+    host.addEventListener("pointerup", guardPrimaryStartPress64BRBugfix13, { capture: true, passive: true });
+    host.addEventListener("click", guardPrimaryStartPress64BRBugfix13, { capture: true });
     return true;
   }
 
-  function bindVisibleRecalibrationOpenOwners64BRBugfix13() {
-    const primary = bindOneOpenButton64BRBugfix13("openSmartExerciseSystem64BRRecalibration", "bugfix13-final-direct-owner");
-    const profile = bindOneOpenButton64BRBugfix13("recalibrateWithUpdatedEquipment64BR", "bugfix13-equipment-profile-direct-owner");
-    window.__phase64BRBugfix13LastOpenOwnerBind = Object.freeze({ primary, profile, boundAt: new Date().toISOString() });
-    return window.__phase64BRBugfix13LastOpenOwnerBind;
+  function assignOwned64BRBugfix13(target, key, value){
+    try {
+      target[key] = value;
+      return target[key] === value;
+    } catch (_) { return false; }
   }
-
-  function install64BRBugfix13() {
+  function install64BRBugfix13(){
     const ns = ns64BRBugfix13();
-    ns.apply = Object.assign({}, ns.apply || {}, {
-      directApplyOne: directApplyOne64BRBugfix13,
-      directApplyAll: directApplyAll64BRBugfix13
-    });
-    ns.ui = Object.assign({}, ns.ui || {}, {
-      openRecalibrationPanel: openRecalibrationPanel64BRBugfix13,
-      bindPanel: bindPanel64BRBugfix13,
-      bindEquipmentProfileCard: bindEquipmentProfileCard64BRBugfix13
-    });
-    ns.audit = Object.assign({}, ns.audit || {}, {
-      visibleRecalibrationDirectOwnerAudit: runSmartExerciseSystem64BRVisibleRecalibrationDirectOwnerAudit,
-      visibleApplyOwnerCleanupAudit: runSmartExerciseSystem64BRVisibleApplyOwnerCleanupAudit,
-      fullAppAuditBugfix13: runFullAppAudit64BRBugfix13
-    });
-    window.TTSmartExerciseSystem64BR = ns;
-    bindVisibleRecalibrationOpenOwners64BRBugfix13();
-    normalizePanelDirectApplyOwners64BRBugfix13();
-    return ns;
+    if (!ns) return false;
+    const info = { at: nowIso64BRBugfix13(), ui: false, apply: false, alternatives: false, startGuard: false };
+    if (ns.ui && typeof ns.ui === "object") {
+      if (typeof ns.ui.openRecalibrationPanel === "function" && ns.ui.openRecalibrationPanel.phase64brBugfix13Wrapper !== "openRecalibrationPanel") {
+        previousOpenRecalibrationPanel64BRBugfix13 = ns.ui.openRecalibrationPanel;
+        info.ui = assignOwned64BRBugfix13(ns.ui, "openRecalibrationPanel", wrappedOpenRecalibrationPanel64BRBugfix13);
+      } else if (ns.ui.openRecalibrationPanel && ns.ui.openRecalibrationPanel.phase64brBugfix13Wrapper === "openRecalibrationPanel") {
+        info.ui = true;
+      }
+      if (typeof ns.ui.bindPanel === "function" && ns.ui.bindPanel.phase64brBugfix13Wrapper !== "bindPanel") {
+        previousBindPanel64BRBugfix13 = ns.ui.bindPanel;
+        assignOwned64BRBugfix13(ns.ui, "bindPanel", wrappedBindPanel64BRBugfix13);
+      }
+    }
+    if (ns.apply && typeof ns.apply === "object") {
+      const a1 = assignOwned64BRBugfix13(ns.apply, "directApplyOne", directApplyOneVerified64BRBugfix13);
+      const a2 = assignOwned64BRBugfix13(ns.apply, "directApplyAll", directApplyAllVerified64BRBugfix13);
+      assignOwned64BRBugfix13(ns.apply, "applyOne", directApplyOneVerified64BRBugfix13);
+      assignOwned64BRBugfix13(ns.apply, "applyAllFast", directApplyAllVerified64BRBugfix13);
+      info.apply = a1 && a2;
+    }
+    if (ns.alternatives && typeof ns.alternatives === "object") {
+      if (typeof ns.alternatives.applyRecommendedAlternative === "function" && ns.alternatives.applyRecommendedAlternative.phase64brBugfix13Wrapper !== "applyRecommendedAlternative") {
+        previousAlternativesApply64BRBugfix13 = ns.alternatives.applyRecommendedAlternative;
+        info.alternatives = assignOwned64BRBugfix13(ns.alternatives, "applyRecommendedAlternative", applyRecommendedAlternativeVerified64BRBugfix13);
+      } else if (ns.alternatives.applyRecommendedAlternative && ns.alternatives.applyRecommendedAlternative.phase64brBugfix13Wrapper === "applyRecommendedAlternative") {
+        info.alternatives = true;
+      }
+    }
+    info.startGuard = bindStartGuard64BRBugfix13();
+    try { rebindVisibleApplyOwners64BRBugfix13(null); } catch (_) {}
+    resolveStaleActiveSessionBeforeStart64BRBugfix13("page-load");
+    installed64BRBugfix13 = true;
+    installInfo64BRBugfix13 = Object.freeze(info);
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase64br-bugfix13-installed", "true");
+      document.documentElement.setAttribute("data-phase64br-bugfix13-owners", (info.ui ? "ui" : "") + "+" + (info.apply ? "apply" : "") + "+" + (info.alternatives ? "alternatives" : "") + "+" + (info.startGuard ? "start-guard" : ""));
+    }
+    return true;
   }
 
-  function runSmartExerciseSystem64BRVisibleRecalibrationDirectOwnerAudit() {
-    const primary = document.getElementById("openSmartExerciseSystem64BRRecalibration");
-    const profile = document.getElementById("recalibrateWithUpdatedEquipment64BR");
+  function runSmartExerciseSystem64BRVisibleApplyOwnerAudit(){
     const ns = ns64BRBugfix13();
-    return Object.freeze({
-      phase: PHASE64BR_BUGFIX13_NAME,
-      exactFailureFound: RECALIBRATION_OWNER_FAILURE64BR_BUGFIX13,
-      primaryOpenButtonExists: !!primary,
-      primaryOpenButtonFinalOwner: !!(primary && primary.dataset.phase64brBugfix13VisibleOpenOwner === "final-direct-open-owner"),
-      profileOpenButtonExists: !!profile,
-      profileOpenButtonFinalOwner: !profile || profile.dataset.phase64brBugfix13VisibleOpenOwner === "final-direct-open-owner",
-      namespaceOpenOwnerWrapped: !!(ns.ui && ns.ui.openRecalibrationPanel === openRecalibrationPanel64BRBugfix13),
-      stopImmediatePropagationOwnerInstalled: true,
-      status: primary && ns.ui && ns.ui.openRecalibrationPanel === openRecalibrationPanel64BRBugfix13 ? "YELLOW" : "RED"
-    });
-  }
-
-  function runSmartExerciseSystem64BRVisibleApplyOwnerCleanupAudit() {
     const panel = document.getElementById("smartExerciseSystem64BRPanel");
-    const normalized = normalizePanelDirectApplyOwners64BRBugfix13();
-    const panelText = panel ? panel.innerText || "" : "";
+    const openWrapped = !!(ns && ns.ui && ns.ui.openRecalibrationPanel && ns.ui.openRecalibrationPanel.phase64brBugfix13Wrapper === "openRecalibrationPanel");
+    const bindWrapped = !!(ns && ns.ui && ns.ui.bindPanel && ns.ui.bindPanel.phase64brBugfix13Wrapper === "bindPanel");
+    const directOne = !!(ns && ns.apply && ns.apply.directApplyOne === directApplyOneVerified64BRBugfix13);
+    const directAll = !!(ns && ns.apply && ns.apply.directApplyAll === directApplyAllVerified64BRBugfix13);
+    const oneButtons = panel ? Array.from(panel.querySelectorAll(VISIBLE_APPLY_ONE_SELECTOR64BR_BUGFIX13)) : [];
+    const allButtons = panel ? Array.from(panel.querySelectorAll(VISIBLE_APPLY_ALL_SELECTOR64BR_BUGFIX13)) : [];
+    const unownedVisibleButtons = oneButtons.concat(allButtons).filter(function(btn){ return btn && btn.dataset.phase64brBugfix13Owner !== "directApplyOneVerified64BRBugfix13" && btn.dataset.phase64brBugfix13Owner !== "directApplyAllVerified64BRBugfix13"; });
     return Object.freeze({
       phase: PHASE64BR_BUGFIX13_NAME,
-      panelExists: !!panel,
-      directApplyOneButtonCount: normalized.directApplyOneButtons,
-      directApplyAllButtonCount: normalized.directApplyAllButtons,
-      staleApplySelectorCount: normalized.staleApplySelectorsRemaining,
-      legacyApplyOneConverted: normalized.legacyApplyOneConverted,
-      legacyApplyAllConverted: normalized.legacyApplyAllConverted,
-      applyUpgradeOwnerDirect: !panel || Array.from(panel.querySelectorAll("[data-64br-direct-apply-one]")).every(function(btn){ return btn.dataset.phase64brApplyOwner === "window.TTSmartExerciseSystem64BR.apply.directApplyOne"; }),
-      applyAllOwnerDirect: !panel || Array.from(panel.querySelectorAll('[data-64br-direct-apply-all="true"]')).every(function(btn){ return btn.dataset.phase64brApplyOwner === "window.TTSmartExerciseSystem64BR.apply.directApplyAll"; }),
-      noReviewFirstAppears: !/Review First/i.test(panelText),
-      noReviewApplicableAppears: !/Review-applicable/i.test(panelText),
-      noLocalStorageClear: !/localStorage\.clear\s*\(/.test(document.documentElement.innerHTML || ""),
-      status: normalized.staleApplySelectorsRemaining === 0 ? "YELLOW" : "RED"
+      exactVisibleOwnerMismatchFound: VISIBLE_APPLY_FAILURE64BR_BUGFIX13,
+      installed: installed64BRBugfix13,
+      openRecalibrationPanelWrappedByBugfix13: openWrapped,
+      bindPanelWrappedByBugfix13: bindWrapped,
+      applyAllOwnerIsBugfix13DirectOwner: directAll,
+      applyOneOwnerIsBugfix13DirectOwner: directOne,
+      legacyApplyOneApplyAllFastRoutedToBugfix13: !!(ns && ns.apply && ns.apply.applyOne === directApplyOneVerified64BRBugfix13 && ns.apply.applyAllFast === directApplyAllVerified64BRBugfix13),
+      visibleApplyOneButtonCount: oneButtons.length,
+      visibleApplyAllButtonCount: allButtons.length,
+      visibleButtonsNotOwnedByBugfix13: unownedVisibleButtons.length,
+      lastVisibleRebind: lastVisibleRebind64BRBugfix13,
+      status: openWrapped && directOne && directAll && unownedVisibleButtons.length === 0 ? "YELLOW" : "RED"
     });
   }
-
-  function runFullAppAudit64BRBugfix13(stateInput) {
+  function runSmartExerciseSystem64BRDefaultPersistenceAudit(){
+    const applySource = fnSource64BRBugfix13(applyCardsVerified64BRBugfix13);
+    const verifySource = fnSource64BRBugfix13(verifyAssignmentsPersisted64BRBugfix13);
+    const readBack = readSavedStateRaw64BRBugfix13();
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX13_NAME,
+      storageKey: PHASE64BR_BUGFIX13_STATE_KEY,
+      successRequiresReadBackVerification: applySource.indexOf("verifyAssignmentsPersisted64BRBugfix13") !== -1 && applySource.indexOf("if (!result.verification.ok)") !== -1,
+      verificationReadsRawSavedState: verifySource.indexOf("readSavedStateRaw64BRBugfix13") !== -1,
+      failureMessageExists: applySource.indexOf("Apply failed: default was not saved.") !== -1,
+      successMessageOnlyAfterVerification: applySource.indexOf("result.ok = true") > applySource.indexOf("if (!result.verification.ok)"),
+      savedStateReadable: readBack.ok,
+      savedAssignmentCount: readBack.ok ? savedDefaultAssignments64BRBugfix13(readBack.state).length : 0,
+      lastPersistenceVerification: lastPersistenceVerification64BRBugfix13,
+      lastApplyRun: lastApplyRun64BRBugfix13,
+      status: applySource.indexOf("verifyAssignmentsPersisted64BRBugfix13") !== -1 && applySource.indexOf("Apply failed: default was not saved.") !== -1 ? "YELLOW" : "RED"
+    });
+  }
+  function runSmartExerciseSystem64BRRefreshSurvivalAudit(){
+    const ns = ns64BRBugfix13();
+    const readBack = readSavedStateRaw64BRBugfix13();
+    const saved = readBack.ok ? savedDefaultAssignments64BRBugfix13(readBack.state) : [];
+    if (!saved.length) {
+      return Object.freeze({ phase: PHASE64BR_BUGFIX13_NAME, savedAssignmentCount: 0, note: "No saved defaults yet; refresh survival becomes checkable after the first verified apply.", rebuildPathUsesSavedAssignments: !!(ns && ns.recalibration && typeof ns.recalibration.buildReport === "function"), status: "YELLOW" });
+    }
+    const loaded = loadAppState64BRBugfix13();
+    let report = null;
+    let error = null;
+    try { report = loaded.ok && ns && ns.recalibration && typeof ns.recalibration.buildReport === "function" ? ns.recalibration.buildReport(loaded.state) : null; }
+    catch (err) { error = text64BRBugfix13(err && err.message || err); }
+    const cards = report && (Array.isArray(report.cards) ? report.cards : []).length ? report.cards : [].concat(report && report.recommended || [], report && report.blocked || [], report && report.alreadyUpdated || [], report && report.currentStrong || []);
+    const stillRecommended = saved.filter(function(entry){
+      return cards.some(function(card){ return card && text64BRBugfix13(card.key) === text64BRBugfix13(entry.key) && card.status === "Recommended"; });
+    });
+    const shownAlreadyUpdated = saved.filter(function(entry){
+      return cards.some(function(card){ return card && text64BRBugfix13(card.key) === text64BRBugfix13(entry.key) && card.status === "Already updated"; });
+    });
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX13_NAME,
+      savedAssignmentCount: saved.length,
+      reportBuilt: !!report,
+      reportError: error,
+      savedRowsShownAsAlreadyUpdated: shownAlreadyUpdated.length,
+      savedRowsStillRecommended: stillRecommended.length,
+      status: report && stillRecommended.length === 0 ? "YELLOW" : "RED"
+    });
+  }
+  function runSmartExerciseSystem64BRWorkoutStartUsesDefaultsAudit(){
+    const ns = ns64BRBugfix13();
+    const readBack = readSavedStateRaw64BRBugfix13();
+    const saved = readBack.ok ? savedDefaultAssignments64BRBugfix13(readBack.state) : [];
+    const loaded = loadAppState64BRBugfix13();
+    const applyPathExists = !!(ns && ns.apply && typeof ns.apply.applyDefaultAssignmentsToWorkout === "function");
+    let checkedSlot = null;
+    let slotUsesDefault = null;
+    if (saved.length && loaded.ok && ns && ns.safe && typeof ns.safe.getVisibleExercises === "function") {
+      const entry = saved[0];
+      try {
+        const mode = /home/.test(text64BRBugfix13(entry.routeMode)) ? "Home" : "Gym";
+        const route = /lazy/.test(text64BRBugfix13(entry.routeMode)) ? "Lazy" : "Full";
+        const visible = ns.safe.getVisibleExercises(loaded.state, entry.dayName, mode, route) || [];
+        const match = visible.find(function(ex, index){ return slotKeyOf64BRBugfix13(entry.dayName, mode, route, ex, index) === text64BRBugfix13(entry.key); });
+        checkedSlot = { key: entry.key, expected: entry.replacementName, found: match ? displayName64BRBugfix13(match) : "" };
+        slotUsesDefault = !!(match && (token64BRBugfix13(match.id) === token64BRBugfix13(entry.replacementId) || token64BRBugfix13(displayName64BRBugfix13(match)) === token64BRBugfix13(entry.replacementName)));
+      } catch (error) {
+        checkedSlot = { key: entry.key, error: text64BRBugfix13(error && error.message || error) };
+        slotUsesDefault = false;
+      }
+    }
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX13_NAME,
+      freshWorkoutBuildAppliesDefaults: applyPathExists,
+      savedAssignmentCount: saved.length,
+      checkedSlot,
+      checkedSlotUsesSavedDefault: slotUsesDefault,
+      staleResumeGuardBound: !!(document.getElementById("panel-today") && document.getElementById("panel-today").dataset.phase64brBugfix13StartGuard === "true"),
+      lastStaleSessionResolution: lastStaleSessionResolution64BRBugfix13,
+      status: applyPathExists && (slotUsesDefault !== false) ? "YELLOW" : "RED"
+    });
+  }
+  function runSmartExerciseSystem64BRActiveSessionSyncAudit(){
+    const assignment = {
+      key: slotKeyOf64BRBugfix13("Monday", "Gym", "Full", { order: 3 }, 2),
+      dayName: "Monday",
+      routeMode: "gym_full",
+      slotOrder: 3,
+      slotIndex: 2,
+      slotPurpose: "Chest press",
+      replacementId: "db-bench-press",
+      replacementName: "DB bench press",
+      replacementExercise: { id: "db-bench-press", displayName: "DB bench press", targetMuscles: ["chest"] },
+      replacedFromId: "neutral-grip-db-floor-press",
+      replacedFromName: "Neutral-grip DB floor press",
+      updatedAt: nowIso64BRBugfix13(),
+      source: "64BR"
+    };
+    const buildSample = function(withLoggedSet){
+      return {
+        settings: { mode: "Gym", route: "Full" },
+        smartExerciseSystem64BR: { version: 1, defaultAssignments: [assignment], promotedExercises: [], equipmentProfile: null, lastApplyAllResult: null },
+        activeSession: {
+          dayName: "Monday", mode: "Gym", route: "Full", selectedExerciseIndex: 2,
+          exercises: [
+            { id: "warmup", displayName: "Warm-up", order: 1, setLogs: [{ set: 1, completed: false }] },
+            { id: "row", displayName: "Row", order: 2, setLogs: [{ set: 1, completed: false }] },
+            { id: "neutral-grip-db-floor-press", displayName: "Neutral-grip DB floor press", order: 3, setLogs: [{ set: 1, completed: !!withLoggedSet }, { set: 2, completed: false }] }
+          ],
+          sessionOnlyChanges: []
+        }
+      };
+    };
+    const cleanSample = buildSample(false);
+    const cleanResult = syncActiveSessionWithDefaults64BRBugfix13(cleanSample, { reason: "audit" });
+    const cleanExercise = cleanSample.activeSession.exercises[2];
+    const loggedSample = buildSample(true);
+    const loggedResult = syncActiveSessionWithDefaults64BRBugfix13(loggedSample, { reason: "audit" });
+    const loggedExercise = loggedSample.activeSession.exercises[2];
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX13_NAME,
+      noLoggedWorkSessionSynced: cleanResult.status === "synced" && cleanResult.changedCount === 1,
+      syncedSlotUsesReplacement: displayName64BRBugfix13(cleanExercise) === "DB bench press",
+      syncedSlotPreservesSetLogs: Array.isArray(cleanExercise.setLogs) && cleanExercise.setLogs.length === 2,
+      selectedExerciseIndexPreserved: cleanSample.activeSession.selectedExerciseIndex === 2,
+      loggedWorkSessionNotMutated: loggedResult.status === "marked-future-only" && displayName64BRBugfix13(loggedExercise) === "Neutral-grip DB floor press",
+      loggedWorkSessionMarked: loggedSample.activeSession.smartExerciseDefaultsChangedAfterSessionStart === true,
+      markerFieldName: "smartExerciseDefaultsChangedAfterSessionStart",
+      status: cleanResult.status === "synced" && displayName64BRBugfix13(cleanExercise) === "DB bench press" && loggedResult.status === "marked-future-only" && displayName64BRBugfix13(loggedExercise) === "Neutral-grip DB floor press" ? "YELLOW" : "RED"
+    });
+  }
+  function runSmartExerciseSystem64BRAlternativeApplyVerificationAudit(){
+    const ns = ns64BRBugfix13();
+    const wrapperInstalled = !!(ns && ns.alternatives && ns.alternatives.applyRecommendedAlternative && ns.alternatives.applyRecommendedAlternative.phase64brBugfix13Wrapper === "applyRecommendedAlternative");
+    const wrapperSource = fnSource64BRBugfix13(applyRecommendedAlternativeVerified64BRBugfix13);
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX13_NAME,
+      wrapperInstalled,
+      underlyingBugfix11OwnerPreserved: typeof previousAlternativesApply64BRBugfix13 === "function" || !installed64BRBugfix13,
+      verifiesSavedActiveSessionSlot: wrapperSource.indexOf("readSavedStateRaw64BRBugfix13") !== -1 && wrapperSource.indexOf("savedOk") !== -1,
+      verifiesVisibleDetailTitle: wrapperSource.indexOf("visibleActiveDetailTitle64BRBugfix13") !== -1 && wrapperSource.indexOf("titleOk") !== -1,
+      successOnlyWhenBothVerified: wrapperSource.indexOf("verification.verified") !== -1,
+      failureMessageExists: wrapperSource.indexOf("Alternative apply failed: active exercise did not update.") !== -1,
+      lastAlternativeVerification: lastAlternativeVerification64BRBugfix13,
+      status: wrapperInstalled && wrapperSource.indexOf("Alternative apply failed: active exercise did not update.") !== -1 ? "YELLOW" : "RED"
+    });
+  }
+  function countToken64BRBugfix13(tokenText){
+    try {
+      const html = document && document.documentElement ? document.documentElement.outerHTML || "" : "";
+      return html && tokenText ? html.split(tokenText).length - 1 : 0;
+    } catch (_) { return 0; }
+  }
+  function runFullAppAudit64BRBugfix13(stateInput){
     const previous = typeof previousFullAppAudit64BRBugfix13 === "function" ? previousFullAppAudit64BRBugfix13(stateInput) : null;
+    const exitAudit = typeof window.runControlsExitVisibleOwnerAudit64BRBugfix12 === "function" ? window.runControlsExitVisibleOwnerAudit64BRBugfix12() : null;
+    const equipmentAudit = typeof window.runSmartExerciseSystem64BREquipmentProfileAudit === "function" ? window.runSmartExerciseSystem64BREquipmentProfileAudit() : null;
+    const movementAudit = typeof window.runSmartExerciseSystem64BRMovementPatternAudit === "function" ? window.runSmartExerciseSystem64BRMovementPatternAudit() : null;
+    const blockedAudit = typeof window.runSmartExerciseSystem64BRAlternativeBlockedApplyAudit === "function" ? window.runSmartExerciseSystem64BRAlternativeBlockedApplyAudit() : null;
+    const panelText = text64BRBugfix13(document.getElementById("smartExerciseSystem64BRPanel") && document.getElementById("smartExerciseSystem64BRPanel").innerText || "");
     return Object.freeze({
       phase: PHASE64BR_BUGFIX13_NAME,
       outputFile: PHASE64BR_BUGFIX13_OUTPUT,
       baseFileUsed: PHASE64BR_BUGFIX13_BASE,
-      exactRecalibrationOwnerFailureFound: RECALIBRATION_OWNER_FAILURE64BR_BUGFIX13,
-      previous,
-      visibleRecalibrationDirectOwner: runSmartExerciseSystem64BRVisibleRecalibrationDirectOwnerAudit(),
-      visibleApplyOwnerCleanup: runSmartExerciseSystem64BRVisibleApplyOwnerCleanupAudit(),
-      protectedOwners: Object.freeze({
-        recalibrationApplyWritePathTouched: false,
-        alternativesTouched: false,
-        activeWorkoutStartResumeTouched: false,
-        normalLoggingTouched: false,
-        trueSupersetLoggingTouched: false,
-        historyTouched: false,
-        saveBehaviorChanged: false,
-        exitTouched: false,
-        localStorageClearAdded: false
+      diagnosticReferenceUsed: PHASE64BR_BUGFIX13_DIAG_REFERENCE,
+      exactVisibleOwnerMismatchFound: VISIBLE_APPLY_FAILURE64BR_BUGFIX13,
+      changelog: PHASE_64BR_BUGFIX_13_VISIBLE_APPLY_SOURCE_AND_ACTIVE_SESSION_SYNC_LOCK_V1_CHANGELOG,
+      previousBugfix12Audit: previous,
+      visibleApplyOwner: runSmartExerciseSystem64BRVisibleApplyOwnerAudit(),
+      defaultPersistence: runSmartExerciseSystem64BRDefaultPersistenceAudit(),
+      refreshSurvival: runSmartExerciseSystem64BRRefreshSurvivalAudit(),
+      workoutStartUsesDefaults: runSmartExerciseSystem64BRWorkoutStartUsesDefaultsAudit(),
+      activeSessionSync: runSmartExerciseSystem64BRActiveSessionSyncAudit(),
+      alternativeApplyVerification: runSmartExerciseSystem64BRAlternativeApplyVerificationAudit(),
+      controlsExitVisibleOwner: exitAudit,
+      equipmentProfile: equipmentAudit,
+      movementPattern: movementAudit,
+      rearDeltBlockedForRowBack: blockedAudit,
+      panelHasNoRemovedReviewFlow: !/Review\s+First|Review-appl/i.test(panelText),
+      protectedOwnerCounts: Object.freeze({
+        startWorkout: countToken64BRBugfix13("function " + "startWorkout("),
+        buildActiveSession: countToken64BRBugfix13("function " + "buildActiveSession("),
+        getVisibleExercises: countToken64BRBugfix13("function " + "getVisibleExercises("),
+        completeSet: countToken64BRBugfix13("function " + "completeSet("),
+        completeSupersetRound64BH: countToken64BRBugfix13("function " + "completeSupersetRound64BH("),
+        confirmControlsExit64BRBugfix12: countToken64BRBugfix13("confirmControlsExit64BRBugfix12"),
+        applyRecommendedAlternative64BRBugfix11: countToken64BRBugfix13("applyRecommendedAlternative64BRBugfix11"),
+        directApplyOneVerified64BRBugfix13: countToken64BRBugfix13("directApplyOneVerified64BRBugfix13"),
+        directApplyAllVerified64BRBugfix13: countToken64BRBugfix13("directApplyAllVerified64BRBugfix13")
+      }),
+      protectedBehavior: Object.freeze({
+        startWorkoutFunctionTouched: false,
+        buildActiveSessionTouched: false,
+        normalSetLoggingChanged: false,
+        trueSupersetLoggingChanged: false,
+        historyChanged: false,
+        saveChanged: false,
+        exitChanged: false,
+        equipmentProfileChanged: false,
+        movementGatesChanged: false,
+        customMediaDeleted: false,
+        localStorageClearAdded: false,
+        documentLevelClickListenerAdded: false,
+        mutationObserverAdded: false,
+        animationFrameLoopAdded: false,
+        intervalLoopAdded: false,
+        timeoutLoopAdded: false
       }),
       status: "YELLOW",
-      androidGithubRequired: true
+      browserValidationRequired: true,
+      androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
     });
   }
 
-  window.bindVisibleRecalibrationOpenOwners64BRBugfix13 = bindVisibleRecalibrationOpenOwners64BRBugfix13;
-  window.normalizePanelDirectApplyOwners64BRBugfix13 = normalizePanelDirectApplyOwners64BRBugfix13;
-  window.runSmartExerciseSystem64BRVisibleRecalibrationDirectOwnerAudit = runSmartExerciseSystem64BRVisibleRecalibrationDirectOwnerAudit;
-  window.runSmartExerciseSystem64BRVisibleApplyOwnerCleanupAudit = runSmartExerciseSystem64BRVisibleApplyOwnerCleanupAudit;
+  const ns = ns64BRBugfix13();
+  if (ns) {
+    try {
+      ns.audit = Object.assign({}, ns.audit || {}, {
+        visibleApplyOwnerAudit: runSmartExerciseSystem64BRVisibleApplyOwnerAudit,
+        defaultPersistenceAudit: runSmartExerciseSystem64BRDefaultPersistenceAudit,
+        refreshSurvivalAudit: runSmartExerciseSystem64BRRefreshSurvivalAudit,
+        workoutStartUsesDefaultsAudit: runSmartExerciseSystem64BRWorkoutStartUsesDefaultsAudit,
+        activeSessionSyncAudit: runSmartExerciseSystem64BRActiveSessionSyncAudit,
+        alternativeApplyVerificationAudit: runSmartExerciseSystem64BRAlternativeApplyVerificationAudit,
+        fullAppAuditBugfix13: runFullAppAudit64BRBugfix13
+      });
+    } catch (_) {}
+  }
+  window.runSmartExerciseSystem64BRVisibleApplyOwnerAudit = runSmartExerciseSystem64BRVisibleApplyOwnerAudit;
+  window.runSmartExerciseSystem64BRDefaultPersistenceAudit = runSmartExerciseSystem64BRDefaultPersistenceAudit;
+  window.runSmartExerciseSystem64BRRefreshSurvivalAudit = runSmartExerciseSystem64BRRefreshSurvivalAudit;
+  window.runSmartExerciseSystem64BRWorkoutStartUsesDefaultsAudit = runSmartExerciseSystem64BRWorkoutStartUsesDefaultsAudit;
+  window.runSmartExerciseSystem64BRActiveSessionSyncAudit = runSmartExerciseSystem64BRActiveSessionSyncAudit;
+  window.runSmartExerciseSystem64BRAlternativeApplyVerificationAudit = runSmartExerciseSystem64BRAlternativeApplyVerificationAudit;
   window.runFullAppAudit64BR = runFullAppAudit64BRBugfix13;
   window.runFullAppAudit = runFullAppAudit64BRBugfix13;
+  window.directApplyOneVerified64BRBugfix13 = directApplyOneVerified64BRBugfix13;
+  window.directApplyAllVerified64BRBugfix13 = directApplyAllVerified64BRBugfix13;
+  window.rebindVisibleApplyOwners64BRBugfix13 = rebindVisibleApplyOwners64BRBugfix13;
+  window.resolveStaleActiveSessionBeforeStart64BRBugfix13 = resolveStaleActiveSessionBeforeStart64BRBugfix13;
+  window.install64BRBugfix13 = install64BRBugfix13;
   window.TailoredTrainingPhase64BRBugfix13 = Object.freeze({
     phase: PHASE64BR_BUGFIX13_NAME,
     outputFile: PHASE64BR_BUGFIX13_OUTPUT,
     baseFileUsed: PHASE64BR_BUGFIX13_BASE,
-    exactRecalibrationOwnerFailureFound: RECALIBRATION_OWNER_FAILURE64BR_BUGFIX13,
+    diagnosticReferenceUsed: PHASE64BR_BUGFIX13_DIAG_REFERENCE,
+    exactVisibleOwnerMismatchFound: VISIBLE_APPLY_FAILURE64BR_BUGFIX13,
+    changelog: PHASE_64BR_BUGFIX_13_VISIBLE_APPLY_SOURCE_AND_ACTIVE_SESSION_SYNC_LOCK_V1_CHANGELOG,
     androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
   });
 
-  install64BRBugfix13();
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", install64BRBugfix13, { once: true });
+  } else {
+    install64BRBugfix13();
   }
 })();
 </script></body>
