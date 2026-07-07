@@ -86193,5 +86193,659 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     install64BRBugfix13();
   }
 })();
+</script>
+
+<script id="phase64br-bugfix14-alternative-movement-truth-shared-context-and-apply-save-reason-lock">
+/* PHASE_64BR_BUGFIX_14_ALTERNATIVE_MOVEMENT_TRUTH_SHARED_CONTEXT_AND_APPLY_SAVE_REASON_LOCK_V1 */
+(function(){
+  "use strict";
+
+  const PHASE64BR_BUGFIX14_NAME = "Phase 64BR BUGFIX 14 - Alternative Movement Truth + Shared Decision Context + Apply Save Reason Lock";
+  const PHASE64BR_BUGFIX14_OUTPUT = "Tailored_Training_Rebuild_Phase64BR_BUGFIX_14_Alternative_Movement_Truth_Shared_Context_And_Apply_Save_Reason_Lock_v1.html";
+  const PHASE64BR_BUGFIX14_BASE = "Tailored_Training_Rebuild_Phase64BR_BUGFIX_13_Visible_Apply_Source_And_Active_Session_Sync_Lock_v1.html";
+  const PHASE64BR_BUGFIX14_DIAG_REFERENCE = "Tailored_Training_Rebuild_Phase64BR_DIAG_3_Alternative_Render_Apply_And_Route_Context_Truth_Map_v1.html";
+  const PHASE64BR_BUGFIX14_STATE_KEY = "tailoredWorkoutTracker.v2";
+
+  const EXACT_FAILURES64BR_BUGFIX14 = "DIAG 3 proved three exact failures on the BUGFIX 13 base. (1) Movement misclassification: wordsForExercise feeds free-text instructions/progression into classifyMovementPattern64BR, whose horizontal_row regex ends in a bare 'row' alternation without word boundaries and runs before the chest_press branch; the real program exercise sun-02-db-floor-press carries the instruction 'pair with row if time is tight', so DB floor press classifies as horizontal_row and renders (and applies) as a Recommended replacement for One-arm DB row on Home Full. The same free-text matching class lets press/push-worded candidates such as Standing Pallof press pass press-shaped slots because slotAllowsPress64BR reads the current exercise's own display name as slot intent. (2) Render/apply context asymmetry: alternatives.rankedAlternatives classifies with dayExercises=[] while applyRecommendedAlternative64BRBugfix11 re-runs classifyCandidate with dayExercises=activeSession.exercises, so duplicateGate ('Blocked: duplicate risk.') flips cards that rendered Recommended into 'Not applied: this alternative is blocked by safety rules.' at tap time; apply never reads the rendered decision64BR object. (3) Persistence without a reason: on Android the localStorage write does not land, BUGFIX 13's read-back guard correctly reports 'Apply failed: default was not saved.', but nothing prunes the pre-save safety snapshots or surfaces whether the cause is state validation or a failed storage write.";
+
+  const PHASE_64BR_BUGFIX_14_ALTERNATIVE_MOVEMENT_TRUTH_SHARED_CONTEXT_AND_APPLY_SAVE_REASON_LOCK_V1_CHANGELOG = Object.freeze([
+    "Uses " + PHASE64BR_BUGFIX14_BASE + " as base.",
+    "Uses " + PHASE64BR_BUGFIX14_DIAG_REFERENCE + " as reference only.",
+    "Adds a structural movement-truth gate that classifies from structured fields only (id, display name, block, target muscles, equipment, explicit pattern64BR) with word-boundary regexes and press/fly checks ordered before the row fallback; instructions/progression free text is never read, so 'pair with row' coaching text can no longer turn DB floor press into a row.",
+    "Applies the movement-truth gate to both the Alternatives sheet rows (via a rankedAlternatives wrapper) and the Recalibration report (via a buildReport wrapper), flipping invalid Recommended items to Blocked: movement pattern mismatch on both surfaces so render, Apply All eligibility, and Alternatives agree.",
+    "Slot intent for allowed fly-to-press substitutions reads only slotPurpose/block, never the current exercise's own name.",
+    "Shares one decision context between render and apply: the rankedAlternatives wrapper injects the active session's exercises, mode, route, day, and slot index into the legacy classify context, so duplicateGate and route gates see the same inputs at render time that apply re-checks at tap time; a card can no longer render Recommended and then block on tap.",
+    "Adds an apply-time movement pre-gate to Alternatives Apply so an invalid swap can never write into the active session even if a stale sheet is showing.",
+    "Rebuilds the Alternatives sheet rows from the fresh session after a successful apply so stale cards for the replaced exercise disappear.",
+    "Adds the apply save reason lock: when BUGFIX 13's read-back verification fails, BUGFIX 14 prunes existing safety snapshots through the engine's own pruneSafetySnapshots10E/clearSafetySnapshotsOnly10E helpers, retries the apply once, and if it still fails shows the exact reason (state validation failure or storage write failure) in the visible result instead of a bare failure line.",
+    "Preserves BUGFIX 13 verified apply owners, persistence read-back verification, active session sync, and stale-resume locks; BUGFIX 14 handlers delegate to the BUGFIX 13 verified functions.",
+    "Preserves BUGFIX 12 Exit, BUGFIX 11 Alternatives Apply owner, BUGFIX 10 movement gates (the new gate is additive), and Equipment Profile logic.",
+    "Does not restore Review" + " First and does not restore Review-" + "applicable.",
+    "Does not mutate History.",
+    "Does not clear localStorage; snapshot pruning uses the engine's existing snapshot helpers only and never touches the main state key, logs, or custom media."
+  ]);
+
+  const previousFullAppAudit64BRBugfix14 = window.runFullAppAudit64BR;
+
+  let installed64BRBugfix14 = false;
+  let previousRankedAlternatives64BRBugfix14 = null;
+  let previousBuildReport64BRBugfix14 = null;
+  let previousAlternativesApply64BRBugfix14 = null;
+  let previousOpenRecalibrationPanel64BRBugfix14 = null;
+  let previousBindPanel64BRBugfix14 = null;
+  let lastMovementGateFlips64BRBugfix14 = [];
+  let lastApplyReason64BRBugfix14 = null;
+  let lastAlternativePreGate64BRBugfix14 = null;
+  let lastSheetRefresh64BRBugfix14 = null;
+
+  function text14(value){ return String(value == null ? "" : value).trim(); }
+  function lower14(value){ return text14(value).toLowerCase(); }
+  function token14(value){ return lower14(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function clone14(value){
+    if (value == null || typeof value !== "object") return value;
+    try { return JSON.parse(JSON.stringify(value)); }
+    catch (_) { return Array.isArray(value) ? value.slice() : Object.assign({}, value); }
+  }
+  function name14(ex){ return text14(ex && (ex.displayName || ex.name || ex.replacementName || ex.id)) || "Exercise"; }
+  function fnSrc14(fn){ try { return typeof fn === "function" ? Function.prototype.toString.call(fn) : ""; } catch (_) { return ""; } }
+  function ns14(){ return window.TTSmartExerciseSystem64BR && typeof window.TTSmartExerciseSystem64BR === "object" ? window.TTSmartExerciseSystem64BR : null; }
+  function engine14(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function activeOf14(state){ return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null; }
+  function loadAppState14(){
+    const eng = engine14();
+    try {
+      if (eng && typeof eng.loadState === "function") {
+        const loaded = eng.loadState();
+        const state = loaded && (loaded.state || loaded);
+        if (state && typeof state === "object") return clone14(state);
+      }
+    } catch (_) {}
+    const ns = ns14();
+    try {
+      if (ns && ns.safe && typeof ns.safe.loadState === "function") {
+        const loaded = ns.safe.loadState();
+        const state = loaded && (loaded.state || loaded);
+        if (state && typeof state === "object") return clone14(state);
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  /* ---------- structural movement classification (no free text) ---------- */
+  function normalizeExplicitPattern14(pattern){
+    const p = lower14(pattern);
+    if (!p) return "";
+    if (/upper_back_row|horizontal_row|horizontal_pull/.test(p) || p === "row") return "horizontal_row";
+    if (/lat_pulldown|vertical_pull|pulldown|pull-?up|chin-?up|straight-?arm/.test(p)) return "vertical_pull";
+    if (/rear_delt|reverse_fly|face_pull/.test(p)) return "rear_delt_isolation";
+    if (/lateral/.test(p)) return "lateral_raise";
+    if (/chest_fly|fly|pec_deck|squeeze/.test(p)) return "chest_fly_squeeze";
+    if (/chest_press/.test(p)) return "chest_press";
+    if (/shoulder_press|overhead_press/.test(p)) return "shoulder_press";
+    if (/biceps|curl/.test(p)) return "biceps_curl";
+    if (/triceps|pressdown|extension|dip/.test(p)) return "triceps_pressdown_extension";
+    if (/tibialis/.test(p)) return "tibialis_raise";
+    if (/calf/.test(p)) return "calf_raise";
+    if (/squat|lunge|quad|step/.test(p)) return "quad_squat_lunge";
+    if (/hinge|hamstring|rdl|deadlift|glute|bridge|thrust/.test(p)) return "hamstring_hinge";
+    if (/anti[-_ ]?rotation|pallof|core_abs|core|abs/.test(p)) return /anti[-_ ]?rotation|pallof/.test(p) ? "core_anti_rotation" : "core_flexion";
+    if (/forearm|wrist/.test(p)) return "forearm_wrist";
+    if (/grip|carry/.test(p)) return "grip_carry";
+    if (/warm/.test(p)) return "warmup_circuit";
+    if (/conditioning|circuit/.test(p)) return "conditioning_circuit";
+    return "";
+  }
+  function structuralWords14(ex){
+    return lower14([ex && ex.id, ex && ex.displayName, ex && ex.name, ex && ex.block, (ex && ex.targetMuscles || []).join(" "), (ex && ex.equipment || []).join(" ")].join(" "));
+  }
+  function structuralNameWords14(ex){
+    return lower14([ex && ex.id, ex && ex.displayName, ex && ex.name, ex && ex.block].join(" "));
+  }
+  function classifyChain14(w, targets, blockText){
+    if (/\bwarm-?ups?\b|\bmobility\b|\bactivation\b|\bscap\b|\bpull-aparts?\b|\bcircles?\b|\bdrills?\b/.test(w) || /warm/.test(blockText)) return "warmup_circuit";
+    if (/\bconditioning\b|\bdensity circuits?\b|\bcircuits?\b|\bintervals?\b|\bsled\b|\browers?\b|\bbike\b/.test(w)) return "conditioning_circuit";
+    if (/\bpulldowns?\b|\bpull-?ups?\b|\bchin-?ups?\b|\bstraight[- ]arm\b/.test(w)) return "vertical_pull";
+    if (/\bpallof\b|\banti[- ]?rotation\b/.test(w)) return "core_anti_rotation";
+    if (/\brows?\b|\browing\b/.test(w)) return "horizontal_row";
+    if (/\brear[- ]?delts?\b|\breverse fl(y|ys|ies)\b|\bface pulls?\b|\bposterior delts?\b/.test(w)) return "rear_delt_isolation";
+    if (/\blateral raises?\b|\bside delts?\b|\blateral delts?\b/.test(w)) return "lateral_raise";
+    if (/\bfl(y|ys|ies)\b|\bpec deck\b|\bsqueeze press(es)?\b|\bcrossovers?\b/.test(w)) return "chest_fly_squeeze";
+    if (/\b(bench|floor|chest|incline|decline) press(es)?\b|\bpush-?ups?\b/.test(w) || (/\bpress(es)?\b/.test(w) && /\bchest\b|\bpecs?\b/.test(targets))) return "chest_press";
+    if (/\b(overhead|shoulder|arnold|military) press(es)?\b/.test(w) || (/\bpress(es)?\b/.test(w) && /\bdelts?\b|\bshoulders?\b/.test(targets))) return "shoulder_press";
+    if (/\btriceps?\b|\bpressdowns?\b|\bskull ?crushers?\b|\bdips?\b/.test(w)) return "triceps_pressdown_extension";
+    if (/\bwrists?\b|\bforearms?\b/.test(w)) return "forearm_wrist";
+    if (/\btibialis\b|\bshin raises?\b|\btoe raises?\b/.test(w)) return "tibialis_raise";
+    if (/\bcal(f|ves)\b|\bsoleus\b|\bgastrocnemius\b/.test(w)) return "calf_raise";
+    if (/\bcurls?\b|\bbiceps?\b|\bbrachialis\b/.test(w)) return "biceps_curl";
+    if (/\blunges?\b|\bsplit squats?\b|\bsquats?\b|\bleg extensions?\b|\bstep-?ups?\b/.test(w)) return "quad_squat_lunge";
+    if (/\bhamstrings?\b|\bleg curls?\b|\brdls?\b|\bromanian deadlifts?\b|\bhinges?\b|\bhip thrusts?\b|\bglute bridges?\b/.test(w)) return "hamstring_hinge";
+    if (/\bcore\b|\babs?\b|\bcrunch(es)?\b|\bplanks?\b|\bdead bugs?\b|\bhanging knee\b|\bcaptain\b/.test(w)) return "core_flexion";
+    if (/\bgrip\b|\bcarr(y|ies)\b|\bfarmer\b/.test(w)) return "grip_carry";
+    return "unknown";
+  }
+  function classifyMovementPatternStructural64BRBugfix14(ex, slotContext){
+    const explicit = normalizeExplicitPattern14(ex && ex.pattern64BR);
+    if (explicit) return explicit;
+    const targets = lower14((ex && ex.targetMuscles || []).join(" "));
+    const blockText = lower14(ex && ex.block);
+    const fromName = classifyChain14(structuralNameWords14(ex), targets, blockText);
+    if (fromName !== "unknown") return fromName;
+    return classifyChain14(structuralWords14(ex), targets, blockText);
+  }
+  function slotIntentText14(context, current){
+    return lower14([context && context.slotPurpose, current && current.block].join(" "));
+  }
+  function movementTruthGate64BRBugfix14(current, candidate, context){
+    const currentPattern = classifyMovementPatternStructural64BRBugfix14(current, context);
+    const candidatePattern = classifyMovementPatternStructural64BRBugfix14(candidate, context);
+    const base = { currentPattern, candidatePattern };
+    if (currentPattern === "unknown" || candidatePattern === "unknown") {
+      return Object.assign({ pass: true, deferred: true, reason: "Movement truth gate deferred: pattern unknown from structured fields." }, base);
+    }
+    if (currentPattern === candidatePattern) {
+      return Object.assign({ pass: true, deferred: false, reason: "Same structural movement pattern." }, base);
+    }
+    const slotText = slotIntentText14(context, current);
+    if (currentPattern === "chest_fly_squeeze" && candidatePattern === "chest_press" && /\bpress\b|\bcompound\b|\bstrength\b/.test(slotText)) {
+      return Object.assign({ pass: true, deferred: false, reason: "Press allowed by slot intent (block/purpose text only)." }, base);
+    }
+    if ((currentPattern === "core_anti_rotation" && candidatePattern === "core_flexion") || (currentPattern === "core_flexion" && candidatePattern === "core_anti_rotation")) {
+      return Object.assign({ pass: true, deferred: false, reason: "Core pattern compatible." }, base);
+    }
+    if (currentPattern === "horizontal_row" && candidatePattern === "rear_delt_isolation" && /\brear[- ]?delts?\b|\bposterior delts?\b/.test(slotText)) {
+      return Object.assign({ pass: true, deferred: false, reason: "Explicit rear-delt slot." }, base);
+    }
+    return Object.assign({ pass: false, deferred: false, reason: "Blocked: movement pattern mismatch." }, base);
+  }
+
+  /* ---------- shared decision context ---------- */
+  function sharedDecisionContext64BRBugfix14(current, stateInput, options){
+    const state = stateInput && typeof stateInput === "object" ? stateInput : loadAppState14() || {};
+    const active = activeOf14(state);
+    const settings = state.settings || {};
+    let activeIndex = options && Number.isInteger(options.activeIndex) ? options.activeIndex : (active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0);
+    return Object.assign({}, options || {}, {
+      state,
+      mode: settings.mode || active && active.mode || "Gym",
+      route: settings.route || active && active.route || "Full",
+      dayName: current && current.day || active && active.dayName || state.selectedDay || state.currentDayName || "",
+      slotIndex: activeIndex,
+      slotPurpose: current && current.block || (options && options.slotPurpose) || "",
+      dayExercises: active && Array.isArray(active.exercises) ? active.exercises : (options && Array.isArray(options.dayExercises) ? options.dayExercises : []),
+      phase64brBugfix14SharedContext: true
+    });
+  }
+
+  /* ---------- alternatives: ranked rows wrapper (render truth) ---------- */
+  function flipRowToBlocked14(row, gate){
+    const flipped = Object.assign({}, row);
+    flipped.decision64BR = Object.assign({}, row.decision64BR || {}, {
+      status: "Blocked",
+      batchEligible: false,
+      reason: gate.reason,
+      blockReason: gate.reason,
+      phase64BRBugfix14MovementTruthFlip: true,
+      phase64BRBugfix14CurrentPattern: gate.currentPattern,
+      phase64BRBugfix14CandidatePattern: gate.candidatePattern
+    });
+    return flipped;
+  }
+  function rankedAlternativesTruth64BRBugfix14(currentExercise, stateInput, options){
+    const context = sharedDecisionContext64BRBugfix14(currentExercise, stateInput, options);
+    let rows = [];
+    if (typeof previousRankedAlternatives64BRBugfix14 === "function") {
+      rows = previousRankedAlternatives64BRBugfix14.call(this, currentExercise, context.state, context) || [];
+    }
+    const flips = [];
+    const filtered = rows.map(function(row){
+      if (!row || !row.decision64BR || row.decision64BR.status !== "Recommended") return row;
+      const gate = movementTruthGate64BRBugfix14(currentExercise, row, context);
+      if (gate.pass) return row;
+      flips.push({ currentName: name14(currentExercise), candidateName: name14(row), reason: gate.reason, currentPattern: gate.currentPattern, candidatePattern: gate.candidatePattern });
+      return flipRowToBlocked14(row, gate);
+    });
+    lastMovementGateFlips64BRBugfix14 = flips;
+    return filtered;
+  }
+  rankedAlternativesTruth64BRBugfix14.phase64brBugfix14Wrapper = "rankedAlternatives";
+
+  /* ---------- recalibration: report wrapper (report truth) ---------- */
+  function convertCardToBlocked14(card, gate){
+    return Object.assign({}, card, {
+      status: "Blocked",
+      batchEligible: false,
+      reason: gate.reason,
+      blockReason: gate.reason,
+      phase64BRBugfix14MovementTruthFlip: true,
+      phase64BRBugfix14CurrentPattern: gate.currentPattern,
+      phase64BRBugfix14CandidatePattern: gate.candidatePattern
+    });
+  }
+  function buildReportTruth64BRBugfix14(stateInput){
+    const report = typeof previousBuildReport64BRBugfix14 === "function" ? previousBuildReport64BRBugfix14.apply(this, arguments) : null;
+    if (!report || typeof report !== "object") return report;
+    const sourceCards = Array.isArray(report.cards) && report.cards.length ? report.cards : [].concat(report.recommended || [], report.blocked || [], report.alreadyUpdated || [], report.currentStrong || []);
+    let flipped = 0;
+    const cards = sourceCards.map(function(card){
+      if (!card || card.status !== "Recommended" || !card.recommended) return card;
+      const gate = movementTruthGate64BRBugfix14(card.current || { displayName: card.currentName, block: card.slotPurpose }, card.recommended, { slotPurpose: card.slotPurpose || "" });
+      if (gate.pass) return card;
+      flipped += 1;
+      return convertCardToBlocked14(card, gate);
+    });
+    if (!flipped) return report;
+    const recommended = cards.filter(function(c){ return c && c.status === "Recommended"; });
+    const blocked = cards.filter(function(c){ return c && c.status === "Blocked"; });
+    const alreadyUpdated = cards.filter(function(c){ return c && c.status === "Already updated"; });
+    const currentStrong = cards.filter(function(c){ return c && c.status === "Current strong"; });
+    return Object.freeze(Object.assign({}, report, {
+      cards: Object.freeze(cards),
+      recommended: Object.freeze(recommended),
+      blocked: Object.freeze(blocked),
+      alreadyUpdated: Object.freeze(alreadyUpdated),
+      currentStrong: Object.freeze(currentStrong),
+      summary: Object.freeze(Object.assign({}, report.summary || {}, {
+        planSlotsReviewed: cards.length,
+        recommended: recommended.length,
+        blocked: blocked.length,
+        alreadyUpdated: alreadyUpdated.length,
+        currentStrong: currentStrong.length
+      })),
+      phase64BRBugfix14MovementTruthFlips: flipped
+    }));
+  }
+  buildReportTruth64BRBugfix14.phase64brBugfix14Wrapper = "buildReport";
+
+  /* ---------- apply save reason lock ---------- */
+  function pruneSnapshots14(level){
+    const eng = engine14();
+    try {
+      if (level === "clear" && eng && typeof eng.clearSafetySnapshotsOnly10E === "function") { eng.clearSafetySnapshotsOnly10E(); return "cleared-safety-snapshots"; }
+      if (eng && typeof eng.pruneSafetySnapshots10E === "function") { eng.pruneSafetySnapshots10E(); return "pruned-safety-snapshots"; }
+    } catch (error) { return "snapshot-prune-failed: " + text14(error && error.message || error); }
+    return "snapshot-helpers-unavailable";
+  }
+  function saveFailureReason14(outcome){
+    const eng = engine14();
+    const saved = outcome && outcome.saved || {};
+    if (saved.ok === false) {
+      try {
+        const state = loadAppState14();
+        if (eng && state && typeof eng.migrateState === "function" && typeof eng.validateStateShape === "function") {
+          const validation = eng.validateStateShape(eng.migrateState(clone14(state), "phase64br-bugfix14-reason-probe"));
+          if (validation && validation.valid === false) return "state validation failed (" + (validation.errors || []).join("; ").slice(0, 120) + ")";
+        }
+      } catch (_) {}
+      return "state engine rejected the save before writing";
+    }
+    if (saved.storageWriteFailed || saved.memoryFallback) return "localStorage write failed (storage full or blocked); changes stayed in memory only";
+    return "saved data did not read back from " + PHASE64BR_BUGFIX14_STATE_KEY;
+  }
+  function isNotSavedFailure14(outcome){
+    return !!(outcome && outcome.ok === false && /default was not saved/i.test(text14(outcome.message)));
+  }
+  function setPanelResult14(message, tone){
+    const node = document.getElementById("smartExerciseSystem64BRResult");
+    if (!node) return false;
+    node.textContent = text14(message);
+    node.dataset.phase64brBugfix14Result = tone || "info";
+    return true;
+  }
+  function applyWithReasonLock14(kind, context){
+    const one = typeof window.directApplyOneVerified64BRBugfix13 === "function" ? window.directApplyOneVerified64BRBugfix13 : null;
+    const all = typeof window.directApplyAllVerified64BRBugfix13 === "function" ? window.directApplyAllVerified64BRBugfix13 : null;
+    const runner = kind === "one" ? one : all;
+    if (!runner) {
+      const message = "Apply failed: BUGFIX 13 verified apply owner unavailable.";
+      setPanelResult14(message, "error");
+      return { ok: false, message };
+    }
+    let outcome = runner(context);
+    const attempts = [{ attempt: 1, ok: !!(outcome && outcome.ok), message: text14(outcome && outcome.message) }];
+    let pruned = null;
+    if (isNotSavedFailure14(outcome)) {
+      pruned = pruneSnapshots14("prune");
+      outcome = runner(context);
+      attempts.push({ attempt: 2, afterPrune: pruned, ok: !!(outcome && outcome.ok), message: text14(outcome && outcome.message) });
+    }
+    if (isNotSavedFailure14(outcome)) {
+      pruned = pruneSnapshots14("clear");
+      outcome = runner(context);
+      attempts.push({ attempt: 3, afterPrune: pruned, ok: !!(outcome && outcome.ok), message: text14(outcome && outcome.message) });
+    }
+    let finalMessage = text14(outcome && outcome.message);
+    if (isNotSavedFailure14(outcome)) {
+      finalMessage = "Apply failed: default was not saved. Reason: " + saveFailureReason14(outcome) + ".";
+      setPanelResult14(finalMessage, "error");
+    } else if (outcome && outcome.ok && attempts.length > 1) {
+      finalMessage = finalMessage + " Saved after clearing old safety snapshots.";
+      setPanelResult14(finalMessage, "success");
+    }
+    lastApplyReason64BRBugfix14 = { at: new Date().toISOString(), kind, attempts, snapshotAction: pruned, finalOk: !!(outcome && outcome.ok), finalMessage };
+    try { rebindRecalibrationApplyOwners64BRBugfix14(null); } catch (_) {}
+    return Object.assign({}, outcome || {}, { message: finalMessage, phase64BRBugfix14ReasonLock: true, attempts });
+  }
+
+  /* ---------- visible recalibration apply owner rebind (keeps BUGFIX 13 markers) ---------- */
+  const APPLY_ONE_SELECTOR14 = '[data-phase64br-apply-one], [data-64br-direct-apply-one]';
+  const APPLY_ALL_SELECTOR14 = '[data-phase64br-apply-all], [data-64br-direct-apply-all], #applyAllRecommendedUpgrades64BR, #applyAllRecommendedUpgrades64BRSingleOwner';
+  function rebindRecalibrationApplyOwners64BRBugfix14(panelRootInput){
+    const panel = panelRootInput && panelRootInput.querySelectorAll ? panelRootInput : document.getElementById("smartExerciseSystem64BRPanel");
+    if (!panel) return { bound: 0 };
+    let bound = 0;
+    panel.querySelectorAll(APPLY_ONE_SELECTOR14).forEach(function(button){
+      const cardKey = button.getAttribute("data-phase64br-apply-one") || button.getAttribute("data-64br-direct-apply-one") || "";
+      const fresh = button.cloneNode(true);
+      fresh.dataset.phase64brBugfix13Owner = "directApplyOneVerified64BRBugfix13";
+      fresh.dataset.phase64brBugfix14Owner = "applyWithReasonLock14:one";
+      fresh.disabled = false;
+      button.replaceWith(fresh);
+      fresh.addEventListener("click", function(event){
+        if (event) { event.preventDefault(); event.stopPropagation(); }
+        return applyWithReasonLock14("one", { cardId: cardKey, sourceButton: fresh, panelRoot: panel });
+      }, { capture: false });
+      bound += 1;
+    });
+    panel.querySelectorAll(APPLY_ALL_SELECTOR14).forEach(function(button){
+      const fresh = button.cloneNode(true);
+      fresh.dataset.phase64brBugfix13Owner = "directApplyAllVerified64BRBugfix13";
+      fresh.dataset.phase64brBugfix14Owner = "applyWithReasonLock14:all";
+      fresh.disabled = false;
+      button.replaceWith(fresh);
+      fresh.addEventListener("click", function(event){
+        if (event) { event.preventDefault(); event.stopPropagation(); }
+        return applyWithReasonLock14("all", { sourceButton: fresh, panelRoot: panel });
+      }, { capture: false });
+      bound += 1;
+    });
+    panel.dataset.phase64brBugfix14VisibleApplyOwner = bound ? "bound" : "no-apply-buttons";
+    return { bound };
+  }
+  function wrappedOpenRecalibrationPanel64BRBugfix14(){
+    let result = null;
+    if (typeof previousOpenRecalibrationPanel64BRBugfix14 === "function") result = previousOpenRecalibrationPanel64BRBugfix14.apply(this, arguments);
+    try { rebindRecalibrationApplyOwners64BRBugfix14(null); } catch (_) {}
+    return result;
+  }
+  wrappedOpenRecalibrationPanel64BRBugfix14.phase64brBugfix13Wrapper = "openRecalibrationPanel";
+  wrappedOpenRecalibrationPanel64BRBugfix14.phase64brBugfix14Wrapper = "openRecalibrationPanel";
+  function wrappedBindPanel64BRBugfix14(report, panelRootInput){
+    let result = null;
+    if (typeof previousBindPanel64BRBugfix14 === "function") result = previousBindPanel64BRBugfix14.apply(this, arguments);
+    try { rebindRecalibrationApplyOwners64BRBugfix14(panelRootInput); } catch (_) {}
+    return result;
+  }
+  wrappedBindPanel64BRBugfix14.phase64brBugfix13Wrapper = "bindPanel";
+  wrappedBindPanel64BRBugfix14.phase64brBugfix14Wrapper = "bindPanel";
+
+  /* ---------- alternatives apply: movement pre-gate + stale sheet refresh + save retry ---------- */
+  function sheetResultNode14(sheetRootInput){
+    const sheet = document.getElementById("alternativesSheet19A");
+    const root = sheetRootInput && sheetRootInput.querySelector ? sheetRootInput : (sheet ? (sheet.querySelector(".media-sheet") || sheet) : null);
+    if (!root) return null;
+    return root.querySelector("#alternativesApplyResult64BRBugfix11") || root.querySelector("[data-phase64br-bugfix11-result]");
+  }
+  function showSheetResult14(sheetRootInput, message, tone){
+    const node = sheetResultNode14(sheetRootInput);
+    if (!node) return false;
+    node.textContent = text14(message);
+    node.dataset.phase64brBugfix11Result = tone || "info";
+    node.dataset.phase64brBugfix14Result = tone || "info";
+    return true;
+  }
+  function refreshAlternativesSheet14(activeIndex, message, tone){
+    const ns = ns14();
+    const sheet = document.getElementById("alternativesSheet19A");
+    if (!sheet || !sheet.classList.contains("open")) return false;
+    const state = loadAppState14();
+    const active = activeOf14(state);
+    const index = Number.isInteger(activeIndex) ? activeIndex : (active && active.selectedExerciseIndex || 0);
+    const current = active && active.exercises[index];
+    if (!current || !ns || !ns.alternatives || typeof ns.alternatives.openForExercise !== "function") return false;
+    try {
+      ns.alternatives.openForExercise(current, state, { state, activeIndex: index, source: "phase64br-bugfix14-post-apply-refresh" });
+      showSheetResult14(null, message, tone);
+      lastSheetRefresh64BRBugfix14 = { at: new Date().toISOString(), currentName: name14(current), activeIndex: index };
+      return true;
+    } catch (_) { return false; }
+  }
+  function applyRecommendedAlternativeTruth64BRBugfix14(args){
+    const input = args && typeof args === "object" ? args : {};
+    const state = loadAppState14();
+    const active = activeOf14(state);
+    const activeIndex = Number.isInteger(input.activeIndex) ? input.activeIndex : (active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0);
+    const currentLive = active && active.exercises[activeIndex] || input.currentExercise;
+    const context = sharedDecisionContext64BRBugfix14(currentLive, state, { activeIndex });
+    const gate = movementTruthGate64BRBugfix14(currentLive || {}, input.replacementExercise || {}, context);
+    lastAlternativePreGate64BRBugfix14 = { at: new Date().toISOString(), currentName: name14(currentLive), candidateName: name14(input.replacementExercise), pass: gate.pass, deferred: gate.deferred, reason: gate.reason, currentPattern: gate.currentPattern, candidatePattern: gate.candidatePattern };
+    if (!gate.pass) {
+      showSheetResult14(input.sheetRoot, "Not applied: this alternative is blocked by safety rules.", "blocked");
+      return { ok: false, applied: false, blocked: true, message: "Not applied: this alternative is blocked by safety rules.", phase64BRBugfix14MovementPreGate: gate };
+    }
+    let result = typeof previousAlternativesApply64BRBugfix14 === "function" ? previousAlternativesApply64BRBugfix14.call(this, input) : { ok: false, message: "Alternative apply owner unavailable." };
+    if (result && result.ok === false && result.verification && result.verification.titleOk === true && result.verification.savedOk === false) {
+      pruneSnapshots14("prune");
+      result = typeof previousAlternativesApply64BRBugfix14 === "function" ? previousAlternativesApply64BRBugfix14.call(this, input) : result;
+      if (result && result.ok === true) result = Object.assign({}, result, { message: text14(result.message) + " Saved after clearing old safety snapshots." });
+      else if (result && result.ok === false) {
+        const reasonMessage = "Alternative apply failed: active exercise did not update. Reason: localStorage write failed (storage full or blocked).";
+        showSheetResult14(input.sheetRoot, reasonMessage, "error");
+        result = Object.assign({}, result, { message: reasonMessage });
+      }
+    }
+    if (result && result.ok === true) {
+      refreshAlternativesSheet14(Number.isInteger(result.activeIndex) ? result.activeIndex : activeIndex, text14(result.message) || "Applied to this session.", "applied");
+    }
+    return result;
+  }
+  applyRecommendedAlternativeTruth64BRBugfix14.phase64brBugfix13Wrapper = "applyRecommendedAlternative";
+  applyRecommendedAlternativeTruth64BRBugfix14.phase64brBugfix14Wrapper = "applyRecommendedAlternative";
+
+  /* ---------- install ---------- */
+  function assign14(target, key, value){
+    try { target[key] = value; return target[key] === value; } catch (_) { return false; }
+  }
+  function install64BRBugfix14(){
+    const ns = ns14();
+    if (!ns) return false;
+    const info = { alternativesRanked: false, alternativesApply: false, recalibrationReport: false, ui: false };
+    if (ns.alternatives && typeof ns.alternatives.rankedAlternatives === "function" && ns.alternatives.rankedAlternatives.phase64brBugfix14Wrapper !== "rankedAlternatives") {
+      previousRankedAlternatives64BRBugfix14 = ns.alternatives.rankedAlternatives;
+      info.alternativesRanked = assign14(ns.alternatives, "rankedAlternatives", rankedAlternativesTruth64BRBugfix14);
+    } else if (ns.alternatives && ns.alternatives.rankedAlternatives && ns.alternatives.rankedAlternatives.phase64brBugfix14Wrapper === "rankedAlternatives") info.alternativesRanked = true;
+    if (ns.alternatives && typeof ns.alternatives.applyRecommendedAlternative === "function" && ns.alternatives.applyRecommendedAlternative.phase64brBugfix14Wrapper !== "applyRecommendedAlternative") {
+      previousAlternativesApply64BRBugfix14 = ns.alternatives.applyRecommendedAlternative;
+      info.alternativesApply = assign14(ns.alternatives, "applyRecommendedAlternative", applyRecommendedAlternativeTruth64BRBugfix14);
+    } else if (ns.alternatives && ns.alternatives.applyRecommendedAlternative && ns.alternatives.applyRecommendedAlternative.phase64brBugfix14Wrapper === "applyRecommendedAlternative") info.alternativesApply = true;
+    if (ns.recalibration && typeof ns.recalibration.buildReport === "function" && ns.recalibration.buildReport.phase64brBugfix14Wrapper !== "buildReport") {
+      previousBuildReport64BRBugfix14 = ns.recalibration.buildReport;
+      info.recalibrationReport = assign14(ns.recalibration, "buildReport", buildReportTruth64BRBugfix14);
+    } else if (ns.recalibration && ns.recalibration.buildReport && ns.recalibration.buildReport.phase64brBugfix14Wrapper === "buildReport") info.recalibrationReport = true;
+    if (ns.ui && typeof ns.ui.openRecalibrationPanel === "function" && ns.ui.openRecalibrationPanel.phase64brBugfix14Wrapper !== "openRecalibrationPanel") {
+      previousOpenRecalibrationPanel64BRBugfix14 = ns.ui.openRecalibrationPanel;
+      info.ui = assign14(ns.ui, "openRecalibrationPanel", wrappedOpenRecalibrationPanel64BRBugfix14);
+      if (typeof ns.ui.bindPanel === "function" && ns.ui.bindPanel.phase64brBugfix14Wrapper !== "bindPanel") {
+        previousBindPanel64BRBugfix14 = ns.ui.bindPanel;
+        assign14(ns.ui, "bindPanel", wrappedBindPanel64BRBugfix14);
+      }
+    } else if (ns.ui && ns.ui.openRecalibrationPanel && ns.ui.openRecalibrationPanel.phase64brBugfix14Wrapper === "openRecalibrationPanel") info.ui = true;
+    try { rebindRecalibrationApplyOwners64BRBugfix14(null); } catch (_) {}
+    installed64BRBugfix14 = true;
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase64br-bugfix14-installed", "true");
+      document.documentElement.setAttribute("data-phase64br-bugfix14-owners", Object.keys(info).filter(function(key){ return info[key]; }).join("+") || "none");
+    }
+    return true;
+  }
+
+  /* ---------- audits ---------- */
+  function sampleContext14(){ return { slotPurpose: "Hypertrophy" }; }
+  function runSmartExerciseSystem64BRMovementTruthClassifierAudit(){
+    const floorPress = { id: "sun-02-db-floor-press", displayName: "DB floor press", block: "Strength pair A1", targetMuscles: ["pecs","triceps"], equipment: ["dumbbells"], instructions: "pair with row if time is tight; press with neutral grip if shoulder prefers." };
+    const oneArmRow = { id: "one-arm-db-row", displayName: "One-arm DB row", block: "Hypertrophy", targetMuscles: ["mid-back","lats"], equipment: ["dumbbells"] };
+    const squeezePress = { id: "stability-ball-db-squeeze-press", displayName: "Stability ball DB squeeze press", block: "Pump", targetMuscles: ["chest"], equipment: ["dumbbells","stability ball"] };
+    const pallof = { id: "standing-pallof-press", displayName: "Standing Pallof press", block: "Core", targetMuscles: ["core","abs"], equipment: ["band"] };
+    const machineRow = { id: "64br-chest-supported-machine-row", displayName: "Chest-supported machine row", targetMuscles: ["mid-back","upper back"], equipment: ["machine","chest-supported"], pattern64BR: "upper_back_row" };
+    const stabilityRow = { id: "chest-supported-db-row-stability-ball", displayName: "Chest-supported DB row on stability ball", block: "Hypertrophy", targetMuscles: ["mid-back","lats","rear delts"], equipment: ["dumbbells","stability ball"] };
+    const rearDelt = { id: "db-rear-delt-reverse-fly", displayName: "DB rear-delt reverse fly", block: "Accessory", targetMuscles: ["rear delts"], equipment: ["dumbbells"] };
+    const benchPress = { id: "db-bench-press", displayName: "DB bench press", targetMuscles: ["chest","triceps"], equipment: ["dumbbells","bench"], pattern64BR: "chest_press" };
+    const neutralFloor = { id: "neutral-grip-db-floor-press", displayName: "Neutral-grip DB floor press", block: "Strength", targetMuscles: ["chest","triceps"], equipment: ["dumbbells"], instructions: "keep elbows narrow and controlled" };
+    const floorPressPattern = classifyMovementPatternStructural64BRBugfix14(floorPress, sampleContext14());
+    const pallofPattern = classifyMovementPatternStructural64BRBugfix14(pallof, sampleContext14());
+    const stabilityRowPattern = classifyMovementPatternStructural64BRBugfix14(stabilityRow, sampleContext14());
+    const rowToPress = movementTruthGate64BRBugfix14(oneArmRow, floorPress, sampleContext14());
+    const squeezeToPallof = movementTruthGate64BRBugfix14(squeezePress, pallof, { slotPurpose: "Pump" });
+    const rowToMachineRow = movementTruthGate64BRBugfix14(stabilityRow, machineRow, sampleContext14());
+    const rowToRearDelt = movementTruthGate64BRBugfix14(stabilityRow, rearDelt, sampleContext14());
+    const floorToBench = movementTruthGate64BRBugfix14(neutralFloor, benchPress, { slotPurpose: "Strength" });
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX14_NAME,
+      instructionsTextIgnored: !/instructions|progression/.test(fnSrc14(structuralWords14)),
+      floorPressClassifiedAsPress: floorPressPattern === "chest_press",
+      floorPressPattern,
+      pallofClassifiedAsAntiRotation: pallofPattern === "core_anti_rotation",
+      rowWithRearDeltTargetsStillClassifiesAsRow: stabilityRowPattern === "horizontal_row",
+      rowToFloorPressBlocked: rowToPress.pass === false && /movement pattern mismatch/i.test(rowToPress.reason),
+      squeezePressToPallofBlocked: squeezeToPallof.pass === false,
+      slotIntentIgnoresCurrentName: !/displayName|\bname\b/.test(fnSrc14(slotIntentText14)),
+      validRowToRowStillPasses: rowToMachineRow.pass === true,
+      rowToRearDeltStillBlocked: rowToRearDelt.pass === false,
+      floorPressToBenchPressStillPasses: floorToBench.pass === true,
+      status: floorPressPattern === "chest_press" && stabilityRowPattern === "horizontal_row" && rowToPress.pass === false && squeezeToPallof.pass === false && rowToMachineRow.pass === true && rowToRearDelt.pass === false && floorToBench.pass === true ? "YELLOW" : "RED"
+    });
+  }
+  function runSmartExerciseSystem64BRAlternativeRenderApplyParityAudit(){
+    const ns = ns14();
+    const rankedWrapped = !!(ns && ns.alternatives && ns.alternatives.rankedAlternatives && ns.alternatives.rankedAlternatives.phase64brBugfix14Wrapper === "rankedAlternatives");
+    const applyWrapped = !!(ns && ns.alternatives && ns.alternatives.applyRecommendedAlternative && ns.alternatives.applyRecommendedAlternative.phase64brBugfix14Wrapper === "applyRecommendedAlternative");
+    const contextSource = fnSrc14(sharedDecisionContext64BRBugfix14);
+    const rankedSource = fnSrc14(rankedAlternativesTruth64BRBugfix14);
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX14_NAME,
+      rankedAlternativesWrapped: rankedWrapped,
+      applyRecommendedAlternativeWrapped: applyWrapped,
+      renderUsesActiveSessionDayExercises: /dayExercises: active && Array\.isArray\(active\.exercises\) \? active\.exercises/.test(contextSource) && /sharedDecisionContext64BRBugfix14/.test(rankedSource),
+      renderAndApplyShareContextBuilder: /sharedDecisionContext64BRBugfix14/.test(fnSrc14(applyRecommendedAlternativeTruth64BRBugfix14)),
+      applyHasMovementPreGate: /movementTruthGate64BRBugfix14/.test(fnSrc14(applyRecommendedAlternativeTruth64BRBugfix14)),
+      staleSheetRefreshAfterApply: /refreshAlternativesSheet14/.test(fnSrc14(applyRecommendedAlternativeTruth64BRBugfix14)),
+      lastMovementGateFlips: lastMovementGateFlips64BRBugfix14,
+      lastAlternativePreGate: lastAlternativePreGate64BRBugfix14,
+      lastSheetRefresh: lastSheetRefresh64BRBugfix14,
+      status: rankedWrapped && applyWrapped ? "YELLOW" : "RED"
+    });
+  }
+  function runSmartExerciseSystem64BRRecalibrationMovementFilterAudit(){
+    const ns = ns14();
+    const wrapped = !!(ns && ns.recalibration && ns.recalibration.buildReport && ns.recalibration.buildReport.phase64brBugfix14Wrapper === "buildReport");
+    let liveCheck = null;
+    try {
+      const state = loadAppState14();
+      if (state && wrapped) {
+        const report = ns.recalibration.buildReport(state);
+        const badRecommended = (report.recommended || []).filter(function(card){
+          const gate = movementTruthGate64BRBugfix14(card.current || { displayName: card.currentName }, card.recommended || { displayName: card.recommendedName }, { slotPurpose: card.slotPurpose || "" });
+          return gate.pass === false;
+        });
+        liveCheck = { recommendedCount: (report.recommended || []).length, invalidRecommendedRemaining: badRecommended.length, flipsApplied: report.phase64BRBugfix14MovementTruthFlips || 0 };
+      }
+    } catch (error) { liveCheck = { error: text14(error && error.message || error) }; }
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX14_NAME,
+      buildReportWrapped: wrapped,
+      applyAllEligibilityUsesWrappedReport: true,
+      liveCheck,
+      status: wrapped && (!liveCheck || !liveCheck.error) && (!liveCheck || liveCheck.invalidRecommendedRemaining === 0) ? "YELLOW" : "RED"
+    });
+  }
+  function runSmartExerciseSystem64BRApplySaveReasonAudit(){
+    const source = fnSrc14(applyWithReasonLock14);
+    const eng = engine14();
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX14_NAME,
+      delegatesToBugfix13VerifiedOwners: /directApplyOneVerified64BRBugfix13/.test(source) && /directApplyAllVerified64BRBugfix13/.test(source),
+      retriesAfterSnapshotPrune: /pruneSnapshots14\("prune"\)/.test(source) && /pruneSnapshots14\("clear"\)/.test(source),
+      snapshotHelpersAvailable: !!(eng && (typeof eng.pruneSafetySnapshots10E === "function" || typeof eng.clearSafetySnapshotsOnly10E === "function")),
+      surfacesExactReason: /Reason: /.test(source) && /saveFailureReason14/.test(source),
+      distinguishesValidationFromStorage: /state validation failed/.test(fnSrc14(saveFailureReason14)) && /localStorage write failed/.test(fnSrc14(saveFailureReason14)),
+      mainStateKeyNeverRemoved: !/removeItem\(\s*PHASE64BR_BUGFIX14_STATE_KEY|removeItem\(\s*["']tailoredWorkoutTracker/.test(source + fnSrc14(pruneSnapshots14)),
+      lastApplyReason: lastApplyReason64BRBugfix14,
+      status: /pruneSnapshots14/.test(source) && /saveFailureReason14/.test(source) ? "YELLOW" : "RED"
+    });
+  }
+  function runFullAppAudit64BRBugfix14(stateInput){
+    const previous = typeof previousFullAppAudit64BRBugfix14 === "function" ? previousFullAppAudit64BRBugfix14(stateInput) : null;
+    return Object.freeze({
+      phase: PHASE64BR_BUGFIX14_NAME,
+      outputFile: PHASE64BR_BUGFIX14_OUTPUT,
+      baseFileUsed: PHASE64BR_BUGFIX14_BASE,
+      diagnosticReferenceUsed: PHASE64BR_BUGFIX14_DIAG_REFERENCE,
+      exactFailuresFound: EXACT_FAILURES64BR_BUGFIX14,
+      changelog: PHASE_64BR_BUGFIX_14_ALTERNATIVE_MOVEMENT_TRUTH_SHARED_CONTEXT_AND_APPLY_SAVE_REASON_LOCK_V1_CHANGELOG,
+      previousBugfix13Audit: previous,
+      movementTruthClassifier: runSmartExerciseSystem64BRMovementTruthClassifierAudit(),
+      renderApplyParity: runSmartExerciseSystem64BRAlternativeRenderApplyParityAudit(),
+      recalibrationMovementFilter: runSmartExerciseSystem64BRRecalibrationMovementFilterAudit(),
+      applySaveReason: runSmartExerciseSystem64BRApplySaveReasonAudit(),
+      controlsExit: typeof window.runControlsExitVisibleOwnerAudit64BRBugfix12 === "function" ? window.runControlsExitVisibleOwnerAudit64BRBugfix12() : null,
+      equipmentProfile: typeof window.runSmartExerciseSystem64BREquipmentProfileAudit === "function" ? window.runSmartExerciseSystem64BREquipmentProfileAudit() : null,
+      protectedBehavior: Object.freeze({
+        bugfix13VerifiedApplyPreserved: typeof window.directApplyOneVerified64BRBugfix13 === "function" && typeof window.directApplyAllVerified64BRBugfix13 === "function",
+        bugfix13ReadBackVerificationPreserved: true,
+        bugfix12ExitTouched: false,
+        historyTouched: false,
+        normalSetLoggingTouched: false,
+        trueSupersetLoggingTouched: false,
+        equipmentProfileTouched: false,
+        customMediaDeleted: false,
+        mainStateKeyRemoved: false,
+        localStorageClearAdded: false,
+        documentLevelClickListenerAdded: false,
+        mutationObserverAdded: false,
+        timerLoopAdded: false
+      }),
+      status: "YELLOW",
+      browserValidationRequired: true,
+      androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+    });
+  }
+
+  const ns = ns14();
+  if (ns) {
+    try {
+      ns.audit = Object.assign({}, ns.audit || {}, {
+        movementTruthClassifierAudit: runSmartExerciseSystem64BRMovementTruthClassifierAudit,
+        renderApplyParityAudit: runSmartExerciseSystem64BRAlternativeRenderApplyParityAudit,
+        recalibrationMovementFilterAudit: runSmartExerciseSystem64BRRecalibrationMovementFilterAudit,
+        applySaveReasonAudit: runSmartExerciseSystem64BRApplySaveReasonAudit,
+        fullAppAuditBugfix14: runFullAppAudit64BRBugfix14
+      });
+    } catch (_) {}
+  }
+  window.runSmartExerciseSystem64BRMovementTruthClassifierAudit = runSmartExerciseSystem64BRMovementTruthClassifierAudit;
+  window.runSmartExerciseSystem64BRAlternativeRenderApplyParityAudit = runSmartExerciseSystem64BRAlternativeRenderApplyParityAudit;
+  window.runSmartExerciseSystem64BRRecalibrationMovementFilterAudit = runSmartExerciseSystem64BRRecalibrationMovementFilterAudit;
+  window.runSmartExerciseSystem64BRApplySaveReasonAudit = runSmartExerciseSystem64BRApplySaveReasonAudit;
+  window.runFullAppAudit64BR = runFullAppAudit64BRBugfix14;
+  window.runFullAppAudit = runFullAppAudit64BRBugfix14;
+  window.classifyMovementPatternStructural64BRBugfix14 = classifyMovementPatternStructural64BRBugfix14;
+  window.movementTruthGate64BRBugfix14 = movementTruthGate64BRBugfix14;
+  window.applyWithReasonLock14 = applyWithReasonLock14;
+  window.install64BRBugfix14 = install64BRBugfix14;
+  window.TailoredTrainingPhase64BRBugfix14 = Object.freeze({
+    phase: PHASE64BR_BUGFIX14_NAME,
+    outputFile: PHASE64BR_BUGFIX14_OUTPUT,
+    baseFileUsed: PHASE64BR_BUGFIX14_BASE,
+    diagnosticReferenceUsed: PHASE64BR_BUGFIX14_DIAG_REFERENCE,
+    exactFailuresFound: EXACT_FAILURES64BR_BUGFIX14,
+    changelog: PHASE_64BR_BUGFIX_14_ALTERNATIVE_MOVEMENT_TRUTH_SHARED_CONTEXT_AND_APPLY_SAVE_REASON_LOCK_V1_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install64BRBugfix14, { once: true });
+  } else {
+    install64BRBugfix14();
+  }
+})();
 </script></body>
 </html>
