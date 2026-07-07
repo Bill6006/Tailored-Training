@@ -85249,5 +85249,347 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     bindControlsExitOwner64BRBugfix12();
   }
 })();
+</script>
+<script id="phase64br-diag2-apply-persistence-active-source-map">
+(function(){
+  "use strict";
+
+  const PHASE64BR_DIAG2_NAME = "Phase 64BR DIAG 2 - All Apply Persistence + Active Source Map";
+  const PHASE64BR_DIAG2_OUTPUT = "Tailored_Training_Rebuild_Phase64BR_DIAG_2_All_Apply_Persistence_And_Active_Source_Map_v1.html";
+  const PHASE64BR_DIAG2_BASE = "Tailored_Training_Rebuild_Phase64BR_BUGFIX_12_Controls_Exit_Visible_Owner_And_Final_Termination_Lock_v1.html";
+  const PHASE_64BR_DIAG_2_ALL_APPLY_PERSISTENCE_AND_ACTIVE_SOURCE_MAP_V1_CHANGELOG = Object.freeze([
+    "uses BUGFIX 12 as the read-only diagnostic base",
+    "adds 64BR Apply Source Diagnostic panel in the Data tab",
+    "maps visible Recalibration Apply All, Recalibration Apply upgrade, and Alternatives Apply upgrade owners",
+    "maps apply write paths against recalibration, workout generation, and active detail read paths",
+    "does not patch Apply All, Apply upgrade, Alternatives Apply, Exit, persistence, localStorage, workout generation, History, or set logging",
+    "does not clear localStorage"
+  ]);
+
+  const STATE_KEY64BRDIAG2 = "tailoredWorkoutTracker.v2";
+  const WRITE_DEFAULT_PATH64BRDIAG2 = "state.smartExerciseSystem64BR.defaultAssignments[]";
+  const ALT_WRITE_PATH64BRDIAG2 = "state.activeSession.exercises[activeIndex], state.activeSession.selectedExerciseIndex, state.activeSession.sessionOnlyChanges[]";
+  const RECALC_READ_PATH64BRDIAG2 = "window.TTSmartExerciseSystem64BR.recalibration.buildReport -> safe.getVisibleExercises -> window.TailoredTrainingTodayList.getVisibleExercises -> window.TTSmartExerciseSystem64BR.apply.applyDefaultAssignmentsToWorkout -> state.smartExerciseSystem64BR.defaultAssignments[]";
+  const WORKOUT_READ_PATH64BRDIAG2 = "startWorkout -> if state.activeSession exists, resume state.activeSession.exercises; otherwise buildActiveSession -> getVisibleExercises -> state.smartExerciseSystem64BR.defaultAssignments[]";
+  const ACTIVE_DETAIL_READ_PATH64BRDIAG2 = "renderAppFast25FBugfix/renderAppFull25FBugfix -> active = state.activeSession -> exercises = active.exercises -> renderExerciseDetail(state, exercises, selectedIndex)";
+
+  function text64BRDiag2(value){ return String(value == null ? "" : value).trim(); }
+  function token64BRDiag2(value){ return text64BRDiag2(value).toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""); }
+  function html64BRDiag2(value){ return text64BRDiag2(value).replace(/[&<>"']/g, function(ch){ return ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" })[ch]; }); }
+  function clone64BRDiag2(value){
+    if (value == null || typeof value !== "object") return value;
+    try { return JSON.parse(JSON.stringify(value)); }
+    catch (_) { return Array.isArray(value) ? value.slice() : Object.assign({}, value); }
+  }
+  function display64BRDiag2(exercise){
+    return text64BRDiag2(exercise && (exercise.displayName || exercise.name || exercise.title || exercise.id));
+  }
+  function functionSource64BRDiag2(fn){
+    try { return typeof fn === "function" ? Function.prototype.toString.call(fn) : ""; }
+    catch (_) { return ""; }
+  }
+  function countSourceToken64BRDiag2(token){
+    const source = document.documentElement ? String(document.documentElement.outerHTML || "") : "";
+    return token ? source.split(token).length - 1 : 0;
+  }
+  function getNamespace64BRDiag2(){
+    return window.TTSmartExerciseSystem64BR && typeof window.TTSmartExerciseSystem64BR === "object" ? window.TTSmartExerciseSystem64BR : {};
+  }
+  function readLiveState64BRDiag2(){
+    const engine = window.TailoredTrainingStateEngine || {};
+    try {
+      if (typeof engine.loadState === "function") {
+        const loaded = engine.loadState();
+        const state = loaded && (loaded.state || loaded);
+        return { ok: !!state, state: state || null, source: loaded && loaded.source || "TailoredTrainingStateEngine.loadState", loaded };
+      }
+    } catch (error) {
+      return { ok:false, state:null, source:"TailoredTrainingStateEngine.loadState", error:text64BRDiag2(error && error.message || error) };
+    }
+    return { ok:false, state:null, source:"unavailable" };
+  }
+  function readStorageState64BRDiag2(){
+    let raw = null;
+    try { raw = window.localStorage ? window.localStorage.getItem(STATE_KEY64BRDIAG2) : null; }
+    catch (error) { return { ok:false, key:STATE_KEY64BRDIAG2, rawBytes:0, state:null, error:text64BRDiag2(error && error.message || error) }; }
+    if (!raw) return { ok:false, key:STATE_KEY64BRDIAG2, rawBytes:0, state:null, error:"missing-state-key" };
+    try { return { ok:true, key:STATE_KEY64BRDIAG2, rawBytes:raw.length, state:JSON.parse(raw) }; }
+    catch (error) { return { ok:false, key:STATE_KEY64BRDIAG2, rawBytes:raw.length, state:null, error:text64BRDiag2(error && error.message || error) }; }
+  }
+  function defaultAssignments64BRDiag2(state){
+    const store = state && state.smartExerciseSystem64BR && typeof state.smartExerciseSystem64BR === "object" ? state.smartExerciseSystem64BR : {};
+    return Array.isArray(store.defaultAssignments) ? store.defaultAssignments.filter(Boolean) : [];
+  }
+  function activeSnapshot64BRDiag2(state){
+    const active = state && state.activeSession && typeof state.activeSession === "object" ? state.activeSession : null;
+    const exercises = active && Array.isArray(active.exercises) ? active.exercises : [];
+    const selectedIndex = active && Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    const selected = exercises[selectedIndex] || null;
+    return {
+      activeSessionPresent: !!active,
+      selectedExerciseIndex: selectedIndex,
+      activeExerciseCount: exercises.length,
+      selectedExerciseName: display64BRDiag2(selected),
+      selectedExerciseId: text64BRDiag2(selected && selected.id),
+      selectedExerciseSwapFlags: {
+        phase64BRBugfix11SessionSwap: !!(selected && selected.phase64BRBugfix11SessionSwap),
+        phase64BRSessionSwap: !!(selected && selected.phase64BRSessionSwap),
+        sessionSafeSwap64BR: !!(selected && selected.sessionSafeSwap64BR)
+      }
+    };
+  }
+  function visibleActiveName64BRDiag2(){
+    const selectors = [
+      "#exerciseDetailSurface .detail-title h3",
+      "#currentExercisePreview span",
+      ".exercise-row.current .ex-name",
+      "#workoutListSheetList52B .exercise-row.current .ex-name"
+    ];
+    for (let i = 0; i < selectors.length; i += 1) {
+      const node = document.querySelector(selectors[i]);
+      const value = text64BRDiag2(node && node.textContent);
+      if (value) return value.replace(/\s+/g, " ");
+    }
+    return "";
+  }
+  function visibleOwnerSnapshot64BRDiag2(){
+    const panel = document.getElementById("smartExerciseSystem64BRPanel");
+    const directApplyAll = panel && panel.querySelector('[data-64br-direct-apply-all="true"]');
+    const legacyApplyAll = panel && panel.querySelector('[data-phase64br-apply-all="recommended"], #applyAllRecommendedUpgrades64BR');
+    const applyAll = directApplyAll || legacyApplyAll;
+    const directApplyOne = panel && panel.querySelector("[data-64br-direct-apply-one]");
+    const legacyApplyOne = panel && panel.querySelector("[data-phase64br-apply-one]");
+    const applyOne = directApplyOne || legacyApplyOne;
+    const alt = document.querySelector("#alternativesSheet19A [data-phase64br-bugfix11-apply-recommended]");
+    const allSelector = directApplyAll ? '#smartExerciseSystem64BRPanel [data-64br-direct-apply-all="true"]' : (legacyApplyAll ? '#smartExerciseSystem64BRPanel [data-phase64br-apply-all="recommended"]' : '#smartExerciseSystem64BRPanel [data-64br-direct-apply-all="true"]');
+    const oneSelector = directApplyOne ? "#smartExerciseSystem64BRPanel [data-64br-direct-apply-one]" : (legacyApplyOne ? "#smartExerciseSystem64BRPanel [data-phase64br-apply-one]" : "#smartExerciseSystem64BRPanel [data-64br-direct-apply-one]");
+    const allOwner = directApplyAll ? "window.TTSmartExerciseSystem64BR.apply.directApplyAll" : (legacyApplyAll ? "legacy BUGFIX 2 captured ui.bindPanel -> apply.applyAllFast" : "window.TTSmartExerciseSystem64BR.apply.directApplyAll");
+    const oneOwner = directApplyOne ? "window.TTSmartExerciseSystem64BR.apply.directApplyOne" : (legacyApplyOne ? "legacy BUGFIX 2 captured ui.bindPanel -> apply.applyOne" : "window.TTSmartExerciseSystem64BR.apply.directApplyOne");
+    return {
+      visibleApplyAllButtonSelector: allSelector,
+      visibleApplyAllButtonExists: !!applyAll,
+      recalibrationApplyAllOwner: applyAll ? text64BRDiag2(applyAll.dataset.phase64brDirectApplyOwner || applyAll.dataset.phase64brDirectOwner || applyAll.getAttribute("data-phase64br-direct-owner") || allOwner) : allOwner,
+      visibleApplyUpgradeSelector: oneSelector,
+      visibleApplyUpgradeButtonExists: !!applyOne,
+      recalibrationApplyOneOwner: applyOne ? text64BRDiag2(applyOne.dataset.phase64brDirectApplyOwner || applyOne.dataset.phase64brDirectOwner || applyOne.getAttribute("data-phase64br-direct-owner") || oneOwner) : oneOwner,
+      visibleAlternativesApplySelector: "#alternativesSheet19A [data-phase64br-bugfix11-apply-recommended]",
+      visibleAlternativesApplyButtonExists: !!alt,
+      alternativesApplyOwner: alt ? text64BRDiag2(alt.dataset.phase64brApplyOwner || alt.getAttribute("data-phase64br-apply-owner")) : "window.TTSmartExerciseSystem64BR.alternatives.applyRecommendedAlternative"
+    };
+  }
+  function buildRecalibrationSnapshot64BRDiag2(state){
+    const ns = getNamespace64BRDiag2();
+    try {
+      if (ns.recalibration && typeof ns.recalibration.buildReport === "function") {
+        const report = ns.recalibration.buildReport(state);
+        const cards = Array.isArray(report && report.cards) ? report.cards : [].concat(report && report.recommended || [], report && report.blocked || [], report && report.alreadyUpdated || [], report && report.currentStrong || []);
+        return {
+          ok:true,
+          reportPhase:text64BRDiag2(report && report.phase),
+          recommendedCount:(report && report.recommended || []).length,
+          alreadyUpdatedCount:(report && report.alreadyUpdated || []).length,
+          blockedCount:(report && report.blocked || []).length,
+          currentStrongCount:(report && report.currentStrong || []).length,
+          firstRecommended:display64BRDiag2((report && report.recommended || [])[0] && ((report.recommended || [])[0].recommended || { displayName:(report.recommended || [])[0].recommendedName })),
+          cardsWithSavedAssignment:cards.filter(function(card){ return !!(card && card.assignment); }).length
+        };
+      }
+    } catch (error) {
+      return { ok:false, error:text64BRDiag2(error && error.message || error) };
+    }
+    return { ok:false, error:"recalibration.buildReport unavailable" };
+  }
+  function workoutRouteSnapshot64BRDiag2(state){
+    const todayList = window.TailoredTrainingTodayList || {};
+    const active = state && state.activeSession || null;
+    const day = active && active.dayName || state && (state.selectedDay || state.currentDayName) || "Monday";
+    const mode = active && active.mode || state && state.settings && state.settings.mode || "Gym";
+    const route = active && active.route || state && state.settings && state.settings.route || "Full";
+    try {
+      if (typeof todayList.getVisibleExercises === "function") {
+        const list = todayList.getVisibleExercises(state, day, mode, route) || [];
+        const names = list.map(display64BRDiag2).filter(Boolean);
+        const applied = list.filter(function(ex){ return !!(ex && (ex._64brDefaultApplied || ex.smartExerciseSystem64BRDefaultApplied)); });
+        return { ok:true, dayName:day, mode, route, count:list.length, firstNames:names.slice(0, 8), appliedDefaultCount:applied.length, appliedDefaultNames:applied.map(display64BRDiag2) };
+      }
+    } catch (error) {
+      return { ok:false, dayName:day, mode, route, error:text64BRDiag2(error && error.message || error) };
+    }
+    return { ok:false, dayName:day, mode, route, error:"TailoredTrainingTodayList.getVisibleExercises unavailable" };
+  }
+  function assignmentNamesPresentInRoute64BRDiag2(assignments, routeSnapshot){
+    const routeNames = (routeSnapshot && routeSnapshot.firstNames || []).map(token64BRDiag2);
+    return (assignments || []).filter(function(entry){
+      return routeNames.indexOf(token64BRDiag2(entry && entry.replacementName)) >= 0;
+    }).length;
+  }
+  function alternativesSnapshot64BRDiag2(state){
+    const ns = getNamespace64BRDiag2();
+    const active = activeSnapshot64BRDiag2(state);
+    const visibleName = visibleActiveName64BRDiag2();
+    const result = text64BRDiag2(document.querySelector("#alternativesApplyResult64BRBugfix11") && document.querySelector("#alternativesApplyResult64BRBugfix11").textContent);
+    const lastOpen = ns.alternatives && ns.alternatives.lastOpenContext64BRBugfix11 || null;
+    const sheetTitle = text64BRDiag2(document.querySelector("#alternativesSheet19A h3") && document.querySelector("#alternativesSheet19A h3").textContent);
+    const appliedMessage = /Applied to this session/i.test(result);
+    const activeMatchesVisible = !!(active.selectedExerciseName && visibleName && token64BRDiag2(visibleName).indexOf(token64BRDiag2(active.selectedExerciseName)) >= 0);
+    return {
+      resultMessage: result,
+      sheetCurrentExercise: sheetTitle,
+      lastOpenContext: lastOpen,
+      stateSelectedIndex: active.selectedExerciseIndex,
+      stateSelectedExerciseName: active.selectedExerciseName,
+      visibleActiveExerciseName: visibleName,
+      appliedMessageVisible: appliedMessage,
+      activeStateMatchesVisibleDetail: activeMatchesVisible,
+      saysAppliedButVisibleDidNotChange: appliedMessage && !activeMatchesVisible,
+      activeApplyFunctionSourceIncludesRenderOwner: /renderAppFast25FBugfix|renderAppFull25FBugfix|renderApp/.test(functionSource64BRDiag2(ns.alternatives && ns.alternatives.applyRecommendedAlternative)),
+      activeApplyFunctionSourceUsesCapturedState: /loadState64BRBugfix11\(input\.state\)|state\s*:\s*state/.test(functionSource64BRDiag2(ns.alternatives && ns.alternatives.openForExercise))
+    };
+  }
+  function makeMismatchExplanation64BRDiag2(data){
+    if (data.liveAssignmentCount && !data.storageAssignmentCount) return "Apply wrote defaults into live state/memory, but the durable tailoredWorkoutTracker.v2 smartExerciseSystem64BR.defaultAssignments array is empty after the save path.";
+    if (data.liveAssignmentCount && data.storageAssignmentCount && !data.workoutStartUsesAppliedDefault && data.activeSessionPresent) return "Defaults are stored, but Start workout resumes existing state.activeSession.exercises instead of rebuilding from getVisibleExercises, so an already-active session can keep old exercise names.";
+    if (data.liveAssignmentCount && data.storageAssignmentCount && !data.workoutStartUsesAppliedDefault) return "Defaults are stored, but the generated route did not surface any saved replacement name/default-applied marker for the current day/mode/route key.";
+    if (data.alternativesApplySaysAppliedButVisibleDidNotChange) return "Alternatives Apply shows success while the visible detail does not match the selected activeSession exercise; the likely mismatch is a stale captured activeIndex/currentExercise or a render refresh reading a different active-session snapshot.";
+    return "Diagnostic ready: write/read paths are identified. Run the browser click sequence, then press Refresh diagnostic to capture the concrete mismatch.";
+  }
+  function runDiagnostic64BRDiag2(){
+    const live = readLiveState64BRDiag2();
+    const storage = readStorageState64BRDiag2();
+    const liveState = live.state || {};
+    const storageState = storage.state || {};
+    const owners = visibleOwnerSnapshot64BRDiag2();
+    const liveAssignments = defaultAssignments64BRDiag2(liveState);
+    const storageAssignments = defaultAssignments64BRDiag2(storageState);
+    const recalc = buildRecalibrationSnapshot64BRDiag2(liveState);
+    const route = workoutRouteSnapshot64BRDiag2(liveState);
+    const active = activeSnapshot64BRDiag2(liveState);
+    const alternatives = alternativesSnapshot64BRDiag2(liveState);
+    const routeAssignmentMatches = assignmentNamesPresentInRoute64BRDiag2(liveAssignments, route);
+    const workoutStartUsesAppliedDefault = !!(liveAssignments.length && (route.appliedDefaultCount > 0 || routeAssignmentMatches > 0));
+    const refreshSurvives = storage.ok && storageAssignments.length >= liveAssignments.length && liveAssignments.length > 0;
+    const alternativesApplyChangesActiveExercise = alternatives.appliedMessageVisible ? alternatives.activeStateMatchesVisibleDetail : false;
+    const summary = {
+      liveAssignmentCount: liveAssignments.length,
+      storageAssignmentCount: storageAssignments.length,
+      activeSessionPresent: active.activeSessionPresent,
+      workoutStartUsesAppliedDefault,
+      alternativesApplySaysAppliedButVisibleDidNotChange: alternatives.saysAppliedButVisibleDidNotChange
+    };
+    const mismatchExplanation = makeMismatchExplanation64BRDiag2(summary);
+    const status = /Diagnostic ready/.test(mismatchExplanation) ? "YELLOW_DIAGNOSTIC_READY" : "RED";
+    return {
+      recalibrationApplyAllOwner: owners.recalibrationApplyAllOwner,
+      recalibrationApplyOneOwner: owners.recalibrationApplyOneOwner,
+      alternativesApplyOwner: owners.alternativesApplyOwner,
+      applyAllWritePath: WRITE_DEFAULT_PATH64BRDIAG2 + " plus state.smartExerciseSystem64BR.lastApplyAllResult",
+      applyOneWritePath: WRITE_DEFAULT_PATH64BRDIAG2,
+      alternativesWritePath: ALT_WRITE_PATH64BRDIAG2,
+      applyStorageKey: STATE_KEY64BRDIAG2,
+      recalibrationReadPath: RECALC_READ_PATH64BRDIAG2,
+      workoutGenerationReadPath: WORKOUT_READ_PATH64BRDIAG2,
+      activeWorkoutDetailReadPath: ACTIVE_DETAIL_READ_PATH64BRDIAG2,
+      sameSourceForDefaults: true,
+      sameSourceForActiveSession: true,
+      refreshSurvives,
+      workoutStartUsesAppliedDefault,
+      alternativesApplyChangesActiveExercise,
+      mismatchExplanation,
+      status,
+      diagnosticName: PHASE64BR_DIAG2_NAME,
+      outputFile: PHASE64BR_DIAG2_OUTPUT,
+      baseFileUsed: PHASE64BR_DIAG2_BASE,
+      changelog: PHASE_64BR_DIAG_2_ALL_APPLY_PERSISTENCE_AND_ACTIVE_SOURCE_MAP_V1_CHANGELOG,
+      visibleOwners: owners,
+      liveStateSource: live.source,
+      storage: { ok: storage.ok, key: storage.key, rawBytes: storage.rawBytes, error: storage.error || "" },
+      defaultAssignments: {
+        liveCount: liveAssignments.length,
+        storageCount: storageAssignments.length,
+        latestLive: liveAssignments.slice(-5).map(function(entry){ return { key: entry.key, replacementName: entry.replacementName, replacedFromName: entry.replacedFromName, updatedAt: entry.updatedAt, source: entry.source }; }),
+        latestStorage: storageAssignments.slice(-5).map(function(entry){ return { key: entry.key, replacementName: entry.replacementName, replacedFromName: entry.replacedFromName, updatedAt: entry.updatedAt, source: entry.source }; })
+      },
+      recalibrationSnapshot: recalc,
+      workoutRouteSnapshot: route,
+      activeSessionSnapshot: active,
+      alternativesSnapshot: alternatives,
+      smartPlanOverrides64BL: {
+        involvedIn64BRVisibleOwner: false,
+        liveEntries: liveState && liveState.smartPlanOverrides64BL && Array.isArray(liveState.smartPlanOverrides64BL.entries) ? liveState.smartPlanOverrides64BL.entries.length : 0,
+        note: "64BL remains a separate older default system; active 64BR BUGFIX 5 owners write smartExerciseSystem64BR.defaultAssignments."
+      },
+      sourceProof: {
+        applyDefaultAssignmentsFunctionPresent: !!(getNamespace64BRDiag2().apply && typeof getNamespace64BRDiag2().apply.applyDefaultAssignmentsToWorkout === "function"),
+        recalibrationDirectApplyAllPresent: !!(getNamespace64BRDiag2().apply && typeof getNamespace64BRDiag2().apply.directApplyAll === "function"),
+        recalibrationDirectApplyOnePresent: !!(getNamespace64BRDiag2().apply && typeof getNamespace64BRDiag2().apply.directApplyOne === "function"),
+        alternativesApplyOwnerPresent: !!(getNamespace64BRDiag2().alternatives && typeof getNamespace64BRDiag2().alternatives.applyRecommendedAlternative === "function")
+      },
+      protectedOwnerCounts: {
+        buildActiveSession: countSourceToken64BRDiag2("function " + "buildActiveSession"),
+        startWorkout: countSourceToken64BRDiag2("function " + "startWorkout"),
+        getVisibleExercises: countSourceToken64BRDiag2("function " + "getVisibleExercises"),
+        renderExerciseDetail: countSourceToken64BRDiag2("function " + "renderExerciseDetail"),
+        renderExerciseList: countSourceToken64BRDiag2("function " + "renderExerciseList"),
+        directApplyAll64BRBugfix5: countSourceToken64BRDiag2("directApplyAll64BRBugfix5"),
+        directApplyOne64BRBugfix5: countSourceToken64BRDiag2("directApplyOne64BRBugfix5"),
+        applyRecommendedAlternative64BRBugfix11: countSourceToken64BRDiag2("applyRecommendedAlternative64BRBugfix11"),
+        localStorageClearCallText: countSourceToken64BRDiag2("localStorage" + ".clear")
+      }
+    };
+  }
+  function row64BRDiag2(label, value){
+    return '<div class="data-tile"><b>' + html64BRDiag2(value) + '</b><span>' + html64BRDiag2(label) + '</span></div>';
+  }
+  function renderDiagnosticPanel64BRDiag2(resultInput){
+    const result = resultInput || runDiagnostic64BRDiag2();
+    const data = document.getElementById("panel-data");
+    if (!data) return result;
+    let card = document.getElementById("phase64BRApplySourceDiagnosticPanel");
+    if (!card) {
+      card = document.createElement("article");
+      card.className = "card";
+      card.id = "phase64BRApplySourceDiagnosticPanel";
+      card.setAttribute("data-phase64br-diag2-apply-source", "read-only");
+      const anchor = document.getElementById("smartExerciseSystem64BREquipmentProfileCard") || document.getElementById("smartExerciseSystem64BRCard");
+      if (anchor && anchor.parentNode) anchor.insertAdjacentElement("afterend", card);
+      else data.appendChild(card);
+    }
+    card.innerHTML = '<div class="card-head"><div><h3>64BR Apply Source Diagnostic</h3><p class="subtle">Read-only source map for apply persistence and active-session reads.</p></div><button class="btn ghost" id="refreshApplySourceDiag64BR" type="button">Refresh diagnostic</button></div>'
+      + '<div class="media-audit-grid17">'
+      + row64BRDiag2("Apply All owner", result.recalibrationApplyAllOwner)
+      + row64BRDiag2("Apply upgrade owner", result.recalibrationApplyOneOwner)
+      + row64BRDiag2("Alternatives owner", result.alternativesApplyOwner)
+      + row64BRDiag2("Last/default write path", result.applyAllWritePath)
+      + row64BRDiag2("Saved key", result.applyStorageKey)
+      + row64BRDiag2("Recalibration read", result.recalibrationReadPath)
+      + row64BRDiag2("Workout generation read", result.workoutGenerationReadPath)
+      + row64BRDiag2("Active detail read", result.activeWorkoutDetailReadPath)
+      + row64BRDiag2("Persistence mismatch", result.refreshSurvives ? "NO" : (result.defaultAssignments.liveCount ? "YES" : "not yet observed"))
+      + row64BRDiag2("Refresh survival", result.refreshSurvives ? "survives" : "not proven")
+      + row64BRDiag2("Workout-start survival", result.workoutStartUsesAppliedDefault ? "uses applied default" : "not proven")
+      + row64BRDiag2("Alternatives session swap", result.alternativesApplyChangesActiveExercise ? "visible active changed" : "not proven")
+      + '</div><p class="system-line" id="phase64BRDiag2Status">' + html64BRDiag2(result.status + ": " + result.mismatchExplanation) + '</p>'
+      + '<pre class="code" id="phase64BRApplySourceDiagnosticJson">' + html64BRDiag2(JSON.stringify(result, null, 2)) + '</pre>';
+    const refresh = document.getElementById("refreshApplySourceDiag64BR");
+    if (refresh && refresh.dataset.bound64brDiag2 !== "true") {
+      refresh.dataset.bound64brDiag2 = "true";
+      refresh.addEventListener("click", function(){ renderDiagnosticPanel64BRDiag2(runDiagnostic64BRDiag2()); });
+    }
+    return result;
+  }
+
+  window.runSmartExerciseSystem64BRApplySourceDiagnostic = function(){
+    return renderDiagnosticPanel64BRDiag2(runDiagnostic64BRDiag2());
+  };
+  window.TailoredTrainingPhase64BRDiag2 = Object.freeze({
+    phase: PHASE64BR_DIAG2_NAME,
+    outputFile: PHASE64BR_DIAG2_OUTPUT,
+    baseFileUsed: PHASE64BR_DIAG2_BASE,
+    changelog: PHASE_64BR_DIAG_2_ALL_APPLY_PERSISTENCE_AND_ACTIVE_SOURCE_MAP_V1_CHANGELOG,
+    status: "YELLOW_DIAGNOSTIC_ONLY"
+  });
+
+  renderDiagnosticPanel64BRDiag2();
+})();
 </script></body>
 </html>
