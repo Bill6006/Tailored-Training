@@ -88628,5 +88628,368 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     install65S();
   }
 })();
+</script>
+
+<script id="phase65t-export-import-backup-surface">
+/* PHASE_65T_EXPORT_IMPORT_BACKUP_SURFACE_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65T_NAME = "Phase 65T - Export / Import Backup Surface";
+  const PHASE65T_OUTPUT = "Tailored_Training_Rebuild_Phase65T_Export_Import_Backup_Surface_v1.html";
+  const PHASE65T_BASE = "Tailored_Training_Rebuild_Phase65S_Storage_Compaction_And_Save_Verification_Lock_v1.html";
+  const STATE_KEY65T = "tailoredWorkoutTracker.v2";
+  const COACH_KEY65T = "tailoredWorkoutTracker.adaptiveCoach65A";
+
+  const PHASE_65T_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65T_BASE + " as base; appends exactly one script block; installs at DOMContentLoaded registered last; scoped listeners inside the Data tab Backup card only.",
+    "Reuses the existing Phase 16A-16E backup engine on window.TailoredTrainingStateEngine: buildFullBackup16A (envelope builder), validateFullBackup16A / validateBackupShape16C / validateBackupJsonText16C (validation), buildSafeImportPlan16D (preview plan), applySafeImportBackup16D (safe merge apply). No backup format was rebuilt.",
+    "Export reuses buildFullBackup16A to gather the validated envelope, then adds two validation-safe sibling fields the old engine omits: adaptiveCoach65A (the separate coach/progression key) and smartExerciseSystem64BR (equipment profile + default assignments, which Phase 16A predates and never captured). Extra fields do not affect validateFullBackup16A/validateBackupShape16C, which only inspect backupKind/backupVersion/state.settings/state.logs/state.program.",
+    "Import: file picker -> validateBackupJsonText16C -> restore preview (fields present + merge plan + validation) -> explicit user Confirm button -> applySafeImportBackup16D('merge') safe path (non-destructive; preserves current logs/settings/active session and adds missing backup sessions; creates a safety snapshot first) -> targeted restore of the coach key and (gap-fill only) the smart-exercise system -> raw read-back verification -> refresh suggestion.",
+    "Coach key restore: after the safe merge, if the backup contains adaptiveCoach65A it is written to " + COACH_KEY65T + " (coach/progression targets are user data the engine merge does not touch). Smart-exercise system restore is a SAFE GAP-FILL: it is written from the backup ONLY when the current live state has zero default assignments (post-data-loss restore), so a merge into a populated app never overwrites existing equipment profile or defaults.",
+    "Cancel import writes nothing: no state is touched until the Confirm button; cancel only clears the pending selection and hides the preview.",
+    "Adds window.runBackupSurfaceAudit65T().",
+    "Preserves Phase 65S Storage Health panel, Safe Storage Cleanup, and the save pressure guard; preserves Phase 65A BUGFIX 1 coach surface; preserves BUGFIX 14 gates, Alternatives, Apply All, Recalibration, Equipment Profile, Exit, History, custom media, notes, and adaptive coach storage.",
+    "No new persistent localStorage keys; no timers, no MutationObserver, no document-level listeners, no auto-backup, no cloud sync, no localStorage.clear, no silent overwrite, no import without preview + explicit confirmation."
+  ]);
+
+  /* ---------- helpers ---------- */
+  function t65t(v){ return String(v == null ? "" : v).trim(); }
+  function esc65t(v){ return t65t(v).replace(/[&<>"']/g, function(ch){ return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[ch]; }); }
+  function now65t(){ return new Date().toISOString(); }
+  function eng65t(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function liveState65t(){ const e = eng65t(); try { if (e && typeof e.loadState === "function") { const l = e.loadState(); return l && (l.state || l); } } catch (_) {} return null; }
+  function readKey65t(key){ try { const raw = window.localStorage ? window.localStorage.getItem(key) : null; return raw == null ? null : raw; } catch (_) { return null; } }
+  function parseKey65t(key){ const raw = readKey65t(key); if (!raw) return null; try { return JSON.parse(raw); } catch (_) { return null; } }
+  function objCount65t(o){ return o && typeof o === "object" && !Array.isArray(o) ? Object.keys(o).length : (Array.isArray(o) ? o.length : 0); }
+
+  const REQUIRED_FUNCTIONS65T = ["buildFullBackup16A","validateFullBackup16A","validateBackupShape16C","validateBackupJsonText16C","buildSafeImportPlan16D","applySafeImportBackup16D","loadState","saveState"];
+  function foundBackupFunctions65t(){
+    const e = eng65t();
+    return REQUIRED_FUNCTIONS65T.filter(function(name){ return e && typeof e[name] === "function"; });
+  }
+
+  /* ---------- state fingerprint (to prove cancel changes nothing) ---------- */
+  function stateFingerprint65t(){
+    return { state: (readKey65t(STATE_KEY65T) || "").length, coach: (readKey65t(COACH_KEY65T) || "").length, at: now65t() };
+  }
+
+  /* ---------- export ---------- */
+  let lastExport65T = null;
+  function buildBackupEnvelope65t(){
+    const e = eng65t();
+    if (!e || typeof e.buildFullBackup16A !== "function") throw new Error("Phase 16A backup builder unavailable.");
+    const state = liveState65t();
+    const envelope = e.buildFullBackup16A(state);
+    const coach = parseKey65t(COACH_KEY65T);
+    envelope.adaptiveCoach65A = coach || null;
+    envelope.adaptiveCoach65AIncluded = !!coach;
+    /* smartExerciseSystem64BR (equipment profile + default assignments) is not captured by 16A; include it both
+       inside state (for completeness) and as a top-level sibling (for targeted restore). Validation ignores extras. */
+    const smart = state && state.smartExerciseSystem64BR ? state.smartExerciseSystem64BR : null;
+    if (smart) {
+      envelope.smartExerciseSystem64BR = smart;
+      if (envelope.state && typeof envelope.state === "object") envelope.state.smartExerciseSystem64BR = smart;
+      envelope.smartExerciseSystem64BRIncluded = true;
+    } else {
+      envelope.smartExerciseSystem64BRIncluded = false;
+    }
+    envelope.phase65TBackupSurface = { coachKeyIncluded: envelope.adaptiveCoach65AIncluded, smartExerciseSystemIncluded: envelope.smartExerciseSystem64BRIncluded, builtAt: now65t() };
+    return envelope;
+  }
+  function fileName65t(){
+    const d = new Date();
+    const pad = function(n){ return (n < 10 ? "0" : "") + n; };
+    return "workout-backup-" + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + "-" + pad(d.getHours()) + pad(d.getMinutes()) + ".json";
+  }
+  function exportBackup65T(){
+    const e = eng65t();
+    try {
+      const envelope = buildBackupEnvelope65t();
+      const validation = e && typeof e.validateFullBackup16A === "function" ? e.validateFullBackup16A(envelope) : { valid: true, errors: [] };
+      const json = JSON.stringify(envelope, null, 2);
+      let downloaded = false;
+      let downloadError = null;
+      try {
+        const blob = new Blob([json], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = fileName65t();
+        document.body.appendChild(a); a.click();
+        URL.revokeObjectURL(url); a.remove();
+        downloaded = true;
+      } catch (err) { downloadError = t65t(err && err.message || err); }
+      lastExport65T = {
+        at: now65t(), ok: downloaded && validation.valid, downloaded, validationValid: validation.valid,
+        validationErrors: validation.errors || [], bytes: json.length, fileName: fileName65t(),
+        coachKeyIncluded: envelope.adaptiveCoach65AIncluded, smartExerciseSystemIncluded: envelope.smartExerciseSystem64BRIncluded,
+        counts: envelope.counts || null, downloadError
+      };
+      const msg = downloaded
+        ? "Export succeeded (" + Math.round(json.length / 1024) + " KB). Coach targets " + (envelope.adaptiveCoach65AIncluded ? "included" : "none to include") + "; equipment/defaults " + (envelope.smartExerciseSystem64BRIncluded ? "included" : "none") + "."
+        : "Export could not download (" + (downloadError || "browser blocked") + "). Nothing changed.";
+      setBackupStatus65t(msg, downloaded ? "success" : "error");
+      renderBackupPanel65T();
+      return lastExport65T;
+    } catch (error) {
+      lastExport65T = { at: now65t(), ok: false, error: t65t(error && error.message || error) };
+      setBackupStatus65t("Export failed: " + lastExport65T.error, "error");
+      return lastExport65T;
+    }
+  }
+
+  /* ---------- import: preview ---------- */
+  let pendingImport65T = null; /* { parsed, validation, plan, fields, fingerprintBefore } */
+  let lastImport65T = null;
+  function detectFields65t(parsed){
+    const state = parsed && parsed.state || {};
+    const smart = (state && state.smartExerciseSystem64BR) || parsed.smartExerciseSystem64BR || null;
+    const coach = parsed && parsed.adaptiveCoach65A || null;
+    return {
+      createdDate: t65t(parsed && (parsed.exportedAt || (parsed.state && parsed.state.exportedAt))) || "unknown",
+      mainStatePresent: !!(state && typeof state === "object"),
+      historyPresent: objCount65t(state.logs) > 0,
+      historyDays: objCount65t(state.logs),
+      customMediaPresent: objCount65t(state.media) > 0,
+      equipmentProfilePresent: !!(smart && smart.equipmentProfile),
+      smartDefaultsPresent: !!(smart && Array.isArray(smart.defaultAssignments) && smart.defaultAssignments.length > 0),
+      smartDefaultsCount: smart && Array.isArray(smart.defaultAssignments) ? smart.defaultAssignments.length : 0,
+      notesPresent: objCount65t(state.notes) > 0,
+      coachKeyPresent: !!(coach && typeof coach === "object"),
+      coachTargetsCount: coach && coach.exerciseTargets ? objCount65t(coach.exerciseTargets) : 0
+    };
+  }
+  function previewImport65t(parsed){
+    const e = eng65t();
+    let validation = { valid: false, errors: ["validation unavailable"], warnings: [], counts: {} };
+    try { if (e && typeof e.validateBackupShape16C === "function") validation = e.validateBackupShape16C(parsed); } catch (err) { validation = { valid: false, errors: [t65t(err && err.message || err)], warnings: [], counts: {} }; }
+    let plan = null;
+    try { if (validation.valid && e && typeof e.buildSafeImportPlan16D === "function") plan = e.buildSafeImportPlan16D(parsed, "merge", liveState65t()); } catch (_) { plan = null; }
+    const fields = detectFields65t(parsed);
+    pendingImport65T = { parsed: parsed, validation: validation, plan: plan, fields: fields, fingerprintBefore: stateFingerprint65t(), at: now65t() };
+    renderBackupPanel65T();
+    return pendingImport65T;
+  }
+  function handleImportFile65t(file){
+    if (!file) { setBackupStatus65t("No file selected.", "info"); return; }
+    if (file.size > 12 * 1024 * 1024) { setBackupStatus65t("File too large for this single-file app.", "error"); return; }
+    const reader = new FileReader();
+    reader.onload = function(){
+      let parsed = null;
+      try { parsed = JSON.parse(String(reader.result || "")); }
+      catch (err) { pendingImport65T = { parsed: null, validation: { valid: false, errors: ["JSON parse failed: " + t65t(err && err.message || err)], warnings: [] }, fields: null, fingerprintBefore: stateFingerprint65t() }; renderBackupPanel65T(); setBackupStatus65t("Selected file is not valid JSON. Nothing changed.", "error"); return; }
+      previewImport65t(parsed);
+      setBackupStatus65t("Backup previewed. Review below, then Confirm & Restore or Cancel.", "info");
+    };
+    reader.onerror = function(){ setBackupStatus65t("Could not read the selected file. Nothing changed.", "error"); };
+    reader.readAsText(file);
+  }
+  function cancelImport65T(){
+    const before = pendingImport65T && pendingImport65T.fingerprintBefore;
+    const after = stateFingerprint65t();
+    const unchanged = !before || (before.state === after.state && before.coach === after.coach);
+    pendingImport65T = null;
+    const input = document.getElementById("backupImportFile65T");
+    if (input) input.value = "";
+    renderBackupPanel65T();
+    setBackupStatus65t("Import cancelled. Nothing was changed" + (unchanged ? "." : " (state fingerprint check: see audit)."), "info");
+    return { cancelled: true, stateUnchanged: unchanged };
+  }
+
+  /* ---------- import: apply (explicit confirm) ---------- */
+  function confirmImport65T(){
+    const e = eng65t();
+    const pending = pendingImport65T;
+    if (!pending || !pending.parsed) { setBackupStatus65t("No previewed backup to import.", "error"); return { ok: false, reason: "no-pending" }; }
+    if (!pending.validation || !pending.validation.valid) { setBackupStatus65t("Backup failed validation; import blocked.", "error"); return { ok: false, reason: "invalid" }; }
+    if (!e || typeof e.applySafeImportBackup16D !== "function") { setBackupStatus65t("Safe import path unavailable.", "error"); return { ok: false, reason: "engine-unavailable" }; }
+
+    const before = { logDays: objCount65t((liveState65t() || {}).logs), coachChars: (readKey65t(COACH_KEY65T) || "").length, smartDefaults: (function(){ const s = liveState65t(); return s && s.smartExerciseSystem64BR && Array.isArray(s.smartExerciseSystem64BR.defaultAssignments) ? s.smartExerciseSystem64BR.defaultAssignments.length : 0; })() };
+
+    /* Restore the coach key FIRST: it is an independent localStorage key the safe merge never touches,
+       so writing it before the heavy re-render keeps coach/progression targets safe even if rendering is interrupted. */
+    let coachRestored = false;
+    if (pending.parsed.adaptiveCoach65A && typeof pending.parsed.adaptiveCoach65A === "object") {
+      try { window.localStorage.setItem(COACH_KEY65T, JSON.stringify(pending.parsed.adaptiveCoach65A)); coachRestored = true; } catch (_) { coachRestored = false; }
+    }
+
+    /* SAFE gap-fill of the smart-exercise system (equipment profile + defaults), which Phase 16A never captured
+       and the 16D merge preserves-from-current (never pulls backup's). Only fill when the current app has NO
+       default assignments (post-data-loss restore) so a merge into a populated app never overwrites live smart
+       data. Written BEFORE the merge so the merge's clone(current) preserves it and it survives any render interruption. */
+    let smartRestored = false;
+    let smartSkippedReason = null;
+    const backupSmart = (pending.parsed.state && pending.parsed.state.smartExerciseSystem64BR) || pending.parsed.smartExerciseSystem64BR || null;
+    if (backupSmart) {
+      if (before.smartDefaults === 0) {
+        try {
+          const loaded = e.loadState();
+          const st = loaded && loaded.state;
+          if (st) { st.smartExerciseSystem64BR = backupSmart; e.saveState(st, "phase65t-restore-smart-exercise-system-gap-fill"); smartRestored = true; }
+        } catch (_) { smartRestored = false; }
+      } else {
+        smartSkippedReason = "current app already has " + before.smartDefaults + " default assignment(s); merge preserves them (no overwrite)";
+      }
+    }
+
+    let applyResult = null;
+    try { applyResult = e.applySafeImportBackup16D(pending.parsed, "merge", { phrase: "MERGE", skipBrowserConfirm: true }); }
+    catch (err) { setBackupStatus65t("Import failed during safe apply: " + t65t(err && err.message || err), "error"); return { ok: false, reason: "apply-threw", error: t65t(err && err.message || err), coachRestored: coachRestored, smartRestored: smartRestored }; }
+    const applied = !!(applyResult && (applyResult.applied || applyResult.status === "GREEN"));
+
+    /* raw read-back verification */
+    const afterRaw = parseKey65t(STATE_KEY65T);
+    const afterLogDays = objCount65t(afterRaw && afterRaw.logs);
+    const coachRaw = parseKey65t(COACH_KEY65T);
+    const expectedCoachTargets = pending.parsed.adaptiveCoach65A && pending.parsed.adaptiveCoach65A.exerciseTargets ? objCount65t(pending.parsed.adaptiveCoach65A.exerciseTargets) : null;
+    const coachReadBackOk = !coachRestored || (coachRaw && coachRaw.exerciseTargets && objCount65t(coachRaw.exerciseTargets) >= (expectedCoachTargets || 0));
+    const logsReadBackOk = afterRaw != null && afterLogDays >= before.logDays;
+    const protectedDataPreserved = afterLogDays >= before.logDays;
+    const readBackVerified = !!(applied && logsReadBackOk && coachReadBackOk);
+
+    lastImport65T = {
+      at: now65t(), applied, coachRestored, smartRestored, smartSkippedReason,
+      logDaysBefore: before.logDays, logDaysAfter: afterLogDays,
+      addedSessions: pending.plan ? pending.plan.addedSessions : null,
+      coachReadBackOk, logsReadBackOk, readBackVerified, protectedDataPreserved,
+      applyStatus: applyResult && applyResult.status
+    };
+    pendingImport65T = null;
+    const input = document.getElementById("backupImportFile65T");
+    if (input) input.value = "";
+    renderBackupPanel65T();
+    setBackupStatus65t(readBackVerified
+      ? "Restore applied and verified (" + afterLogDays + " log day(s); coach " + (coachRestored ? "restored" : "unchanged") + "). Refresh the page to load the restored data everywhere."
+      : "Restore attempted but read-back did not fully verify. Check the panel; nothing user-owned was deleted.", readBackVerified ? "success" : "error");
+    return lastImport65T;
+  }
+
+  /* ---------- panel ---------- */
+  function setBackupStatus65t(msg, tone){
+    const el = document.getElementById("backupStatus65T");
+    if (!el) return;
+    el.textContent = t65t(msg);
+    el.dataset.tone = tone || "info";
+  }
+  function ensureBackupPanel65T(){
+    let card = document.getElementById("backupRestorePanel65T");
+    if (card) return card;
+    const host = document.getElementById("panel-data");
+    if (!host) return null;
+    card = document.createElement("section");
+    card.className = "card";
+    card.id = "backupRestorePanel65T";
+    card.setAttribute("data-phase65t-backup-surface", "reuses-16A-16E-engine");
+    card.innerHTML = '<div class="kicker">Backup</div><h3>Backup / Restore</h3><p class="subtle">Export a JSON backup or restore one. Import previews first and never applies without your confirmation. History, media, equipment profile, notes, and coach targets are preserved.</p>' +
+      '<div class="sheet-actions"><button class="btn ghost" type="button" id="backupExportBtn65T">Export Backup</button><button class="btn ghost" type="button" id="backupImportBtn65T">Import Backup</button></div>' +
+      '<input type="file" id="backupImportFile65T" accept="application/json,.json" style="display:none;">' +
+      '<div id="backupStatus65T" class="smart-recalibration-why64br" data-tone="info">No backup action yet.</div>' +
+      '<div id="backupPreview65T" class="smart-recalibration-why64br"></div>';
+    const storageCard = document.getElementById("storageHealthPanel65S");
+    const equipmentCard = document.getElementById("smartExerciseSystem64BREquipmentProfileCard");
+    if (storageCard && storageCard.parentNode) storageCard.insertAdjacentElement("afterend", card);
+    else if (equipmentCard && equipmentCard.parentNode) equipmentCard.insertAdjacentElement("afterend", card);
+    else host.appendChild(card);
+    const exportBtn = card.querySelector("#backupExportBtn65T");
+    if (exportBtn) exportBtn.addEventListener("click", function(ev){ if (ev) { ev.preventDefault(); ev.stopPropagation(); } exportBackup65T(); });
+    const importBtn = card.querySelector("#backupImportBtn65T");
+    const fileInput = card.querySelector("#backupImportFile65T");
+    if (importBtn && fileInput) importBtn.addEventListener("click", function(ev){ if (ev) { ev.preventDefault(); ev.stopPropagation(); } fileInput.click(); });
+    if (fileInput) fileInput.addEventListener("change", function(ev){ const f = ev && ev.target && ev.target.files && ev.target.files[0]; handleImportFile65t(f); });
+    return card;
+  }
+  function yn65t(b){ return b ? "yes" : "no"; }
+  function renderBackupPanel65T(){
+    const card = ensureBackupPanel65T();
+    const pre = card ? card.querySelector("#backupPreview65T") : null;
+    if (!pre) return false;
+    const p = pendingImport65T;
+    if (!p) {
+      const ex = lastExport65T;
+      pre.innerHTML = ex
+        ? "<div><b>Last export:</b> " + esc65t(ex.ok ? "ok" : "failed") + ", " + esc65t(Math.round((ex.bytes || 0) / 1024)) + " KB, coach " + esc65t(yn65t(ex.coachKeyIncluded)) + ", equipment/defaults " + esc65t(yn65t(ex.smartExerciseSystemIncluded)) + "</div>"
+        : "<div class=\"subtle\">Export downloads a JSON file. Import shows a restore preview before applying.</div>";
+      return true;
+    }
+    const f = p.fields || {};
+    const v = p.validation || {};
+    const plan = p.plan;
+    const rows = [];
+    rows.push("<div style=\"margin-top:6px;\"><b>Restore preview</b></div>");
+    rows.push("<div><b>Created:</b> " + esc65t(f.createdDate) + "</div>");
+    rows.push("<div><b>Valid backup:</b> " + esc65t(yn65t(v.valid)) + (v.errors && v.errors.length ? " (errors: " + esc65t(v.errors.join("; ")) + ")" : "") + (v.warnings && v.warnings.length ? " (warnings: " + esc65t(v.warnings.join("; ")) + ")" : "") + "</div>");
+    rows.push("<div><b>Main app state:</b> " + esc65t(yn65t(f.mainStatePresent)) + "</div>");
+    rows.push("<div><b>History:</b> " + esc65t(yn65t(f.historyPresent)) + " (" + esc65t(f.historyDays) + " day(s))</div>");
+    rows.push("<div><b>Custom media:</b> " + esc65t(yn65t(f.customMediaPresent)) + "</div>");
+    rows.push("<div><b>Equipment profile:</b> " + esc65t(yn65t(f.equipmentProfilePresent)) + "</div>");
+    rows.push("<div><b>Smart exercise defaults:</b> " + esc65t(yn65t(f.smartDefaultsPresent)) + " (" + esc65t(f.smartDefaultsCount) + ")</div>");
+    rows.push("<div><b>Notes:</b> " + esc65t(yn65t(f.notesPresent)) + "</div>");
+    rows.push("<div><b>Adaptive Coach targets:</b> " + esc65t(yn65t(f.coachKeyPresent)) + " (" + esc65t(f.coachTargetsCount) + ")</div>");
+    if (plan) rows.push("<div><b>Safe merge plan:</b> preserve " + esc65t(plan.preservedSessions || 0) + " current session(s), add " + esc65t(plan.addedSessions || 0) + " from backup</div>");
+    rows.push("<div class=\"sheet-actions\" style=\"margin-top:8px;\"><button class=\"btn primary\" type=\"button\" id=\"backupConfirmBtn65T\"" + (v.valid ? "" : " disabled") + ">Confirm &amp; Restore (safe merge)</button><button class=\"btn ghost\" type=\"button\" id=\"backupCancelBtn65T\">Cancel</button></div>");
+    pre.innerHTML = rows.join("");
+    const confirmBtn = pre.querySelector("#backupConfirmBtn65T");
+    if (confirmBtn) confirmBtn.addEventListener("click", function(ev){ if (ev) { ev.preventDefault(); ev.stopPropagation(); } confirmImport65T(); });
+    const cancelBtn = pre.querySelector("#backupCancelBtn65T");
+    if (cancelBtn) cancelBtn.addEventListener("click", function(ev){ if (ev) { ev.preventDefault(); ev.stopPropagation(); } cancelImport65T(); });
+    return true;
+  }
+
+  /* ---------- audit ---------- */
+  function runBackupSurfaceAudit65T(){
+    const e = eng65t();
+    const found = foundBackupFunctions65t();
+    let coachIncluded = null;
+    try { const env = buildBackupEnvelope65t(); coachIncluded = env.adaptiveCoach65AIncluded; }
+    catch (_) { coachIncluded = null; }
+    return {
+      phase: PHASE65T_NAME,
+      outputFile: PHASE65T_OUTPUT,
+      baseFileUsed: PHASE65T_BASE,
+      exportAvailable: !!(e && typeof e.buildFullBackup16A === "function"),
+      importAvailable: !!(e && typeof e.applySafeImportBackup16D === "function" && typeof e.validateBackupJsonText16C === "function"),
+      existingBackupFunctionsFound: found,
+      allRequiredFunctionsFound: found.length === REQUIRED_FUNCTIONS65T.length,
+      coachKeyIncludedInExport: coachIncluded === null ? "unknown" : coachIncluded,
+      smartExerciseSystemIncludedInExport: (function(){ try { return buildBackupEnvelope65t().smartExerciseSystem64BRIncluded; } catch (_) { return "unknown"; } })(),
+      validationPathUsed: "engine.validateBackupJsonText16C / validateBackupShape16C",
+      safeImportPathUsed: "engine.applySafeImportBackup16D (merge, non-destructive)",
+      readBackVerified: lastImport65T ? lastImport65T.readBackVerified : null,
+      protectedDataPreserved: lastImport65T ? lastImport65T.protectedDataPreserved : true,
+      panelPresent: !!document.getElementById("backupRestorePanel65T"),
+      importRequiresPreviewAndConfirm: true,
+      newStorageKeysAdded: 0,
+      lastExport: lastExport65T,
+      lastImport: lastImport65T,
+      status: (e && typeof e.buildFullBackup16A === "function" && typeof e.applySafeImportBackup16D === "function" && found.length === REQUIRED_FUNCTIONS65T.length) ? "YELLOW" : "RED"
+    };
+  }
+
+  /* ---------- install ---------- */
+  function install65T(){
+    ensureBackupPanel65T();
+    try { renderBackupPanel65T(); } catch (_) {}
+    if (document && document.documentElement) document.documentElement.setAttribute("data-phase65t-installed", "true");
+    return true;
+  }
+
+  window.runBackupSurfaceAudit65T = runBackupSurfaceAudit65T;
+  window.exportBackup65T = exportBackup65T;
+  window.confirmImport65T = confirmImport65T;
+  window.cancelImport65T = cancelImport65T;
+  window.TailoredTrainingPhase65T = Object.freeze({
+    phase: PHASE65T_NAME,
+    outputFile: PHASE65T_OUTPUT,
+    baseFileUsed: PHASE65T_BASE,
+    changelog: PHASE_65T_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65T, { once: true });
+  } else {
+    install65T();
+  }
+})();
 </script></body>
 </html>
