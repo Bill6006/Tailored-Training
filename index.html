@@ -88322,5 +88322,311 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     install65ABugfix1();
   }
 })();
+</script>
+
+<script id="phase65s-storage-compaction-and-save-verification-lock">
+/* PHASE_65S_STORAGE_COMPACTION_AND_SAVE_VERIFICATION_LOCK_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65S_NAME = "Phase 65S - Storage Compaction + Save Verification Lock";
+  const PHASE65S_OUTPUT = "Tailored_Training_Rebuild_Phase65S_Storage_Compaction_And_Save_Verification_Lock_v1.html";
+  const PHASE65S_BASE = "Tailored_Training_Rebuild_Phase65A_BUGFIX_1_Simple_Only_Unified_Adaptive_Coach_Surface_And_Actual_Logged_Rep_Truth_Lock_v1.html";
+  const FALLBACK_STATE_KEY65S = "tailoredWorkoutTracker.v2";
+  const FALLBACK_SNAPSHOT_KEY65S = "tailoredWorkoutTracker.v2.safetySnapshots";
+  const COACH_KEY65S = "tailoredWorkoutTracker.adaptiveCoach65A";
+  /* verdict thresholds in localStorage chars (UTF-16 units; ~2 bytes each on disk) */
+  const HEALTHY_MAX65S = 1500000;
+  const PRESSURE_MAX65S = 3000000;
+  const GUARD_PRUNE_AT65S = 2500000;
+
+  const PROVEN_FAILURE65S = "Android normal Chrome reached about 12 MB of site data for this origin; every apply-save then failed while the engine saveState reported ok:true with a memory-only fallback, so the UI showed success and refresh reverted everything. Incognito (empty storage) worked and clearing only this site's data fixed normal Chrome. The bloat multiplier is the safety-snapshot system: createSafetySnapshot writes a full persistable-state copy into " + FALLBACK_SNAPSHOT_KEY65S + " before EVERY save (up to 3 copies).";
+
+  const PHASE_65S_STORAGE_COMPACTION_AND_SAVE_VERIFICATION_LOCK_V1_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65S_BASE + " as base; appends exactly one script block; installs at DOMContentLoaded registered last; mutates live objects in place.",
+    "Adds a Data tab 'Storage Health' card: chars per localStorage key, persistable payload size (engine.buildPersistableState10E on a clone), safety-snapshot count and size, browser storage estimate, and an honest verdict (healthy < " + HEALTHY_MAX65S + " chars total, pressure to " + PRESSURE_MAX65S + ", critical above).",
+    "Adds a manual 'Run Safe Storage Cleanup' button: engine.pruneSafetySnapshots10E() first, then engine.clearSafetySnapshotsOnly10E() only if still critical; shows before/after sizes; verifies by read-back that ONLY the snapshot key changed and that the main state key and adaptive coach key are byte-identical.",
+    "Adds a pressure guard: a pass-through wrapper on TTSmartExerciseSystem64BR.safe.saveState that prunes safety snapshots BEFORE delegating whenever total localStorage chars exceed " + GUARD_PRUNE_AT65S + "; the wrapped result is returned unchanged (save semantics untouched; BUGFIX 13/14 read-back verification already gates apply success).",
+    "Adds window.runStorageHealthAudit65S() returning sizes, verdict, guard status, last cleanup record, and protected-key proof.",
+    "Measurements and cleanup records are memory-only: this phase adds ZERO new localStorage keys and never writes to storage except through the engine's own snapshot helpers.",
+    "Never touches: the main state key, history/logs, custom media, equipment profile, defaultAssignments, notes, the adaptive coach key, or any user-created data. No timers, no MutationObserver, no document-level listeners, no localStorage.clear."
+  ]);
+
+  /* ---------- helpers ---------- */
+  function t65s(v){ return String(v == null ? "" : v).trim(); }
+  function clone65s(v){ if (v == null || typeof v !== "object") return v; try { return JSON.parse(JSON.stringify(v)); } catch (_) { return v; } }
+  function now65s(){ return new Date().toISOString(); }
+  function esc65s(v){ return t65s(v).replace(/[&<>"']/g, function(ch){ return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[ch]; }); }
+  function eng65s(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function ns65s(){ return window.TTSmartExerciseSystem64BR && typeof window.TTSmartExerciseSystem64BR === "object" ? window.TTSmartExerciseSystem64BR : null; }
+  function stateKey65s(){ const e = eng65s(); return (e && e.STATE_KEY) || FALLBACK_STATE_KEY65S; }
+  function snapshotKey65s(){ const e = eng65s(); return (e && e.SNAPSHOT_KEY) || FALLBACK_SNAPSHOT_KEY65S; }
+  function protectedKeys65s(){ return [stateKey65s(), COACH_KEY65S]; }
+  function keyChars65s(key){
+    try { const raw = window.localStorage ? window.localStorage.getItem(key) : null; return raw == null ? 0 : String(raw).length; } catch (_) { return -1; }
+  }
+
+  /* ---------- measurement (read-only) ---------- */
+  let browserEstimate65S = null;
+  function refreshBrowserEstimate65S(){
+    try {
+      if (navigator.storage && typeof navigator.storage.estimate === "function") {
+        navigator.storage.estimate().then(function(est){
+          browserEstimate65S = { usageBytes: est && est.usage != null ? est.usage : null, quotaBytes: est && est.quota != null ? est.quota : null, at: now65s() };
+        }).catch(function(){});
+      }
+    } catch (_) {}
+  }
+  function scanStorage65S(){
+    const keys = [];
+    let total = 0;
+    try {
+      for (let i = 0; i < window.localStorage.length; i += 1) {
+        const key = window.localStorage.key(i);
+        const chars = keyChars65s(key);
+        total += Math.max(chars, 0);
+        keys.push({ key, chars, protectedKey: protectedKeys65s().indexOf(key) !== -1, snapshotKey: key === snapshotKey65s() });
+      }
+    } catch (error) {
+      return { ok: false, error: t65s(error && error.message || error), keys: [], keyCount: 0, totalChars: 0 };
+    }
+    keys.sort(function(a, b){ return b.chars - a.chars; });
+    return { ok: true, keys, keyCount: keys.length, totalChars: total };
+  }
+  function payloadChars65S(){
+    const e = eng65s();
+    try {
+      if (e && typeof e.loadState === "function" && typeof e.buildPersistableState10E === "function") {
+        const loaded = e.loadState();
+        const state = loaded && (loaded.state || loaded);
+        if (state && typeof state === "object") return JSON.stringify(e.buildPersistableState10E(clone65s(state))).length;
+      }
+    } catch (error) { return -1; }
+    return -1;
+  }
+  function snapshotInfo65S(){
+    const key = snapshotKey65s();
+    const chars = keyChars65s(key);
+    let count = null;
+    try {
+      const raw = window.localStorage ? window.localStorage.getItem(key) : null;
+      if (raw) { const parsed = JSON.parse(raw); count = Array.isArray(parsed) ? parsed.length : null; }
+      else count = 0;
+    } catch (_) { count = null; }
+    return { key, chars: Math.max(chars, 0), count };
+  }
+  function verdict65S(totalChars){
+    if (totalChars < HEALTHY_MAX65S) return "healthy";
+    if (totalChars <= PRESSURE_MAX65S) return "pressure";
+    return "critical";
+  }
+  function measure65S(){
+    const scan = scanStorage65S();
+    const snapshots = snapshotInfo65S();
+    const payload = payloadChars65S();
+    refreshBrowserEstimate65S();
+    return {
+      at: now65s(),
+      scan,
+      totalChars: scan.totalChars,
+      verdict: verdict65S(scan.totalChars),
+      payloadChars: payload,
+      snapshots,
+      stateKeyChars: keyChars65s(stateKey65s()),
+      coachKeyChars: keyChars65s(COACH_KEY65S),
+      browserEstimate: browserEstimate65S,
+      thresholds: { healthyMax: HEALTHY_MAX65S, pressureMax: PRESSURE_MAX65S, guardPruneAt: GUARD_PRUNE_AT65S }
+    };
+  }
+
+  /* ---------- safe cleanup (snapshot key ONLY, via engine helpers) ---------- */
+  let lastCleanup65S = null;
+  function runSafeStorageCleanup65S(trigger){
+    const e = eng65s();
+    const before = measure65S();
+    const protectedBefore = protectedKeys65s().map(function(key){ return { key, chars: keyChars65s(key) }; });
+    const actions = [];
+    if (e && typeof e.pruneSafetySnapshots10E === "function") {
+      try { e.pruneSafetySnapshots10E(); actions.push("pruned-safety-snapshots-to-1"); }
+      catch (error) { actions.push("prune-failed: " + t65s(error && error.message || error)); }
+    } else actions.push("prune-helper-unavailable");
+    let mid = measure65S();
+    if (mid.verdict === "critical" && e && typeof e.clearSafetySnapshotsOnly10E === "function") {
+      try { e.clearSafetySnapshotsOnly10E(); actions.push("cleared-safety-snapshots-only"); }
+      catch (error) { actions.push("clear-failed: " + t65s(error && error.message || error)); }
+      mid = measure65S();
+    }
+    const after = mid;
+    const protectedAfter = protectedKeys65s().map(function(key){ return { key, chars: keyChars65s(key) }; });
+    const protectedUntouched = protectedBefore.every(function(item, index){ return protectedAfter[index] && protectedAfter[index].key === item.key && protectedAfter[index].chars === item.chars; });
+    lastCleanup65S = {
+      at: now65s(),
+      trigger: t65s(trigger || "manual"),
+      actions,
+      beforeTotalChars: before.totalChars,
+      afterTotalChars: after.totalChars,
+      freedChars: before.totalChars - after.totalChars,
+      snapshotCharsBefore: before.snapshots.chars,
+      snapshotCharsAfter: after.snapshots.chars,
+      snapshotCountBefore: before.snapshots.count,
+      snapshotCountAfter: after.snapshots.count,
+      protectedKeysUntouched: protectedUntouched,
+      protectedBefore,
+      protectedAfter,
+      verdictBefore: before.verdict,
+      verdictAfter: after.verdict
+    };
+    try { renderStoragePanel65S(); } catch (_) {}
+    return lastCleanup65S;
+  }
+
+  /* ---------- pressure guard (pass-through wrapper on ns.safe.saveState) ---------- */
+  let lastGuardAction65S = null;
+  let guardInstalled65S = false;
+  function installPressureGuard65S(){
+    const ns = ns65s();
+    if (!ns || !ns.safe || typeof ns.safe.saveState !== "function") return false;
+    if (ns.safe.saveState.phase65sPressureGuard) { guardInstalled65S = true; return true; }
+    const previous = ns.safe.saveState;
+    function guardedSafeSave65S(state, reason){
+      try {
+        const scan = scanStorage65S();
+        if (scan.ok && scan.totalChars > GUARD_PRUNE_AT65S) {
+          const e = eng65s();
+          if (e && typeof e.pruneSafetySnapshots10E === "function") {
+            e.pruneSafetySnapshots10E();
+            lastGuardAction65S = { at: now65s(), reason: t65s(reason), totalCharsAtTrigger: scan.totalChars, action: "pruned-safety-snapshots-before-save" };
+          }
+        }
+      } catch (_) {}
+      return previous.apply(this, arguments);
+    }
+    guardedSafeSave65S.phase65sPressureGuard = true;
+    guardedSafeSave65S.phase65sPrevious = previous;
+    if (previous.phase65aDiag3SaveObserver) guardedSafeSave65S.phase65aDiag3SaveObserver = previous.phase65aDiag3SaveObserver;
+    try { ns.safe.saveState = guardedSafeSave65S; } catch (_) { return false; }
+    guardInstalled65S = ns.safe.saveState === guardedSafeSave65S;
+    return guardInstalled65S;
+  }
+
+  /* ---------- Data tab panel ---------- */
+  function fmtChars65S(chars){
+    if (chars == null || chars < 0) return "unknown";
+    if (chars >= 1000000) return (chars / 1000000).toFixed(2) + "M chars (~" + (chars * 2 / 1048576).toFixed(1) + " MB)";
+    if (chars >= 1000) return (chars / 1000).toFixed(1) + "K chars";
+    return chars + " chars";
+  }
+  function ensureStoragePanel65S(){
+    let card = document.getElementById("storageHealthPanel65S");
+    if (card) return card;
+    const host = document.getElementById("panel-data");
+    if (!host) return null;
+    card = document.createElement("section");
+    card.className = "card";
+    card.id = "storageHealthPanel65S";
+    card.setAttribute("data-phase65s-storage-panel", "read-and-snapshot-cleanup-only");
+    card.innerHTML = '<div class="kicker">Storage</div><h3>Storage Health</h3><p class="subtle">Snapshot cleanup only. History, media, profile, defaults, and coach targets are never touched.</p><div id="storageHealthBody65S" class="smart-recalibration-why64br">Tap Refresh storage health.</div><div class="sheet-actions"><button class="btn ghost" type="button" id="storageHealthRefresh65S">Refresh storage health</button><button class="btn ghost" type="button" id="storageHealthCleanup65S">Run Safe Storage Cleanup</button></div>';
+    const anchor = document.getElementById("smartExerciseSystem64BREquipmentProfileCard");
+    if (anchor && anchor.parentNode) anchor.insertAdjacentElement("afterend", card);
+    else host.appendChild(card);
+    const refreshBtn = card.querySelector("#storageHealthRefresh65S");
+    if (refreshBtn) refreshBtn.addEventListener("click", function(event){
+      if (event) { event.preventDefault(); event.stopPropagation(); }
+      renderStoragePanel65S();
+    });
+    const cleanupBtn = card.querySelector("#storageHealthCleanup65S");
+    if (cleanupBtn) cleanupBtn.addEventListener("click", function(event){
+      if (event) { event.preventDefault(); event.stopPropagation(); }
+      runSafeStorageCleanup65S("manual-button");
+    });
+    return card;
+  }
+  function row65S(label, value){ return "<div><b>" + esc65s(label) + ":</b> " + esc65s(value == null || value === "" ? "-" : value) + "</div>"; }
+  function renderStoragePanel65S(){
+    const card = ensureStoragePanel65S();
+    const body = card ? card.querySelector("#storageHealthBody65S") : null;
+    if (!body) return false;
+    const m = measure65S();
+    const rows = [];
+    rows.push(row65S("Verdict", m.verdict.toUpperCase() + " (" + fmtChars65S(m.totalChars) + " total across " + m.scan.keyCount + " keys)"));
+    rows.push(row65S("Main app state", fmtChars65S(m.stateKeyChars)));
+    rows.push(row65S("Persistable payload (next save size)", fmtChars65S(m.payloadChars)));
+    rows.push(row65S("Safety snapshots", (m.snapshots.count == null ? "?" : m.snapshots.count) + " snapshot(s), " + fmtChars65S(m.snapshots.chars)));
+    rows.push(row65S("Adaptive coach key", fmtChars65S(m.coachKeyChars)));
+    const others = m.scan.keys.filter(function(k){ return !k.protectedKey && !k.snapshotKey; }).slice(0, 6);
+    rows.push(row65S("Other keys (top)", others.length ? others.map(function(k){ return k.key + " = " + fmtChars65S(k.chars); }).join(" | ") : "none"));
+    rows.push(row65S("Browser estimate", m.browserEstimate ? Math.round((m.browserEstimate.usageBytes || 0) / 1048576 * 10) / 10 + " MB used of " + Math.round((m.browserEstimate.quotaBytes || 0) / 1048576) + " MB quota" : "pending (refresh again)"));
+    rows.push(row65S("Pressure guard", guardInstalled65S ? "armed (prunes snapshots before saves above " + fmtChars65S(GUARD_PRUNE_AT65S) + ")" : "NOT INSTALLED"));
+    rows.push(row65S("Last guard action", lastGuardAction65S ? lastGuardAction65S.action + " at " + lastGuardAction65S.at + " (" + fmtChars65S(lastGuardAction65S.totalCharsAtTrigger) + ")" : "none needed"));
+    rows.push(row65S("Last cleanup", lastCleanup65S ? "freed " + fmtChars65S(lastCleanup65S.freedChars) + " (" + lastCleanup65S.actions.join(", ") + "); protected keys untouched: " + lastCleanup65S.protectedKeysUntouched : "not run this session"));
+    rows.push(row65S("Protected (never pruned)", "app state, history, media, equipment profile, defaults, notes, coach targets"));
+    body.innerHTML = rows.join("");
+    return true;
+  }
+
+  /* ---------- audit ---------- */
+  function runStorageHealthAudit65S(){
+    const m = measure65S();
+    const guardSource = (function(){ const ns = ns65s(); return ns && ns.safe && ns.safe.saveState ? String(ns.safe.saveState) : ""; })();
+    return {
+      phase: PHASE65S_NAME,
+      outputFile: PHASE65S_OUTPUT,
+      baseFileUsed: PHASE65S_BASE,
+      provenFailure: PROVEN_FAILURE65S,
+      measuredAt: m.at,
+      totalChars: m.totalChars,
+      verdict: m.verdict,
+      stateKeyChars: m.stateKeyChars,
+      payloadChars: m.payloadChars,
+      snapshotKey: m.snapshots.key,
+      snapshotCount: m.snapshots.count,
+      snapshotChars: m.snapshots.chars,
+      coachKeyChars: m.coachKeyChars,
+      browserEstimate: m.browserEstimate,
+      keyCount: m.scan.keyCount,
+      topKeys: m.scan.keys.slice(0, 8).map(function(k){ return k.key + " = " + k.chars; }),
+      guardInstalled: guardInstalled65S && /phase65sPressureGuard|pruneSafetySnapshots10E/.test(guardSource),
+      guardPruneAtChars: GUARD_PRUNE_AT65S,
+      lastGuardAction: lastGuardAction65S,
+      lastCleanup: lastCleanup65S,
+      cleanupTouchesOnlySnapshotKey: /pruneSafetySnapshots10E|clearSafetySnapshotsOnly10E/.test(String(runSafeStorageCleanup65S)) && !/removeItem\(\s*stateKey65s|removeItem\(\s*COACH_KEY65S/.test(String(runSafeStorageCleanup65S)),
+      protectedKeysUntouched: lastCleanup65S ? lastCleanup65S.protectedKeysUntouched === true : true,
+      panelPresent: !!document.getElementById("storageHealthPanel65S"),
+      newStorageKeysAdded: 0,
+      status: guardInstalled65S && (lastCleanup65S ? lastCleanup65S.protectedKeysUntouched === true : true) ? "YELLOW" : "RED"
+    };
+  }
+
+  /* ---------- install ---------- */
+  function install65S(){
+    const guardOk = installPressureGuard65S();
+    ensureStoragePanel65S();
+    refreshBrowserEstimate65S();
+    try { renderStoragePanel65S(); } catch (_) {}
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase65s-installed", "true");
+      document.documentElement.setAttribute("data-phase65s-guard", guardOk ? "armed" : "unavailable");
+    }
+    return true;
+  }
+
+  window.runStorageHealthAudit65S = runStorageHealthAudit65S;
+  window.runSafeStorageCleanup65S = runSafeStorageCleanup65S;
+  window.measureStorageHealth65S = measure65S;
+  window.TailoredTrainingPhase65S = Object.freeze({
+    phase: PHASE65S_NAME,
+    outputFile: PHASE65S_OUTPUT,
+    baseFileUsed: PHASE65S_BASE,
+    provenFailure: PROVEN_FAILURE65S,
+    changelog: PHASE_65S_STORAGE_COMPACTION_AND_SAVE_VERIFICATION_LOCK_V1_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65S, { once: true });
+  } else {
+    install65S();
+  }
+})();
 </script></body>
 </html>
