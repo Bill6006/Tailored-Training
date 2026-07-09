@@ -88708,20 +88708,21 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
       const envelope = buildBackupEnvelope65t();
       const validation = e && typeof e.validateFullBackup16A === "function" ? e.validateFullBackup16A(envelope) : { valid: true, errors: [] };
       const json = JSON.stringify(envelope, null, 2);
+      const downloadName = fileName65t();
       let downloaded = false;
       let downloadError = null;
       try {
         const blob = new Blob([json], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
-        a.href = url; a.download = fileName65t();
+        a.href = url; a.download = downloadName;
         document.body.appendChild(a); a.click();
-        URL.revokeObjectURL(url); a.remove();
+        setTimeout(function(){ try { URL.revokeObjectURL(url); } catch (_) {} try { a.remove(); } catch (_) {} }, 800);
         downloaded = true;
       } catch (err) { downloadError = t65t(err && err.message || err); }
       lastExport65T = {
         at: now65t(), ok: downloaded && validation.valid, downloaded, validationValid: validation.valid,
-        validationErrors: validation.errors || [], bytes: json.length, fileName: fileName65t(),
+        validationErrors: validation.errors || [], bytes: json.length, fileName: downloadName,
         coachKeyIncluded: envelope.adaptiveCoach65AIncluded, smartExerciseSystemIncluded: envelope.smartExerciseSystem64BRIncluded,
         counts: envelope.counts || null, downloadError
       };
@@ -88743,6 +88744,9 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
   let lastImport65T = null;
   function detectFields65t(parsed){
     const state = parsed && parsed.state || {};
+    const media = state && state.media || {};
+    const mediaManifestCount = parsed && parsed.customMediaBackup18E ? Number(parsed.customMediaBackup18E.customMediaCount || parsed.customMediaBackup18E.mediaCount || 0) : 0;
+    const customMediaCount = mediaManifestCount || objCount65t(media.custom) || objCount65t(media.customMedia) || 0;
     const smart = (state && state.smartExerciseSystem64BR) || parsed.smartExerciseSystem64BR || null;
     const coach = parsed && parsed.adaptiveCoach65A || null;
     return {
@@ -88750,7 +88754,8 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
       mainStatePresent: !!(state && typeof state === "object"),
       historyPresent: objCount65t(state.logs) > 0,
       historyDays: objCount65t(state.logs),
-      customMediaPresent: objCount65t(state.media) > 0,
+      customMediaPresent: customMediaCount > 0,
+      customMediaCount: customMediaCount,
       equipmentProfilePresent: !!(smart && smart.equipmentProfile),
       smartDefaultsPresent: !!(smart && Array.isArray(smart.defaultAssignments) && smart.defaultAssignments.length > 0),
       smartDefaultsCount: smart && Array.isArray(smart.defaultAssignments) ? smart.defaultAssignments.length : 0,
@@ -88759,10 +88764,14 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
       coachTargetsCount: coach && coach.exerciseTargets ? objCount65t(coach.exerciseTargets) : 0
     };
   }
-  function previewImport65t(parsed){
+  function previewImport65t(parsed, validationFromText){
     const e = eng65t();
-    let validation = { valid: false, errors: ["validation unavailable"], warnings: [], counts: {} };
-    try { if (e && typeof e.validateBackupShape16C === "function") validation = e.validateBackupShape16C(parsed); } catch (err) { validation = { valid: false, errors: [t65t(err && err.message || err)], warnings: [], counts: {} }; }
+    let validation = validationFromText || { valid: false, errors: ["validation unavailable"], warnings: [], counts: {} };
+    if (!validationFromText) {
+      try { if (e && typeof e.validateBackupShape16C === "function") validation = e.validateBackupShape16C(parsed); } catch (err) { validation = { valid: false, errors: [t65t(err && err.message || err)], warnings: [], counts: {} }; }
+    }
+    validation.errors = validation.errors || [];
+    validation.warnings = validation.warnings || [];
     let plan = null;
     try { if (validation.valid && e && typeof e.buildSafeImportPlan16D === "function") plan = e.buildSafeImportPlan16D(parsed, "merge", liveState65t()); } catch (_) { plan = null; }
     const fields = detectFields65t(parsed);
@@ -88775,10 +88784,18 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     if (file.size > 12 * 1024 * 1024) { setBackupStatus65t("File too large for this single-file app.", "error"); return; }
     const reader = new FileReader();
     reader.onload = function(){
+      const text = String(reader.result || "");
+      const e = eng65t();
+      let validation = null;
+      try {
+        if (e && typeof e.validateBackupJsonText16C === "function") validation = e.validateBackupJsonText16C(text);
+      } catch (err) {
+        validation = { valid: false, parseOk: false, errors: ["Phase 16C text validation failed: " + t65t(err && err.message || err)], warnings: [] };
+      }
       let parsed = null;
-      try { parsed = JSON.parse(String(reader.result || "")); }
-      catch (err) { pendingImport65T = { parsed: null, validation: { valid: false, errors: ["JSON parse failed: " + t65t(err && err.message || err)], warnings: [] }, fields: null, fingerprintBefore: stateFingerprint65t() }; renderBackupPanel65T(); setBackupStatus65t("Selected file is not valid JSON. Nothing changed.", "error"); return; }
-      previewImport65t(parsed);
+      try { parsed = JSON.parse(text); }
+      catch (err) { pendingImport65T = { parsed: null, validation: validation || { valid: false, parseOk: false, errors: ["JSON parse failed: " + t65t(err && err.message || err)], warnings: [] }, fields: null, fingerprintBefore: stateFingerprint65t() }; renderBackupPanel65T(); setBackupStatus65t("Selected file is not valid JSON. Nothing changed.", "error"); return; }
+      previewImport65t(parsed, validation);
       setBackupStatus65t("Backup previewed. Review below, then Confirm & Restore or Cancel.", "info");
     };
     reader.onerror = function(){ setBackupStatus65t("Could not read the selected file. Nothing changed.", "error"); };
@@ -88920,7 +88937,7 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     rows.push("<div><b>Valid backup:</b> " + esc65t(yn65t(v.valid)) + (v.errors && v.errors.length ? " (errors: " + esc65t(v.errors.join("; ")) + ")" : "") + (v.warnings && v.warnings.length ? " (warnings: " + esc65t(v.warnings.join("; ")) + ")" : "") + "</div>");
     rows.push("<div><b>Main app state:</b> " + esc65t(yn65t(f.mainStatePresent)) + "</div>");
     rows.push("<div><b>History:</b> " + esc65t(yn65t(f.historyPresent)) + " (" + esc65t(f.historyDays) + " day(s))</div>");
-    rows.push("<div><b>Custom media:</b> " + esc65t(yn65t(f.customMediaPresent)) + "</div>");
+    rows.push("<div><b>Custom media:</b> " + esc65t(yn65t(f.customMediaPresent)) + " (" + esc65t(f.customMediaCount || 0) + ")</div>");
     rows.push("<div><b>Equipment profile:</b> " + esc65t(yn65t(f.equipmentProfilePresent)) + "</div>");
     rows.push("<div><b>Smart exercise defaults:</b> " + esc65t(yn65t(f.smartDefaultsPresent)) + " (" + esc65t(f.smartDefaultsCount) + ")</div>");
     rows.push("<div><b>Notes:</b> " + esc65t(yn65t(f.notesPresent)) + "</div>");
@@ -88952,7 +88969,7 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
       allRequiredFunctionsFound: found.length === REQUIRED_FUNCTIONS65T.length,
       coachKeyIncludedInExport: coachIncluded === null ? "unknown" : coachIncluded,
       smartExerciseSystemIncludedInExport: (function(){ try { return buildBackupEnvelope65t().smartExerciseSystem64BRIncluded; } catch (_) { return "unknown"; } })(),
-      validationPathUsed: "engine.validateBackupJsonText16C / validateBackupShape16C",
+      validationPathUsed: "engine.validateBackupJsonText16C in file picker; validateBackupShape16C fallback for object previews",
       safeImportPathUsed: "engine.applySafeImportBackup16D (merge, non-destructive)",
       readBackVerified: lastImport65T ? lastImport65T.readBackVerified : null,
       protectedDataPreserved: lastImport65T ? lastImport65T.protectedDataPreserved : true,
@@ -88991,5 +89008,1457 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
     install65T();
   }
 })();
-</script></body>
+</script>
+
+<script id="phase65m-plate-math-helper">
+/* PHASE_65M_PLATE_MATH_HELPER_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65M_NAME = "Phase 65M - Plate Math Helper";
+  const PHASE65M_OUTPUT = "Tailored_Training_Rebuild_Phase65M_Plate_Math_Helper_v1.html";
+  const PHASE65M_BASE = "Tailored_Training_Rebuild_Phase65T_Export_Import_Backup_Surface_v1.html";
+  const COACH_KEY65M = "tailoredWorkoutTracker.adaptiveCoach65A";
+  const DEFAULT_BAR65M = 45;
+  const DEFAULT_PLATES65M = [45, 35, 25, 10, 5, 2.5];
+
+  const PHASE_65M_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65M_BASE + " as base (Phase 65T is Android-GREEN, so the Backup/Restore surface remains in the chain). Appends exactly one script block; installs at DOMContentLoaded registered last; mutates live objects in place.",
+    "Adds a display-only compact 'Plate math' line near the weight target inside the active exercise detail (.set-logging in #exerciseDetailSurface). One thin line, not a card; sits just above the weight/reps controls and never competes with the Adaptive Coach card.",
+    "Detection is structural only (exercise id/displayName/name/block/equipment): barbell -> plates-per-side on a bar; dumbbell -> 'X lb each hand'; machine/cable -> 'use machine stack setting' (never misleading plate math); bodyweight/band/warm-up/prep -> hidden. No classification from instruction/progression/coaching text.",
+    "Barbell math: default 45 lb bar (or tiny config), plates 45/35/25/10/5/2.5; shows total per side; if the per-side amount is not exactly achievable with available plates it says 'approx.' instead of silently showing wrong math.",
+    "Live update: rides the existing per-render hook (window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5), which the app calls after every exercise-detail render and on manual weight input/change - so the line follows manual weight edits and never overwrites the user's weight.",
+    "Display-only: touches nothing in workout logic, coach/progression logic, set logging, workout generation, Alternatives, Apply All, Recalibration, History, Equipment Profile, Storage Health, or Backup/Restore. Reads state read-only; writes no state.",
+    "Storage: reads an optional tiny config from the existing adaptive coach key (plateMath65M:{barWeight,availablePlates}); writes NO new key and adds 0 bytes on its own (config is read-only unless a future phase adds an editor).",
+    "No timers, no MutationObserver, no document-level listeners, no hydration loops, no storage bloat, no localStorage.clear, no user-data deletion."
+  ]);
+
+  /* ---------- helpers ---------- */
+  function t65m(v){ return String(v == null ? "" : v).trim(); }
+  function lower65m(v){ return t65m(v).toLowerCase(); }
+  function eng65m(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function liveState65m(){ const e = eng65m(); try { if (e && typeof e.loadState === "function") { const l = e.loadState(); return l && (l.state || l); } } catch (_) {} return null; }
+  function activeOf65m(state){ return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null; }
+  function fmtNum65m(n){ const r = Math.round(Number(n) * 100) / 100; return (Number.isInteger(r) ? String(r) : String(r)); }
+
+  function readConfig65M(){
+    try {
+      const c = JSON.parse(window.localStorage.getItem(COACH_KEY65M) || "null");
+      if (c && c.plateMath65M && typeof c.plateMath65M === "object") {
+        const bar = Number(c.plateMath65M.barWeight);
+        const plates = Array.isArray(c.plateMath65M.availablePlates) ? c.plateMath65M.availablePlates.map(Number).filter(function(x){ return Number.isFinite(x) && x > 0; }) : null;
+        return { barWeight: Number.isFinite(bar) && bar > 0 ? bar : DEFAULT_BAR65M, availablePlates: plates && plates.length ? plates : DEFAULT_PLATES65M.slice() };
+      }
+    } catch (_) {}
+    return { barWeight: DEFAULT_BAR65M, availablePlates: DEFAULT_PLATES65M.slice() };
+  }
+
+  /* ---------- structural load classification (name/displayName/equipment/block only; NOT id) ---------- */
+  function classifyWords65M(ex){
+    const equip = (ex && Array.isArray(ex.equipment) ? ex.equipment : []).map(function(x){ return lower65m(x); }).join(" ");
+    const nameBlock = lower65m([ex && ex.displayName, ex && ex.name, ex && ex.block].join(" "));
+    return { combined: equip + " " + nameBlock, nameBlock: nameBlock };
+  }
+  function classifyLoad65M(ex){
+    const parts = classifyWords65M(ex);
+    const w = parts.combined;
+    /* hide warm-up / prep / mobility regardless of any weight */
+    if (/\bwarm-?ups?\b|\bprep\b|\bmobility\b|\bactivation\b|\bpull-aparts?\b|\bscap\b|\bstretch\b|\bcircles?\b/.test(parts.nameBlock)) return "none";
+    /* machine / cable (stack-driven) first so a 'machine row' is a machine, not a plate guess */
+    if (/\bmachine\b|\bcables?\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bpulldown\b|\bpressdown\b/.test(w)) return "machine";
+    if (/\bbarbell\b/.test(w)) return "barbell";
+    if (/\bdumbbells?\b|\bdb\b/.test(w)) return "dumbbell";
+    if (/\bbands?\b|\bresistance bands?\b|\bbodyweight\b|\bpush-?ups?\b|\bpull-?ups?\b|\bchin-?ups?\b|\bplanks?\b|\bdips?\b/.test(w)) return "none";
+    return "none";
+  }
+
+  /* ---------- plate math ---------- */
+  function platesAchievable65M(perSide, plates){
+    let rem = Math.round(Number(perSide) * 100) / 100;
+    if (rem < 0) return false;
+    const list = (Array.isArray(plates) ? plates.slice() : DEFAULT_PLATES65M.slice()).map(Number).filter(function(n){ return Number.isFinite(n) && n > 0; }).sort(function(a, b){ return b - a; });
+    for (let i = 0; i < list.length; i += 1) {
+      while (rem >= list[i] - 0.0001) { rem = Math.round((rem - list[i]) * 100) / 100; }
+    }
+    return Math.abs(rem) < 0.001;
+  }
+  function computeLine65M(ex, weight, cfg){
+    const config = cfg || readConfig65M();
+    const type = classifyLoad65M(ex);
+    if (type === "none") return null;
+    const w = Number(weight);
+    if (!Number.isFinite(w) || w <= 0) return null;
+    if (type === "dumbbell") return "Load: " + fmtNum65m(w) + " lb each hand";
+    if (type === "machine") return "Machine: use stack setting";
+    /* barbell / plate-loaded */
+    const bar = Number(config.barWeight) > 0 ? Number(config.barWeight) : DEFAULT_BAR65M;
+    if (w < bar) return null;
+    if (w === bar) return "Plate math: empty " + fmtNum65m(bar) + " lb bar";
+    const perSide = Math.round(((w - bar) / 2) * 100) / 100;
+    const exact = platesAchievable65M(perSide, config.availablePlates);
+    return "Plate math: " + (exact ? "" : "approx. ") + fmtNum65m(perSide) + " lb per side on a " + fmtNum65m(bar) + " lb bar";
+  }
+
+  /* ---------- current exercise + weight (read-only) ---------- */
+  function currentExercise65M(){
+    const state = liveState65m();
+    const active = activeOf65m(state);
+    if (!active) return null;
+    const idx = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    return active.exercises[idx] || null;
+  }
+  function openSetIndex65M(ex){
+    const sets = ex && Array.isArray(ex.setLogs) ? ex.setLogs : [];
+    for (let i = 0; i < sets.length; i += 1) { if (sets[i] && sets[i].completed !== true) return i; }
+    return sets.length ? sets.length - 1 : -1;
+  }
+  function currentWeight65M(){
+    /* Target = the OPEN (first incomplete) set of the selected exercise.
+       Prefer that specific set's LIVE weight input value (tracks manual typing via the render hook that the
+       manual-input handler fires); fall back to the persisted state weight if the DOM value is absent. */
+    const state = liveState65m();
+    const active = activeOf65m(state);
+    if (!active) return domFallbackWeight65M();
+    const exIdx = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    const ex = active.exercises[exIdx];
+    if (!ex) return domFallbackWeight65M();
+    const openIdx = openSetIndex65M(ex);
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (surface && openIdx >= 0) {
+      const domInput = surface.querySelector('.set-logging [data-set-input="' + openIdx + '"][data-field="weight"]');
+      if (domInput) { const dv = parseFloat(String(domInput.value).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(dv) && dv > 0) return dv; if (String(domInput.value).trim() !== "" && dv === 0) return 0; }
+    }
+    const sets = Array.isArray(ex.setLogs) ? ex.setLogs : [];
+    const open = openIdx >= 0 ? sets[openIdx] : null;
+    const w = open ? Number(open.weight) : NaN;
+    if (Number.isFinite(w) && w > 0) return w;
+    return domFallbackWeight65M();
+  }
+  function domFallbackWeight65M(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (!surface) return null;
+    const inputs = Array.prototype.slice.call(surface.querySelectorAll('.set-logging [data-field="weight"]'));
+    const editable = inputs.filter(function(inp){ return inp.offsetParent !== null && !inp.disabled && !inp.readOnly; });
+    const target = editable.length ? editable[0] : inputs[0];
+    if (target) { const v = parseFloat(String(target.value).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(v) && v > 0) return v; }
+    return null;
+  }
+
+  /* ---------- render (display-only line) ---------- */
+  let lastLine65M = null;
+  function injectCss65M(){
+    if (document.getElementById("phase65m-plate-math-css")) return;
+    const style = document.createElement("style");
+    style.id = "phase65m-plate-math-css";
+    style.textContent = ".plate-math-line65m{font-size:.78em;opacity:.82;margin:2px 0 6px 0;padding:2px 8px;letter-spacing:.01em;}" +
+      ".plate-math-line65m::before{content:\"\";}" +
+      "@media (prefers-color-scheme: dark){.plate-math-line65m{opacity:.7;}}";
+    (document.head || document.documentElement).appendChild(style);
+  }
+  function updatePlateMathLine65M(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    const existing = document.getElementById("plateMathLine65M");
+    if (!surface || surface.offsetParent === null) { if (existing) existing.remove(); return null; }
+    const logging = surface.querySelector(".set-logging");
+    if (!logging) { if (existing) existing.remove(); return null; }
+    const ex = currentExercise65M();
+    const weight = currentWeight65M();
+    const line = (ex && weight != null) ? computeLine65M(ex, weight, readConfig65M()) : null;
+    lastLine65M = line;
+    let el = document.getElementById("plateMathLine65M");
+    if (!line) { if (el) el.remove(); return null; }
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "plateMathLine65M";
+      el.className = "plate-math-line65m";
+      el.setAttribute("data-phase65m-plate-math", "display-only");
+      el.setAttribute("aria-live", "polite");
+    }
+    if (!logging.contains(el)) {
+      const stack = logging.querySelector(".set-stack");
+      if (stack && stack.parentNode) stack.parentNode.insertBefore(el, stack);
+      else logging.appendChild(el);
+    }
+    if (el.textContent !== line) el.textContent = line;
+    return line;
+  }
+
+  /* ---------- per-render hook (pass-through, chained, registered last) ---------- */
+  function installRenderHook65M(){
+    const previous = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof previous !== "function") return false;
+    if (previous.phase65mHook) return true;
+    function plateMathRenderHook65M(reason){
+      const result = previous.apply(this, arguments);
+      try { updatePlateMathLine65M(); } catch (_) {}
+      return result;
+    }
+    plateMathRenderHook65M.phase65mHook = true;
+    plateMathRenderHook65M.phase65ab1Hook = previous.phase65ab1Hook === true;
+    plateMathRenderHook65M.phase65aCoachHook = previous.phase65aCoachHook === true;
+    plateMathRenderHook65M.phase65mPrevious = previous;
+    try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = plateMathRenderHook65M; } catch (_) { return false; }
+    return window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 === plateMathRenderHook65M;
+  }
+
+  /* ---------- audit ---------- */
+  function nsMovementAudit65M(){
+    try { return typeof window.runSmartExerciseSystem64BRMovementTruthClassifierAudit === "function" ? window.runSmartExerciseSystem64BRMovementTruthClassifierAudit() : null; } catch (_) { return null; }
+  }
+  function coachSurfaceAudit65M(){
+    try { return typeof window.runSimpleCoachSurfaceAudit65ABugfix1 === "function" ? window.runSimpleCoachSurfaceAudit65ABugfix1() : null; } catch (_) { return null; }
+  }
+  function runPlateMathAudit65M(){
+    const cfg = readConfig65M();
+    const barbell135 = computeLine65M({ displayName: "Barbell bench press", equipment: ["barbell"], block: "Strength" }, 135, cfg);
+    const barbell95 = computeLine65M({ displayName: "Barbell back squat", equipment: ["barbell"], block: "Strength" }, 95, cfg);
+    const dumbbell = computeLine65M({ displayName: "DB bench press", equipment: ["dumbbells", "bench"], block: "Hypertrophy" }, 35, cfg);
+    const machine = computeLine65M({ displayName: "Chest-supported machine row", equipment: ["machine"], block: "Hypertrophy" }, 100, cfg);
+    const bodyweight = computeLine65M({ displayName: "Band pull-aparts + scap circles", equipment: ["bands"], block: "Warm-up" }, 0, cfg);
+    const bandWeighted = computeLine65M({ displayName: "Band pull-aparts", equipment: ["resistance bands"], block: "Warm-up" }, 10, cfg);
+    const manualA = computeLine65M({ displayName: "Barbell bench press", equipment: ["barbell"] }, 135, cfg);
+    const manualB = computeLine65M({ displayName: "Barbell bench press", equipment: ["barbell"] }, 95, cfg);
+    const approxCase = computeLine65M({ displayName: "Barbell curl", equipment: ["barbell"] }, 92.5, cfg); /* perSide 23.75 -> approx */
+
+    const coach = coachSurfaceAudit65M();
+    const gate = nsMovementAudit65M();
+    const ns = window.TTSmartExerciseSystem64BR;
+    const alternativesOk = !!(ns && ns.alternatives && typeof ns.alternatives.applyRecommendedAlternative === "function" && typeof ns.alternatives.rankedAlternatives === "function");
+    const applyAllOk = !!(ns && ns.apply && typeof ns.apply.directApplyAll === "function");
+
+    const coachRegression = !coach || coach.status !== "YELLOW" || coach.visibleLegacyStripCount > 0 || coach.toggleHidden !== true;
+    const movementGateRegression = !gate || gate.status !== "YELLOW" || gate.rowToFloorPressBlocked !== true;
+    const alternativesRegression = !alternativesOk;
+    const applyAllRegression = !applyAllOk;
+
+    const resultsOk = /45 lb per side on a 45 lb bar/.test(String(barbell135)) &&
+      /25 lb per side on a 45 lb bar/.test(String(barbell95)) &&
+      /35 lb each hand/.test(String(dumbbell)) &&
+      /stack/.test(String(machine)) &&
+      bodyweight === null &&
+      /approx\./.test(String(approxCase)) &&
+      manualA !== manualB;
+
+    return {
+      phase: PHASE65M_NAME,
+      outputFile: PHASE65M_OUTPUT,
+      baseFileUsed: PHASE65M_BASE,
+      barbell135Result: barbell135,
+      barbell95Result: barbell95,
+      dumbbellResult: dumbbell,
+      machineResult: machine,
+      bodyweightHidden: bodyweight === null,
+      bandWeightedHidden: bandWeighted === null,
+      approxCaseResult: approxCase,
+      manualWeightUpdateResult: manualA !== manualB,
+      liveLineNow: lastLine65M,
+      storageBytesAdded: 0,
+      newStorageKeysAdded: 0,
+      renderHookInstalled: !!(window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 && window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5.phase65mHook),
+      coachRegression: coachRegression,
+      movementGateRegression: movementGateRegression,
+      alternativesRegression: alternativesRegression,
+      applyAllRegression: applyAllRegression,
+      status: resultsOk && !coachRegression && !movementGateRegression && !alternativesRegression && !applyAllRegression ? "YELLOW" : "RED"
+    };
+  }
+
+  /* ---------- install ---------- */
+  function install65M(){
+    injectCss65M();
+    const hookOk = installRenderHook65M();
+    try { updatePlateMathLine65M(); } catch (_) {}
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase65m-installed", "true");
+      document.documentElement.setAttribute("data-phase65m-hook", hookOk ? "chained" : "unavailable");
+    }
+    return true;
+  }
+
+  window.runPlateMathAudit65M = runPlateMathAudit65M;
+  window.computePlateMath65M = computeLine65M;
+  window.updatePlateMathLine65M = updatePlateMathLine65M;
+  window.TailoredTrainingPhase65M = Object.freeze({
+    phase: PHASE65M_NAME,
+    outputFile: PHASE65M_OUTPUT,
+    baseFileUsed: PHASE65M_BASE,
+    changelog: PHASE_65M_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65M, { once: true });
+  } else {
+    install65M();
+  }
+})();
+</script>
+
+<script id="phase65m-bugfix1-set-attached-plate-helper-and-dumbbell-context">
+/* PHASE_65M_BUGFIX_1_SET_ATTACHED_PLATE_HELPER_AND_DUMBBELL_CONTEXT_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65MB1_NAME = "Phase 65M BUGFIX 1 - Set-Attached Plate Helper Placement + Dumbbell Context Wording";
+  const PHASE65MB1_OUTPUT = "Tailored_Training_Rebuild_Phase65M_BUGFIX_1_Set_Attached_Plate_Helper_And_Dumbbell_Context_v1.html";
+  const PHASE65MB1_BASE = "Tailored_Training_Rebuild_Phase65M_Plate_Math_Helper_v1.html";
+  const COACH_KEY65MB1 = "tailoredWorkoutTracker.adaptiveCoach65A";
+  const DEFAULT_BAR65MB1 = 45;
+  const DEFAULT_PLATES65MB1 = [45, 35, 25, 10, 5, 2.5];
+
+  const PHASE_65M_BUGFIX_1_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65MB1_BASE + " as base; appends exactly one script block; installs at DOMContentLoaded registered last; mutates live objects in place; never edits earlier blocks.",
+    "Placement: the Phase 65M helper element (#plateMathLine65M) is moved from the global log area INTO the currently active/open set card (.set-card[data-set-state=\"open\"]), inserted after the set title row and immediately above the RIR cue (Leave N reps in tank). A render-hook wrapper (chained after Phase 65M's) re-runs after every render, so the single helper element moves/updates into whichever set is open and never duplicates; collapsed sets never show it.",
+    "The helper reads the OPEN set's weight (its manual-entry input, else the visible value chip, else the persisted set weight), so it follows manual weight edits for that set and never overwrites them.",
+    "Dumbbell wording (structural fields only - name/displayName/equipment/block, never id or instruction text): single/total-load dumbbell moves (goblet, one-arm, single-arm, 1-arm, unilateral, concentration, suitcase, single/one dumbbell, single-leg) show 'Load: X lb dumbbell' - never 'each hand'; clearly paired dumbbell moves (press, curl, fly, raise, RDL, split squat, lunge, row, etc.) show 'Load: X lb each hand'; ambiguous dumbbell defaults to the safe 'Load: X lb dumbbell'.",
+    "Barbell plate math is unchanged (N lb per side on the bar, with 'approx.' when plates cannot make it exactly); machine/cable stays 'Machine: use stack setting'; bodyweight/band/warm-up stays hidden.",
+    "Adds window.runPlateMathPlacementAudit65MBugfix1(). No storage writes, no new keys (reads the optional tiny plateMath65M config from the coach key). No timers, no MutationObserver, no document-level listeners, no localStorage.clear.",
+    "Touches nothing in coach logic, progression, set logging, workout generation, Alternatives, Apply All, Recalibration, Storage Health, Backup/Restore, or movement gates - display-only."
+  ]);
+
+  /* ---------- helpers ---------- */
+  function tb(v){ return String(v == null ? "" : v).trim(); }
+  function lower(v){ return tb(v).toLowerCase(); }
+  function eng(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function liveState(){ const e = eng(); try { if (e && typeof e.loadState === "function") { const l = e.loadState(); return l && (l.state || l); } } catch (_) {} return null; }
+  function activeOf(state){ return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null; }
+  function fmtNum(n){ const r = Math.round(Number(n) * 100) / 100; return String(r); }
+
+  function readConfig(){
+    try {
+      const c = JSON.parse(window.localStorage.getItem(COACH_KEY65MB1) || "null");
+      if (c && c.plateMath65M && typeof c.plateMath65M === "object") {
+        const bar = Number(c.plateMath65M.barWeight);
+        const plates = Array.isArray(c.plateMath65M.availablePlates) ? c.plateMath65M.availablePlates.map(Number).filter(function(x){ return Number.isFinite(x) && x > 0; }) : null;
+        return { barWeight: Number.isFinite(bar) && bar > 0 ? bar : DEFAULT_BAR65MB1, availablePlates: plates && plates.length ? plates : DEFAULT_PLATES65MB1.slice() };
+      }
+    } catch (_) {}
+    return { barWeight: DEFAULT_BAR65MB1, availablePlates: DEFAULT_PLATES65MB1.slice() };
+  }
+
+  /* ---------- structural classification (name/displayName/equipment/block only) ---------- */
+  function classifyWords(ex){
+    const equip = (ex && Array.isArray(ex.equipment) ? ex.equipment : []).map(function(x){ return lower(x); }).join(" ");
+    const nameBlock = lower([ex && ex.displayName, ex && ex.name, ex && ex.block].join(" "));
+    return { combined: equip + " " + nameBlock, nameBlock: nameBlock };
+  }
+  function classifyLoad(ex){
+    const parts = classifyWords(ex);
+    const w = parts.combined;
+    if (/\bwarm-?ups?\b|\bprep\b|\bmobility\b|\bactivation\b|\bpull-aparts?\b|\bscap\b|\bstretch\b|\bcircles?\b/.test(parts.nameBlock)) return "none";
+    if (/\bmachine\b|\bcables?\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bpulldown\b|\bpressdown\b/.test(w)) return "machine";
+    if (/\bbarbell\b/.test(w)) return "barbell";
+    if (/\bdumbbells?\b|\bdb\b/.test(w)) return "dumbbell";
+    if (/\bbands?\b|\bresistance bands?\b|\bbodyweight\b|\bpush-?ups?\b|\bpull-?ups?\b|\bchin-?ups?\b|\bplanks?\b|\bdips?\b/.test(w)) return "none";
+    return "none";
+  }
+  function dumbbellStyle(ex){
+    const w = classifyWords(ex).combined;
+    /* single / total-load first (takes precedence over any paired token) */
+    if (/\bgoblet\b|\bone-?arm\b|\bsingle-?arm\b|\b1-?arm\b|\bunilateral\b|\bconcentration\b|\bsuitcase\b|\bsingle (db|dumbbell)\b|\bone dumbbell\b|\bsingle-?leg\b/.test(w)) return "single";
+    /* clearly paired bilateral dumbbell movements */
+    if (/\bbench\b|\bincline\b|\bdecline\b|\bshoulder\b|\boverhead\b|\barnold\b|\bchest press\b|\bpress(es)?\b|\bcurls?\b|\bfl(y|ies)\b|\breverse fl(y|ies)\b|\brear[- ]?delt\b|\blateral raises?\b|\bfront raises?\b|\brows?\b|\brdls?\b|\bromanian\b|\bsplit squats?\b|\bwalking lunges?\b|\blunges?\b|\bshrugs?\b/.test(w)) return "paired";
+    return "ambiguous";
+  }
+
+  /* ---------- plate math ---------- */
+  function platesAchievable(perSide, plates){
+    let rem = Math.round(Number(perSide) * 100) / 100;
+    if (rem < 0) return false;
+    const list = (Array.isArray(plates) ? plates.slice() : DEFAULT_PLATES65MB1.slice()).map(Number).filter(function(n){ return Number.isFinite(n) && n > 0; }).sort(function(a, b){ return b - a; });
+    for (let i = 0; i < list.length; i += 1) { while (rem >= list[i] - 0.0001) { rem = Math.round((rem - list[i]) * 100) / 100; } }
+    return Math.abs(rem) < 0.001;
+  }
+  function computeLine(ex, weight, cfg){
+    const config = cfg || readConfig();
+    const type = classifyLoad(ex);
+    if (type === "none") return null;
+    const w = Number(weight);
+    if (!Number.isFinite(w) || w <= 0) return null;
+    if (type === "dumbbell") {
+      const style = dumbbellStyle(ex);
+      if (style === "paired") return "Load: " + fmtNum(w) + " lb each hand";
+      return "Load: " + fmtNum(w) + " lb dumbbell";
+    }
+    if (type === "machine") return "Machine: use stack setting";
+    const bar = Number(config.barWeight) > 0 ? Number(config.barWeight) : DEFAULT_BAR65MB1;
+    if (w < bar) return null;
+    if (w === bar) return "Plate math: empty " + fmtNum(bar) + " lb bar";
+    const perSide = Math.round(((w - bar) / 2) * 100) / 100;
+    const exact = platesAchievable(perSide, config.availablePlates);
+    return "Plate math: " + (exact ? "" : "approx. ") + fmtNum(perSide) + " lb per side on a " + fmtNum(bar) + " lb bar";
+  }
+
+  /* ---------- open set + weight resolution ---------- */
+  function openSetCard(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (!surface || surface.offsetParent === null) return null;
+    return surface.querySelector('.set-stack .set-card[data-set-state="open"]');
+  }
+  function currentExercise(){
+    const state = liveState();
+    const active = activeOf(state);
+    if (!active) return null;
+    const idx = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    return active.exercises[idx] || null;
+  }
+  function openSetWeight(openCard, openIdx){
+    if (openCard) {
+      const input = openCard.querySelector('[data-set-input="' + openIdx + '"][data-field="weight"]');
+      if (input && input.tagName === "INPUT" && tb(input.value) !== "") { const v = parseFloat(String(input.value).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(v) && v > 0) return v; if (v === 0) return 0; }
+      const weightControl = openCard.querySelector(".log-control");
+      if (weightControl) { const span = weightControl.querySelector('[data-set-visible-value29cbugfix]'); if (span) { const sv = parseFloat(String(span.textContent).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(sv) && sv > 0) return sv; } }
+    }
+    const state = liveState();
+    const active = activeOf(state);
+    if (active) {
+      const ex = active.exercises[Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0];
+      if (ex && Array.isArray(ex.setLogs) && ex.setLogs[openIdx]) { const w = Number(ex.setLogs[openIdx].weight); if (Number.isFinite(w) && w > 0) return w; }
+    }
+    return null;
+  }
+
+  /* ---------- CSS: compact set-attached line ---------- */
+  function injectCss(){
+    if (document.getElementById("phase65m-bugfix1-css")) return;
+    const style = document.createElement("style");
+    style.id = "phase65m-bugfix1-css";
+    style.textContent = "#plateMathLine65M.plate-math-line65m-setattached{font-size:.76em;opacity:.85;margin:1px 0 3px 0;padding:0;letter-spacing:.01em;line-height:1.2;}" +
+      "@media (prefers-color-scheme: dark){#plateMathLine65M.plate-math-line65m-setattached{opacity:.72;}}";
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  /* ---------- corrected update: attach to open set, corrected wording ---------- */
+  let lastLine65MB1 = null;
+  function updateSetAttachedHelper65MBugfix1(){
+    let el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    if (!openCard) { if (el) el.remove(); lastLine65MB1 = null; return null; }
+    const openIdx = parseInt(openCard.getAttribute("data-set-index"), 10);
+    const ex = currentExercise();
+    const weight = openSetWeight(openCard, Number.isFinite(openIdx) ? openIdx : 0);
+    const line = (ex && weight != null) ? computeLine(ex, weight, readConfig()) : null;
+    lastLine65MB1 = line;
+    if (!line) { if (el) el.remove(); return null; }
+    if (!el) { el = document.createElement("div"); el.id = "plateMathLine65M"; }
+    el.className = "plate-math-line65m plate-math-line65m-setattached";
+    el.setAttribute("data-phase65m-plate-math", "display-only");
+    el.setAttribute("data-phase65m-bugfix1", "set-attached");
+    el.setAttribute("aria-live", "polite");
+    /* place inside the open set card, after the title row, above the RIR cue */
+    const rir = openCard.querySelector('[data-phase41b-active-rir-cue]');
+    const title = openCard.querySelector('.set-title-row');
+    if (rir) { if (el.parentNode !== openCard || el.nextElementSibling !== rir) openCard.insertBefore(el, rir); }
+    else if (title) { if (el.parentNode !== openCard || title.nextElementSibling !== el) title.insertAdjacentElement("afterend", el); }
+    else if (el.parentNode !== openCard) openCard.insertBefore(el, openCard.firstChild);
+    if (el.textContent !== line) el.textContent = line;
+    return line;
+  }
+
+  /* ---------- render hook (chained after Phase 65M's, registered last) ---------- */
+  function installRenderHook(){
+    const previous = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof previous !== "function") return false;
+    if (previous.phase65mBugfix1Hook) return true;
+    function setAttachedRenderHook65MBugfix1(reason){
+      const result = previous.apply(this, arguments);
+      try { updateSetAttachedHelper65MBugfix1(); } catch (_) {}
+      return result;
+    }
+    setAttachedRenderHook65MBugfix1.phase65mBugfix1Hook = true;
+    setAttachedRenderHook65MBugfix1.phase65mHook = previous.phase65mHook === true;
+    setAttachedRenderHook65MBugfix1.phase65ab1Hook = previous.phase65ab1Hook === true;
+    setAttachedRenderHook65MBugfix1.phase65aCoachHook = previous.phase65aCoachHook === true;
+    setAttachedRenderHook65MBugfix1.phase65mBugfix1Previous = previous;
+    try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = setAttachedRenderHook65MBugfix1; } catch (_) { return false; }
+    return window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 === setAttachedRenderHook65MBugfix1;
+  }
+
+  /* ---------- audit ---------- */
+  function safeAudit(fnName){ try { return typeof window[fnName] === "function" ? window[fnName]() : null; } catch (_) { return null; } }
+  function runPlateMathPlacementAudit65MBugfix1(){
+    const cfg = readConfig();
+    const goblet = computeLine({ displayName: "Heel-elevated DB goblet squat to box", equipment: ["dumbbell", "box"], block: "Strength" }, 60, cfg);
+    const oneArm = computeLine({ displayName: "One-arm DB row", equipment: ["dumbbells", "bench"], block: "Hypertrophy" }, 60, cfg);
+    const pairedPress = computeLine({ displayName: "DB bench press", equipment: ["dumbbells", "bench"], block: "Strength" }, 60, cfg);
+    const pairedCurl = computeLine({ displayName: "DB hammer curl", equipment: ["dumbbells"], block: "Hypertrophy" }, 30, cfg);
+    const barbell135 = computeLine({ displayName: "Barbell bench press", equipment: ["barbell", "bench"] }, 135, cfg);
+    const barbell95 = computeLine({ displayName: "Barbell back squat", equipment: ["barbell"] }, 95, cfg);
+    const machine = computeLine({ displayName: "Chest-supported machine row", equipment: ["machine"] }, 100, cfg);
+    const bodyweight = computeLine({ displayName: "Band pull-aparts + scap circles", equipment: ["bands"], block: "Warm-up" }, 0, cfg);
+    const manualA = computeLine({ displayName: "DB bench press", equipment: ["dumbbells"] }, 40, cfg);
+    const manualB = computeLine({ displayName: "DB bench press", equipment: ["dumbbells"] }, 55, cfg);
+
+    /* live placement checks */
+    const el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    const helperInsideActiveSet = !!(el && openCard && openCard.contains(el));
+    const helperNotGlobal = !(el && el.parentNode && el.parentNode.classList && el.parentNode.classList.contains("set-logging"));
+    const duplicateCount = document.querySelectorAll("#plateMathLine65M").length;
+    const noDuplicateHelpers = duplicateCount <= 1;
+    const attachedSrc = String(updateSetAttachedHelper65MBugfix1);
+    const movesWithActiveSet = /\[data-set-state="open"\]/.test(String(openSetCard)) && /data-set-index/.test(attachedSrc);
+
+    const coach = safeAudit("runSimpleCoachSurfaceAudit65ABugfix1");
+    const gate = safeAudit("runSmartExerciseSystem64BRMovementTruthClassifierAudit");
+    const storage = safeAudit("runStorageHealthAudit65S");
+    const backup = safeAudit("runBackupSurfaceAudit65T");
+
+    const coachRegression = !coach || coach.status !== "YELLOW" || coach.visibleLegacyStripCount > 0 || coach.toggleHidden !== true;
+    const movementGateRegression = !gate || gate.status !== "YELLOW" || gate.rowToFloorPressBlocked !== true;
+    const storageRegression = !storage || storage.status !== "YELLOW";
+    const backupRegression = !backup || backup.status !== "YELLOW";
+
+    const gobletNoEachHand = !/each hand/i.test(String(goblet)) && /dumbbell/i.test(String(goblet));
+    const oneArmNoEachHand = !/each hand/i.test(String(oneArm)) && /dumbbell/i.test(String(oneArm));
+    const pairedDbEachHand = /each hand/i.test(String(pairedPress)) && /each hand/i.test(String(pairedCurl));
+
+    const wordingOk = gobletNoEachHand && oneArmNoEachHand && pairedDbEachHand &&
+      /45 lb per side on a 45 lb bar/.test(String(barbell135)) &&
+      /25 lb per side on a 45 lb bar/.test(String(barbell95)) &&
+      /stack/.test(String(machine)) &&
+      bodyweight === null &&
+      manualA !== manualB;
+
+    return {
+      phase: PHASE65MB1_NAME,
+      outputFile: PHASE65MB1_OUTPUT,
+      baseFileUsed: PHASE65MB1_BASE,
+      helperInsideActiveSet: helperInsideActiveSet,
+      helperNotGlobal: helperNotGlobal,
+      noDuplicateHelpers: noDuplicateHelpers,
+      duplicateCount: duplicateCount,
+      movesWithActiveSet: movesWithActiveSet,
+      manualWeightUpdateResult: manualA !== manualB,
+      gobletNoEachHand: gobletNoEachHand,
+      gobletResult: goblet,
+      oneArmNoEachHand: oneArmNoEachHand,
+      oneArmResult: oneArm,
+      pairedDbEachHand: pairedDbEachHand,
+      pairedPressResult: pairedPress,
+      pairedCurlResult: pairedCurl,
+      barbell135Result: barbell135,
+      barbell95Result: barbell95,
+      machineResult: machine,
+      bodyweightHidden: bodyweight === null,
+      liveLineNow: lastLine65MB1,
+      renderHookChained: !!(window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 && window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5.phase65mBugfix1Hook),
+      storageBytesAdded: 0,
+      coachRegression: coachRegression,
+      storageRegression: storageRegression,
+      backupRegression: backupRegression,
+      movementGateRegression: movementGateRegression,
+      status: wordingOk && !coachRegression && !storageRegression && !backupRegression && !movementGateRegression ? "YELLOW" : "RED"
+    };
+  }
+
+  /* ---------- install ---------- */
+  function install65MBugfix1(){
+    injectCss();
+    const hookOk = installRenderHook();
+    try { updateSetAttachedHelper65MBugfix1(); } catch (_) {}
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase65m-bugfix1-installed", "true");
+      document.documentElement.setAttribute("data-phase65m-bugfix1-hook", hookOk ? "chained" : "unavailable");
+    }
+    return true;
+  }
+
+  window.runPlateMathPlacementAudit65MBugfix1 = runPlateMathPlacementAudit65MBugfix1;
+  window.computePlateMath65M = computeLine; /* override with corrected dumbbell wording */
+  window.updatePlateMathLine65M = updateSetAttachedHelper65MBugfix1; /* override with set-attached placement */
+  window.updateSetAttachedHelper65MBugfix1 = updateSetAttachedHelper65MBugfix1;
+  window.TailoredTrainingPhase65MBugfix1 = Object.freeze({
+    phase: PHASE65MB1_NAME,
+    outputFile: PHASE65MB1_OUTPUT,
+    baseFileUsed: PHASE65MB1_BASE,
+    changelog: PHASE_65M_BUGFIX_1_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65MBugfix1, { once: true });
+  } else {
+    install65MBugfix1();
+  }
+})();
+</script>
+
+<script id="phase65m-bugfix2-compact-no-height-plate-helper-placement">
+/* PHASE_65M_BUGFIX_2_COMPACT_NO_HEIGHT_PLATE_HELPER_PLACEMENT_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65MB2_NAME = "Phase 65M BUGFIX 2 - Compact No-Height Plate Helper Placement";
+  const PHASE65MB2_OUTPUT = "Tailored_Training_Rebuild_Phase65M_BUGFIX_2_Compact_No_Height_Plate_Helper_Placement_v1.html";
+  const PHASE65MB2_BASE = "Tailored_Training_Rebuild_Phase65M_BUGFIX_1_Set_Attached_Plate_Helper_And_Dumbbell_Context_v1.html";
+  const COACH_KEY65MB2 = "tailoredWorkoutTracker.adaptiveCoach65A";
+  const DEFAULT_BAR65MB2 = 45;
+  const DEFAULT_PLATES65MB2 = [45, 35, 25, 10, 5, 2.5];
+
+  const PHASE_65M_BUGFIX_2_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65MB2_BASE + " as base; appends exactly one script block; installs at DOMContentLoaded registered last; never edits earlier blocks.",
+    "Moves the plate helper into the OPEN set card's header row (.set-title-row, a flex space-between button) as a compact middle element BETWEEN the 'Set N' label and the 'Target ...' cue. It is a decorative, pointer-events:none, single-line ellipsised span so it uses only the empty horizontal header space and adds ZERO vertical height - it never creates a new full-width row and never pushes 'Leave N reps in tank' downward.",
+    "A render-hook wrapper (chained after Phase 65M BUGFIX 1's) re-runs after every render; it replaces the previous full-row div with the compact header span, moves the single element into whichever set is open, and removes it from closed sets - no duplicates, no height cost.",
+    "Compact wording: barbell 'N/side on B bar' (or '~N/side on B bar' when plates can't make it exactly); single/goblet/one-arm/ambiguous dumbbell 'X lb DB'; paired dumbbell 'X lb each hand'; machine 'Stack setting'; bodyweight/band/warm-up hidden.",
+    "Overflow policy: the span ellipsises to fit; if there is essentially no horizontal room in the header (rendered width under a few px) it hides itself rather than expanding or overflowing the card.",
+    "Reads the open set's weight (manual input, else visible value chip, else persisted weight) so it follows manual weight edits without overwriting them. Structural fields only (name/displayName/equipment/block; never id or instruction text).",
+    "Adds window.runPlateMathHeaderPlacementAudit65MBugfix2(). No storage writes, no new keys, no timers/observers/document-level listeners. Touches nothing in coach/progression/set-logging/workout-gen/Alternatives/Apply All/Recalibration/Storage Health/Backup/movement gates/history/media/equipment - display-only."
+  ]);
+
+  /* ---------- helpers ---------- */
+  function tb(v){ return String(v == null ? "" : v).trim(); }
+  function lower(v){ return tb(v).toLowerCase(); }
+  function eng(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function liveState(){ const e = eng(); try { if (e && typeof e.loadState === "function") { const l = e.loadState(); return l && (l.state || l); } } catch (_) {} return null; }
+  function activeOf(state){ return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null; }
+  function fmtNum(n){ return String(Math.round(Number(n) * 100) / 100); }
+  function readConfig(){
+    try {
+      const c = JSON.parse(window.localStorage.getItem(COACH_KEY65MB2) || "null");
+      if (c && c.plateMath65M && typeof c.plateMath65M === "object") {
+        const bar = Number(c.plateMath65M.barWeight);
+        const plates = Array.isArray(c.plateMath65M.availablePlates) ? c.plateMath65M.availablePlates.map(Number).filter(function(x){ return Number.isFinite(x) && x > 0; }) : null;
+        return { barWeight: Number.isFinite(bar) && bar > 0 ? bar : DEFAULT_BAR65MB2, availablePlates: plates && plates.length ? plates : DEFAULT_PLATES65MB2.slice() };
+      }
+    } catch (_) {}
+    return { barWeight: DEFAULT_BAR65MB2, availablePlates: DEFAULT_PLATES65MB2.slice() };
+  }
+
+  /* ---------- structural classification (name/displayName/equipment/block only) ---------- */
+  function classifyWords(ex){
+    const equip = (ex && Array.isArray(ex.equipment) ? ex.equipment : []).map(function(x){ return lower(x); }).join(" ");
+    const nameBlock = lower([ex && ex.displayName, ex && ex.name, ex && ex.block].join(" "));
+    return { combined: equip + " " + nameBlock, nameBlock: nameBlock };
+  }
+  function classifyLoad(ex){
+    const parts = classifyWords(ex);
+    const w = parts.combined;
+    if (/\bwarm-?ups?\b|\bprep\b|\bmobility\b|\bactivation\b|\bpull-aparts?\b|\bscap\b|\bstretch\b|\bcircles?\b/.test(parts.nameBlock)) return "none";
+    if (/\bmachine\b|\bcables?\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bpulldown\b|\bpressdown\b/.test(w)) return "machine";
+    if (/\bbarbell\b/.test(w)) return "barbell";
+    if (/\bdumbbells?\b|\bdb\b/.test(w)) return "dumbbell";
+    if (/\bbands?\b|\bresistance bands?\b|\bbodyweight\b|\bpush-?ups?\b|\bpull-?ups?\b|\bchin-?ups?\b|\bplanks?\b|\bdips?\b/.test(w)) return "none";
+    return "none";
+  }
+  function dumbbellStyle(ex){
+    const w = classifyWords(ex).combined;
+    if (/\bgoblet\b|\bone-?arm\b|\bsingle-?arm\b|\b1-?arm\b|\bunilateral\b|\bconcentration\b|\bsuitcase\b|\bsingle (db|dumbbell)\b|\bone dumbbell\b|\bsingle-?leg\b/.test(w)) return "single";
+    if (/\bbench\b|\bincline\b|\bdecline\b|\bshoulder\b|\boverhead\b|\barnold\b|\bchest press\b|\bpress(es)?\b|\bcurls?\b|\bfl(y|ies)\b|\breverse fl(y|ies)\b|\brear[- ]?delt\b|\blateral raises?\b|\bfront raises?\b|\brows?\b|\brdls?\b|\bromanian\b|\bsplit squats?\b|\bwalking lunges?\b|\blunges?\b|\bshrugs?\b/.test(w)) return "paired";
+    return "ambiguous";
+  }
+
+  /* ---------- plate math (compact wording) ---------- */
+  function platesAchievable(perSide, plates){
+    let rem = Math.round(Number(perSide) * 100) / 100;
+    if (rem < 0) return false;
+    const list = (Array.isArray(plates) ? plates.slice() : DEFAULT_PLATES65MB2.slice()).map(Number).filter(function(n){ return Number.isFinite(n) && n > 0; }).sort(function(a, b){ return b - a; });
+    for (let i = 0; i < list.length; i += 1) { while (rem >= list[i] - 0.0001) { rem = Math.round((rem - list[i]) * 100) / 100; } }
+    return Math.abs(rem) < 0.001;
+  }
+  function computeShortLine(ex, weight, cfg){
+    const config = cfg || readConfig();
+    const type = classifyLoad(ex);
+    if (type === "none") return null;
+    const w = Number(weight);
+    if (!Number.isFinite(w) || w <= 0) return null;
+    if (type === "dumbbell") {
+      const style = dumbbellStyle(ex);
+      if (style === "paired") return fmtNum(w) + " lb each hand";
+      return fmtNum(w) + " lb DB";
+    }
+    if (type === "machine") return "Stack setting";
+    const bar = Number(config.barWeight) > 0 ? Number(config.barWeight) : DEFAULT_BAR65MB2;
+    if (w < bar) return null;
+    if (w === bar) return "empty " + fmtNum(bar) + " bar";
+    const perSide = Math.round(((w - bar) / 2) * 100) / 100;
+    const exact = platesAchievable(perSide, config.availablePlates);
+    return (exact ? "" : "~") + fmtNum(perSide) + "/side on " + fmtNum(bar) + " bar";
+  }
+
+  /* ---------- open set + weight ---------- */
+  function openSetCard(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (!surface || surface.offsetParent === null) return null;
+    return surface.querySelector('.set-stack .set-card[data-set-state="open"]');
+  }
+  function currentExercise(){
+    const state = liveState();
+    const active = activeOf(state);
+    if (!active) return null;
+    const idx = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    return active.exercises[idx] || null;
+  }
+  function openSetWeight(openCard, openIdx){
+    if (openCard) {
+      const input = openCard.querySelector('[data-set-input="' + openIdx + '"][data-field="weight"]');
+      if (input && input.tagName === "INPUT" && tb(input.value) !== "") { const v = parseFloat(String(input.value).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(v) && v > 0) return v; if (v === 0) return 0; }
+      const weightControl = openCard.querySelector(".log-control");
+      if (weightControl) { const span = weightControl.querySelector('[data-set-visible-value29cbugfix]'); if (span) { const sv = parseFloat(String(span.textContent).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(sv) && sv > 0) return sv; } }
+    }
+    const state = liveState();
+    const active = activeOf(state);
+    if (active) {
+      const ex = active.exercises[Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0];
+      if (ex && Array.isArray(ex.setLogs) && ex.setLogs[openIdx]) { const w = Number(ex.setLogs[openIdx].weight); if (Number.isFinite(w) && w > 0) return w; }
+    }
+    return null;
+  }
+
+  /* ---------- CSS: compact header span, zero added height ---------- */
+  function injectCss(){
+    if (document.getElementById("phase65m-bugfix2-css")) return;
+    const style = document.createElement("style");
+    style.id = "phase65m-bugfix2-css";
+    style.textContent = ".set-title-row #plateMathLine65M.plate-math-header65m{" +
+      "flex:0 1 auto;min-width:0;max-width:58%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" +
+      "font-size:.72em;font-weight:400;opacity:.66;letter-spacing:.01em;pointer-events:none;align-self:center;" +
+      "font-variant-numeric:tabular-nums;}" +
+      "@media (prefers-color-scheme: dark){.set-title-row #plateMathLine65M.plate-math-header65m{opacity:.6;}}";
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  /* ---------- update: compact helper inside the open set header ---------- */
+  let lastLine65MB2 = null;
+  function updateCompactHeaderHelper65MBugfix2(){
+    let el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    if (!openCard) { if (el) el.remove(); lastLine65MB2 = null; return null; }
+    const titleRow = openCard.querySelector(".set-title-row");
+    if (!titleRow) { if (el) el.remove(); lastLine65MB2 = null; return null; }
+    const openIdx = parseInt(openCard.getAttribute("data-set-index"), 10);
+    const ex = currentExercise();
+    const weight = openSetWeight(openCard, Number.isFinite(openIdx) ? openIdx : 0);
+    const line = (ex && weight != null) ? computeShortLine(ex, weight, readConfig()) : null;
+    lastLine65MB2 = line;
+    if (!line) { if (el) el.remove(); return null; }
+    /* must be a SPAN living inside the header flex row */
+    if (!el || el.tagName !== "SPAN") { if (el) el.remove(); el = document.createElement("span"); el.id = "plateMathLine65M"; }
+    el.className = "plate-math-header65m";
+    el.setAttribute("data-phase65m-plate-math", "display-only");
+    el.setAttribute("data-phase65m-bugfix2", "header-compact");
+    el.setAttribute("aria-hidden", "true");
+    const cue = titleRow.querySelector(".collapse-cue");
+    if (cue) { if (el.parentNode !== titleRow || el.nextElementSibling !== cue) titleRow.insertBefore(el, cue); }
+    else if (el.parentNode !== titleRow) titleRow.appendChild(el);
+    if (el.textContent !== line) el.textContent = line;
+    /* overflow guard: never expand or overflow the header - hide if essentially no room */
+    el.style.display = "";
+    if (el.clientWidth > 0 && el.clientWidth < 22) el.style.display = "none";
+    return line;
+  }
+
+  /* ---------- render hook (chained after BUGFIX 1's, registered last) ---------- */
+  function installRenderHook(){
+    const previous = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof previous !== "function") return false;
+    if (previous.phase65mBugfix2Hook) return true;
+    function compactHeaderRenderHook65MBugfix2(reason){
+      const result = previous.apply(this, arguments);
+      try { updateCompactHeaderHelper65MBugfix2(); } catch (_) {}
+      return result;
+    }
+    compactHeaderRenderHook65MBugfix2.phase65mBugfix2Hook = true;
+    compactHeaderRenderHook65MBugfix2.phase65mBugfix1Hook = previous.phase65mBugfix1Hook === true;
+    compactHeaderRenderHook65MBugfix2.phase65mHook = previous.phase65mHook === true;
+    compactHeaderRenderHook65MBugfix2.phase65ab1Hook = previous.phase65ab1Hook === true;
+    compactHeaderRenderHook65MBugfix2.phase65aCoachHook = previous.phase65aCoachHook === true;
+    compactHeaderRenderHook65MBugfix2.phase65mBugfix2Previous = previous;
+    try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = compactHeaderRenderHook65MBugfix2; } catch (_) { return false; }
+    return window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 === compactHeaderRenderHook65MBugfix2;
+  }
+
+  /* ---------- audit ---------- */
+  function safeAudit(fnName){ try { return typeof window[fnName] === "function" ? window[fnName]() : null; } catch (_) { return null; } }
+  function runPlateMathHeaderPlacementAudit65MBugfix2(){
+    const cfg = readConfig();
+    const goblet = computeShortLine({ displayName: "Heel-elevated DB goblet squat to box", equipment: ["dumbbell", "box"] }, 60, cfg);
+    const oneArm = computeShortLine({ displayName: "One-arm DB row", equipment: ["dumbbells"] }, 60, cfg);
+    const pairedPress = computeShortLine({ displayName: "DB bench press", equipment: ["dumbbells", "bench"] }, 60, cfg);
+    const barbell135 = computeShortLine({ displayName: "Barbell bench press", equipment: ["barbell"] }, 135, cfg);
+    const barbell95 = computeShortLine({ displayName: "Barbell squat", equipment: ["barbell"] }, 95, cfg);
+    const machine = computeShortLine({ displayName: "Chest-supported machine row", equipment: ["machine"] }, 100, cfg);
+    const bodyweight = computeShortLine({ displayName: "Band pull-aparts", equipment: ["bands"], block: "Warm-up" }, 0, cfg);
+    const manualA = computeShortLine({ displayName: "DB bench press", equipment: ["dumbbells"] }, 40, cfg);
+    const manualB = computeShortLine({ displayName: "DB bench press", equipment: ["dumbbells"] }, 55, cfg);
+
+    const el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    const titleRow = openCard ? openCard.querySelector(".set-title-row") : null;
+    const helperInHeaderRow = !!(el && titleRow && titleRow.contains(el));
+    const helperIsSpan = !!(el && el.tagName === "SPAN");
+    const helperIsInlineNotFullRow = !!(el && el.parentNode === titleRow);
+    const rirCue = openCard ? openCard.querySelector('[data-phase41b-active-rir-cue]') : null;
+    const helperNotAboveRirAsRow = !(el && rirCue && el.nextElementSibling === rirCue && el.parentNode === openCard);
+    const duplicateCount = document.querySelectorAll("#plateMathLine65M").length;
+
+    const coach = safeAudit("runSimpleCoachSurfaceAudit65ABugfix1");
+    const gate = safeAudit("runSmartExerciseSystem64BRMovementTruthClassifierAudit");
+    const storage = safeAudit("runStorageHealthAudit65S");
+    const backup = safeAudit("runBackupSurfaceAudit65T");
+    const coachRegression = !coach || coach.status !== "YELLOW" || coach.visibleLegacyStripCount > 0 || coach.toggleHidden !== true;
+    const movementGateRegression = !gate || gate.status !== "YELLOW" || gate.rowToFloorPressBlocked !== true;
+    const storageRegression = !storage || storage.status !== "YELLOW";
+    const backupRegression = !backup || backup.status !== "YELLOW";
+
+    const gobletNoEachHand = !/each hand/i.test(String(goblet)) && /db/i.test(String(goblet));
+    const oneArmNoEachHand = !/each hand/i.test(String(oneArm)) && /db/i.test(String(oneArm));
+    const pairedDbEachHand = /each hand/i.test(String(pairedPress));
+    const barbellShortOk = /45\/side on 45 bar/.test(String(barbell135)) && /25\/side on 45 bar/.test(String(barbell95));
+    const machineShort = /stack setting/i.test(String(machine));
+
+    const wordingOk = gobletNoEachHand && oneArmNoEachHand && pairedDbEachHand && barbellShortOk && machineShort && bodyweight === null && manualA !== manualB;
+
+    return {
+      phase: PHASE65MB2_NAME,
+      outputFile: PHASE65MB2_OUTPUT,
+      baseFileUsed: PHASE65MB2_BASE,
+      helperInHeaderRow: helperInHeaderRow,
+      helperIsSpan: helperIsSpan,
+      helperIsInlineNotFullRow: helperIsInlineNotFullRow,
+      helperNotAboveRirAsRow: helperNotAboveRirAsRow,
+      noDuplicateHelpers: duplicateCount <= 1,
+      duplicateCount: duplicateCount,
+      manualWeightUpdateResult: manualA !== manualB,
+      gobletNoEachHand: gobletNoEachHand, gobletResult: goblet,
+      oneArmNoEachHand: oneArmNoEachHand, oneArmResult: oneArm,
+      pairedDbEachHand: pairedDbEachHand, pairedResult: pairedPress,
+      barbell135Result: barbell135, barbell95Result: barbell95,
+      machineResult: machine, bodyweightHidden: bodyweight === null,
+      liveLineNow: lastLine65MB2,
+      renderHookChained: !!(window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 && window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5.phase65mBugfix2Hook),
+      storageBytesAdded: 0,
+      coachRegression: coachRegression, storageRegression: storageRegression, backupRegression: backupRegression, movementGateRegression: movementGateRegression,
+      status: wordingOk && !coachRegression && !storageRegression && !backupRegression && !movementGateRegression ? "YELLOW" : "RED"
+    };
+  }
+
+  /* ---------- install ---------- */
+  function install65MBugfix2(){
+    injectCss();
+    const hookOk = installRenderHook();
+    try { updateCompactHeaderHelper65MBugfix2(); } catch (_) {}
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase65m-bugfix2-installed", "true");
+      document.documentElement.setAttribute("data-phase65m-bugfix2-hook", hookOk ? "chained" : "unavailable");
+    }
+    return true;
+  }
+
+  window.runPlateMathHeaderPlacementAudit65MBugfix2 = runPlateMathHeaderPlacementAudit65MBugfix2;
+  window.computePlateMath65M = computeShortLine;
+  window.updatePlateMathLine65M = updateCompactHeaderHelper65MBugfix2;
+  window.updateCompactHeaderHelper65MBugfix2 = updateCompactHeaderHelper65MBugfix2;
+  window.TailoredTrainingPhase65MBugfix2 = Object.freeze({
+    phase: PHASE65MB2_NAME,
+    outputFile: PHASE65MB2_OUTPUT,
+    baseFileUsed: PHASE65MB2_BASE,
+    changelog: PHASE_65M_BUGFIX_2_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65MBugfix2, { once: true });
+  } else {
+    install65MBugfix2();
+  }
+})();
+</script>
+
+<script id="phase65m-bugfix3-global-load-type-classification-wording-fix">
+/* PHASE_65M_BUGFIX_3_GLOBAL_LOAD_TYPE_CLASSIFICATION_WORDING_FIX_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65MB3_NAME = "Phase 65M BUGFIX 3 - Global Load-Type Classification Wording Fix";
+  const PHASE65MB3_OUTPUT = "Tailored_Training_Rebuild_Phase65M_BUGFIX_3_Global_Load_Type_Classification_Wording_Fix_v1.html";
+  const PHASE65MB3_BASE = "Tailored_Training_Rebuild_Phase65M_BUGFIX_2_Compact_No_Height_Plate_Helper_Placement_v1.html";
+  const COACH_KEY65MB3 = "tailoredWorkoutTracker.adaptiveCoach65A";
+  const DEFAULT_BAR65MB3 = 45;
+  const DEFAULT_PLATES65MB3 = [45, 35, 25, 10, 5, 2.5];
+
+  const PHASE_65M_BUGFIX_3_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65MB3_BASE + " as base; appends exactly one script block; installs at DOMContentLoaded registered last; never edits earlier blocks.",
+    "Classification/wording only - the Phase 65M BUGFIX 2 compact set-header placement is reused verbatim (same span between the 'Set N' label and 'Target' cue, same pointer-events:none, same zero-height flex layout, same overflow guard). No placement change, no vertical height added.",
+    "Global, equipment-authoritative load-type classification (equipment array decides first; exercise id is never used because it can be stale): machine/cable -> 'Stack setting'; barbell -> plate math; dumbbell -> single vs paired by name; band/bodyweight/warm-up/prep -> hidden. A machine/cable is never misread as a dumbbell from a stale name/id.",
+    "Dumbbell single-vs-paired fix: single/total-load moves (goblet, one-arm, single-arm, 1-arm, unilateral, concentration, suitcase, single/one dumbbell, single-leg, pullover) say 'X lb DB'; clearly paired moves (bench/incline/decline/shoulder/overhead press, curl, fly, reverse fly, rear-delt, lateral/front raise, row, RDL, split squat, walking lunge, shrug, and FARMER carry) say 'X lb each hand'; ambiguous dumbbell stays the safe 'X lb DB' (never guesses 'each hand'). Farmer carry now correctly says each hand (was 'X lb DB').",
+    "Barbell wording unchanged: 'N/side on B bar' (or '~N/side on B bar' when plates can't make it exactly, or 'empty B bar').",
+    "Machines/cables always show 'Stack setting' (never misleading plate math). Reads the open set's weight so it follows manual edits without overwriting them. Structural fields only (name/displayName/equipment/block; never instruction/form-cue/coaching/progression text).",
+    "Adds window.runPlateMathLoadTypeAudit65MBugfix3(). No storage writes, no new keys, no timers/observers/document-level listeners. Touches nothing in coach/progression/set-logging/workout-gen/Alternatives/Apply All/Recalibration/Storage Health/Backup/movement gates/history/media/equipment."
+  ]);
+
+  /* ---------- helpers ---------- */
+  function tb(v){ return String(v == null ? "" : v).trim(); }
+  function lower(v){ return tb(v).toLowerCase(); }
+  function eng(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function liveState(){ const e = eng(); try { if (e && typeof e.loadState === "function") { const l = e.loadState(); return l && (l.state || l); } } catch (_) {} return null; }
+  function activeOf(state){ return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null; }
+  function fmtNum(n){ return String(Math.round(Number(n) * 100) / 100); }
+  function readConfig(){
+    try {
+      const c = JSON.parse(window.localStorage.getItem(COACH_KEY65MB3) || "null");
+      if (c && c.plateMath65M && typeof c.plateMath65M === "object") {
+        const bar = Number(c.plateMath65M.barWeight);
+        const plates = Array.isArray(c.plateMath65M.availablePlates) ? c.plateMath65M.availablePlates.map(Number).filter(function(x){ return Number.isFinite(x) && x > 0; }) : null;
+        return { barWeight: Number.isFinite(bar) && bar > 0 ? bar : DEFAULT_BAR65MB3, availablePlates: plates && plates.length ? plates : DEFAULT_PLATES65MB3.slice() };
+      }
+    } catch (_) {}
+    return { barWeight: DEFAULT_BAR65MB3, availablePlates: DEFAULT_PLATES65MB3.slice() };
+  }
+
+  /* ---------- classification (equipment-authoritative; no id; structural only) ---------- */
+  function equipStr(ex){ return (ex && Array.isArray(ex.equipment) ? ex.equipment : []).map(function(x){ return lower(x); }).join(" "); }
+  function nameBlockStr(ex){ return lower([ex && ex.displayName, ex && ex.name, ex && ex.block].join(" ")); }
+  function combinedWords(ex){ return equipStr(ex) + " " + nameBlockStr(ex); }
+  function classifyLoad(ex){
+    const nb = nameBlockStr(ex);
+    if (/\bwarm-?ups?\b|\bprep\b|\bmobility\b|\bactivation\b|\bpull-aparts?\b|\bscap\b|\bstretch\b|\bcircles?\b/.test(nb)) return "none";
+    const eq = equipStr(ex);
+    /* equipment array is authoritative when present */
+    if (/\bmachine\b|\bcables?\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bstack\b/.test(eq)) return "machine";
+    if (/\bbarbell\b/.test(eq)) return "barbell";
+    if (/\bbands?\b|\bresistance bands?\b|\bbodyweight\b/.test(eq)) return "none";
+    if (/\bdumbbells?\b|\bdb\b/.test(eq)) return "dumbbell";
+    /* name/block fallback when equipment is absent or uninformative */
+    const w = eq + " " + nb;
+    if (/\bmachine\b|\bcables?\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bpulldown\b|\bpressdown\b/.test(w)) return "machine";
+    if (/\bbarbell\b/.test(w)) return "barbell";
+    if (/\bdumbbells?\b|\bdb\b/.test(w)) return "dumbbell";
+    if (/\bbands?\b|\bbodyweight\b|\bpush-?ups?\b|\bpull-?ups?\b|\bchin-?ups?\b|\bplanks?\b|\bdips?\b/.test(w)) return "none";
+    return "none";
+  }
+  function dumbbellStyle(ex){
+    const w = combinedWords(ex);
+    if (/\bgoblet\b|\bone-?arm\b|\bsingle-?arm\b|\b1-?arm\b|\bunilateral\b|\bconcentration\b|\bsuitcase\b|\bsingle (db|dumbbell)\b|\bone dumbbell\b|\bsingle-?leg\b|\bpullovers?\b/.test(w)) return "single";
+    if (/\bbench\b|\bincline\b|\bdecline\b|\bshoulder\b|\boverhead\b|\barnold\b|\bchest press\b|\bpress(es)?\b|\bcurls?\b|\bfl(y|ies)\b|\breverse fl(y|ies)\b|\brear[- ]?delt\b|\blateral raises?\b|\bfront raises?\b|\brows?\b|\brdls?\b|\bromanian\b|\bsplit squats?\b|\bwalking lunges?\b|\blunges?\b|\bshrugs?\b|\bfarmers?\b/.test(w)) return "paired";
+    return "ambiguous";
+  }
+
+  /* ---------- plate math (compact wording, unchanged) ---------- */
+  function platesAchievable(perSide, plates){
+    let rem = Math.round(Number(perSide) * 100) / 100;
+    if (rem < 0) return false;
+    const list = (Array.isArray(plates) ? plates.slice() : DEFAULT_PLATES65MB3.slice()).map(Number).filter(function(n){ return Number.isFinite(n) && n > 0; }).sort(function(a, b){ return b - a; });
+    for (let i = 0; i < list.length; i += 1) { while (rem >= list[i] - 0.0001) { rem = Math.round((rem - list[i]) * 100) / 100; } }
+    return Math.abs(rem) < 0.001;
+  }
+  function computeShortLine(ex, weight, cfg){
+    const config = cfg || readConfig();
+    const type = classifyLoad(ex);
+    if (type === "none") return null;
+    const w = Number(weight);
+    if (!Number.isFinite(w) || w <= 0) return null;
+    if (type === "dumbbell") {
+      const style = dumbbellStyle(ex);
+      if (style === "paired") return fmtNum(w) + " lb each hand";
+      return fmtNum(w) + " lb DB";
+    }
+    if (type === "machine") return "Stack setting";
+    const bar = Number(config.barWeight) > 0 ? Number(config.barWeight) : DEFAULT_BAR65MB3;
+    if (w < bar) return null;
+    if (w === bar) return "empty " + fmtNum(bar) + " bar";
+    const perSide = Math.round(((w - bar) / 2) * 100) / 100;
+    const exact = platesAchievable(perSide, config.availablePlates);
+    return (exact ? "" : "~") + fmtNum(perSide) + "/side on " + fmtNum(bar) + " bar";
+  }
+
+  /* ---------- open set + weight (same as BUGFIX 2) ---------- */
+  function openSetCard(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (!surface || surface.offsetParent === null) return null;
+    return surface.querySelector('.set-stack .set-card[data-set-state="open"]');
+  }
+  function currentExercise(){
+    const state = liveState();
+    const active = activeOf(state);
+    if (!active) return null;
+    const idx = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    return active.exercises[idx] || null;
+  }
+  function openSetWeight(openCard, openIdx){
+    if (openCard) {
+      const input = openCard.querySelector('[data-set-input="' + openIdx + '"][data-field="weight"]');
+      if (input && input.tagName === "INPUT" && tb(input.value) !== "") { const v = parseFloat(String(input.value).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(v) && v > 0) return v; if (v === 0) return 0; }
+      const weightControl = openCard.querySelector(".log-control");
+      if (weightControl) { const span = weightControl.querySelector('[data-set-visible-value29cbugfix]'); if (span) { const sv = parseFloat(String(span.textContent).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(sv) && sv > 0) return sv; } }
+    }
+    const state = liveState();
+    const active = activeOf(state);
+    if (active) {
+      const ex = active.exercises[Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0];
+      if (ex && Array.isArray(ex.setLogs) && ex.setLogs[openIdx]) { const w = Number(ex.setLogs[openIdx].weight); if (Number.isFinite(w) && w > 0) return w; }
+    }
+    return null;
+  }
+
+  /* ---------- update: SAME compact header placement as BUGFIX 2, corrected wording ---------- */
+  let lastLine65MB3 = null;
+  function updateLoadTypeHelper65MBugfix3(){
+    let el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    if (!openCard) { if (el) el.remove(); lastLine65MB3 = null; return null; }
+    const titleRow = openCard.querySelector(".set-title-row");
+    if (!titleRow) { if (el) el.remove(); lastLine65MB3 = null; return null; }
+    const openIdx = parseInt(openCard.getAttribute("data-set-index"), 10);
+    const ex = currentExercise();
+    const weight = openSetWeight(openCard, Number.isFinite(openIdx) ? openIdx : 0);
+    const line = (ex && weight != null) ? computeShortLine(ex, weight, readConfig()) : null;
+    lastLine65MB3 = line;
+    if (!line) { if (el) el.remove(); return null; }
+    if (!el || el.tagName !== "SPAN") { if (el) el.remove(); el = document.createElement("span"); el.id = "plateMathLine65M"; }
+    el.className = "plate-math-header65m";
+    el.setAttribute("data-phase65m-plate-math", "display-only");
+    el.setAttribute("data-phase65m-bugfix2", "header-compact");
+    el.setAttribute("data-phase65m-bugfix3", "load-type-wording");
+    el.setAttribute("aria-hidden", "true");
+    const cue = titleRow.querySelector(".collapse-cue");
+    if (cue) { if (el.parentNode !== titleRow || el.nextElementSibling !== cue) titleRow.insertBefore(el, cue); }
+    else if (el.parentNode !== titleRow) titleRow.appendChild(el);
+    if (el.textContent !== line) el.textContent = line;
+    el.style.display = "";
+    if (el.clientWidth > 0 && el.clientWidth < 22) el.style.display = "none";
+    return line;
+  }
+
+  /* ---------- render hook (chained after BUGFIX 2's, registered last) ---------- */
+  function installRenderHook(){
+    const previous = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof previous !== "function") return false;
+    if (previous.phase65mBugfix3Hook) return true;
+    function loadTypeRenderHook65MBugfix3(reason){
+      const result = previous.apply(this, arguments);
+      try { updateLoadTypeHelper65MBugfix3(); } catch (_) {}
+      return result;
+    }
+    loadTypeRenderHook65MBugfix3.phase65mBugfix3Hook = true;
+    loadTypeRenderHook65MBugfix3.phase65mBugfix2Hook = previous.phase65mBugfix2Hook === true;
+    loadTypeRenderHook65MBugfix3.phase65mBugfix1Hook = previous.phase65mBugfix1Hook === true;
+    loadTypeRenderHook65MBugfix3.phase65mHook = previous.phase65mHook === true;
+    loadTypeRenderHook65MBugfix3.phase65ab1Hook = previous.phase65ab1Hook === true;
+    loadTypeRenderHook65MBugfix3.phase65aCoachHook = previous.phase65aCoachHook === true;
+    loadTypeRenderHook65MBugfix3.phase65mBugfix3Previous = previous;
+    try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = loadTypeRenderHook65MBugfix3; } catch (_) { return false; }
+    return window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 === loadTypeRenderHook65MBugfix3;
+  }
+
+  /* ---------- audit ---------- */
+  function safeAudit(fnName){ try { return typeof window[fnName] === "function" ? window[fnName]() : null; } catch (_) { return null; } }
+  function runPlateMathLoadTypeAudit65MBugfix3(){
+    const cfg = readConfig();
+    const barbell135 = computeShortLine({ displayName: "Barbell bench press", equipment: ["barbell"] }, 135, cfg);
+    const barbell95 = computeShortLine({ displayName: "Barbell squat", equipment: ["barbell"] }, 95, cfg);
+    const barbell225 = computeShortLine({ displayName: "Barbell deadlift", equipment: ["barbell"] }, 225, cfg);
+    const farmer = computeShortLine({ displayName: "Farmer carry", equipment: ["dumbbells", "walking space"] }, 20, cfg);
+    const dbBench = computeShortLine({ displayName: "DB bench press", equipment: ["dumbbells", "bench"] }, 60, cfg);
+    const dbCurl = computeShortLine({ displayName: "DB hammer curl", equipment: ["dumbbells"] }, 30, cfg);
+    const dbLateral = computeShortLine({ displayName: "DB lateral raise", equipment: ["dumbbells"] }, 15, cfg);
+    const goblet = computeShortLine({ displayName: "Heel-elevated DB goblet squat to box", equipment: ["dumbbell", "box"] }, 60, cfg);
+    const oneArm = computeShortLine({ displayName: "One-arm DB row", equipment: ["dumbbells"] }, 60, cfg);
+    const concentration = computeShortLine({ displayName: "Concentration curl", equipment: ["dumbbell"] }, 25, cfg);
+    const suitcase = computeShortLine({ displayName: "Suitcase carry", equipment: ["dumbbell"] }, 40, cfg);
+    const machine = computeShortLine({ displayName: "Chest-supported machine row", equipment: ["machine"] }, 100, cfg);
+    const cable = computeShortLine({ displayName: "Cable crunch", equipment: ["cable"] }, 60, cfg);
+    const machineNameDbEquip = computeShortLine({ displayName: "Seated machine row", equipment: ["machine"] }, 90, cfg); /* machine equip authoritative */
+    const bodyweight = computeShortLine({ displayName: "Push-up", equipment: ["bodyweight"] }, 0, cfg);
+    const band = computeShortLine({ displayName: "Band face pull", equipment: ["resistance bands"] }, 15, cfg);
+    const warmup = computeShortLine({ displayName: "Band pull-aparts + scap circles", equipment: ["bands"], block: "Warm-up" }, 10, cfg);
+    const manualA = computeShortLine({ displayName: "DB bench press", equipment: ["dumbbells"] }, 40, cfg);
+    const manualB = computeShortLine({ displayName: "DB bench press", equipment: ["dumbbells"] }, 55, cfg);
+
+    /* live placement / no-height */
+    const el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    const titleRow = openCard ? openCard.querySelector(".set-title-row") : null;
+    const helperInsideActiveSetHeader = !!(el && titleRow && titleRow.contains(el) && el.tagName === "SPAN");
+    const compactPlacementPreserved = !el || (el.tagName === "SPAN" && !!(titleRow && titleRow.contains(el)));
+    let noVerticalHeightAdded = true;
+    if (el && openCard && titleRow && titleRow.contains(el)) {
+      const prev = el.style.display;
+      const withH = openCard.getBoundingClientRect().height;
+      el.style.display = "none";
+      const withoutH = openCard.getBoundingClientRect().height;
+      el.style.display = prev || "";
+      noVerticalHeightAdded = Math.abs(withH - withoutH) < 0.5;
+    }
+
+    const ns = window.TTSmartExerciseSystem64BR;
+    const coach = safeAudit("runSimpleCoachSurfaceAudit65ABugfix1");
+    const gate = safeAudit("runSmartExerciseSystem64BRMovementTruthClassifierAudit");
+    const storage = safeAudit("runStorageHealthAudit65S");
+    const backup = safeAudit("runBackupSurfaceAudit65T");
+    const coachRegression = !coach || coach.status !== "YELLOW" || coach.visibleLegacyStripCount > 0 || coach.toggleHidden !== true;
+    const movementGateRegression = !gate || gate.status !== "YELLOW" || gate.rowToFloorPressBlocked !== true;
+    const storageRegression = !storage || storage.status !== "YELLOW";
+    const backupRegression = !backup || backup.status !== "YELLOW";
+    const alternativesRegression = !(ns && ns.alternatives && typeof ns.alternatives.applyRecommendedAlternative === "function" && typeof ns.alternatives.rankedAlternatives === "function");
+    const applyAllRegression = !(ns && ns.apply && typeof ns.apply.directApplyAll === "function");
+
+    const farmerCarryEachHand = /each hand/i.test(String(farmer));
+    const dbBenchEachHand = /each hand/i.test(String(dbBench));
+    const dbCurlEachHand = /each hand/i.test(String(dbCurl));
+    const gobletNoEachHand = !/each hand/i.test(String(goblet)) && /db|dumbbell/i.test(String(goblet));
+    const oneArmRowNoEachHand = !/each hand/i.test(String(oneArm)) && /db|dumbbell/i.test(String(oneArm));
+    const concentrationCurlNoEachHand = !/each hand/i.test(String(concentration)) && /db|dumbbell/i.test(String(concentration));
+    const machineSafe = /stack setting/i.test(String(machine)) && /stack setting/i.test(String(cable)) && /stack setting/i.test(String(machineNameDbEquip)) && !/side on/.test(String(machine));
+
+    const wordingOk = /45\/side on 45 bar/.test(String(barbell135)) && /25\/side on 45 bar/.test(String(barbell95)) && /90\/side on 45 bar/.test(String(barbell225)) &&
+      farmerCarryEachHand && dbBenchEachHand && dbCurlEachHand && /each hand/i.test(String(dbLateral)) &&
+      gobletNoEachHand && oneArmRowNoEachHand && concentrationCurlNoEachHand && !/each hand/i.test(String(suitcase)) &&
+      machineSafe && bodyweight === null && band === null && warmup === null && manualA !== manualB;
+
+    return {
+      phase: PHASE65MB3_NAME,
+      outputFile: PHASE65MB3_OUTPUT,
+      baseFileUsed: PHASE65MB3_BASE,
+      compactPlacementPreserved: compactPlacementPreserved,
+      noVerticalHeightAdded: noVerticalHeightAdded,
+      helperInsideActiveSetHeader: helperInsideActiveSetHeader,
+      manualWeightUpdateResult: manualA !== manualB,
+      barbell135Result: barbell135, barbell95Result: barbell95, barbell225Result: barbell225,
+      farmerCarryEachHand: farmerCarryEachHand, farmerResult: farmer,
+      dbBenchEachHand: dbBenchEachHand, dbBenchResult: dbBench,
+      dbCurlEachHand: dbCurlEachHand, dbCurlResult: dbCurl, dbLateralResult: dbLateral,
+      gobletNoEachHand: gobletNoEachHand, gobletResult: goblet,
+      oneArmRowNoEachHand: oneArmRowNoEachHand, oneArmResult: oneArm,
+      concentrationCurlNoEachHand: concentrationCurlNoEachHand, concentrationResult: concentration,
+      suitcaseResult: suitcase,
+      machineSafe: machineSafe, machineResult: machine, cableResult: cable,
+      bodyweightHidden: bodyweight === null, bandHidden: band === null, warmupHidden: warmup === null,
+      liveLineNow: lastLine65MB3,
+      renderHookChained: !!(window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 && window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5.phase65mBugfix3Hook),
+      storageBytesAdded: 0,
+      coachRegression: coachRegression, storageRegression: storageRegression, backupRegression: backupRegression,
+      movementGateRegression: movementGateRegression, alternativesRegression: alternativesRegression, applyAllRegression: applyAllRegression,
+      status: wordingOk && !coachRegression && !storageRegression && !backupRegression && !movementGateRegression && !alternativesRegression && !applyAllRegression ? "YELLOW" : "RED"
+    };
+  }
+
+  /* ---------- install ---------- */
+  function install65MBugfix3(){
+    const hookOk = installRenderHook();
+    try { updateLoadTypeHelper65MBugfix3(); } catch (_) {}
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase65m-bugfix3-installed", "true");
+      document.documentElement.setAttribute("data-phase65m-bugfix3-hook", hookOk ? "chained" : "unavailable");
+    }
+    return true;
+  }
+
+  window.runPlateMathLoadTypeAudit65MBugfix3 = runPlateMathLoadTypeAudit65MBugfix3;
+  window.computePlateMath65M = computeShortLine;
+  window.updatePlateMathLine65M = updateLoadTypeHelper65MBugfix3;
+  window.updateLoadTypeHelper65MBugfix3 = updateLoadTypeHelper65MBugfix3;
+  window.TailoredTrainingPhase65MBugfix3 = Object.freeze({
+    phase: PHASE65MB3_NAME,
+    outputFile: PHASE65MB3_OUTPUT,
+    baseFileUsed: PHASE65MB3_BASE,
+    changelog: PHASE_65M_BUGFIX_3_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65MBugfix3, { once: true });
+  } else {
+    install65MBugfix3();
+  }
+})();
+</script><script>
+/* PHASE_65M_BUGFIX_4_PAIRED_DUMBBELL_RAISE_CLASSIFICATION_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65MB4_NAME = "Phase 65M BUGFIX 4 - Paired Dumbbell Raise Classification (Calf Raise + Raises)";
+  const PHASE65MB4_OUTPUT = "Tailored_Training_Rebuild_Phase65M_BUGFIX_4_Paired_Dumbbell_Calf_Raise_Classification_v1.html";
+  const PHASE65MB4_BASE = "Tailored_Training_Rebuild_Phase65M_BUGFIX_3_Global_Load_Type_Classification_Wording_Fix_v1.html";
+  const COACH_KEY65MB4 = "tailoredWorkoutTracker.adaptiveCoach65A";
+  const DEFAULT_BAR65MB4 = 45;
+  const DEFAULT_PLATES65MB4 = [45, 35, 25, 10, 5, 2.5];
+
+  const PHASE_65M_BUGFIX_4_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65MB4_BASE + " as base; appends exactly one script block; installs at DOMContentLoaded registered last; never edits earlier blocks.",
+    "Classification/wording only - the compact set-header placement (Phase 65M BUGFIX 2/3) is reused verbatim: same span between the 'Set N' label and 'Target' cue, pointer-events:none, zero added height. No placement change.",
+    "Broadens the paired-dumbbell matcher so any dumbbell RAISE (calf raise, lateral raise, front raise, rear-delt raise, etc.) is treated as a two-dumbbell 'each hand' move instead of falling through to the ambiguous 'X lb DB'. Fixes 'Standing DB calf raise' (was 'X lb DB' -> now 'X lb each hand').",
+    "Single-dumbbell indicators still take precedence (checked first), so single-leg/one-arm/single-arm/1-arm/unilateral/concentration/suitcase/goblet stay 'X lb DB' with no 'each hand' (e.g. Single-leg DB calf raise stays single).",
+    "All other load types unchanged: barbell plate math ('N/side on B bar'); paired DB press/curl/fly/row/RDL/split squat/walking lunge/shrug/farmer -> 'each hand'; machine/cable -> 'Stack setting'; band/bodyweight/warm-up -> hidden. Equipment array remains authoritative; exercise id is never used.",
+    "Reads the open set's weight so it follows manual edits without overwriting them; structural fields only (name/displayName/equipment/block; never instruction/form-cue/coaching/progression text).",
+    "Adds window.runPlateMathRaiseAudit65MBugfix4(). No storage writes, no new keys, no timers/observers/document-level listeners. Touches nothing in coach/progression/set-logging/workout-gen/Alternatives/Apply All/Recalibration/Storage Health/Backup/movement gates/history/media/equipment."
+  ]);
+
+  /* ---------- helpers ---------- */
+  function tb(v){ return String(v == null ? "" : v).trim(); }
+  function lower(v){ return tb(v).toLowerCase(); }
+  function eng(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function liveState(){ const e = eng(); try { if (e && typeof e.loadState === "function") { const l = e.loadState(); return l && (l.state || l); } } catch (_) {} return null; }
+  function activeOf(state){ return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null; }
+  function fmtNum(n){ return String(Math.round(Number(n) * 100) / 100); }
+  function readConfig(){
+    try {
+      const c = JSON.parse(window.localStorage.getItem(COACH_KEY65MB4) || "null");
+      if (c && c.plateMath65M && typeof c.plateMath65M === "object") {
+        const bar = Number(c.plateMath65M.barWeight);
+        const plates = Array.isArray(c.plateMath65M.availablePlates) ? c.plateMath65M.availablePlates.map(Number).filter(function(x){ return Number.isFinite(x) && x > 0; }) : null;
+        return { barWeight: Number.isFinite(bar) && bar > 0 ? bar : DEFAULT_BAR65MB4, availablePlates: plates && plates.length ? plates : DEFAULT_PLATES65MB4.slice() };
+      }
+    } catch (_) {}
+    return { barWeight: DEFAULT_BAR65MB4, availablePlates: DEFAULT_PLATES65MB4.slice() };
+  }
+
+  /* ---------- classification (equipment-authoritative; no id) ---------- */
+  function equipStr(ex){ return (ex && Array.isArray(ex.equipment) ? ex.equipment : []).map(function(x){ return lower(x); }).join(" "); }
+  function nameBlockStr(ex){ return lower([ex && ex.displayName, ex && ex.name, ex && ex.block].join(" ")); }
+  function combinedWords(ex){ return equipStr(ex) + " " + nameBlockStr(ex); }
+  function classifyLoad(ex){
+    const nb = nameBlockStr(ex);
+    if (/\bwarm-?ups?\b|\bprep\b|\bmobility\b|\bactivation\b|\bpull-aparts?\b|\bscap\b|\bstretch\b|\bcircles?\b/.test(nb)) return "none";
+    const eq = equipStr(ex);
+    if (/\bmachine\b|\bcables?\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bstack\b/.test(eq)) return "machine";
+    if (/\bbarbell\b/.test(eq)) return "barbell";
+    if (/\bbands?\b|\bresistance bands?\b|\bbodyweight\b/.test(eq)) return "none";
+    if (/\bdumbbells?\b|\bdb\b/.test(eq)) return "dumbbell";
+    const w = eq + " " + nb;
+    if (/\bmachine\b|\bcables?\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bpulldown\b|\bpressdown\b/.test(w)) return "machine";
+    if (/\bbarbell\b/.test(w)) return "barbell";
+    if (/\bdumbbells?\b|\bdb\b/.test(w)) return "dumbbell";
+    if (/\bbands?\b|\bbodyweight\b|\bpush-?ups?\b|\bpull-?ups?\b|\bchin-?ups?\b|\bplanks?\b|\bdips?\b/.test(w)) return "none";
+    return "none";
+  }
+  function dumbbellStyle(ex){
+    const w = combinedWords(ex);
+    /* single/total-load indicators first (take precedence over any paired token) */
+    if (/\bgoblet\b|\bone-?arm\b|\bsingle-?arm\b|\b1-?arm\b|\bunilateral\b|\bconcentration\b|\bsuitcase\b|\bsingle (db|dumbbell)\b|\bone dumbbell\b|\bsingle-?leg\b|\bpullovers?\b/.test(w)) return "single";
+    /* clearly paired bilateral dumbbell movements - now includes any raise (calf/lateral/front/rear-delt) */
+    if (/\bbench\b|\bincline\b|\bdecline\b|\bshoulder\b|\boverhead\b|\barnold\b|\bchest press\b|\bpress(es)?\b|\bcurls?\b|\bfl(y|ies)\b|\breverse fl(y|ies)\b|\brear[- ]?delt\b|\braises?\b|\bcalf raises?\b|\bcalves\b|\brows?\b|\brdls?\b|\bromanian\b|\bsplit squats?\b|\bwalking lunges?\b|\blunges?\b|\bshrugs?\b|\bfarmers?\b/.test(w)) return "paired";
+    return "ambiguous";
+  }
+
+  /* ---------- plate math (compact wording, unchanged) ---------- */
+  function platesAchievable(perSide, plates){
+    let rem = Math.round(Number(perSide) * 100) / 100;
+    if (rem < 0) return false;
+    const list = (Array.isArray(plates) ? plates.slice() : DEFAULT_PLATES65MB4.slice()).map(Number).filter(function(n){ return Number.isFinite(n) && n > 0; }).sort(function(a, b){ return b - a; });
+    for (let i = 0; i < list.length; i += 1) { while (rem >= list[i] - 0.0001) { rem = Math.round((rem - list[i]) * 100) / 100; } }
+    return Math.abs(rem) < 0.001;
+  }
+  function computeShortLine(ex, weight, cfg){
+    const config = cfg || readConfig();
+    const type = classifyLoad(ex);
+    if (type === "none") return null;
+    const w = Number(weight);
+    if (!Number.isFinite(w) || w <= 0) return null;
+    if (type === "dumbbell") {
+      const style = dumbbellStyle(ex);
+      if (style === "paired") return fmtNum(w) + " lb each hand";
+      return fmtNum(w) + " lb DB";
+    }
+    if (type === "machine") return "Stack setting";
+    const bar = Number(config.barWeight) > 0 ? Number(config.barWeight) : DEFAULT_BAR65MB4;
+    if (w < bar) return null;
+    if (w === bar) return "empty " + fmtNum(bar) + " bar";
+    const perSide = Math.round(((w - bar) / 2) * 100) / 100;
+    const exact = platesAchievable(perSide, config.availablePlates);
+    return (exact ? "" : "~") + fmtNum(perSide) + "/side on " + fmtNum(bar) + " bar";
+  }
+
+  /* ---------- open set + weight (same as prior bugfixes) ---------- */
+  function openSetCard(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (!surface || surface.offsetParent === null) return null;
+    return surface.querySelector('.set-stack .set-card[data-set-state="open"]');
+  }
+  function currentExercise(){
+    const state = liveState();
+    const active = activeOf(state);
+    if (!active) return null;
+    const idx = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    return active.exercises[idx] || null;
+  }
+  function openSetWeight(openCard, openIdx){
+    if (openCard) {
+      const input = openCard.querySelector('[data-set-input="' + openIdx + '"][data-field="weight"]');
+      if (input && input.tagName === "INPUT" && tb(input.value) !== "") { const v = parseFloat(String(input.value).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(v) && v > 0) return v; if (v === 0) return 0; }
+      const weightControl = openCard.querySelector(".log-control");
+      if (weightControl) { const span = weightControl.querySelector('[data-set-visible-value29cbugfix]'); if (span) { const sv = parseFloat(String(span.textContent).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(sv) && sv > 0) return sv; } }
+    }
+    const state = liveState();
+    const active = activeOf(state);
+    if (active) {
+      const ex = active.exercises[Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0];
+      if (ex && Array.isArray(ex.setLogs) && ex.setLogs[openIdx]) { const w = Number(ex.setLogs[openIdx].weight); if (Number.isFinite(w) && w > 0) return w; }
+    }
+    return null;
+  }
+
+  /* ---------- update: SAME compact header placement, corrected wording ---------- */
+  let lastLine65MB4 = null;
+  function updateRaiseHelper65MBugfix4(){
+    let el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    if (!openCard) { if (el) el.remove(); lastLine65MB4 = null; return null; }
+    const titleRow = openCard.querySelector(".set-title-row");
+    if (!titleRow) { if (el) el.remove(); lastLine65MB4 = null; return null; }
+    const openIdx = parseInt(openCard.getAttribute("data-set-index"), 10);
+    const ex = currentExercise();
+    const weight = openSetWeight(openCard, Number.isFinite(openIdx) ? openIdx : 0);
+    const line = (ex && weight != null) ? computeShortLine(ex, weight, readConfig()) : null;
+    lastLine65MB4 = line;
+    if (!line) { if (el) el.remove(); return null; }
+    if (!el || el.tagName !== "SPAN") { if (el) el.remove(); el = document.createElement("span"); el.id = "plateMathLine65M"; }
+    el.className = "plate-math-header65m";
+    el.setAttribute("data-phase65m-plate-math", "display-only");
+    el.setAttribute("data-phase65m-bugfix2", "header-compact");
+    el.setAttribute("data-phase65m-bugfix4", "paired-raise-wording");
+    el.setAttribute("aria-hidden", "true");
+    const cue = titleRow.querySelector(".collapse-cue");
+    if (cue) { if (el.parentNode !== titleRow || el.nextElementSibling !== cue) titleRow.insertBefore(el, cue); }
+    else if (el.parentNode !== titleRow) titleRow.appendChild(el);
+    if (el.textContent !== line) el.textContent = line;
+    el.style.display = "";
+    if (el.clientWidth > 0 && el.clientWidth < 22) el.style.display = "none";
+    return line;
+  }
+
+  /* ---------- render hook (chained after BUGFIX 3's, registered last) ---------- */
+  function installRenderHook(){
+    const previous = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof previous !== "function") return false;
+    if (previous.phase65mBugfix4Hook) return true;
+    function raiseRenderHook65MBugfix4(reason){
+      const result = previous.apply(this, arguments);
+      try { updateRaiseHelper65MBugfix4(); } catch (_) {}
+      return result;
+    }
+    raiseRenderHook65MBugfix4.phase65mBugfix4Hook = true;
+    raiseRenderHook65MBugfix4.phase65mBugfix3Hook = previous.phase65mBugfix3Hook === true;
+    raiseRenderHook65MBugfix4.phase65mBugfix2Hook = previous.phase65mBugfix2Hook === true;
+    raiseRenderHook65MBugfix4.phase65mBugfix1Hook = previous.phase65mBugfix1Hook === true;
+    raiseRenderHook65MBugfix4.phase65mHook = previous.phase65mHook === true;
+    raiseRenderHook65MBugfix4.phase65ab1Hook = previous.phase65ab1Hook === true;
+    raiseRenderHook65MBugfix4.phase65aCoachHook = previous.phase65aCoachHook === true;
+    raiseRenderHook65MBugfix4.phase65mBugfix4Previous = previous;
+    try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = raiseRenderHook65MBugfix4; } catch (_) { return false; }
+    return window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 === raiseRenderHook65MBugfix4;
+  }
+
+  /* ---------- audit ---------- */
+  function safeAudit(fnName){ try { return typeof window[fnName] === "function" ? window[fnName]() : null; } catch (_) { return null; } }
+  function runPlateMathRaiseAudit65MBugfix4(){
+    const cfg = readConfig();
+    const standingCalf = computeShortLine({ displayName: "Standing DB calf raise", equipment: ["dumbbells"] }, 20, cfg);
+    const seatedCalfMachine = computeShortLine({ displayName: "Seated calf raise", equipment: ["machine"] }, 90, cfg);
+    const singleLegCalf = computeShortLine({ displayName: "Single-leg DB calf raise", equipment: ["dumbbell"] }, 25, cfg);
+    const dbFrontRaise = computeShortLine({ displayName: "DB front raise", equipment: ["dumbbells"] }, 15, cfg);
+    const dbLateral = computeShortLine({ displayName: "DB lateral raise", equipment: ["dumbbells"] }, 15, cfg);
+    const farmer = computeShortLine({ displayName: "Farmer carry", equipment: ["dumbbells"] }, 20, cfg);
+    const dbBench = computeShortLine({ displayName: "DB bench press", equipment: ["dumbbells", "bench"] }, 60, cfg);
+    const goblet = computeShortLine({ displayName: "Heel-elevated DB goblet squat to box", equipment: ["dumbbell"] }, 60, cfg);
+    const oneArm = computeShortLine({ displayName: "One-arm DB row", equipment: ["dumbbells"] }, 60, cfg);
+    const concentration = computeShortLine({ displayName: "Concentration curl", equipment: ["dumbbell"] }, 25, cfg);
+    const suitcase = computeShortLine({ displayName: "Suitcase carry", equipment: ["dumbbell"] }, 40, cfg);
+    const barbell135 = computeShortLine({ displayName: "Barbell bench press", equipment: ["barbell"] }, 135, cfg);
+    const machine = computeShortLine({ displayName: "Chest-supported machine row", equipment: ["machine"] }, 100, cfg);
+    const bodyweight = computeShortLine({ displayName: "Push-up", equipment: ["bodyweight"] }, 0, cfg);
+    const band = computeShortLine({ displayName: "Band face pull", equipment: ["resistance bands"] }, 15, cfg);
+    const warmup = computeShortLine({ displayName: "Band pull-aparts", equipment: ["bands"], block: "Warm-up" }, 10, cfg);
+    const manualA = computeShortLine({ displayName: "Standing DB calf raise", equipment: ["dumbbells"] }, 20, cfg);
+    const manualB = computeShortLine({ displayName: "Standing DB calf raise", equipment: ["dumbbells"] }, 40, cfg);
+
+    const el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    const titleRow = openCard ? openCard.querySelector(".set-title-row") : null;
+    const helperInsideActiveSetHeader = !!(el && titleRow && titleRow.contains(el) && el.tagName === "SPAN");
+    const compactPlacementPreserved = !el || (el.tagName === "SPAN" && !!(titleRow && titleRow.contains(el)));
+    let noVerticalHeightAdded = true;
+    if (el && openCard && titleRow && titleRow.contains(el)) {
+      const prev = el.style.display;
+      const withH = openCard.getBoundingClientRect().height;
+      el.style.display = "none";
+      const withoutH = openCard.getBoundingClientRect().height;
+      el.style.display = prev || "";
+      noVerticalHeightAdded = Math.abs(withH - withoutH) < 0.5;
+    }
+
+    const ns = window.TTSmartExerciseSystem64BR;
+    const coach = safeAudit("runSimpleCoachSurfaceAudit65ABugfix1");
+    const gate = safeAudit("runSmartExerciseSystem64BRMovementTruthClassifierAudit");
+    const storage = safeAudit("runStorageHealthAudit65S");
+    const backup = safeAudit("runBackupSurfaceAudit65T");
+    const coachRegression = !coach || coach.status !== "YELLOW" || coach.visibleLegacyStripCount > 0 || coach.toggleHidden !== true;
+    const movementGateRegression = !gate || gate.status !== "YELLOW" || gate.rowToFloorPressBlocked !== true;
+    const storageRegression = !storage || storage.status !== "YELLOW";
+    const backupRegression = !backup || backup.status !== "YELLOW";
+    const alternativesRegression = !(ns && ns.alternatives && typeof ns.alternatives.applyRecommendedAlternative === "function" && typeof ns.alternatives.rankedAlternatives === "function");
+    const applyAllRegression = !(ns && ns.apply && typeof ns.apply.directApplyAll === "function");
+
+    const standingCalfEachHand = /each hand/i.test(String(standingCalf));
+    const singleLegCalfNoEachHand = !/each hand/i.test(String(singleLegCalf)) && /db|dumbbell/i.test(String(singleLegCalf));
+    const seatedCalfMachineSafe = /stack setting/i.test(String(seatedCalfMachine));
+    const raisesPairedOk = /each hand/i.test(String(dbFrontRaise)) && /each hand/i.test(String(dbLateral));
+    const gobletNoEachHand = !/each hand/i.test(String(goblet)) && /db|dumbbell/i.test(String(goblet));
+    const oneArmNoEachHand = !/each hand/i.test(String(oneArm)) && /db|dumbbell/i.test(String(oneArm));
+
+    const wordingOk = standingCalfEachHand && singleLegCalfNoEachHand && seatedCalfMachineSafe && raisesPairedOk &&
+      /each hand/i.test(String(farmer)) && /each hand/i.test(String(dbBench)) &&
+      gobletNoEachHand && oneArmNoEachHand && !/each hand/i.test(String(concentration)) && !/each hand/i.test(String(suitcase)) &&
+      /45\/side on 45 bar/.test(String(barbell135)) && /stack setting/i.test(String(machine)) &&
+      bodyweight === null && band === null && warmup === null && manualA !== manualB;
+
+    return {
+      phase: PHASE65MB4_NAME,
+      outputFile: PHASE65MB4_OUTPUT,
+      baseFileUsed: PHASE65MB4_BASE,
+      compactPlacementPreserved: compactPlacementPreserved,
+      noVerticalHeightAdded: noVerticalHeightAdded,
+      helperInsideActiveSetHeader: helperInsideActiveSetHeader,
+      manualWeightUpdateResult: manualA !== manualB,
+      standingCalfRaiseEachHand: standingCalfEachHand, standingCalfResult: standingCalf,
+      singleLegCalfNoEachHand: singleLegCalfNoEachHand, singleLegCalfResult: singleLegCalf,
+      seatedCalfMachineSafe: seatedCalfMachineSafe, seatedCalfResult: seatedCalfMachine,
+      dbFrontRaiseResult: dbFrontRaise, dbLateralResult: dbLateral, raisesPairedOk: raisesPairedOk,
+      farmerResult: farmer, dbBenchResult: dbBench,
+      gobletNoEachHand: gobletNoEachHand, gobletResult: goblet,
+      oneArmRowNoEachHand: oneArmNoEachHand, oneArmResult: oneArm,
+      concentrationResult: concentration, suitcaseResult: suitcase,
+      barbell135Result: barbell135, machineResult: machine,
+      bodyweightHidden: bodyweight === null, bandHidden: band === null, warmupHidden: warmup === null,
+      liveLineNow: lastLine65MB4,
+      renderHookChained: !!(window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 && window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5.phase65mBugfix4Hook),
+      storageBytesAdded: 0,
+      coachRegression: coachRegression, storageRegression: storageRegression, backupRegression: backupRegression,
+      movementGateRegression: movementGateRegression, alternativesRegression: alternativesRegression, applyAllRegression: applyAllRegression,
+      status: wordingOk && !coachRegression && !storageRegression && !backupRegression && !movementGateRegression && !alternativesRegression && !applyAllRegression ? "YELLOW" : "RED"
+    };
+  }
+
+  /* ---------- install ---------- */
+  function install65MBugfix4(){
+    const hookOk = installRenderHook();
+    try { updateRaiseHelper65MBugfix4(); } catch (_) {}
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase65m-bugfix4-installed", "true");
+      document.documentElement.setAttribute("data-phase65m-bugfix4-hook", hookOk ? "chained" : "unavailable");
+    }
+    return true;
+  }
+
+  window.runPlateMathRaiseAudit65MBugfix4 = runPlateMathRaiseAudit65MBugfix4;
+  window.computePlateMath65M = computeShortLine;
+  window.updatePlateMathLine65M = updateRaiseHelper65MBugfix4;
+  window.updateRaiseHelper65MBugfix4 = updateRaiseHelper65MBugfix4;
+  window.TailoredTrainingPhase65MBugfix4 = Object.freeze({
+    phase: PHASE65MB4_NAME,
+    outputFile: PHASE65MB4_OUTPUT,
+    baseFileUsed: PHASE65MB4_BASE,
+    changelog: PHASE_65M_BUGFIX_4_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65MBugfix4, { once: true });
+  } else {
+    install65MBugfix4();
+  }
+})();
+
+</script>
+</body>
 </html>
