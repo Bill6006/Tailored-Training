@@ -90460,5 +90460,352 @@ const PHASE64BH_BUGFIX2_OUTPUT = "Tailored_Training_Rebuild_Phase64BH_BUGFIX_2_S
 })();
 
 </script>
+<script>
+/* PHASE_65M_BUGFIX_5_GLOBAL_LOAD_CONTEXT_SWEEP_NO_VISUAL_REGRESSION_V1 */
+(function(){
+  "use strict";
+
+  const PHASE65MB5_NAME = "Phase 65M BUGFIX 5 - Global Load Context Sweep + No Visual Regression";
+  const PHASE65MB5_OUTPUT = "Tailored_Training_Rebuild_Phase65M_BUGFIX_5_Global_Load_Context_Sweep_No_Visual_Regression_v1.html";
+  const PHASE65MB5_BASE = "Tailored_Training_Rebuild_Phase65M_BUGFIX_4_Paired_Dumbbell_Calf_Raise_Classification_v1.html";
+  const COACH_KEY65MB5 = "tailoredWorkoutTracker.adaptiveCoach65A";
+  const DEFAULT_BAR65MB5 = 45;
+  const DEFAULT_PLATES65MB5 = [45, 35, 25, 10, 5, 2.5];
+
+  const PHASE_65M_BUGFIX_5_CHANGELOG = Object.freeze([
+    "Uses " + PHASE65MB5_BASE + " as base; appends exactly one script block; installs at DOMContentLoaded registered last; never edits earlier blocks.",
+    "Fixes load-context classification globally instead of single-name patching: barbell/plate-loaded => compact plate math; paired dumbbells => 'each hand'; single/total dumbbell => 'DB'; machine/cable => 'Stack setting'; band/bodyweight/warm-up/prep => hidden.",
+    "Preserves the existing compact BUGFIX 2/3/4 set-header placement exactly: one inline span between the Set label and Target cue, pointer-events:none, zero added height. No movement, no new row, no larger chip/card.",
+    "Adds paired-dumbbell coverage for DB floor skull crusher and similar bilateral DB triceps/accessory moves while keeping goblet, one-arm/single-arm, single-leg, hip thrust/glute bridge, pronation/supination, wrist work, concentration, suitcase, and ambiguous dumbbell moves out of 'each hand'.",
+    "Uses structural fields only: displayName/name/equipment/block. Exercise id, form cue, instructions, coaching copy, and progression text are never used for classification.",
+    "Reads the open set's live weight so manual edits update the helper without overwriting the user's number. No storage writes, no new keys, no timers, no observers, no document-level click handlers.",
+    "Adds window.runPlateMathGlobalLoadSweepAudit65MBugfix5() covering barbell math, paired DB, single DB, machine/cable, hidden load types, compact placement, and key regressions."
+  ]);
+
+  function txt(v){ return String(v == null ? "" : v).trim(); }
+  function low(v){ return txt(v).toLowerCase(); }
+  function eng(){ return window.TailoredTrainingStateEngine && typeof window.TailoredTrainingStateEngine === "object" ? window.TailoredTrainingStateEngine : null; }
+  function liveState(){ const e = eng(); try { if (e && typeof e.loadState === "function") { const l = e.loadState(); return l && (l.state || l); } } catch (_) {} return null; }
+  function activeOf(state){ return state && state.activeSession && typeof state.activeSession === "object" && Array.isArray(state.activeSession.exercises) ? state.activeSession : null; }
+  function fmt(n){ return String(Math.round(Number(n) * 100) / 100); }
+  function readConfig(){
+    try {
+      const c = JSON.parse(window.localStorage.getItem(COACH_KEY65MB5) || "null");
+      if (c && c.plateMath65M && typeof c.plateMath65M === "object") {
+        const bar = Number(c.plateMath65M.barWeight);
+        const plates = Array.isArray(c.plateMath65M.availablePlates) ? c.plateMath65M.availablePlates.map(Number).filter(function(x){ return Number.isFinite(x) && x > 0; }) : null;
+        return { barWeight: Number.isFinite(bar) && bar > 0 ? bar : DEFAULT_BAR65MB5, availablePlates: plates && plates.length ? plates : DEFAULT_PLATES65MB5.slice() };
+      }
+    } catch (_) {}
+    return { barWeight: DEFAULT_BAR65MB5, availablePlates: DEFAULT_PLATES65MB5.slice() };
+  }
+
+  function equipStr(ex){ return (ex && Array.isArray(ex.equipment) ? ex.equipment : []).map(function(x){ return low(x); }).join(" "); }
+  function nameBlockStr(ex){ return low([ex && ex.displayName, ex && ex.name, ex && ex.block].join(" ")); }
+  function words(ex){ return (equipStr(ex) + " " + nameBlockStr(ex)).replace(/[_/]+/g, " ").replace(/\s+/g, " ").trim(); }
+
+  function isWarmupNone(nb){ return /\bwarm-?ups?\b|\bprep\b|\bmobility\b|\bactivation\b|\bpull-aparts?\b|\bscap\b|\bstretch\b|\bcircles?\b|\bdrills?\b/.test(nb); }
+  function classifyLoad(ex){
+    const nb = nameBlockStr(ex);
+    if (isWarmupNone(nb)) return "none";
+    const eq = equipStr(ex);
+    const w = (eq + " " + nb).replace(/[_/]+/g, " ");
+    const hasDumbbell = /\bdumbbells?\b|\bdb\b/.test(w);
+    const hasPlateLoaded = /\bplate[- ]?loaded\b|\bloaded plates?\b|\bplate\s+loaded\b/.test(w);
+    const hasBarbell = /\bbarbell\b|\bolympic bar\b|\btrap bar\b|\blandmine\b/.test(w);
+    const hasMachineCable = /\bmachine\b|\bcables?\b|\bcable\b|\bpec[- ]?deck\b|\bhack squat\b|\bleg press\b|\bsmith\b|\bassisted\b|\bstack\b|\bpulldown\b|\bpull down\b|\bpressdown\b/.test(w);
+    const hasBandBody = /\bbands?\b|\bresistance bands?\b|\bbodyweight\b|\bpush-?ups?\b|\bpull-?ups?\b|\bchin-?ups?\b|\bplanks?\b|\bdips?\b|\bwall sits?\b/.test(w);
+
+    if (hasPlateLoaded || hasBarbell) return "barbell";
+    if (hasMachineCable) return "machine";
+    if (hasDumbbell) return "dumbbell";
+    if (hasBandBody) return "none";
+    return "none";
+  }
+
+  function dumbbellStyle(ex){
+    const w = words(ex);
+
+    /* Single / total-load DB. These must beat paired tokens. */
+    if (/\bgoblet\b|\bone[- ]?arm\b|\bsingle[- ]?arm\b|\b1[- ]?arm\b|\bunilateral\b|\bconcentration\b|\bsuitcase\b|\bsingle\s+(db|dumbbell)\b|\bone\s+(db|dumbbell)\b|\bsingle[- ]?leg\b|\bpullovers?\b|\bhip thrust\b|\bglute bridge\b|\bpronation\b|\bsupination\b|\bwrist curl\b|\breverse wrist curl\b|\bseated\s+db\s+calf\s+raise\b/.test(w)) return "single";
+
+    /* Clearly paired DB. Keep this broad enough for the current catalog but not so broad that it guesses on ambiguous DB work. */
+    if (/\bfarmers?\b|\bfarmer carry\b|\bbench press\b|\bfloor press\b|\bincline press\b|\bdecline press\b|\bsqueeze press\b|\bchest press\b|\bshoulder press\b|\boverhead press\b|\barnold press\b|\bskull crushers?\b|\btriceps? extensions?\b|\bhammer curl\b|\breverse curl\b|\bsupinating curl\b|\bcross[- ]?body\b|\bcurls?\b|\blateral raises?\b|\bfront raises?\b|\brear[- ]?delt\b|\breverse fl(y|ies)\b|\bfl(y|ies)\b|\bstanding\s+(db\s+)?calf\s+raises?\b|\bcalf strength\b|\bchest[- ]?supported.*rows?\b|\btwo[- ]?(arm|db|dumbbell).*rows?\b|\brdls?\b|\bromanian deadlift\b|\bbulgarian\b|\bsplit squats?\b|\bwalking lunges?\b|\blunges?\b|\bstep[- ]?ups?\b|\bshrugs?\b/.test(w)) return "paired";
+
+    return "ambiguous";
+  }
+
+  function platesAchievable(perSide, plates){
+    let rem = Math.round(Number(perSide) * 100) / 100;
+    if (rem < 0) return false;
+    const list = (Array.isArray(plates) ? plates.slice() : DEFAULT_PLATES65MB5.slice()).map(Number).filter(function(n){ return Number.isFinite(n) && n > 0; }).sort(function(a, b){ return b - a; });
+    for (let i = 0; i < list.length; i += 1) { while (rem >= list[i] - 0.0001) { rem = Math.round((rem - list[i]) * 100) / 100; } }
+    return Math.abs(rem) < 0.001;
+  }
+  function computeLine(ex, weight, cfg){
+    const config = cfg || readConfig();
+    const type = classifyLoad(ex);
+    if (type === "none") return null;
+    const w = Number(weight);
+    if (!Number.isFinite(w) || w <= 0) return null;
+    if (type === "dumbbell") {
+      return dumbbellStyle(ex) === "paired" ? fmt(w) + " lb each hand" : fmt(w) + " lb DB";
+    }
+    if (type === "machine") return "Stack setting";
+    const bar = Number(config.barWeight) > 0 ? Number(config.barWeight) : DEFAULT_BAR65MB5;
+    if (w < bar) return null;
+    if (w === bar) return "empty " + fmt(bar) + " bar";
+    const perSide = Math.round(((w - bar) / 2) * 100) / 100;
+    const exact = platesAchievable(perSide, config.availablePlates);
+    return (exact ? "" : "~") + fmt(perSide) + "/side on " + fmt(bar) + " bar";
+  }
+
+  function openSetCard(){
+    const surface = document.getElementById("exerciseDetailSurface");
+    if (!surface || surface.offsetParent === null) return null;
+    return surface.querySelector('.set-stack .set-card[data-set-state="open"]');
+  }
+  function currentExercise(){
+    const state = liveState();
+    const active = activeOf(state);
+    if (!active) return null;
+    const idx = Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0;
+    return active.exercises[idx] || null;
+  }
+  function openSetWeight(openCard, openIdx){
+    if (openCard) {
+      const input = openCard.querySelector('[data-set-input="' + openIdx + '"][data-field="weight"]');
+      if (input && input.tagName === "INPUT" && txt(input.value) !== "") { const v = parseFloat(String(input.value).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(v) && v > 0) return v; if (v === 0) return 0; }
+      const weightControl = openCard.querySelector(".log-control");
+      if (weightControl) { const span = weightControl.querySelector('[data-set-visible-value29cbugfix]'); if (span) { const sv = parseFloat(String(span.textContent).replace(/[^0-9.\-]/g, "")); if (Number.isFinite(sv) && sv > 0) return sv; } }
+    }
+    const state = liveState();
+    const active = activeOf(state);
+    if (active) {
+      const ex = active.exercises[Number.isInteger(active.selectedExerciseIndex) ? active.selectedExerciseIndex : 0];
+      if (ex && Array.isArray(ex.setLogs) && ex.setLogs[openIdx]) { const w = Number(ex.setLogs[openIdx].weight); if (Number.isFinite(w) && w > 0) return w; }
+    }
+    return null;
+  }
+
+  let lastLine65MB5 = null;
+  function updateGlobalLoadContextHelper65MBugfix5(){
+    let el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    if (!openCard) { if (el) el.remove(); lastLine65MB5 = null; return null; }
+    const titleRow = openCard.querySelector(".set-title-row");
+    if (!titleRow) { if (el) el.remove(); lastLine65MB5 = null; return null; }
+    const openIdx = parseInt(openCard.getAttribute("data-set-index"), 10);
+    const ex = currentExercise();
+    const weight = openSetWeight(openCard, Number.isFinite(openIdx) ? openIdx : 0);
+    const line = (ex && weight != null) ? computeLine(ex, weight, readConfig()) : null;
+    lastLine65MB5 = line;
+    if (!line) { if (el) el.remove(); return null; }
+    if (!el || el.tagName !== "SPAN") { if (el) el.remove(); el = document.createElement("span"); el.id = "plateMathLine65M"; }
+    el.className = "plate-math-header65m";
+    el.setAttribute("data-phase65m-plate-math", "display-only");
+    el.setAttribute("data-phase65m-bugfix2", "header-compact");
+    el.setAttribute("data-phase65m-bugfix5", "global-load-context-sweep");
+    el.setAttribute("aria-hidden", "true");
+    const cue = titleRow.querySelector(".collapse-cue");
+    if (cue) { if (el.parentNode !== titleRow || el.nextElementSibling !== cue) titleRow.insertBefore(el, cue); }
+    else if (el.parentNode !== titleRow) titleRow.appendChild(el);
+    if (el.textContent !== line) el.textContent = line;
+    el.style.display = "";
+    if (el.clientWidth > 0 && el.clientWidth < 22) el.style.display = "none";
+    return line;
+  }
+
+  function installRenderHook(){
+    const previous = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof previous !== "function") return false;
+    if (previous.phase65mBugfix5Hook) return true;
+    function globalLoadContextRenderHook65MBugfix5(reason){
+      const result = previous.apply(this, arguments);
+      try { updateGlobalLoadContextHelper65MBugfix5(); } catch (_) {}
+      return result;
+    }
+    globalLoadContextRenderHook65MBugfix5.phase65mBugfix5Hook = true;
+    globalLoadContextRenderHook65MBugfix5.phase65mBugfix4Hook = previous.phase65mBugfix4Hook === true;
+    globalLoadContextRenderHook65MBugfix5.phase65mBugfix3Hook = previous.phase65mBugfix3Hook === true;
+    globalLoadContextRenderHook65MBugfix5.phase65mBugfix2Hook = previous.phase65mBugfix2Hook === true;
+    globalLoadContextRenderHook65MBugfix5.phase65mBugfix1Hook = previous.phase65mBugfix1Hook === true;
+    globalLoadContextRenderHook65MBugfix5.phase65mHook = previous.phase65mHook === true;
+    globalLoadContextRenderHook65MBugfix5.phase65ab1Hook = previous.phase65ab1Hook === true;
+    globalLoadContextRenderHook65MBugfix5.phase65aCoachHook = previous.phase65aCoachHook === true;
+    globalLoadContextRenderHook65MBugfix5.phase65mBugfix5Previous = previous;
+    try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = globalLoadContextRenderHook65MBugfix5; } catch (_) { return false; }
+    return window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 === globalLoadContextRenderHook65MBugfix5;
+  }
+
+  function safeAudit(fnName){ try { return typeof window[fnName] === "function" ? window[fnName]() : null; } catch (_) { return null; } }
+  function hasEach(v){ return /each hand/i.test(String(v)); }
+  function isDb(v){ return /\bdb\b|dumbbell/i.test(String(v)); }
+  function catalogDumbbellSweep(cfg){
+    const state = liveState();
+    const program = state && state.program && Array.isArray(state.program.exercisesById) ? state.program.exercisesById : [];
+    const rows = program.filter(function(ex){ return classifyLoad(ex) === "dumbbell"; }).map(function(ex){ return { name: ex.displayName || ex.name || ex.id || "", equipment: ex.equipment || [], result: computeLine(ex, 20, cfg) }; });
+    return {
+      count: rows.length,
+      eachHand: rows.filter(function(r){ return hasEach(r.result); }).map(function(r){ return r.name; }),
+      dbOnly: rows.filter(function(r){ return !hasEach(r.result) && isDb(r.result); }).map(function(r){ return r.name; })
+    };
+  }
+  function runPlateMathGlobalLoadSweepAudit65MBugfix5(){
+    const cfg = readConfig();
+    const cases = {
+      barbell135: computeLine({ displayName: "Barbell bench press", equipment: ["barbell"] }, 135, cfg),
+      barbell95: computeLine({ displayName: "Barbell bench press", equipment: ["barbell"] }, 95, cfg),
+      barbell225: computeLine({ displayName: "Barbell bench press", equipment: ["barbell"] }, 225, cfg),
+      plateLoaded: computeLine({ displayName: "Plate-loaded chest press", equipment: ["plate-loaded machine"] }, 135, cfg),
+      farmer: computeLine({ displayName: "Farmer carry", equipment: ["dumbbells", "walking space"] }, 20, cfg),
+      standingCalf: computeLine({ displayName: "Standing DB calf raise", equipment: ["dumbbells", "step optional"] }, 20, cfg),
+      skullCrusher: computeLine({ displayName: "DB floor skull crusher", equipment: ["dumbbells"] }, 20, cfg),
+      dbBench: computeLine({ displayName: "DB bench press", equipment: ["dumbbells", "bench"] }, 20, cfg),
+      dbFloorPress: computeLine({ displayName: "Neutral-grip DB floor press", equipment: ["dumbbells"] }, 20, cfg),
+      dbLateral: computeLine({ displayName: "DB lateral raise in scapular plane", equipment: ["dumbbells"] }, 20, cfg),
+      dbCurl: computeLine({ displayName: "DB hammer curl", equipment: ["dumbbells"] }, 20, cfg),
+      dbReverseCurl: computeLine({ displayName: "DB reverse curl", equipment: ["dumbbells"] }, 20, cfg),
+      dbRdl: computeLine({ displayName: "DB Romanian deadlift", equipment: ["dumbbells"] }, 60, cfg),
+      dbStepUp: computeLine({ displayName: "DB step-up", equipment: ["dumbbells", "box/step"] }, 20, cfg),
+      goblet: computeLine({ displayName: "Heel-elevated DB goblet squat to box", equipment: ["dumbbell", "box"] }, 60, cfg),
+      oneArmRow: computeLine({ displayName: "One-arm DB row", equipment: ["dumbbells", "stable support"] }, 60, cfg),
+      singleArmRow: computeLine({ displayName: "Single-arm DB row", equipment: ["dumbbells"] }, 60, cfg),
+      concentration: computeLine({ displayName: "Concentration curl", equipment: ["dumbbell"] }, 25, cfg),
+      suitcase: computeLine({ displayName: "Suitcase carry", equipment: ["dumbbell"] }, 40, cfg),
+      hipThrust: computeLine({ displayName: "DB hip thrust or floor glute bridge", equipment: ["dumbbell optional", "bench/floor"] }, 60, cfg),
+      singleLegCalf: computeLine({ displayName: "Single-leg DB calf raise", equipment: ["dumbbell", "wall/step optional"] }, 25, cfg),
+      seatedCalf: computeLine({ displayName: "Seated DB calf raise", equipment: ["dumbbells", "chair/bench"] }, 25, cfg),
+      pronation: computeLine({ displayName: "DB pronation/supination", equipment: ["dumbbell"] }, 10, cfg),
+      wristCurl: computeLine({ displayName: "Wrist curl + reverse wrist curl", equipment: ["dumbbells"] }, 10, cfg),
+      cable: computeLine({ displayName: "Cable crunch", equipment: ["cable machine"] }, 70, cfg),
+      machine: computeLine({ displayName: "Hack squat machine", equipment: ["machine"] }, 180, cfg),
+      bodyweight: computeLine({ displayName: "Bodyweight split squat + hip hinge", equipment: ["bodyweight"], block: "Warm up" }, 20, cfg),
+      band: computeLine({ displayName: "Band triceps pressdown", equipment: ["bands"] }, 20, cfg),
+      warmup: computeLine({ displayName: "Band pull-aparts + scap circles", equipment: ["bands"], block: "Warm-up" }, 20, cfg),
+      manualA: computeLine({ displayName: "DB floor skull crusher", equipment: ["dumbbells"] }, 20, cfg),
+      manualB: computeLine({ displayName: "DB floor skull crusher", equipment: ["dumbbells"] }, 30, cfg)
+    };
+
+    const el = document.getElementById("plateMathLine65M");
+    const openCard = openSetCard();
+    const titleRow = openCard ? openCard.querySelector(".set-title-row") : null;
+    const helperInsideActiveSetHeader = !!(el && titleRow && titleRow.contains(el) && el.tagName === "SPAN");
+    const compactPlacementPreserved = !el || (el.tagName === "SPAN" && !!(titleRow && titleRow.contains(el)));
+    let noVerticalHeightAdded = true;
+    if (el && openCard && titleRow && titleRow.contains(el)) {
+      const prev = el.style.display;
+      const withH = openCard.getBoundingClientRect().height;
+      el.style.display = "none";
+      const withoutH = openCard.getBoundingClientRect().height;
+      el.style.display = prev || "";
+      noVerticalHeightAdded = Math.abs(withH - withoutH) < 0.5;
+    }
+
+    const ns = window.TTSmartExerciseSystem64BR;
+    const coach = safeAudit("runSimpleCoachSurfaceAudit65ABugfix1");
+    const gate = safeAudit("runSmartExerciseSystem64BRMovementTruthClassifierAudit");
+    const storage = safeAudit("runStorageHealthAudit65S");
+    const backup = safeAudit("runBackupSurfaceAudit65T");
+    const coachRegression = !coach || coach.status !== "YELLOW" || coach.visibleLegacyStripCount > 0 || coach.toggleHidden !== true;
+    const movementGateRegression = !gate || gate.status !== "YELLOW" || gate.rowToFloorPressBlocked !== true;
+    const storageRegression = !storage || storage.status !== "YELLOW";
+    const backupRegression = !backup || backup.status !== "YELLOW";
+    const alternativesRegression = !(ns && ns.alternatives && typeof ns.alternatives.applyRecommendedAlternative === "function" && typeof ns.alternatives.rankedAlternatives === "function");
+    const applyAllRegression = !(ns && ns.apply && typeof ns.apply.directApplyAll === "function");
+
+    const pairedOk = [cases.farmer, cases.standingCalf, cases.skullCrusher, cases.dbBench, cases.dbFloorPress, cases.dbLateral, cases.dbCurl, cases.dbReverseCurl, cases.dbRdl, cases.dbStepUp].every(hasEach);
+    const singleOk = [cases.goblet, cases.oneArmRow, cases.singleArmRow, cases.concentration, cases.suitcase, cases.hipThrust, cases.singleLegCalf, cases.seatedCalf, cases.pronation, cases.wristCurl].every(function(x){ return !hasEach(x) && isDb(x); });
+    const barbellOk = /45\/side on 45 bar/.test(String(cases.barbell135)) && /25\/side on 45 bar/.test(String(cases.barbell95)) && /90\/side on 45 bar/.test(String(cases.barbell225)) && /45\/side on 45 bar/.test(String(cases.plateLoaded));
+    const machineOk = /stack setting/i.test(String(cases.cable)) && /stack setting/i.test(String(cases.machine));
+    const hiddenOk = cases.bodyweight === null && cases.band === null && cases.warmup === null;
+    const manualOk = cases.manualA !== cases.manualB;
+    const catalogSweep = catalogDumbbellSweep(cfg);
+    const wordingOk = pairedOk && singleOk && barbellOk && machineOk && hiddenOk && manualOk;
+
+    return {
+      phase: PHASE65MB5_NAME,
+      outputFile: PHASE65MB5_OUTPUT,
+      baseFileUsed: PHASE65MB5_BASE,
+      compactPlacementPreserved: compactPlacementPreserved,
+      noVerticalHeightAdded: noVerticalHeightAdded,
+      helperInsideActiveSetHeader: helperInsideActiveSetHeader,
+      manualWeightUpdateResult: manualOk,
+      barbell135Result: cases.barbell135,
+      barbell95Result: cases.barbell95,
+      barbell225Result: cases.barbell225,
+      plateLoadedResult: cases.plateLoaded,
+      pairedDumbbellResults: {
+        farmerCarry: cases.farmer,
+        standingDbCalfRaise: cases.standingCalf,
+        dbFloorSkullCrusher: cases.skullCrusher,
+        dbBench: cases.dbBench,
+        dbFloorPress: cases.dbFloorPress,
+        dbLateralRaise: cases.dbLateral,
+        dbHammerCurl: cases.dbCurl,
+        dbReverseCurl: cases.dbReverseCurl,
+        dbRomanianDeadlift: cases.dbRdl,
+        dbStepUp: cases.dbStepUp
+      },
+      singleTotalDumbbellResults: {
+        gobletSquat: cases.goblet,
+        oneArmDbRow: cases.oneArmRow,
+        singleArmDbRow: cases.singleArmRow,
+        concentrationCurl: cases.concentration,
+        suitcaseCarry: cases.suitcase,
+        dbHipThrustOrGluteBridge: cases.hipThrust,
+        singleLegDbCalfRaise: cases.singleLegCalf,
+        seatedDbCalfRaise: cases.seatedCalf,
+        dbPronationSupination: cases.pronation,
+        wristCurlReverseWristCurl: cases.wristCurl
+      },
+      machineCableResults: { cableCrunch: cases.cable, hackSquatMachine: cases.machine },
+      bodyweightHidden: cases.bodyweight === null,
+      bandHidden: cases.band === null,
+      warmupHidden: cases.warmup === null,
+      catalogDumbbellSweep: catalogSweep,
+      liveLineNow: lastLine65MB5,
+      renderHookChained: !!(window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 && window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5.phase65mBugfix5Hook),
+      storageBytesAdded: 0,
+      coachRegression: coachRegression,
+      storageRegression: storageRegression,
+      backupRegression: backupRegression,
+      movementGateRegression: movementGateRegression,
+      alternativesRegression: alternativesRegression,
+      applyAllRegression: applyAllRegression,
+      status: wordingOk && !coachRegression && !storageRegression && !backupRegression && !movementGateRegression && !alternativesRegression && !applyAllRegression ? "YELLOW" : "RED"
+    };
+  }
+
+  function install65MBugfix5(){
+    const hookOk = installRenderHook();
+    try { updateGlobalLoadContextHelper65MBugfix5(); } catch (_) {}
+    if (document && document.documentElement) {
+      document.documentElement.setAttribute("data-phase65m-bugfix5-installed", "true");
+      document.documentElement.setAttribute("data-phase65m-bugfix5-hook", hookOk ? "chained" : "unavailable");
+    }
+    return true;
+  }
+
+  window.runPlateMathGlobalLoadSweepAudit65MBugfix5 = runPlateMathGlobalLoadSweepAudit65MBugfix5;
+  window.computePlateMath65M = computeLine;
+  window.updatePlateMathLine65M = updateGlobalLoadContextHelper65MBugfix5;
+  window.updateGlobalLoadContextHelper65MBugfix5 = updateGlobalLoadContextHelper65MBugfix5;
+  window.TailoredTrainingPhase65MBugfix5 = Object.freeze({
+    phase: PHASE65MB5_NAME,
+    outputFile: PHASE65MB5_OUTPUT,
+    baseFileUsed: PHASE65MB5_BASE,
+    changelog: PHASE_65M_BUGFIX_5_CHANGELOG,
+    androidGithubStatus: "YELLOW - Android/GitHub validation required before GREEN"
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", install65MBugfix5, { once: true });
+  } else {
+    install65MBugfix5();
+  }
+})();
+</script>
+
 </body>
 </html>
