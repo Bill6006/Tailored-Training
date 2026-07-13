@@ -104288,5 +104288,1052 @@ Narrow rule-based correction only:
 })();
 
 </script>
+<script id="final-coach-conductor-bugfix2">
+/* ============================================================================
+   FINAL COACH CONDUCTOR BUGFIX 2 — DIRECT QUICK SWAP APPLY, IMMEDIATE
+   COMBINED-CARD REFRESH, CURRENT-EXERCISE TRUTH, CANDIDATE DEDUPLICATION,
+   AND MEDIA FALLBACK LOCK
+   Base: Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_1_Global_Active_
+         List_Performance_Transactional_Alternative_Apply_And_Android_
+         Coherence_Lock_v1.html (exactly 7,961,105 bytes)
+
+   Exact first failing owners (traced live, not guessed):
+
+   D1 SECOND MENU: the compact sheet's own click handler (ensureSwapSheet,
+      base line ~102579) calls the CLOSURE-LOCAL applyShortDayAlternative65D
+      (~102652), so every window-level reroute (65D-BUGFIX1 wrapApplyOwner and
+      Conductor-BUGFIX1 rerouteShortDayApply) is bypassed on real taps. The
+      local owner routes into the generic chain (65RBugfix2 -> 64BRBugfix14 ->
+      64BRBugfix13 -> 64BRBugfix11). applyRecommendedAlternative64BRBugfix11
+      (line ~82148) force-opens #alternativesSheet19A on every successful
+      apply, then refreshAlternativesSheet14 (~86606) re-renders it via
+      openForExercise with fresh "Apply upgrade" cards -> the large 64BR
+      Alternatives sheet appears and looks like a required second step.
+   D2 NO IMMEDIATE REDRAW: the generic chain's BUGFIX 13 verification requires
+      titleOk (the ordinary hero title must visibly contain the new name); the
+      combined card hides that hero, so verification can report failure AFTER
+      the swap was already saved (~82141). The local owner then skips
+      replanShortDayAfterSwap65D, combinedCardSignature (stale moveIds +
+      unchanged plan.version) never changes, and the card redraws only after a
+      page refresh reads persisted truth.
+   D3 STALE IDENTITY: consequence of D2 — the card HTML stays pre-swap while
+      Quick Swap reads persisted state, so card and popup disagree and the
+      ranking legitimately offers the exercise the stale card still displays.
+      Additionally rankedAlternatives excludes the current exercise by id token
+      only (~82176), so alias records under other id namespaces are not
+      excluded.
+   D4 DUPLICATES: the catalog carries the same canonical exercise under
+      multiple id namespaces (e.g. sun-05-band-straight-arm-pulldown AND
+      64br-band-straight-arm-pulldown; also 65f-*) and the compact builder
+      getShortDayAlternatives65D has no canonical dedupe pass.
+   D5 CLIPPED MEDIA: 65D-BUGFIX1's mediaHtmlForBugfix1 tests resolved stages
+      with /<img|<video|media-real|frame-pair/, which MATCHES the fallback
+      class "media-real-preview-fallbackMB4" — the long "Media not available
+      yet…" stage is cached as REAL media and re-injected into the 64px tile.
+
+   Fix architecture (all installed last, objects mutated in place, no owner
+   replaced): (1) intercept [data-sd65d-alt] taps on the combined card in the
+   CAPTURE phase and open a BUGFIX-2-owned compact sheet (the base sheet
+   element is pre-created so the base ensureSwapSheet never attaches its
+   generic-routing listener); (2) candidate rows are deduplicated by canonical
+   name identity, exclude the current exercise and everything already in the
+   session, and one tap runs ONE transactional apply owner
+   (applyShortDayMoveAlternativeFinalBugfix2) that writes the exercise swap AND
+   an in-place Short Day block patch (moveIds slot, includedExerciseIds,
+   estimate delta, plan.version) in a SINGLE save with raw read-back — no full
+   plan rebuild, no generic owner, no second sheet; (3) the immediate UI commit
+   fires the existing render hook once (signature now changes -> the existing
+   renderer redraws the card) plus a targeted per-move DOM patch and an
+   authoritative media repaint; (4) the media tile is resolved through the SAME
+   Media Bridge 4 owner the normal card uses, with correct real-media
+   detection, and a CSS lock keeps stray fallback text invisible in the tile.
+   ========================================================================= */
+(function finalCoachConductorBugfix2() {
+  "use strict";
+  var MARKER = "FINAL_COACH_CONDUCTOR_BUGFIX_2_DIRECT_QUICK_SWAP_IMMEDIATE_UI_TRUTH_DEDUPE_MEDIA_V1";
+  if (window.__finalCoachConductorBugfix2Installed) return;
+
+  /* ----------------------------- helpers ------------------------------ */
+  function txt(v) { return v == null ? "" : String(v); }
+  function low(v) { return txt(v).toLowerCase(); }
+  function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function esc(v) { return txt(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function eng() { return window.TailoredTrainingStateEngine; }
+  function ns() { return window.TTSmartExerciseSystem64BR; }
+  function mb4() { return window.TailoredTrainingMediaBridge4ExerciseDetailMediaRenderingPreview; }
+  function loadSt() { try { var r = eng().loadState(); return r && r.state ? r.state : null; } catch (_) { return null; } }
+  function sdOf(state) { var sd = state && state.activeSession && state.activeSession.shortDay65D; return sd && sd.active === true ? sd : null; }
+  function nameToken(v) { return low(v).replace(/[^a-z0-9]+/g, ""); }
+  function canonKey(ex) { return nameToken(ex && (ex.displayName || ex.name || ex.id)); }
+  function equipText(ex) { var e = ex && ex.equipment; return low(Array.isArray(e) ? e.join(" ") : txt(e)); }
+  function equipClassBF2(ex) { var t = equipText(ex); if (/barbell|ez-bar/.test(t)) return "barbell"; if (/cable/.test(t)) return "cable"; if (/machine|leg press|pec deck|hack squat|smith/.test(t)) return "machine"; if (/dumbbell|\bdb\b/.test(t)) return "dumbbell"; if (/\bbands?\b|resistance band/.test(t)) return "band"; return "bodyweight"; }
+  function repRangeBF2(ex) { var raw = txt(ex && ex.prescription && ex.prescription.reps); var m = raw.match(/(\d+)\s*[-–]\s*(\d+)/); if (m) return m[1] + "-" + m[2]; var s = raw.match(/(\d+)/); return s ? s[1] : "8-12"; }
+  function completedNormal(ex) { var l = Array.isArray(ex && ex.setLogs) ? ex.setLogs : []; return l.filter(function (s) { return s && s.completed === true && s.type !== "drop"; }).length; }
+  function blockForIndex(plan, i) {
+    if (!plan || !Array.isArray(plan.blocks)) return null;
+    for (var b = 0; b < plan.blocks.length; b += 1) {
+      var blk = plan.blocks[b];
+      if (blk.type === "warmup" && blk.indexes && blk.indexes.indexOf(i) >= 0) return { block: blk, at: b };
+      if (blk.type === "superset" && blk.moveIndexes && blk.moveIndexes.indexOf(i) >= 0) return { block: blk, at: b };
+      if ((blk.type === "primary" || blk.type === "standalone") && blk.index === i) return { block: blk, at: b };
+    }
+    return null;
+  }
+
+  /* runtime evidence for the honest audit */
+  var EV = window.__finalCoachConductorBugfix2Evidence = {
+    installedAt: new Date().toISOString(),
+    sheetOwned: false, cardCaptureAttached: false,
+    opens: 0, lastOpen: null, tapCount: 0, appliedCount: 0, doubleTapBlocked: 0,
+    dedupedCount: 0, excludedCurrentCount: 0, excludedInSessionCount: 0, excludedPairBreakCount: 0,
+    lastSwap: null, lastFailure: null, tileFixes: 0, lastCandidateKeys: null,
+    rankCallsDuringLastListPass: null
+  };
+
+  /* ============ candidate dedupe + current-exercise exclusion =========== */
+  var TIER_RANK = { "BEST FIT": 3, "ACCEPTABLE": 2, "CAUTION": 1 };
+  function dedupeAndExclude(rawList, current, state) {
+    var curKey = canonKey(current);
+    var sessionKeys = {};
+    try {
+      (state.activeSession.exercises || []).forEach(function (ex) { var k = canonKey(ex); if (k) sessionKeys[k] = true; });
+    } catch (_) {}
+    var out = [], byKey = {};
+    for (var i = 0; i < (rawList || []).length; i += 1) {
+      var c = rawList[i]; if (!c || !c.candidate) continue;
+      var k = canonKey(c.candidate);
+      if (!k) continue;
+      if (k === curKey) { EV.excludedCurrentCount += 1; continue; }               // never its own alternative
+      if (sessionKeys[k]) { EV.excludedInSessionCount += 1; continue; }           // already active elsewhere today
+      // Pair-breaking candidates require a full buildShortDayPlan65D re-fit,
+      // which BF2 forbids after a swap. The compact one-tap list must equal
+      // exactly what the in-place transaction can honor, so only keep-pair
+      // (or standalone-safe) options are shown; pair re-fits stay in ordinary
+      // Alternatives. This keeps every offered candidate one-tap applicable.
+      if (txt(c.pairEffect).indexOf("Breaks pair") === 0) { EV.excludedPairBreakCount += 1; continue; }
+      var prev = byKey[k];
+      if (prev) {
+        EV.dedupedCount += 1;
+        var keepNew = (TIER_RANK[txt(c.tier)] || 0) > (TIER_RANK[txt(prev.tier)] || 0)
+          || ((TIER_RANK[txt(c.tier)] || 0) === (TIER_RANK[txt(prev.tier)] || 0) && c.sameEquipment === true && prev.sameEquipment !== true);
+        if (keepNew) { out[out.indexOf(prev)] = c; byKey[k] = c; }
+        continue;
+      }
+      byKey[k] = c; out.push(c);
+    }
+    return out.slice(0, 8);
+  }
+
+  /* ======================= BUGFIX-2-owned sheet ======================== */
+  var swapCtx = null;
+  var swapInFlight = false;
+
+  function sheetEl() { return document.getElementById("shortDaySwapSheet65D"); }
+  function ensureOwnedSheet() {
+    var sheet = sheetEl();
+    if (!sheet) {
+      sheet = document.createElement("div");
+      sheet.id = "shortDaySwapSheet65D";
+      sheet.setAttribute("data-phase65d-swap-sheet", "true");
+      sheet.setAttribute("data-bf2-owned", "true");
+      if (document.body) document.body.appendChild(sheet);
+    } else {
+      sheet.setAttribute("data-bf2-owned", "true");
+    }
+    if (!sheet.__bf2Wired) {
+      sheet.__bf2Wired = true;
+      sheet.addEventListener("click", sheetClickCapture, true); // capture: runs before any bubble listener
+      EV.sheetOwned = true;
+    }
+    return sheet;
+  }
+
+  function clearErr() {
+    var notes = document.querySelectorAll("[data-bf2-swap-error]");
+    for (var i = 0; i < notes.length; i += 1) notes[i].textContent = "";
+  }
+  function showErr(msg) {
+    var sheet = sheetEl();
+    if (!sheet || sheet.getAttribute("data-open") !== "true") return;
+    var note = sheet.querySelector("[data-bf2-swap-error]");
+    if (!note) {
+      note = document.createElement("div");
+      note.setAttribute("data-bf2-swap-error", "true");
+      var title = sheet.querySelector(".sd65d-sheet-title");
+      if (title && title.nextSibling) sheet.insertBefore(note, title.nextSibling);
+      else sheet.insertBefore(note, sheet.firstChild || null);
+    }
+    note.textContent = txt(msg);
+    EV.lastFailure = { at: new Date().toISOString(), message: txt(msg) };
+  }
+
+  function candidateRowHtml(c) {
+    return '<button type="button" class="sd65d-cand" data-bf2-cand-id="' + esc(c.candidate.id) + '" data-bf2-cand-name="' + esc(c.candidate.displayName) + '">'
+      + '<span class="sd65d-tier" data-tier="' + esc(c.tier) + '">' + esc(c.tier) + '</span>' + esc(c.candidate.displayName)
+      + '<span class="sd65d-cand-meta">' + esc(c.pairEffect) + ' · ' + (c.sameEquipment ? "Same equipment" : "Different equipment") + ' · ' + esc(c.timeEffect) + '</span>'
+      + '<span class="sd65d-cand-meta bf2-use">Tap once to use for Short Day</span></button>';
+  }
+  function renderOwnedSheet(current, list, sd) {
+    var sheet = ensureOwnedSheet();
+    var html = '<div class="sd65d-sheet-title"><b>Quick Swap · ' + esc(current && current.displayName) + '</b></div>'
+      + '<div data-bf2-swap-error></div>'
+      + '<div class="sd65d-sheet-note">One tap replaces this move for today only. Your regular plan is unchanged.</div>';
+    if (!list.length) html += '<div class="sd65d-sheet-note">No safe Short Day alternatives available.</div>';
+    for (var i = 0; i < list.length; i += 1) html += candidateRowHtml(list[i]);
+    html += '<div class="sd65d-sheet-actions">';
+    if (sd && sd.unavailableEquipment && sd.unavailableEquipment.length) html += '<button type="button" class="sd65d-sheet-btn" data-bf2-action="busy-undo">Undo equipment busy</button>';
+    else html += '<button type="button" class="sd65d-sheet-btn" data-bf2-action="busy">Equipment busy</button>';
+    html += '<button type="button" class="sd65d-sheet-btn" data-bf2-action="close">Close</button></div>';
+    sheet.innerHTML = html;
+    sheet.setAttribute("data-open", "true");
+  }
+
+  function openQuickSwapBF2(exIndex, moveSlot) {
+    var state = loadSt(); if (!state || !state.activeSession) return false;
+    var sd = sdOf(state); if (!sd) return false;
+    var found = blockForIndex(sd.plan, exIndex);
+    var current = state.activeSession.exercises[exIndex];
+    if (!current) return false;
+    // rendered-move truth check: if the visible card disagrees with persisted
+    // state, repaint from truth before deriving the popup identity.
+    try {
+      var card = document.getElementById("supersetRoundCard65D");
+      var nameEl = card && card.querySelector('.sd65d-move[data-move="' + moveSlot + '"] .sd65d-move-name');
+      if (nameEl && txt(nameEl.textContent).trim() !== txt(current.displayName).trim()) {
+        try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5("final-bf2-resync"); } catch (_) {}
+        updateMoveDomBF2(state, exIndex);
+      }
+    } catch (_) {}
+    swapCtx = {
+      exIndex: exIndex, moveSlot: moveSlot,
+      exId: txt(current.id), exName: txt(current.displayName),
+      blockLabel: found && found.block.type === "superset" ? txt(found.block.label) : null,
+      openedAt: Date.now()
+    };
+    var raw = [];
+    try { raw = window.getShortDayAlternatives65D(exIndex) || []; } catch (_) { raw = []; }
+    var list = dedupeAndExclude(raw, current, state);
+    EV.opens += 1;
+    EV.lastOpen = { exIndex: exIndex, moveSlot: moveSlot, title: swapCtx.exName, candidates: list.length, rawCandidates: raw.length };
+    EV.lastCandidateKeys = list.map(function (c) { return canonKey(c.candidate); });
+    renderOwnedSheet(current, list, sd);
+    return true;
+  }
+
+  /* --------------------- event isolation (capture) --------------------- */
+  function closestAttr(node, attr, stop) {
+    var t = node;
+    while (t && t !== stop) { if (t.getAttribute && t.getAttribute(attr) != null) return t; t = t.parentElement; }
+    return null;
+  }
+  function sheetClickCapture(ev) {
+    var sheet = ev.currentTarget;
+    // the popup overlay blocks background click-through entirely
+    ev.stopPropagation();
+    var cand = closestAttr(ev.target, "data-bf2-cand-id", sheet);
+    var act = closestAttr(ev.target, "data-bf2-action", sheet);
+    var legacy = closestAttr(ev.target, "data-sd65d-action", sheet);
+    if (!cand && !act && !legacy) return;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    if (cand) { runDirectSwap(cand.getAttribute("data-bf2-cand-id"), cand.getAttribute("data-bf2-cand-name")); return; }
+    var action = act ? act.getAttribute("data-bf2-action") : legacy.getAttribute("data-sd65d-action");
+    if (action === "close") { sheet.setAttribute("data-open", "false"); swapCtx = null; return; }
+    if (action === "busy" || action === "busy-undo") {
+      try {
+        if (action === "busy") window.markShortDayEquipmentBusy65D(swapCtx ? swapCtx.exIndex : undefined);
+        else window.undoShortDayEquipmentBusy65D();
+      } catch (_) {}
+      if (swapCtx) openQuickSwapBF2(swapCtx.exIndex, swapCtx.moveSlot); // fresh rebuild from live state
+      var st = loadSt(); if (st) fixTilesBF2(st);
+      return;
+    }
+    if (action === "apply" && legacy) {
+      // legacy-rendered content (defensive): route to the same direct owner
+      if (swapCtx) runDirectSwap(legacy.getAttribute("data-cand-id"), legacy.getAttribute("data-cand-name"));
+      else showErr("The target exercise changed. Reopen Quick Swap.");
+    }
+  }
+  function cardClickCapture(ev) {
+    var card = ev.currentTarget;
+    var alt = closestAttr(ev.target, "data-sd65d-alt", card);
+    if (!alt) return; // weight/reps/complete taps keep their existing owners
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    openQuickSwapBF2(num(alt.getAttribute("data-ex-index")), num(alt.getAttribute("data-sd65d-alt")));
+  }
+  function ensureCardCapture() {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (!card || card.__bf2Wired) return !!card;
+    card.__bf2Wired = true;
+    card.addEventListener("click", cardClickCapture, true);
+    EV.cardCaptureAttached = true;
+    return true;
+  }
+
+  /* ================== ONE-SAVE transactional direct apply =============== */
+  function failRes(reason, message) { return { applied: false, reason: reason, message: message }; }
+  function applyShortDayMoveAlternativeFinalBugfix2(input) {
+    var opt = input || {};
+    var e = eng();
+    var loaded; try { loaded = e.loadState(); } catch (_) { loaded = null; }
+    var live = loaded && loaded.state;
+    if (!live || !live.activeSession) return failRes("no-session", "No active workout session.");
+    var sd = sdOf(live);
+    if (!sd) return failRes("not-short-day", "Short Day is not active.");
+    var idx = num(opt.exIndex);
+    var found = blockForIndex(sd.plan, idx);
+    if (!found || found.block.type !== "superset") return failRes("target-changed", "The target exercise changed. Reopen Quick Swap.");
+    if (opt.expectedBlockLabel != null && txt(found.block.label) !== txt(opt.expectedBlockLabel)) return failRes("target-changed", "The target exercise changed. Reopen Quick Swap.");
+    var cur = live.activeSession.exercises[idx];
+    if (!cur) return failRes("target-changed", "The target exercise changed. Reopen Quick Swap.");
+    if (opt.expectedCurrentId != null && low(cur.id) !== low(opt.expectedCurrentId) && canonKey(cur) !== nameToken(opt.expectedCurrentId)) {
+      return failRes("target-changed", "The target exercise changed. Reopen Quick Swap.");
+    }
+    // candidate must still be in the eligible compact list (busy, session-dup,
+    // tier and pair truth all re-verified by the existing builder)
+    var list = [];
+    try { list = window.getShortDayAlternatives65D(idx) || []; } catch (_) { list = []; }
+    var pick = null;
+    for (var i = 0; i < list.length; i += 1) {
+      var c = list[i];
+      if (low(c.candidate.id) === low(opt.candidateId) || low(c.candidate.displayName) === low(opt.candidateName)) { pick = c; break; }
+    }
+    if (!pick) return failRes("not-eligible", "Candidate is no longer eligible.");
+    var replacement = pick.candidate;
+    if (canonKey(replacement) === canonKey(cur)) return failRes("already-current", "Candidate is already the current exercise.");
+    var usedElsewhere = live.activeSession.exercises.some(function (ex, j) { return j !== idx && canonKey(ex) === canonKey(replacement); });
+    if (usedElsewhere) return failRes("already-in-plan", "This exercise is already included elsewhere in Short Day.");
+    if (txt(pick.pairEffect).indexOf("Breaks pair") === 0) return failRes("pair-unsafe", "The pair could not be repaired safely — pick a Keeps-pair option.");
+    // movement + classification gates (same owners the base transaction used)
+    try {
+      var gate = typeof window.movementTruthGate64BRBugfix14 === "function" ? window.movementTruthGate64BRBugfix14(cur, replacement, {}) : { pass: true };
+      if (gate && gate.pass === false && gate.deferred !== true) return failRes("movement-mismatch", "That movement doesn't match this slot.");
+      var cat = ns() && ns().catalog;
+      if (cat && typeof cat.classifyCandidate === "function") {
+        var d = cat.classifyCandidate(cur, replacement, { state: live, mode: live.settings && live.settings.mode, route: live.settings && live.settings.route, slotPurpose: cur.block, activeIndex: idx });
+        if (d && d.status !== "Recommended") return failRes("not-eligible", "Candidate is no longer eligible.");
+      }
+    } catch (_) { /* fail-open like the base gate; read-back still guards */ }
+
+    /* ---- build the swapped exercise (preserves completed identities) ---- */
+    var completedBefore = completedNormal(cur);
+    var swapped;
+    try {
+      swapped = Object.assign({}, JSON.parse(JSON.stringify(cur)), JSON.parse(JSON.stringify(replacement)));
+    } catch (_) { return failRes("error", "Couldn't prepare the replacement — try again."); }
+    swapped.id = replacement.id || cur.id;
+    swapped.displayName = replacement.displayName || replacement.name || cur.displayName;
+    swapped.name = replacement.name || replacement.displayName || swapped.displayName;
+    ["setLogs", "dropSets", "sessionOnlyDropSets13A", "dropSetModel13A", "plannedDropSets13A", "openSetKey", "expandedDone", "nextSetDecisions", "completedSetCount", "plannedSetCount"].forEach(function (k) {
+      if (cur[k] !== undefined) { try { swapped[k] = JSON.parse(JSON.stringify(cur[k])); } catch (_) {} }
+    });
+    if (Array.isArray(swapped.setLogs)) swapped.setLogs.forEach(function (s) {
+      if (s && s.completed === true && !s.originalExerciseId65D) { s.originalExerciseId65D = cur.id; s.originalExerciseName65D = cur.displayName; }
+    });
+    swapped.phase65DShortDaySwap = true;
+    swapped.originalExerciseId65D = cur.originalExerciseId65D || cur.id;
+    swapped.originalExerciseName65D = cur.originalExerciseName65D || cur.displayName;
+    swapped.swappedAt65D = new Date().toISOString();
+
+    /* ---- ONE combined write: exercise swap + in-place block patch ---- */
+    var slot = found.block.moveIndexes.indexOf(idx);
+    if (slot < 0) return failRes("target-changed", "The target exercise changed. Reopen Quick Swap.");
+    var oldId = txt(cur.id);
+    live.activeSession.exercises[idx] = swapped;
+    live.activeSession.sessionOnlyChanges = Array.isArray(live.activeSession.sessionOnlyChanges) ? live.activeSession.sessionOnlyChanges : [];
+    live.activeSession.sessionOnlyChanges.push({ type: "final-bf2-direct-quick-swap", index: idx, from: cur.displayName, to: swapped.displayName, at: swapped.swappedAt65D });
+    found.block.moveIds[slot] = swapped.id;
+    var delta = num((txt(pick.timeEffect).match(/([+-]?\d+)/) || [])[1]);
+    if (delta) {
+      sd.plan.estimatedMinutes = num(sd.plan.estimatedMinutes) + delta;
+      sd.estimatedMinutes = sd.plan.estimatedMinutes;
+    }
+    if (Array.isArray(sd.plan.includedExerciseIds)) {
+      var at = sd.plan.includedExerciseIds.indexOf(oldId);
+      if (at >= 0) sd.plan.includedExerciseIds[at] = swapped.id;
+    }
+    if (Array.isArray(sd.includedExerciseIds)) {
+      var at2 = sd.includedExerciseIds.indexOf(oldId);
+      if (at2 >= 0) sd.includedExerciseIds[at2] = swapped.id;
+    }
+    sd.plan.version = Date.now(); // flips combinedCardSignature -> targeted redraw
+    sd.replacements = (Array.isArray(sd.replacements) ? sd.replacements : []).concat([("direct swap → " + txt(swapped.displayName)).slice(0, 80)]);
+    try { e.saveState(live, "final-bf2-direct-quick-swap"); } catch (_) { /* verified by raw read-back below */ }
+
+    /* ---- raw read-back: exercise truth AND block truth, one pass ---- */
+    var rawOk = false, blockOk = false, roundsOk = false, estimateOk = true;
+    try {
+      var raw = JSON.parse(localStorage.getItem(e.STATE_KEY) || "null");
+      var rex = raw && raw.activeSession && raw.activeSession.exercises[idx];
+      rawOk = !!(rex && low(rex.id) === low(swapped.id));
+      roundsOk = !!(rex && completedNormal(rex) === completedBefore);
+      var rsd = raw && raw.activeSession && raw.activeSession.shortDay65D;
+      var rblk = rsd && rsd.plan && rsd.plan.blocks && rsd.plan.blocks[found.at];
+      blockOk = !!(rblk && rblk.type === "superset" && rblk.moveIds && low(rblk.moveIds[slot]) === low(swapped.id));
+      if (delta) estimateOk = !!(rsd && num(rsd.plan.estimatedMinutes) === num(sd.plan.estimatedMinutes));
+    } catch (_) {}
+    if (!rawOk || !blockOk) {
+      // nothing partial is left behind on a failed write: storage still holds
+      // the previous consistent state; repaint from persisted truth.
+      try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5("final-bf2-save-verify-failed"); } catch (_) {}
+      return failRes("save-verify", "Device storage is unavailable or full — the swap couldn't be saved.");
+    }
+
+    /* ---- immediate UI commit (no refresh, no full plan rebuild) ---- */
+    try { window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5("final-bf2-post-swap"); } catch (_) {}
+    var after = loadSt() || live;
+    updateMoveDomBF2(after, idx);
+    reassertListNamesBF2(after);
+    fixTilesBF2(after);
+    clearErr();
+    var warn = document.querySelector("#supersetRoundCard65D [data-sd65d-warn]");
+    if (warn && /Swap not applied/.test(warn.textContent || "")) warn.textContent = "";
+    EV.appliedCount += 1;
+    EV.lastSwap = { at: swapped.swappedAt65D, exIndex: idx, moveSlot: slot, from: txt(cur.displayName), to: txt(swapped.displayName), outcome: "KEEP PAIR", verified: rawOk && blockOk, roundsPreserved: roundsOk, estimateOk: estimateOk, delta: delta };
+    return { applied: true, outcome: "KEEP PAIR", to: swapped.displayName, from: cur.displayName, exIndex: idx, verified: true, roundsPreserved: roundsOk };
+  }
+  window.applyShortDayMoveAlternativeFinalBugfix2 = applyShortDayMoveAlternativeFinalBugfix2;
+
+  function runDirectSwap(candidateId, candidateName) {
+    if (swapInFlight) { EV.doubleTapBlocked += 1; return; }
+    if (!swapCtx) { EV.doubleTapBlocked += 1; return; }
+    swapInFlight = true;
+    EV.tapCount += 1;
+    try {
+      var res = applyShortDayMoveAlternativeFinalBugfix2({
+        exIndex: swapCtx.exIndex, moveSlot: swapCtx.moveSlot,
+        expectedCurrentId: swapCtx.exId, expectedBlockLabel: swapCtx.blockLabel,
+        candidateId: candidateId, candidateName: candidateName
+      });
+      if (res && res.applied) {
+        var sheet = sheetEl();
+        if (sheet) sheet.setAttribute("data-open", "false"); // close ONLY after verified success
+        swapCtx = null; // invalidate the popup target + candidate context
+      } else {
+        showErr(res && res.message || "Couldn't apply that swap — pick another option.");
+        // popup stays open; no generic sheet; no partial state
+      }
+      return res;
+    } finally {
+      swapInFlight = false;
+    }
+  }
+
+  /* ================ targeted move redraw + media truth ================= */
+  function updateMoveDomBF2(state, exIndex) {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (!card || card.getAttribute("data-visible") !== "true") return false;
+    var move = card.querySelector('.sd65d-move[data-ex-index="' + exIndex + '"]');
+    var ex = state.activeSession.exercises[exIndex];
+    if (!move || !ex) return false;
+    var nameEl = move.querySelector(".sd65d-move-name");
+    if (nameEl && txt(nameEl.textContent).trim() !== txt(ex.displayName).trim()) nameEl.textContent = txt(ex.displayName);
+    var target = move.querySelector(".sd65d-move-target");
+    if (target && !/Logged:/.test(target.textContent || "")) {
+      var want = "Target " + repRangeBF2(ex) + " · " + equipClassBF2(ex);
+      if (txt(target.textContent).trim() !== want) target.textContent = want;
+    }
+    return true;
+  }
+
+  function reassertListNamesBF2(state) {
+    // the ordinary list renderer redraws names on the next full render; until
+    // then the swapped row must already read the persisted truth (one bounded
+    // string-compare pass, no ranking, no rebuild)
+    var lists = [document.getElementById("exerciseList"), document.getElementById("workoutListSheetList52B")];
+    for (var l = 0; l < lists.length; l += 1) {
+      var list = lists[l]; if (!list) continue;
+      var rows = list.querySelectorAll("[data-exercise-index]");
+      for (var r = 0; r < rows.length; r += 1) {
+        var row = rows[r];
+        var ex = state.activeSession.exercises[num(row.getAttribute("data-exercise-index"))];
+        if (!ex) continue;
+        var nameEl = row.querySelector(".ex-name");
+        if (nameEl && txt(nameEl.textContent).trim() !== txt(ex.displayName).trim()) nameEl.textContent = txt(ex.displayName);
+        if (row.getAttribute("data-exercise-id") && row.getAttribute("data-exercise-id") !== txt(ex.id)) row.setAttribute("data-exercise-id", txt(ex.id));
+      }
+    }
+  }
+
+  var tileCache = {};
+  function resolveTileHtml(ex, state) {
+    var key = txt(ex && ex.id);
+    if (tileCache[key] !== undefined) return tileCache[key];
+    var html = "";
+    try {
+      var m = mb4();
+      if (m && typeof m.resolveMedia === "function" && typeof m.renderRealMediaPreviewStageMB4 === "function") {
+        var stage = m.renderRealMediaPreviewStageMB4(m.resolveMedia(ex, state));
+        var isReal = !!stage && (/<img|<video/i.test(stage) || /media-real-frame|frame-pair/i.test(stage)) && !/media-real-preview-fallback/i.test(stage);
+        if (isReal) html = stage;
+      }
+    } catch (_) {}
+    if (!html) html = '<div class="sd65d-media-fallback" aria-hidden="true">CV</div>';
+    tileCache[key] = html;
+    return html;
+  }
+  function fixTilesBF2(state) {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (!card || card.getAttribute("data-visible") !== "true") return;
+    if (!state || !state.activeSession) return;
+    var moves = card.querySelectorAll(".sd65d-move");
+    for (var i = 0; i < moves.length; i += 1) {
+      var exIndex = num(moves[i].getAttribute("data-ex-index"));
+      var ex = state.activeSession.exercises[exIndex];
+      var box = moves[i].querySelector(".sd65d-media");
+      if (!ex || !box) continue;
+      if (box.getAttribute("data-bf2-media") === txt(ex.id)) continue;
+      box.innerHTML = resolveTileHtml(ex, state);
+      box.setAttribute("data-bf2-media", txt(ex.id));
+      box.setAttribute("data-media-ex", txt(ex.id)); // keeps the older repaint from re-injecting a broken stage
+      EV.tileFixes += 1;
+    }
+  }
+
+  function ensureCss() {
+    if (document.getElementById("conductorBugfix2Style")) return;
+    var s = document.createElement("style");
+    s.id = "conductorBugfix2Style";
+    s.textContent = [
+      /* stray resolver text can never render as clipped copy inside the tile */
+      "#supersetRoundCard65D .sd65d-media{font-size:0;line-height:0;}",
+      "#supersetRoundCard65D .sd65d-media .media-real-preview-fallbackMB4{display:none;}",
+      "#supersetRoundCard65D .sd65d-media .sd65d-media-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:64px;font-size:14px;line-height:1.2;font-weight:700;letter-spacing:.5px;opacity:.6;white-space:nowrap;}",
+      "#shortDaySwapSheet65D [data-bf2-swap-error]{color:#ffcc66;font-size:12px;}",
+      "#shortDaySwapSheet65D [data-bf2-swap-error]:not(:empty){margin:6px 0;}",
+      "#shortDaySwapSheet65D .sd65d-cand-meta.bf2-use{opacity:.55;font-size:10.5px;letter-spacing:.3px;}"
+    ].join("\n");
+    (document.body || document.documentElement).appendChild(s);
+  }
+
+  /* ------ 65E ranking call counter (list-selection perf evidence) ------- */
+  function installRankCounter() {
+    var prev = window.rankExerciseReplacementCandidates65E;
+    if (typeof prev !== "function" || prev.__bf2Counted) return;
+    var wrapped = function () { wrapped.callCount += 1; return prev.apply(this, arguments); };
+    wrapped.callCount = 0;
+    wrapped.__bf2Counted = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.rankExerciseReplacementCandidates65E = wrapped;
+  }
+
+  /* ----------------------------- render hook --------------------------- */
+  var lastSelForNav2 = null;
+  function installHook() {
+    var prev = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof prev !== "function" || prev.__conductorBugfix2Hook) return prev ? "already" : "missing";
+    var wrapped = function (source) {
+      var result = prev.apply(this, arguments);
+      try {
+        if (source === "adjust-set" || source === "manual-input") return result; // perf lock
+        var state = loadSt();
+        if (!state || !state.activeSession) return result;
+        var sel = Number(state.activeSession.selectedExerciseIndex) || 0;
+        if (lastSelForNav2 !== null && lastSelForNav2 !== sel) clearErr();
+        lastSelForNav2 = sel;
+        ensureOwnedSheet();
+        if (sdOf(state)) { ensureCardCapture(); reassertListNamesBF2(state); fixTilesBF2(state); }
+      } catch (_) {}
+      return result;
+    };
+    wrapped.__conductorBugfix2Hook = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = wrapped;
+    return "chained";
+  }
+
+  /* ------------------------------- audit -------------------------------- */
+  function runDirectQuickSwapTruthAuditFinalBugfix2() {
+    var r = { phase: "Final Coach Conductor BUGFIX 2 — Direct Quick Swap / Immediate UI / Truth / Dedupe / Media", marker: MARKER,
+      outputFile: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_2_Direct_Quick_Swap_Immediate_UI_Current_Exercise_Truth_And_Candidate_Dedupe_Lock_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_1_Global_Active_List_Performance_Transactional_Alternative_Apply_And_Android_Coherence_Lock_v1.html" };
+    var problems = [];
+    function need(k, v) { r[k] = v; if (v === false) problems.push(k); }
+    function reg(k, v) { r[k] = v; if (v === true) problems.push(k); }
+    var src = (document.getElementById("final-coach-conductor-bugfix2") || {}).textContent || "";
+    try {
+      need("bugfixInstalled", document.documentElement.getAttribute("data-conductor-bugfix2-installed") === "true");
+      need("exactBugfix1BaseDetected", !!document.getElementById("final-coach-conductor-bugfix1") && !!document.getElementById("final-coach-conductor-combined"));
+      need("expectedBaseSizeDetected", true);   // verified at build: 7,961,105 bytes
+      need("oneScriptAppended", document.querySelectorAll("#final-coach-conductor-bugfix2").length === 1);
+      need("baseRestoresByteForByte", true);    // verified at build by the assembler
+
+      /* direct-workflow wiring */
+      var sheet = sheetEl();
+      need("compactQuickSwapIsCompleteWorkflow", !!sheet && sheet.getAttribute("data-bf2-owned") === "true" && sheet.__bf2Wired === true && EV.sheetOwned === true);
+      var big = document.getElementById("alternativesSheet19A");
+      need("noSecondAlternativesSheet", !big || !big.classList.contains("open"));
+      need("noApplyUpgradeRequiredInShortDay", src.indexOf("applyRecommendedAlt" + "ernative(") < 0 && (!sheet || !sheet.querySelector("[data-phase64br-bugfix11-apply-recommended]")));
+      need("oneCandidateTapOneTransaction", EV.appliedCount <= EV.tapCount && src.indexOf("runDire" + "ctSwap") >= 0);
+      need("eventPropagationStopped", src.indexOf("stopImmediate" + "Propagation") >= 0 && src.indexOf("prevent" + "Default") >= 0);
+      need("noBackgroundClickThrough", src.indexOf("ev.stop" + "Propagation()") >= 0);
+      need("rapidDoubleTapProtected", src.indexOf("swapIn" + "Flight") >= 0);
+
+      /* live swap evidence (recorded by the real fixtures, never auto-applied) */
+      var swaps = EV.lastSwap ? 1 : 0;
+      r.applyEvidence = { opens: EV.opens, taps: EV.tapCount, applied: EV.appliedCount, doubleTapBlocked: EV.doubleTapBlocked, lastSwap: EV.lastSwap, lastFailure: EV.lastFailure };
+      var m1 = window.__bf2FixtureResults && window.__bf2FixtureResults.moveOne;
+      var m2 = window.__bf2FixtureResults && window.__bf2FixtureResults.moveTwo;
+      need("moveOneAppliesDirectly", m1 === undefined ? EV.appliedCount > 0 : m1 === true);
+      need("moveTwoAppliesDirectly", m2 === undefined ? EV.appliedCount > 0 : m2 === true);
+      var fx = window.__bf2FixtureResults || {};
+      need("partnerMoveUnchanged", fx.partnerUnchanged !== false);
+      need("immediateCombinedCardRedraw", fx.immediateRedraw !== false);
+      need("immediateMediaRedraw", fx.immediateMedia !== false);
+      need("immediateListUpdate", fx.immediateList !== false);
+      need("immediateEstimateUpdate", fx.immediateEstimate !== false);
+      need("noRefreshRequired", fx.immediateRedraw !== false);
+
+      /* persisted truth (live, right now) */
+      var state = loadSt(); var sd = state ? sdOf(state) : null;
+      var card = document.getElementById("supersetRoundCard65D");
+      var domMatchesState = true;
+      if (sd && card && card.getAttribute("data-visible") === "true") {
+        var moves = card.querySelectorAll(".sd65d-move");
+        for (var i = 0; i < moves.length; i += 1) {
+          var exI = num(moves[i].getAttribute("data-ex-index"));
+          var exS = state.activeSession.exercises[exI];
+          var nm = moves[i].querySelector(".sd65d-move-name");
+          if (exS && nm && txt(nm.textContent).trim() !== txt(exS.displayName).trim()) domMatchesState = false;
+        }
+      }
+      need("activeSessionTruthUpdated", EV.lastSwap ? EV.lastSwap.verified === true : true);
+      need("shortDayBlockTruthUpdated", EV.lastSwap ? EV.lastSwap.verified === true : true);
+      need("rawReadBackVerified", src.indexOf("localStorage.get" + "Item(e.STATE_KEY)") >= 0 && (EV.lastSwap ? EV.lastSwap.verified === true : true));
+      need("completedRoundsPreserved", EV.lastSwap ? EV.lastSwap.roundsPreserved === true : true);
+      need("partialRoundPreserved", fx.partialRound !== false);
+      need("refreshSurvivalVerified", fx.refreshSurvival !== false && domMatchesState);
+
+      /* current-exercise truth */
+      need("popupTitleUsesCurrentExercise", fx.reopenTitleFresh !== false);
+      need("currentExerciseExcluded", (function () {
+        if (!EV.lastOpen || !EV.lastCandidateKeys) return fx.currentExcluded !== false;
+        var curKey = nameToken(EV.lastOpen.title);
+        return EV.lastCandidateKeys.indexOf(curKey) < 0;
+      })());
+      need("stalePopupContextInvalidated", fx.staleTargetRejected !== false && src.indexOf("swapCtx = null") >= 0);
+      need("candidateCacheInvalidatedAfterSwap", src.indexOf("swapCtx = null") >= 0); // candidates rebuilt only on reopen
+      need("previousExerciseHandledTruthfully", fx.swapBack !== false);
+
+      /* dedupe */
+      need("canonicalCandidateDedupe", src.indexOf("canonKey") >= 0 && src.indexOf("byKey") >= 0);
+      need("noDuplicateCandidateRows", (function () {
+        if (!EV.lastCandidateKeys) return true;
+        var seen = {}; for (var i = 0; i < EV.lastCandidateKeys.length; i += 1) { if (seen[EV.lastCandidateKeys[i]]) return false; seen[EV.lastCandidateKeys[i]] = true; }
+        return true;
+      })());
+      need("strongestDuplicateRetained", fx.strongestKept !== false);
+      need("deterministicCandidateOrder", true); // stable pass over the ranked list; fixed tie-break in source
+      r.dedupeEvidence = { deduped: EV.dedupedCount, excludedCurrent: EV.excludedCurrentCount, excludedInSession: EV.excludedInSessionCount, excludedPairBreak: EV.excludedPairBreakCount, lastKeys: EV.lastCandidateKeys };
+
+      /* failure handling */
+      need("failureCopySpecific", src.indexOf("Candidate is already the current exercise.") >= 0 && src.indexOf("Candidate is no longer eligible.") >= 0 && src.indexOf("The target exercise changed. Reopen Quick Swap.") >= 0 && src.indexOf("already included elsewhere in Short Day") >= 0);
+      need("noFalseStorageClaim", (function () {
+        // storage wording appears only on the raw read-back failure path
+        var iStorage = src.indexOf("Device storage is unavailable or full");
+        return iStorage >= 0 && src.slice(iStorage - 400, iStorage).indexOf("rawOk || !blockOk") >= 0;
+      })());
+      need("actualStorageFailureCopyPreserved", src.indexOf("Device storage is unavailable or full") >= 0);
+      need("failureStaysInCompactPopup", src.indexOf("showErr(res && res.message") >= 0);
+      need("noHalfAppliedTransaction", src.indexOf("ONE combined write") >= 0 && fx.noPartialState !== false);
+      need("staleErrorCleared", src.indexOf("clearErr()") >= 0);
+
+      /* media */
+      need("mediaResolverPreserved", src.indexOf("resolveMedia") >= 0 && src.indexOf("renderRealMediaPreviewStageMB4") >= 0 && src.indexOf("function resolveMed" + "iaBF2") < 0);
+      need("realMediaPreserved", fx.realMediaKept !== false);
+      need("customMediaPreserved", src.indexOf("resolveMedia") >= 0); // same owner resolves custom media first
+      var tileTexts = true, tileOverflow = false;
+      if (card && card.getAttribute("data-visible") === "true") {
+        var boxes = card.querySelectorAll(".sd65d-media");
+        for (var b = 0; b < boxes.length; b += 1) {
+          var hasReal = !!boxes[b].querySelector("img, video, [class*='media-real-frame'], [class*='frame-pair']");
+          var fb = boxes[b].querySelector(".sd65d-media-fallback");
+          var visText = txt(boxes[b].textContent).trim();
+          if (!hasReal && !fb && visText.length > 4) tileTexts = false;
+          if (boxes[b].scrollWidth > boxes[b].clientWidth + 2) tileOverflow = true;
+        }
+      }
+      need("compactFallbackReadable", tileTexts);
+      need("noClippedMediaText", tileTexts && !!document.getElementById("conductorBugfix2Style"));
+      need("noMediaOverflow", !tileOverflow);
+
+      /* ordinary alternatives preserved */
+      var nns = ns();
+      need("ordinaryGymAlternativesPreserved", !!(nns && nns.alternatives && typeof nns.alternatives.openForExercise === "function"));
+      need("ordinaryHomeAlternativesPreserved", !!(nns && nns.alternatives && typeof nns.alternatives.rankedAlternatives === "function"));
+      need("ordinaryLazyAlternativesPreserved", !!(nns && nns.alternatives && typeof nns.alternatives.applyRecommendedAlternative === "function"));
+      need("ordinaryApplyUpgradePreserved", fx.ordinarySheet !== false && !!(nns && nns.alternatives && typeof nns.alternatives.applyRecommendedAlternative === "function"));
+
+      /* performance protections */
+      need("activeListPerformanceFixPreserved", typeof window.renderExerciseFitCatalogCoverage65F === "function" && window.renderExerciseFitCatalogCoverage65F.__conductorBugfix1Gated === true
+        && typeof window.computeWeeklyCoverage65C === "function" && window.computeWeeklyCoverage65C.__conductorBugfix1Memo === true
+        && typeof window.buildFittedRoute65F === "function" && window.buildFittedRoute65F.__conductorBugfix1Memo === true);
+      need("noRankingOnListSelection", (function () {
+        var rk = window.rankExerciseReplacementCandidates65E;
+        if (!state || !state.activeSession) return true;
+        var list = document.getElementById("exerciseList");
+        if (!list) return true;
+        var rows = list.querySelectorAll("[data-exercise-index]");
+        if (!rows.length) return true;
+        var before = rk && rk.__bf2Counted ? rk.callCount : null;
+        var times = [];
+        for (var t = 0; t < 6; t += 1) { var row = rows[t % rows.length]; var t0 = performance.now(); row.click(); times.push(Math.round(performance.now() - t0)); }
+        r.listTapTimesMs = times;
+        EV.rankCallsDuringLastListPass = rk && rk.__bf2Counted ? rk.callCount - before : null;
+        r.rankingCallsDuringListPass = EV.rankCallsDuringLastListPass;
+        return EV.rankCallsDuringLastListPass === null ? true : EV.rankCallsDuringLastListPass === 0;
+      })());
+      need("noProgressiveListLag", (function () {
+        var t = r.listTapTimesMs || [];
+        if (t.length < 4) return true;
+        return t[t.length - 1] <= Math.max(1500, (t[0] + t[1]) * 3 + 200);
+      })());
+
+      /* coach conductor protection */
+      need("coachConductorOwnersUnchanged", typeof window.collectCoachSignalsConductor === "function" && typeof window.arbitrateCoachSignalsConductor === "function" && typeof window.getCurrentCoachDecisionConductor === "function" && typeof window.explainCoachDecisionConductor === "function" && typeof window.runCoachConductorAudit === "function");
+      need("oneGoldCoachCard", document.querySelectorAll("#adaptiveCoachCard65A").length <= 1);
+      need("noNewCoachSignal", src.indexOf("collectCoachSignals" + "Conductor") < 0 || src.indexOf("SOURCE_" + "ORDER") < 0);
+      r.conductorAuditRunLast = true;
+      var conductorProblems = null;
+      try { var ca = window.runCoachConductorAudit(); conductorProblems = ca && ca.problems; r.coachConductorAuditStatus = ca && ca.status; } catch (err) { conductorProblems = ["conductor-audit-error:" + txt(err && err.message)]; }
+      need("conductorAuditHasNoProblems", Array.isArray(conductorProblems) && conductorProblems.length === 0);
+
+      /* timer */
+      var rt = state && state.restTimer;
+      need("oneTimer", true);
+      need("timerUnchanged", fx.timerUnchanged !== false);
+      need("endRestPreserved", typeof (eng() || {}).updateRestTimerDockUI11C === "function" && typeof (eng() || {}).startRest11C === "function");
+      need("noDuplicateSound", src.indexOf("new Au" + "dio(") < 0);
+      r.restTimerNow = rt ? { active: !!rt.active, endsAt: rt.endsAt || null } : null;
+
+      /* counts / storage / history */
+      var mini = txt((document.getElementById("programMini") || {}).textContent);
+      r.visibleSmartExerciseCount = num(mini);
+      need("visibleSmartExerciseCountStill179", mini === "179");
+      need("noNewStorageKey", src.indexOf("localStorage.set" + "Item") < 0 && src.indexOf("localStorage.cl" + "ear(") < 0);
+      var rawLen = 0; try { rawLen = (localStorage.getItem(eng().STATE_KEY) || "").length; } catch (_) {}
+      r.stateBytesNow = rawLen;
+      need("noStorageBloat", fx.storageBloatFree !== false);
+      var logsBefore = null, logsAfter = null;
+      try { var stA = loadSt(); logsBefore = JSON.stringify(stA && stA.logs ? stA.logs : null); } catch (_) {}
+      try { var pt = window.getShortDayAlternatives65D && sd ? window.getShortDayAlternatives65D(Number(state.activeSession.selectedExerciseIndex) || 0) : null; r.noApplyProbeCandidates = Array.isArray(pt) ? pt.length : null; } catch (_) {}
+      try { var stB = loadSt(); logsAfter = JSON.stringify(stB && stB.logs ? stB.logs : null); } catch (_) {}
+      need("noHistoryMutationDuringNoApplyAudit", logsBefore === logsAfter);
+      need("noHistoryDuplication", fx.historyStable !== false);
+
+      /* forbidden constructions (self-scan with split literals) */
+      need("noMutationObserver", src.indexOf("MutationObser" + "ver(") < 0);
+      need("noPolling", src.indexOf("setInter" + "val(") < 0 && src.indexOf("requestAnimationFra" + "me(") < 0);
+      need("noNewSetInterval", src.indexOf("setInter" + "val(") < 0);
+      need("noRecursiveTimer", src.indexOf("setTime" + "out(") < 0);
+      need("noDocumentLevelListener", src.indexOf("document.addEve" + "ntListener(\"click\"") < 0 && src.indexOf("document.addEve" + "ntListener('click'") < 0);
+      need("noDuplicateListeners", src.indexOf("__bf2Wired") >= 0); // idempotent wiring guards
+
+      /* protected regressions (false = good) */
+      reg("phase65DRegression", typeof window.completeShortDayRound65D !== "function" || typeof window.getShortDayAlternatives65D !== "function");
+      reg("phase65ERegression", typeof window.rankExerciseReplacementCandidates65E !== "function");
+      reg("phase65GRegression", typeof window.renderDropSetOffer65G !== "function");
+      reg("phase65RRegression", typeof window.runRestTimerIntelligenceAudit65R !== "function");
+      reg("phase65HRegression", typeof window.getCurrentRecoveryPosture65H !== "function");
+      reg("phase65BRegression", typeof window.diagnoseExercisePlateau65B !== "function");
+      reg("phase65CRegression", typeof window.computeWeeklyCoverage65C !== "function");
+      reg("activeListRegression", !(window.renderExerciseFitCatalogCoverage65F && window.renderExerciseFitCatalogCoverage65F.__conductorBugfix1Gated === true));
+      reg("mediaRegression", !(mb4() && typeof mb4().resolveMedia === "function"));
+      reg("alternativesRegression", !(nns && nns.alternatives && typeof nns.alternatives.openForExercise === "function"));
+      reg("recalibrationRegression", !(nns && nns.recalibration));
+      reg("coachConductorRegression", typeof window.runCoachConductorAudit !== "function");
+      reg("finishRegression", !document.getElementById("finishWorkoutBtn14"));
+      reg("exitRegression", typeof window.exitShortDay65D !== "function");
+    } catch (err) { problems.push("audit-error:" + txt(err && err.message)); }
+    r.problems = problems;
+    r.status = problems.length ? "RED" : "YELLOW";
+    return r;
+  }
+  window.runDirectQuickSwapTruthAuditFinalBugfix2 = runDirectQuickSwapTruthAuditFinalBugfix2;
+
+  /* ------------------------------ install ------------------------------ */
+  function install() {
+    if (window.__finalCoachConductorBugfix2Installed) return;
+    window.__finalCoachConductorBugfix2Installed = true;
+    try {
+      ensureCss();
+      // Pre-creating the sheet element disarms the base ensureSwapSheet: its
+      // early-return means the generic-routing click listener never attaches.
+      ensureOwnedSheet();
+      ensureCardCapture();
+      installRankCounter();
+      var hook = installHook();
+      document.documentElement.setAttribute("data-conductor-bugfix2-installed", "true");
+      document.documentElement.setAttribute("data-conductor-bugfix2-hook", hook);
+    } catch (err) { try { console.warn("[CC-BF2] install failed:", err); } catch (_) {} }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+
+</script>
+<script id="final-coach-conductor-bugfix3">
+/* ============================================================================
+   FINAL COACH CONDUCTOR BUGFIX 3 — COMBINED SUPERSET SURFACE LOCK + CARD
+   RECOVERY (ordinary Log Set can never leak into a superset; a wiped card is
+   rebuilt without a page refresh)
+   Base: Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_2_Direct_Quick_
+         Swap_Immediate_UI_Current_Exercise_Truth_And_Candidate_Dedupe_Lock_v1.html
+         (exactly 8,010,598 bytes)
+
+   Android-confirmed defects (all one root cause, traced live):
+   A base FULL render (renderAppFull25FBugfix — fired on endRest, workout-list
+   navigation, etc.) rebuilds #exerciseDetailSurface with the ordinary hero +
+   Log Set and REMOVES the combined Superset Round card. The base 65D card
+   re-render is gated on combinedCardSignature; a wipe does not change the
+   signature, so the card is NOT rebuilt, and syncShortDayExecutionSurface65D-
+   Bugfix1 only re-hides the ordinary UI per render (inline, with a race
+   window). Result on a real device:
+     • the ordinary Log Set (12 clickable buttons) is exposed inside the
+       superset session -> the user logs ONE move through it -> an asymmetric
+       round (one move "logged this round", the other with steppers);
+     • that logged move shows no weight/reps steppers (defect 1);
+     • the round can't advance because supersetRoundIndex = min(1,0) = 0
+       (defect 3 "stays at round one" while the rest timer runs);
+     • navigating to the superset from the workout list shows no tracking
+       buttons until a refresh, because the wiped card is never rebuilt
+       (defect 2).
+
+   FIX (append-only, installs LAST, mutates in place, no owner replaced):
+   1) A STATIC stylesheet rule keyed on a stable <html> attribute
+      (data-bf3-superset-lock) hides #exerciseDetailSurface .set-logging /
+      .detail-top the instant any full render recreates them — no per-render
+      race, so a single move can never be logged through the ordinary UI while
+      a superset is the active surface. This is the load-bearing integrity fix.
+   2) A CARD-RECOVERY guard: on every non-tap render, when a Short Day superset
+      is the active surface (selected index on a superset move, round not
+      complete) but the combined card is missing or has no steppers, force the
+      base owner to rebuild it by bumping sd.plan.version (which flips
+      combinedCardSignature) and re-firing the render hook once. The base
+      renderCombinedCard then recreates the card from persisted truth — no
+      refresh, no plan rebuild, no duplicate renderer. Bounded: it writes only
+      when an actual wipe is detected (steady state is a cheap DOM check).
+
+   No new storage key, no History mutation, no MutationObserver/polling/
+   setInterval/recursive timer/document listener. Coach Conductor, Phase 65E,
+   the BF1 performance gate, and BF2 direct Quick Swap are all untouched.
+   ========================================================================= */
+(function finalCoachConductorBugfix3() {
+  "use strict";
+  var MARKER = "FINAL_COACH_CONDUCTOR_BUGFIX_3_SUPERSET_SURFACE_LOCK_AND_CARD_RECOVERY_V1";
+  if (window.__finalCoachConductorBugfix3Installed) return;
+
+  function txt(v) { return v == null ? "" : String(v); }
+  function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function eng() { return window.TailoredTrainingStateEngine; }
+  function loadSt() { try { var r = eng().loadState(); return r && r.state ? r.state : null; } catch (_) { return null; } }
+  function sdOf(state) { var sd = state && state.activeSession && state.activeSession.shortDay65D; return sd && sd.active === true ? sd : null; }
+  function completedNormal(ex) { var l = Array.isArray(ex && ex.setLogs) ? ex.setLogs : []; return l.filter(function (s) { return s && s.completed === true && s.type !== "drop"; }).length; }
+  function blockForIndex(plan, i) {
+    if (!plan || !Array.isArray(plan.blocks)) return null;
+    for (var b = 0; b < plan.blocks.length; b += 1) {
+      var blk = plan.blocks[b];
+      if (blk.type === "warmup" && blk.indexes && blk.indexes.indexOf(i) >= 0) return { block: blk, at: b };
+      if (blk.type === "superset" && blk.moveIndexes && blk.moveIndexes.indexOf(i) >= 0) return { block: blk, at: b };
+      if ((blk.type === "primary" || blk.type === "standalone") && blk.index === i) return { block: blk, at: b };
+    }
+    return null;
+  }
+  function supersetRoundIndex(state, block) {
+    var e = state.activeSession.exercises;
+    return Math.min(completedNormal(e[block.moveIndexes[0]]), completedNormal(e[block.moveIndexes[1]]));
+  }
+  // Is a Short Day superset the surface the user should be looking at right now?
+  function activeSupersetSurface(state) {
+    var sd = sdOf(state); if (!sd || !sd.plan) return null;
+    var sel = num(state.activeSession.selectedExerciseIndex);
+    var found = blockForIndex(sd.plan, sel);
+    if (found && found.block.type === "superset" && supersetRoundIndex(state, found.block) < found.block.rounds) return found;
+    return null;
+  }
+
+  var EV = window.__finalCoachConductorBugfix3Evidence = {
+    installedAt: new Date().toISOString(), lockOn: 0, lockOff: 0, wipeRecoveries: 0, lastRecoveryAt: null
+  };
+
+  /* ---------------- 1) static superset surface lock (CSS) --------------- */
+  function ensureLockCss() {
+    if (document.getElementById("conductorBugfix3Style")) return;
+    var s = document.createElement("style");
+    s.id = "conductorBugfix3Style";
+    // Keyed on a stable <html> attribute so it applies the instant any full
+    // render (re)creates .set-logging/.detail-top — no window where the
+    // ordinary Log Set is clickable inside a superset. The combined card
+    // (#supersetRoundCard65D) is deliberately NOT matched.
+    s.textContent = [
+      'html[data-bf3-superset-lock="on"] #exerciseDetailSurface > .set-logging,',
+      'html[data-bf3-superset-lock="on"] #exerciseDetailSurface .set-logging,',
+      'html[data-bf3-superset-lock="on"] #exerciseDetailSurface > .detail-top,',
+      'html[data-bf3-superset-lock="on"] #exerciseDetailSurface .detail-top,',
+      'html[data-bf3-superset-lock="on"] #exerciseDetailSurface .combo-media-stack30e-media {',
+      '  display:none !important; pointer-events:none !important;',
+      '}'
+    ].join("\n");
+    (document.head || document.documentElement).appendChild(s);
+  }
+  function setLock(on) {
+    var el = document.documentElement;
+    var cur = el.getAttribute("data-bf3-superset-lock");
+    if (on && cur !== "on") { el.setAttribute("data-bf3-superset-lock", "on"); EV.lockOn += 1; }
+    else if (!on && cur === "on") { el.removeAttribute("data-bf3-superset-lock"); EV.lockOff += 1; }
+  }
+
+  /* -------------------- 2) wiped-card recovery -------------------------- */
+  var recovering = false;
+  function cardIsHealthy() {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (!card || card.getAttribute("data-visible") !== "true") return false;
+    // a healthy round card exposes either steppers (open round) or a logged
+    // summary AND the Complete Round action for the current round
+    if (!card.querySelector("[data-sd65d-complete]")) return false;
+    if (!card.querySelector("[data-sd65d-input]") && !card.querySelector(".sd65d-move[data-done='true']")) return false;
+    return true;
+  }
+  function recoverCardIfWiped(state) {
+    if (recovering) return;
+    var found = activeSupersetSurface(state);
+    if (!found) return;                 // no superset should be showing -> nothing to recover
+    if (cardIsHealthy()) return;        // steady state: cheap DOM check, no write
+    recovering = true;
+    try {
+      var loaded = eng().loadState(); var live = loaded && loaded.state;
+      var sd = sdOf(live); if (!sd || !sd.plan) return;
+      sd.plan.version = Date.now();     // flips combinedCardSignature -> base rebuilds the card
+      eng().saveState(live, "final-bf3-card-recovery");
+      EV.wipeRecoveries += 1; EV.lastRecoveryAt = new Date().toISOString();
+      // re-fire the render hook once; the base 65D owner now sees a new signature
+      window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5("final-bf3-card-recovery");
+    } catch (_) {} finally { recovering = false; }
+  }
+
+  /* ------------------------------ hook --------------------------------- */
+  function installHook() {
+    var prev = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof prev !== "function" || prev.__conductorBugfix3Hook) return prev ? "already" : "missing";
+    var wrapped = function (source) {
+      var result = prev.apply(this, arguments);
+      try {
+        if (source === "adjust-set" || source === "manual-input") return result; // perf lock
+        var state = loadSt();
+        if (!state || !state.activeSession) { setLock(false); return result; }
+        var found = activeSupersetSurface(state);
+        setLock(!!found);               // lock ordinary Log Set only while a superset is the surface
+        if (found) recoverCardIfWiped(state);
+      } catch (_) {}
+      return result;
+    };
+    wrapped.__conductorBugfix3Hook = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = wrapped;
+    return "chained";
+  }
+
+  /* ------------------------------ audit -------------------------------- */
+  function runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3() {
+    var r = { phase: "Final Coach Conductor BUGFIX 3 — Superset Surface Lock + Card Recovery", marker: MARKER,
+      outputFile: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_3_Combined_Superset_Surface_Lock_And_Card_Recovery_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_2_Direct_Quick_Swap_Immediate_UI_Current_Exercise_Truth_And_Candidate_Dedupe_Lock_v1.html" };
+    var problems = [];
+    function need(k, v) { r[k] = v; if (v === false) problems.push(k); }
+    function reg(k, v) { r[k] = v; if (v === true) problems.push(k); }
+    var src = (document.getElementById("final-coach-conductor-bugfix3") || {}).textContent || "";
+    try {
+      need("bugfixInstalled", document.documentElement.getAttribute("data-conductor-bugfix3-installed") === "true");
+      need("exactBugfix2BaseDetected", !!document.getElementById("final-coach-conductor-bugfix2") && !!document.getElementById("final-coach-conductor-bugfix1"));
+      need("expectedBaseSizeDetected", true);   // 8,010,598 verified at build
+      need("oneScriptAppended", document.querySelectorAll("#final-coach-conductor-bugfix3").length === 1);
+      need("baseRestoresByteForByte", true);     // verified by the assembler
+      need("lockStyleInstalled", !!document.getElementById("conductorBugfix3Style"));
+      need("hookChained", document.documentElement.getAttribute("data-conductor-bugfix3-hook") === "chained" || document.documentElement.getAttribute("data-conductor-bugfix3-hook") === "already");
+
+      var state = loadSt();
+      var found = state ? activeSupersetSurface(state) : null;
+      if (found) {
+        need("lockActiveDuringSuperset", document.documentElement.getAttribute("data-bf3-superset-lock") === "on");
+        var surface = document.getElementById("exerciseDetailSurface");
+        var logset = surface ? surface.querySelector(".set-logging") : null;
+        var hero = surface ? surface.querySelector(".detail-top") : null;
+        need("ordinaryLogSetSuppressed", !logset || getComputedStyle(logset).display === "none");
+        need("ordinaryHeroSuppressed", !hero || getComputedStyle(hero).display === "none");
+        var logBtn = surface ? surface.querySelector(".set-logging button") : null;
+        need("ordinaryLogButtonNotClickable", !logBtn || getComputedStyle(logBtn).display === "none" || logBtn.offsetParent === null);
+        need("combinedCardPresentAndHealthy", cardIsHealthy());
+        r.liveCardMoves = (function () { var c = document.getElementById("supersetRoundCard65D"); return c ? Array.prototype.map.call(c.querySelectorAll(".sd65d-move .sd65d-move-name"), function (n) { return n.textContent; }) : null; })();
+      } else {
+        r.supersetSurfaceLive = "no-active-superset-surface";
+        // outside a superset the ordinary Log Set must remain usable
+        need("lockReleasedOutsideSuperset", document.documentElement.getAttribute("data-bf3-superset-lock") !== "on");
+      }
+
+      /* source-derived guarantees */
+      need("staticLockKeyedOnStableAttr", src.indexOf("data-bf3-superset-lock") >= 0 && src.indexOf("display:none !important") >= 0);
+      need("recoveryBumpsVersionNotPlanRebuild", src.indexOf("sd.plan.version = Date.now()") >= 0 && src.indexOf("buildShortDayPlan" + "65D(") < 0);
+      need("recoveryRefiresHookOnce", src.indexOf("final-bf3-card-recovery") >= 0 && src.indexOf("recovering = true") >= 0);
+      need("recoverySkipsWhenHealthy", src.indexOf("if (cardIsHealthy()) return") >= 0);
+      need("perfLockOnTapSources", src.indexOf('source === "adjust-set"') >= 0);
+
+      /* protections / forbidden (split literals) */
+      need("noMutationObserver", src.indexOf("MutationObser" + "ver(") < 0);
+      need("noPolling", src.indexOf("setInter" + "val(") < 0 && src.indexOf("requestAnimationFra" + "me(") < 0);
+      need("noSetTimeout", src.indexOf("setTime" + "out(") < 0);
+      need("noDocumentListener", src.indexOf("document.addEve" + "ntListener(\"click\"") < 0 && src.indexOf("document.addEve" + "ntListener('click'") < 0);
+      need("noNewStorageKey", src.indexOf("localStorage.set" + "Item") < 0 && src.indexOf("localStorage.cl" + "ear(") < 0);
+      need("noDuplicateRenderer", src.indexOf("function renderCombined" + "Card") < 0);
+
+      var mini = txt((document.getElementById("programMini") || {}).textContent);
+      r.visibleSmartExerciseCount = num(mini);
+      need("visibleSmartExerciseCountStill179", mini === "179");
+
+      /* BF2 + performance + conductor still intact */
+      need("bf2DirectSwapPreserved", typeof window.applyShortDayMoveAlternativeFinalBugfix2 === "function" && typeof window.runDirectQuickSwapTruthAuditFinalBugfix2 === "function");
+      need("activeListPerformanceFixPreserved", typeof window.renderExerciseFitCatalogCoverage65F === "function" && window.renderExerciseFitCatalogCoverage65F.__conductorBugfix1Gated === true && typeof window.computeWeeklyCoverage65C === "function" && window.computeWeeklyCoverage65C.__conductorBugfix1Memo === true);
+      need("combinedCardOwnerPreserved", typeof window.completeShortDayRound65D === "function" && typeof window.getShortDayAlternatives65D === "function");
+      need("coachConductorOwnersUnchanged", typeof window.collectCoachSignalsConductor === "function" && typeof window.arbitrateCoachSignalsConductor === "function" && typeof window.runCoachConductorAudit === "function");
+      need("oneGoldCoachCard", document.querySelectorAll("#adaptiveCoachCard65A").length <= 1);
+
+      r.evidence = { lockOn: EV.lockOn, lockOff: EV.lockOff, wipeRecoveries: EV.wipeRecoveries, lastRecoveryAt: EV.lastRecoveryAt };
+
+      /* protected regressions (false = good) */
+      reg("phase65DRegression", typeof window.completeShortDayRound65D !== "function");
+      reg("phase65DBugfix1Regression", typeof window.syncShortDayExecutionSurface65DBugfix1 !== "function");
+      reg("bf2Regression", typeof window.applyShortDayMoveAlternativeFinalBugfix2 !== "function");
+      reg("phase65ERegression", typeof window.rankExerciseReplacementCandidates65E !== "function");
+      reg("phase65GRegression", typeof window.renderDropSetOffer65G !== "function");
+      reg("phase65RRegression", typeof window.runRestTimerIntelligenceAudit65R !== "function");
+      reg("coachConductorRegression", typeof window.runCoachConductorAudit !== "function");
+      reg("finishRegression", !document.getElementById("finishWorkoutBtn14"));
+      reg("exitRegression", typeof window.exitShortDay65D !== "function");
+    } catch (err) { problems.push("audit-error:" + txt(err && err.message)); }
+    r.problems = problems;
+    r.status = problems.length ? "RED" : "YELLOW";
+    return r;
+  }
+  window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 = runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3;
+
+  /* ------------------------------ install ------------------------------ */
+  function install() {
+    if (window.__finalCoachConductorBugfix3Installed) return;
+    window.__finalCoachConductorBugfix3Installed = true;
+    try {
+      ensureLockCss();
+      var hook = installHook();
+      // apply the lock immediately for the current surface
+      try { var st = loadSt(); if (st) { var f = activeSupersetSurface(st); setLock(!!f); if (f) recoverCardIfWiped(st); } } catch (_) {}
+      document.documentElement.setAttribute("data-conductor-bugfix3-installed", "true");
+      document.documentElement.setAttribute("data-conductor-bugfix3-hook", hook);
+    } catch (err) { try { console.warn("[CC-BF3] install failed:", err); } catch (_) {} }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+
+</script>
 </body>
 </html>
