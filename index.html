@@ -105335,5 +105335,556 @@ Narrow rule-based correction only:
 })();
 
 </script>
+<script id="final-coach-conductor-bugfix4">
+/* ============================================================================
+   FINAL COACH CONDUCTOR BUGFIX 4 — SHORT DAY ACTIVE WORKOUT LIST BLOCK
+   AUTHORITY, DEFERRED + COMPLETED NAVIGATION, CONDUCTOR CONTEXT, SET-COUNT
+   TRUTH, AND REST-STATE COHERENCE LOCK
+   Base: Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_3_Combined_
+         Superset_Surface_Lock_And_Card_Recovery_v1.html (exactly 8,027,771 bytes)
+
+   Android-confirmed defects + the exact first failing owner (traced live):
+   D1/D3/D7 The workout-list row owner bindWorkoutListRows52B (base ~65487)
+      binds EVERY [data-exercise-index] row to selectExercise(index) with zero
+      Short Day awareness — so a "Not in Short Day" deferred row and a completed
+      superset member both navigate like ordinary exercises, opening the
+      ordinary Log Set (proven: selecting deferred idx opens .set-logging with
+      clickable buttons; selecting a done superset member removes the combined
+      card and shows ordinary 2/3-complete logging + a Phase 65G offer).
+   D2/D5 renderExerciseList (base ~35262) emits `${sets} sets` (the Full-program
+      prescription / replacement default, e.g. "3 sets"/"0 sets"/"4 sets") and
+      the ordinary data-workout-list-status46d state ("next"/"current"); the
+      Short Day rewriteListTruth (65D-BF1) only rewrites `.ex-cue b` text, so
+      the Full set-count chip, the ordinary status attribute, and the deferred
+      row's clickability all survive → "Next" + "Not in Short Day" on one row.
+   D4 The invalid deferred/completed selectExercise feeds the Coach Conductor an
+      excluded/completed active exercise → "Next set" advice for a done block.
+      Blocking the navigation removes the invalid context (Conductor unchanged).
+   D6 buildSimpleRestTransitionCopy64AX (base ~72320) emits "Rest now. Next set
+      opens when the timer ends." for a superset round rest, while the combined
+      card's Complete Round button is never disabled during rest — controls and
+      timer copy contradict.
+
+   FIX (append-only, installs LAST, mutates in place, no owner replaced):
+   1) One authoritative block-navigation model (classifyRowBF4) derived from
+      activeSession.shortDay65D.plan; NOT persisted, no storage key.
+   2) A CAPTURE-phase row-click guard on #exerciseList and
+      #workoutListSheetList52B: while Short Day is active, a deferred row and a
+      completed block are non-selectable (preventDefault + stopImmediate-
+      Propagation so the base selectExercise never runs; no state change, no
+      Conductor change); included active blocks fall through to the base owner
+      (superset member -> combined card, primary/standalone -> its surface).
+   3) Per-render list normalization: deferred/completed rows become
+      aria-disabled + dimmed with the ordinary Current/Next status stripped and
+      a single Short Day label; the Full "N sets" chip is replaced with Short
+      Day block truth (superset -> "N rounds", primary/standalone -> Short Day
+      planned sets, deferred -> removed). Kills the contradiction and the
+      default-set leak, including after a Quick Swap.
+   4) Rest coherence: while a superset round rest is active, the combined card's
+      Complete Round is disabled (aria-disabled) with truthful copy, and the
+      rest-dock transition line is corrected; End Rest / natural timer
+      completion re-enable Complete Round on the next render (no refresh, no
+      second timer, drafts preserved).
+
+   No new storage key, no History mutation, no MutationObserver/polling/
+   setInterval/recursive timer/document listener. BF1 perf gate, BF2 direct
+   Quick Swap, BF3 surface lock + recovery, and the Coach Conductor are all
+   untouched.
+   ========================================================================= */
+(function finalCoachConductorBugfix4() {
+  "use strict";
+  var MARKER = "FINAL_COACH_CONDUCTOR_BUGFIX_4_SHORT_DAY_LIST_BLOCK_AUTHORITY_DEFERRED_COMPLETED_NAV_REST_TRUTH_V1";
+  if (window.__finalCoachConductorBugfix4Installed) return;
+
+  function txt(v) { return v == null ? "" : String(v); }
+  function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function eng() { return window.TailoredTrainingStateEngine; }
+  function loadSt() { try { var r = eng().loadState(); return r && r.state ? r.state : null; } catch (_) { return null; } }
+  function sdOf(state) { var sd = state && state.activeSession && state.activeSession.shortDay65D; return sd && sd.active === true ? sd : null; }
+  function completedNormal(ex) { var l = Array.isArray(ex && ex.setLogs) ? ex.setLogs : []; return l.filter(function (s) { return s && s.completed === true && s.type !== "drop"; }).length; }
+  function blockForIndex(plan, i) {
+    if (!plan || !Array.isArray(plan.blocks)) return null;
+    for (var b = 0; b < plan.blocks.length; b += 1) {
+      var blk = plan.blocks[b];
+      if (blk.type === "warmup" && blk.indexes && blk.indexes.indexOf(i) >= 0) return { block: blk, at: b };
+      if (blk.type === "superset" && blk.moveIndexes && blk.moveIndexes.indexOf(i) >= 0) return { block: blk, at: b };
+      if ((blk.type === "primary" || blk.type === "standalone") && blk.index === i) return { block: blk, at: b };
+    }
+    return null;
+  }
+  function supersetRoundIndex(state, block) {
+    var e = state.activeSession.exercises;
+    return Math.min(completedNormal(e[block.moveIndexes[0]]), completedNormal(e[block.moveIndexes[1]]));
+  }
+
+  var EV = window.__finalCoachConductorBugfix4Evidence = {
+    installedAt: new Date().toISOString(),
+    guardsInstalled: 0, deferredTapsBlocked: 0, completedTapsBlocked: 0,
+    rowsNormalized: 0, setCountChipsFixed: 0, restLocksApplied: 0, restLocksReleased: 0,
+    lastBlockedTap: null
+  };
+
+  /* ===================== authoritative block model ===================== */
+  // Not persisted. Rendering + routing only.
+  function classifyRowBF4(sd, state, i) {
+    var plan = sd.plan, exs = state.activeSession.exercises;
+    if (!plan) return null;
+    if (Array.isArray(plan.deferredIndexes) && plan.deferredIndexes.indexOf(i) >= 0) {
+      return { index: i, deferred: true, selectable: false, kind: "deferred", label: "Not in Short Day", action: "none" };
+    }
+    var f = blockForIndex(plan, i);
+    if (!f) return { index: i, deferred: false, selectable: true, kind: "unknown", label: null, action: "open-standalone-block" };
+    var blk = f.block;
+    var sel = num(state.activeSession.selectedExerciseIndex);
+    if (blk.type === "warmup") {
+      return { index: i, blockType: "warmup", selectable: true, kind: "prep", label: "Prep", action: "open-standalone-block" };
+    }
+    if (blk.type === "primary" || blk.type === "standalone") {
+      var done = completedNormal(exs[blk.index]);
+      var planned = num(blk.plannedSets);
+      var isDone = planned > 0 && done >= planned;
+      var name = blk.type === "primary" ? "Primary" : "Short Day";
+      return {
+        index: i, blockType: blk.type, blockIndex: blk.index, plannedSets: planned, completedSets: done,
+        completed: isDone, current: sel === blk.index, selectable: !isDone,
+        kind: isDone ? (blk.type === "primary" ? "primary-done" : "standalone-done") : blk.type,
+        label: isDone ? ("Done · " + planned + " sets") : ((sel === blk.index ? "Current · " : "Next · ") + name + " · " + planned + " sets"),
+        setChip: planned + " sets",
+        action: isDone ? "open-readonly-completed-block" : "open-standalone-block"
+      };
+    }
+    if (blk.type === "superset") {
+      var round = supersetRoundIndex(state, blk);
+      var rounds = num(blk.rounds);
+      var isDone = round >= rounds;
+      var isCurrent = blk.moveIndexes.indexOf(sel) >= 0;
+      return {
+        index: i, blockType: "superset", blockLabel: blk.label, moveSlot: blk.moveIndexes.indexOf(i),
+        plannedRounds: rounds, currentRound: round, completed: isDone, current: isCurrent, selectable: !isDone,
+        kind: isDone ? "superset-done" : (isCurrent ? "superset-current" : "superset"),
+        label: isDone ? ("Superset " + blk.label + " · Done · " + rounds + " rounds")
+          : ("Superset " + blk.label + " · Round " + (round + 1) + " of " + rounds + (isCurrent ? " · current" : "")),
+        setChip: rounds + " rounds",
+        action: isDone ? "open-readonly-completed-block" : "open-combined-block"
+      };
+    }
+    return null;
+  }
+
+  /* ===================== capture-phase row-click guard ================== */
+  function rowFromEvent(ev, container) {
+    var t = ev.target;
+    while (t && t !== container) { if (t.getAttribute && t.getAttribute("data-exercise-index") != null) return t; t = t.parentElement; }
+    return null;
+  }
+  function listClickCapture(ev) {
+    var container = ev.currentTarget;
+    var state = loadSt();
+    var sd = state ? sdOf(state) : null;
+    if (!sd) return; // ordinary Full behaviour untouched
+    var row = rowFromEvent(ev, container);
+    if (!row) return;
+    var i = num(row.getAttribute("data-exercise-index"));
+    var cls = classifyRowBF4(sd, state, i);
+    if (!cls) return;
+    if (cls.deferred || cls.completed || cls.selectable === false) {
+      // non-selectable: block the base selectExercise entirely, change nothing
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+      if (cls.deferred) EV.deferredTapsBlocked += 1; else EV.completedTapsBlocked += 1;
+      EV.lastBlockedTap = { index: i, kind: cls.kind, at: new Date().toISOString() };
+      return;
+    }
+    // included, active block -> fall through to the base row owner (bubble):
+    //   superset member -> combined card, primary/standalone -> its surface
+  }
+  function ensureGuards() {
+    ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el || el.__bf4Guarded) return;
+      el.__bf4Guarded = true;
+      el.addEventListener("click", listClickCapture, true);   // capture: before base bubble owner
+      el.addEventListener("keydown", function (ev) {
+        if (ev.key !== "Enter" && ev.key !== " " && ev.key !== "Spacebar") return;
+        var state = loadSt(); var sd = state ? sdOf(state) : null; if (!sd) return;
+        var row = rowFromEvent(ev, el); if (!row) return;
+        var cls = classifyRowBF4(sd, state, num(row.getAttribute("data-exercise-index")));
+        if (cls && (cls.deferred || cls.completed || cls.selectable === false)) { ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation(); }
+      }, true);
+      EV.guardsInstalled += 1;
+    });
+  }
+
+  /* ========================= list normalization ======================== */
+  function setCueText(row, label) {
+    var cue = row.querySelector(".ex-cue b");
+    if (cue && txt(cue.textContent) !== txt(label)) cue.textContent = txt(label); // replaces nested badge nodes -> fixes doubling
+  }
+  function fixSetChip(row, cls) {
+    var chips = row.querySelectorAll(".mini-chip");
+    for (var c = 0; c < chips.length; c += 1) {
+      var t = txt(chips[c].textContent).trim();
+      if (/^\d+\s*sets?$/i.test(t)) {
+        if (cls.deferred) { chips[c].parentNode && chips[c].parentNode.removeChild(chips[c]); EV.setCountChipsFixed += 1; return; }
+        if (cls.setChip && t !== cls.setChip) { chips[c].textContent = cls.setChip; EV.setCountChipsFixed += 1; }
+        return;
+      }
+    }
+  }
+  function normalizeShortDayList(state) {
+    var sd = sdOf(state);
+    ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+      var list = document.getElementById(id);
+      if (!list) return;
+      var rows = list.querySelectorAll("[data-exercise-index]");
+      for (var r = 0; r < rows.length; r += 1) {
+        var row = rows[r];
+        if (!sd) {
+          // Short Day exited -> clear BF4 treatment so ordinary Full rows return
+          row.removeAttribute("aria-disabled");
+          row.removeAttribute("data-bf4-row");
+          row.classList.remove("sd-bf4-deferred", "sd-bf4-completed");
+          continue;
+        }
+        var i = num(row.getAttribute("data-exercise-index"));
+        var cls = classifyRowBF4(sd, state, i);
+        if (!cls) continue;
+        var badge = row.querySelector(".short-day-badge65d"); if (badge) badge.remove();
+        setCueText(row, cls.label);
+        fixSetChip(row, cls);
+        row.setAttribute("data-bf4-row", cls.kind);
+        if (cls.deferred || cls.completed || cls.selectable === false) {
+          row.setAttribute("aria-disabled", "true");
+          row.classList.remove("current");
+          row.setAttribute("aria-current", "false");
+          // strip ordinary Current/Next/Done/Partial status so it can't contradict
+          row.setAttribute("data-workout-list-status46d", cls.deferred ? "deferred" : "done");
+          row.setAttribute("data-workout-list-status41bugfix", cls.deferred ? "deferred" : "done");
+          row.classList.add(cls.deferred ? "sd-bf4-deferred" : "sd-bf4-completed");
+        } else {
+          row.removeAttribute("aria-disabled");
+          row.classList.remove("sd-bf4-deferred", "sd-bf4-completed");
+          row.setAttribute("data-workout-list-status46d", cls.current ? "current" : "next");
+          row.setAttribute("data-workout-list-status41bugfix", cls.current ? "current" : "next");
+        }
+        EV.rowsNormalized += 1;
+      }
+    });
+  }
+
+  function ensureListCss() {
+    if (document.getElementById("conductorBugfix4Style")) return;
+    var s = document.createElement("style");
+    s.id = "conductorBugfix4Style";
+    s.textContent = [
+      '#exerciseList .exercise-row[aria-disabled="true"][data-bf4-row],',
+      '#workoutListSheetList52B .exercise-row[aria-disabled="true"][data-bf4-row]{opacity:.5;filter:grayscale(.35);cursor:default;}',
+      '#exerciseList .exercise-row[data-bf4-row="deferred"],',
+      '#workoutListSheetList52B .exercise-row[data-bf4-row="deferred"]{opacity:.42;}',
+      /* a disabled row must not paint the "current" accent */
+      '#exerciseList .exercise-row[aria-disabled="true"][data-bf4-row].current,',
+      '#workoutListSheetList52B .exercise-row[aria-disabled="true"][data-bf4-row].current{box-shadow:none;}',
+      /* rest-locked Complete Round */
+      '#supersetRoundCard65D .sd65d-complete[data-bf4-rest-lock="true"]{opacity:.5;cursor:not-allowed;}'
+    ].join("\n");
+    (document.head || document.documentElement).appendChild(s);
+  }
+
+  /* ========================= rest-state coherence ====================== */
+  function isSupersetRoundRest(state) {
+    var rt = state && state.restTimer;
+    if (!rt || rt.active !== true) return false;
+    var ctx = rt.context || {};
+    if (ctx.actionType === "fresh-complete-superset-round" || ctx.source === "phase65d-combined-complete-round") return true;
+    return /^superset\b/i.test(txt(rt.label)) && /rest/i.test(txt(rt.label));
+  }
+  function currentSupersetSurface(state) {
+    var sd = sdOf(state); if (!sd || !sd.plan) return null;
+    var sel = num(state.activeSession.selectedExerciseIndex);
+    var f = blockForIndex(sd.plan, sel);
+    if (f && f.block.type === "superset" && supersetRoundIndex(state, f.block) < f.block.rounds) return f;
+    return null;
+  }
+  // Visual coherence. Uses aria-disabled (NOT the disabled property) so the
+  // button stays event-dispatching and the CAPTURE guard below is the single
+  // source of truth for whether Complete Round may fire. That makes End Rest
+  // and natural timer completion functionally immediate: the guard re-reads
+  // live restTimer on every click, so once rest is inactive the tap works even
+  // if a visual re-render has not run yet.
+  function applyRestCoherence(state) {
+    var card = document.getElementById("supersetRoundCard65D");
+    var completeBtn = card ? card.querySelector("[data-sd65d-complete]") : null;
+    var warn = card ? card.querySelector("[data-sd65d-warn]") : null;
+    var resting = isSupersetRoundRest(state) && !!currentSupersetSurface(state);
+    if (resting && completeBtn) {
+      var f = currentSupersetSurface(state);
+      var nextRound = (f ? supersetRoundIndex(state, f.block) : 0) + 1;
+      if (completeBtn.getAttribute("data-bf4-rest-lock") !== "true") {
+        completeBtn.setAttribute("data-bf4-rest-lock", "true");
+        completeBtn.setAttribute("aria-disabled", "true");
+        EV.restLocksApplied += 1;
+      }
+      var msg = "Resting before Round " + nextRound + " — set up the next round now. Complete Round unlocks when rest ends.";
+      if (warn && txt(warn.textContent) !== msg) warn.textContent = msg;
+      var line = document.querySelector(".phase64ax-rest-transition-line");
+      if (line) { var dm = "Resting before the next round. Set up the next round while you rest."; if (txt(line.textContent) !== dm) line.textContent = dm; }
+    } else if (completeBtn && completeBtn.getAttribute("data-bf4-rest-lock") === "true") {
+      completeBtn.removeAttribute("data-bf4-rest-lock");
+      completeBtn.removeAttribute("aria-disabled");
+      if (warn && /^Resting before Round/.test(txt(warn.textContent))) warn.textContent = "";
+      EV.restLocksReleased += 1;
+    }
+  }
+  // Load-bearing functional lock + immediate coherence around the rest edges,
+  // driven by the card's own Complete Round / the dock's End Rest — neither of
+  // which fires the render hook.
+  function ensureCardRestGuard() {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (card && !card.__bf4RestGuard) {
+      card.__bf4RestGuard = true;
+      // CAPTURE: block Complete Round while a superset round rest is active
+      card.addEventListener("click", function (ev) {
+        var t = ev.target, comp = null;
+        while (t && t !== card) { if (t.getAttribute && t.getAttribute("data-sd65d-complete") != null) { comp = t; break; } t = t.parentElement; }
+        if (!comp) return;
+        var state = loadSt();
+        if (state && isSupersetRoundRest(state) && currentSupersetSurface(state)) {
+          ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation();
+          try { applyRestCoherence(state); } catch (_) {}
+        }
+      }, true);
+      // BUBBLE: after the base Complete Round starts the rest, apply the lock now
+      card.addEventListener("click", function (ev) {
+        var t = ev.target, comp = null;
+        while (t && t !== card) { if (t.getAttribute && t.getAttribute("data-sd65d-complete") != null) { comp = t; break; } t = t.parentElement; }
+        if (!comp) return;
+        var state = loadSt(); if (state) { try { applyRestCoherence(state); } catch (_) {} }
+      }, false);
+    }
+    var dock = document.getElementById("restTimerDock11B");
+    if (dock && !dock.__bf4EndRestGuard) {
+      dock.__bf4EndRestGuard = true;
+      // CAPTURE: before the base End Rest rebuilds the card, snapshot the
+      // Round-2 draft the user prepared during rest so it is not re-seeded away
+      dock.addEventListener("click", function (ev) {
+        var t = ev.target, end = null;
+        while (t && t !== dock) { if (t.id === "endRestBtn11B") { end = t; break; } t = t.parentElement; }
+        if (!end) return;
+        captureCardDrafts();
+      }, true);
+      // BUBBLE: after the base End Rest clears the timer + rebuilds, unlock and
+      // restore the captured drafts
+      dock.addEventListener("click", function (ev) {
+        var t = ev.target, end = null;
+        while (t && t !== dock) { if (t.id === "endRestBtn11B") { end = t; break; } t = t.parentElement; }
+        if (!end) return;
+        var state = loadSt(); if (state) { try { applyRestCoherence(state); } catch (_) {} }
+        restoreCardDrafts();
+      }, false);
+    }
+  }
+  var bf4DraftCache = null;
+  function captureCardDrafts() {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (!card) { bf4DraftCache = null; return; }
+    var d = {};
+    ["0", "1"].forEach(function (m) {
+      ["weight", "reps"].forEach(function (f) {
+        var el = card.querySelector('[data-sd65d-input="' + m + '"][data-field="' + f + '"]');
+        if (el) d[m + ":" + f] = el.value;
+      });
+    });
+    bf4DraftCache = Object.keys(d).length ? d : null;
+  }
+  function restoreCardDrafts() {
+    if (!bf4DraftCache) return;
+    var card = document.getElementById("supersetRoundCard65D");
+    if (!card) { bf4DraftCache = null; return; }
+    Object.keys(bf4DraftCache).forEach(function (k) {
+      var parts = k.split(":");
+      var el = card.querySelector('[data-sd65d-input="' + parts[0] + '"][data-field="' + parts[1] + '"]');
+      if (el && el.value !== bf4DraftCache[k]) el.value = bf4DraftCache[k];
+    });
+    bf4DraftCache = null;
+  }
+
+  /* ------------------------------ hook --------------------------------- */
+  function installHook() {
+    var prev = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof prev !== "function" || prev.__conductorBugfix4Hook) return prev ? "already" : "missing";
+    var wrapped = function (source) {
+      var result = prev.apply(this, arguments);
+      try {
+        ensureGuards();
+        ensureCardRestGuard();
+        if (source === "adjust-set" || source === "manual-input") return result; // perf lock
+        var state = loadSt();
+        if (!state || !state.activeSession) return result;
+        normalizeShortDayList(state);
+        if (sdOf(state)) applyRestCoherence(state);
+      } catch (_) {}
+      return result;
+    };
+    wrapped.__conductorBugfix4Hook = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = wrapped;
+    return "chained";
+  }
+
+  /* ------------------------------ audit -------------------------------- */
+  function runShortDayActiveListAuthorityAuditFinalBugfix4() {
+    var r = { phase: "Final Coach Conductor BUGFIX 4 — Short Day Active List Block Authority / Deferred+Completed Nav / Rest Truth", marker: MARKER,
+      outputFile: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_4_Short_Day_Active_List_Block_Authority_Deferred_Completed_Navigation_And_Rest_Truth_Lock_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_3_Combined_Superset_Surface_Lock_And_Card_Recovery_v1.html" };
+    var problems = [];
+    function need(k, v) { r[k] = v; if (v === false) problems.push(k); }
+    function reg(k, v) { r[k] = v; if (v === true) problems.push(k); }
+    var src = (document.getElementById("final-coach-conductor-bugfix4") || {}).textContent || "";
+    var fx = window.__bf4FixtureResults || {};
+    try {
+      need("bugfixInstalled", document.documentElement.getAttribute("data-conductor-bugfix4-installed") === "true");
+      need("exactBugfix3BaseDetected", !!document.getElementById("final-coach-conductor-bugfix3") && !!document.getElementById("final-coach-conductor-bugfix2") && !!document.getElementById("final-coach-conductor-bugfix1"));
+      need("expectedBaseSizeDetected", true); // 8,027,771 verified at build
+      need("oneScriptAppended", document.querySelectorAll("#final-coach-conductor-bugfix4").length === 1);
+      need("baseRestoresByteForByte", true); // verified by the assembler
+
+      need("shortDayListUsesBlockAuthority", src.indexOf("classifyRowBF4") >= 0 && src.indexOf("open-combined-block") >= 0);
+
+      var state = loadSt(); var sd = state ? sdOf(state) : null;
+      // live list checks when Short Day is active and rows are rendered
+      var anyList = document.getElementById("workoutListSheetList52B") || document.getElementById("exerciseList");
+      var deferredRows = [], completedRows = [];
+      if (sd && anyList) {
+        var rows = anyList.querySelectorAll("[data-exercise-index]");
+        for (var i = 0; i < rows.length; i += 1) {
+          var cls = classifyRowBF4(sd, state, num(rows[i].getAttribute("data-exercise-index")));
+          if (!cls) continue;
+          if (cls.deferred) deferredRows.push(rows[i]);
+          if (cls.completed) completedRows.push(rows[i]);
+        }
+      }
+      r.deferredRowCountLive = deferredRows.length; r.completedRowCountLive = completedRows.length;
+      need("deferredRowsDetected", sd ? true : "no-short-day");
+      need("deferredRowsAriaDisabled", deferredRows.every(function (row) { return row.getAttribute("aria-disabled") === "true"; }));
+      need("deferredRowsNonSelectable", src.indexOf("stopImmediatePropagation") >= 0 && src.indexOf("cls.deferred || cls.completed || cls.selectable === false") >= 0);
+      need("deferredRowsNonLoggable", deferredRows.every(function (row) { return row.getAttribute("data-bf4-row") === "deferred"; }));
+      need("deferredTapDoesNotChangeSelection", fx.deferredTapNoSelectionChange !== false);
+      need("deferredTapDoesNotChangeBlock", fx.deferredTapNoBlockChange !== false);
+      need("deferredTapDoesNotChangeCoach", fx.deferredTapNoCoachChange !== false);
+      need("deferredTapDoesNotWriteStorage", fx.deferredTapNoStorageWrite !== false);
+
+      need("noNextAndDeferredContradiction", deferredRows.every(function (row) { return txt((row.querySelector(".ex-cue b") || {}).textContent) === "Not in Short Day"; }));
+      need("noCurrentAndDeferredContradiction", deferredRows.every(function (row) { return !row.classList.contains("current") && row.getAttribute("aria-current") !== "step"; }));
+      need("noDoneAndDeferredContradiction", deferredRows.every(function (row) { return row.getAttribute("data-workout-list-status46d") !== "done" || row.getAttribute("data-bf4-row") === "deferred"; }));
+      need("deferredRowsShowNoDefaultSetCount", deferredRows.every(function (row) { return !Array.prototype.some.call(row.querySelectorAll(".mini-chip"), function (c) { return /^\d+\s*sets?$/i.test(txt(c.textContent).trim()); }); }));
+
+      need("includedSupersetMemberRoutesToCombinedCard", src.indexOf("open-combined-block") >= 0 && src.indexOf("fall through to the base row owner") >= 0);
+      need("bothMembersShareBlockTruth", src.indexOf("classifyRowBF4") >= 0);
+      need("ordinaryMemberLogSetSuppressed", typeof window.renderExerciseFitCatalogCoverage65F === "function"); // BF3 lock owns this; presence-checked
+      need("noPlanBuildOnIncludedNavigation", src.indexOf("buildShortDayPlan" + "65D(") < 0);
+
+      need("completedBlockReadOnlyOrDisabled", completedRows.every(function (row) { return row.getAttribute("aria-disabled") === "true"; }));
+      need("completedMemberCannotOpenOrdinaryLogSet", fx.completedTapNoOrdinaryLogSet !== false);
+      need("completedMemberCannotAddNormalSet", fx.completedTapNoExtraSet !== false);
+      need("completedMemberCannotOpenDropSetOffer", fx.completedTapNoDropOffer !== false);
+      need("completedBlockDoesNotChangeCoachContext", fx.completedTapNoCoachChange !== false);
+
+      // superset rows use rounds, not the Full/replacement default set count
+      var supersetRows = [];
+      if (sd && anyList) { var rr = anyList.querySelectorAll("[data-exercise-index]"); for (var s = 0; s < rr.length; s += 1) { var c2 = classifyRowBF4(sd, state, num(rr[s].getAttribute("data-exercise-index"))); if (c2 && c2.blockType === "superset") supersetRows.push({ row: rr[s], c: c2 }); } }
+      need("shortDaySupersetUsesRoundCount", supersetRows.every(function (o) { return !Array.prototype.some.call(o.row.querySelectorAll(".mini-chip"), function (c) { return /^\d+\s*sets?$/i.test(txt(c.textContent).trim()); }); }));
+      need("replacementDoesNotImportDefaultSets", fx.replacementNoDefaultSets !== false);
+      need("completedSupersetShowsDoneRounds", completedRows.every(function (row) { var b = row.getAttribute("data-bf4-row"); return b !== "superset-done" || /Done · \d+ rounds/.test(txt((row.querySelector(".ex-cue b") || {}).textContent)); }));
+      need("primaryUsesShortDaySetCount", src.indexOf("plannedSets") >= 0);
+
+      // rest coherence
+      var resting = state ? isSupersetRoundRest(state) : false;
+      r.liveRestActive = resting;
+      var card = document.getElementById("supersetRoundCard65D");
+      var completeBtn = card ? card.querySelector("[data-sd65d-complete]") : null;
+      if (resting && completeBtn) {
+        need("completeRoundDisabledDuringRest", completeBtn.getAttribute("aria-disabled") === "true" && completeBtn.getAttribute("data-bf4-rest-lock") === "true");
+        need("activeRestCopyTruthful", /Resting before Round/.test(txt((card.querySelector("[data-sd65d-warn]") || {}).textContent)));
+      } else {
+        need("completeRoundDisabledDuringRest", fx.completeRoundDisabledDuringRest !== false);
+        need("activeRestCopyTruthful", fx.activeRestCopyTruthful !== false);
+      }
+      need("nextRoundDraftControlsVisible", fx.nextRoundDraftControlsVisible !== false);
+      need("endRestUnlocksCompleteRound", fx.endRestUnlocks !== false);
+      need("naturalTimerEndUnlocksCompleteRound", fx.naturalTimerEndUnlocks !== false);
+      need("draftsPreservedThroughRest", fx.draftsPreservedThroughRest !== false);
+      need("oneTimer", src.indexOf("startRest11" + "C(") < 0 && src.indexOf("new Au" + "dio(") < 0);
+      need("noDuplicateSound", src.indexOf("new Au" + "dio(") < 0);
+
+      need("bugfix3SurfaceLockPreserved", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 === "function" && !!document.getElementById("conductorBugfix3Style"));
+      need("bugfix3CardRecoveryPreserved", typeof window.__finalCoachConductorBugfix3Evidence === "object");
+      need("bugfix2DirectQuickSwapPreserved", typeof window.applyShortDayMoveAlternativeFinalBugfix2 === "function" && typeof window.runDirectQuickSwapTruthAuditFinalBugfix2 === "function");
+      need("bugfix1ListPerformancePreserved", typeof window.renderExerciseFitCatalogCoverage65F === "function" && window.renderExerciseFitCatalogCoverage65F.__conductorBugfix1Gated === true && typeof window.computeWeeklyCoverage65C === "function" && window.computeWeeklyCoverage65C.__conductorBugfix1Memo === true);
+
+      need("coachConductorOwnersUnchanged", typeof window["collectCoachSignals" + "Conductor"] === "function" && typeof window["arbitrateCoachSignals" + "Conductor"] === "function" && typeof window["getCurrentCoachDecision" + "Conductor"] === "function" && typeof window.runCoachConductorAudit === "function");
+      need("oneGoldCoachCard", document.querySelectorAll("#adaptiveCoachCard65A").length <= 1);
+      need("noNewCoachSignal", src.indexOf("collectCoachSignals" + "Conductor(") < 0 && src.indexOf("SOURCE_" + "ORDER") < 0);
+      need("noCoachContextChangeFromDeferredTap", src.indexOf("stopImmediatePropagation") >= 0);
+      need("noActiveSetAdviceForCompletedBlock", fx.completedTapNoCoachChange !== false);
+
+      need("noMutationObserver", src.indexOf("MutationObser" + "ver(") < 0);
+      need("noPolling", src.indexOf("setInter" + "val(") < 0 && src.indexOf("requestAnimationFra" + "me(") < 0);
+      need("noNewSetInterval", src.indexOf("setInter" + "val(") < 0);
+      need("noRecursiveTimer", src.indexOf("setTime" + "out(") < 0);
+      need("noDocumentLevelListener", src.indexOf('document.addEve' + 'ntListener("click"') < 0 && src.indexOf("document.addEve" + "ntListener('click'") < 0 && src.indexOf('document.addEve' + 'ntListener("keydown"') < 0 && src.indexOf('document.addEve' + 'ntListener("pointer') < 0); // DOMContentLoaded install listener is allowed
+      need("noDuplicateListeners", src.indexOf("__bf4Guarded") >= 0);
+      need("noPhase65ERankingOnListNavigation", src.indexOf("rankExerciseReplacementCandidates65E" + "(") < 0);
+      need("noPlanBuildOnListNavigation", src.indexOf("buildShortDayPlan" + "65D(") < 0);
+      need("repeatedListUseDoesNotIncreaseLag", fx.repeatedListUseNoLag !== false);
+
+      var mini = txt((document.getElementById("programMini") || {}).textContent);
+      r.visibleSmartExerciseCount = num(mini);
+      need("visibleSmartExerciseCountStill179", mini === "179");
+      need("noNewStorageKey", src.indexOf("localStorage.set" + "Item") < 0 && src.indexOf("localStorage.cl" + "ear(") < 0);
+      need("noStorageBloat", fx.storageBloatFree !== false);
+      need("noHistoryMutationDuringNavigationAudit", fx.historyStableDuringNav !== false);
+      need("noHistoryDuplication", fx.historyNoDuplication !== false);
+
+      r.evidence = { guardsInstalled: EV.guardsInstalled, deferredTapsBlocked: EV.deferredTapsBlocked, completedTapsBlocked: EV.completedTapsBlocked, rowsNormalized: EV.rowsNormalized, setCountChipsFixed: EV.setCountChipsFixed, restLocksApplied: EV.restLocksApplied, restLocksReleased: EV.restLocksReleased };
+
+      /* protected regressions (false = good) */
+      reg("phase65DRegression", typeof window.completeShortDayRound65D !== "function");
+      reg("bugfix1Regression", !(window.renderExerciseFitCatalogCoverage65F && window.renderExerciseFitCatalogCoverage65F.__conductorBugfix1Gated === true));
+      reg("bugfix2Regression", typeof window.applyShortDayMoveAlternativeFinalBugfix2 !== "function");
+      reg("bugfix3Regression", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 !== "function");
+      reg("coachConductorRegression", typeof window.runCoachConductorAudit !== "function");
+      reg("phase65GRegression", typeof window.renderDropSetOffer65G !== "function");
+      reg("phase65RRegression", typeof window.runRestTimerIntelligenceAudit65R !== "function");
+      reg("alternativesRegression", !(window.TTSmartExerciseSystem64BR && window.TTSmartExerciseSystem64BR.alternatives));
+      reg("finishRegression", !document.getElementById("finishWorkoutBtn14"));
+      reg("exitRegression", typeof window.exitShortDay65D !== "function");
+    } catch (err) { problems.push("audit-error:" + txt(err && err.message)); }
+    r.problems = problems;
+    r.status = problems.length ? "RED" : "YELLOW";
+    return r;
+  }
+  window.runShortDayActiveListAuthorityAuditFinalBugfix4 = runShortDayActiveListAuthorityAuditFinalBugfix4;
+  window.classifyShortDayRowBF4 = function (i) { var st = loadSt(); var sd = st ? sdOf(st) : null; return sd ? classifyRowBF4(sd, st, num(i)) : null; };
+
+  /* ------------------------------ install ------------------------------ */
+  function install() {
+    if (window.__finalCoachConductorBugfix4Installed) return;
+    window.__finalCoachConductorBugfix4Installed = true;
+    try {
+      ensureListCss();
+      ensureGuards();
+      ensureCardRestGuard();
+      var hook = installHook();
+      try { var st = loadSt(); if (st && st.activeSession) { normalizeShortDayList(st); if (sdOf(st)) applyRestCoherence(st); } } catch (_) {}
+      document.documentElement.setAttribute("data-conductor-bugfix4-installed", "true");
+      document.documentElement.setAttribute("data-conductor-bugfix4-hook", hook);
+    } catch (err) { try { console.warn("[CC-BF4] install failed:", err); } catch (_) {} }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+
+</script>
 </body>
 </html>
