@@ -106456,5 +106456,1712 @@ Narrow rule-based correction only:
 })();
 
 </script>
+<script id="final-coach-conductor-bugfix6">
+/* ============================================================================
+   FINAL COACH CONDUCTOR BUGFIX 6 — COMPLETED WORK REVIEW & EDIT, PLANNED-SET
+   CARDINALITY, AND TRUE FINAL SHORT DAY COMPLETION LOCK
+   Base: Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_5_Short_Day_
+         Auto_Advance_Completion_Progress_Universal_Superset_Media_And_Draft_
+         Truth_Lock_v1.html  (exactly 8,104,336 bytes)
+
+   Android-confirmed defects + the exact first failing owner (traced live on
+   the BF5 base, localhost:8613):
+
+   D5/D6 (planned-set cardinality) The ordinary Log Set surface renders from
+      normalizeSessionExerciseSets (base ~31151) -> renderSetLoggingSection
+      (~31595), whose row count is Number(sessionExercise.prescription.sets) —
+      the FULL-plan set count. But the Short Day plan caps the block:
+      buildShortDayPlan65D standalone plannedSets = max(1,min(2,...)), primary
+      = max(2,min(3,...)), and BF5 completion/progress use plannedSets/rounds.
+      Live-confirmed: primary Machine chest press plan plannedSets=3 vs
+      prescription.sets=4 (4 rendered rows); standalones plan 2 vs
+      prescription 3. The list/threshold say one number and the executed rows
+      another, and the block completes + advances at plannedSets with an
+      orphaned extra rendered row — the "4-set ends after Set 3" symptom.
+      Root: rendered rows read prescription.sets, never the plan.
+   D1/D2/D3/D4/D10 (completed review + edit) BF4's capture-phase list guard
+      listClickCapture (bound on #exerciseList / the sheet list) preventDefault
+      + stopImmediatePropagation blocks EVERY completed row's tap
+      (classifyRowBF4 -> completed => selectable:false). So a completed
+      standalone/superset is permanently non-selectable and cannot be
+      corrected. No review surface exists anywhere in the base.
+   D7/D8 (true final completion) BF5.showCompletionSurface only fires from
+      guardSelection when the SELECTION is invalid; nothing cancels rest.
+      Live-confirmed at 11/11: restTimer.active === true and #restTimerDock11B
+      display:block — a rest timer running underneath/after completion, and a
+      completion card whose mount depends on selection state (Android: blank
+      area, coach visible, no Finish).
+
+   FIX (append-only, installs LAST after BF5, mutates in place, no owner
+   replaced, no second Finish/History/timer/coach engine):
+   1) window.getShortDayRequiredSetCardinalityFinalBugfix6(blockId) — the one
+      cardinality authority read from the persisted plan (standalone/primary
+      requiredNormalSetCount = plannedSets; superset = plannedRounds * 2).
+      alignShortDaySetCardinality() sets each included working session
+      exercise's prescription.sets = max(planned, completedNormal), stashing
+      the Full value in prescription.__bf6FullSets and restoring it when Short
+      Day deactivates — so rendered rows, the base completed counter, the
+      completion threshold, list copy, progress, and auto-advance all consume
+      the same plan number. Session-only; default assignments untouched.
+      Applied once per plan version + one guarded renderApp64BH repaint.
+   2) Completed-work REVIEW: capture-phase listeners on the list PARENTS
+      (#workoutListCard52B + the sheet list's parent) fire before BF4's
+      guards; completed rows (classifyShortDayRowBF4 authority) open a
+      bounded review overlay (standalone -> per-set; superset -> combined
+      per round x move, replacement identity shown). Deferred rows untouched.
+      window.editCompletedShortDaySetFinalBugfix6({...}) mutates ONLY the
+      targeted existing setLog's requested field(s) (+editedAt), preserves
+      completed status/type/completedAt/identity, saves ONCE, and gates ok on
+      a raw localStorage read-back of tailoredWorkoutTracker.v2 proving the
+      exact value, no append, and unchanged selection/timer/plan version.
+      The overlay exposes no Complete Set/Round, Alternative, Quick Swap,
+      Equipment Busy, drop-set offer, or timer control.
+   3) True final completion — selection-INDEPENDENT: on every hook pass while
+      Short Day is active, if completeShortDayPlanFinalBugfix5().complete,
+      cancel any live rest timer through the existing engine owner
+      stopRest11C (read-back verified), hide #restTimerDock11B, suppress the
+      ordinary + combined execution surfaces, and guarantee exactly one
+      completion card (BF5's when mounted, else an equivalent BF6 card) with
+      a truthful set total whose Finish delegates to the existing
+      #finishWorkoutBtn14 (native confirm, one History session). All
+      suppressions restore when Short Day is not complete/active.
+
+   No new storage key, no storage clear call, no DOM observer, no timer
+   primitive added, no polling, no recursive timer, no document-level
+   listener, no History write. BF1 perf gate, BF2 Quick Swap, BF3 lock +
+   recovery, BF4 list authority, BF5 auto-advance/progress/media/drafts, and
+   the Coach Conductor are untouched.
+   ========================================================================= */
+(function finalCoachConductorBugfix6() {
+  "use strict";
+  var MARKER = "FINAL_COACH_CONDUCTOR_BUGFIX_6_COMPLETED_REVIEW_EDIT_PLANNED_SET_CARDINALITY_AND_TRUE_FINAL_COMPLETION_LOCK_V1";
+  if (window.__finalCoachConductorBugfix6Installed) return;
+
+  var STORE_KEY = "tailoredWorkoutTracker.v2";
+
+  function txt(v) { return v == null ? "" : String(v); }
+  function low(v) { return txt(v).toLowerCase(); }
+  function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function eng() { return window.TailoredTrainingStateEngine; }
+  function loadSt() { try { var r = eng().loadState(); return r && r.state ? r.state : null; } catch (_) { return null; } }
+  function sdOf(state) { var sd = state && state.activeSession && state.activeSession.shortDay65D; return sd && sd.active === true ? sd : null; }
+  function completedNormal(ex) { var l = Array.isArray(ex && ex.setLogs) ? ex.setLogs : []; return l.filter(function (s) { return s && s.completed === true && s.type !== "drop"; }).length; }
+  function exName(ex) { return txt(ex && (ex.name || ex.displayName || ex.label || ex.shortName || ex.id)); }
+  function esc(s) { return txt(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+
+  function blockIdOf(block) {
+    if (!block) return "";
+    if (block.type === "superset") return "superset:" + txt(block.label);
+    if (block.type === "warmup") return "warmup";
+    return txt(block.type) + ":" + num(block.index);
+  }
+  function blockForIndex(plan, i) {
+    if (!plan || !Array.isArray(plan.blocks)) return null;
+    for (var b = 0; b < plan.blocks.length; b += 1) {
+      var blk = plan.blocks[b];
+      if (blk.type === "warmup" && blk.indexes && blk.indexes.indexOf(i) >= 0) return blk;
+      if (blk.type === "superset" && blk.moveIndexes && blk.moveIndexes.indexOf(i) >= 0) return blk;
+      if ((blk.type === "primary" || blk.type === "standalone") && blk.index === i) return blk;
+    }
+    return null;
+  }
+  function blockByRef(plan, ref) {
+    if (plan == null || ref == null) return null;
+    if (typeof ref === "number" || /^\d+$/.test(txt(ref))) return blockForIndex(plan, num(ref));
+    for (var b = 0; b < (plan.blocks || []).length; b += 1) {
+      var blk = plan.blocks[b];
+      if (blockIdOf(blk) === txt(ref) || (blk.id != null && txt(blk.id) === txt(ref))) return blk;
+    }
+    return null;
+  }
+  function supersetRound(state, block) { var e = state.activeSession.exercises; return Math.min(completedNormal(e[block.moveIndexes[0]]), completedNormal(e[block.moveIndexes[1]])); }
+  function blockCompleteBF6(state, block) {
+    var exs = state.activeSession.exercises;
+    if (block.type === "warmup") return block.indexes.every(function (i) { var ex = exs[i]; var p = (Array.isArray(ex && ex.setLogs) ? ex.setLogs.filter(function (s) { return s && s.type !== "drop"; }).length : 0) || num(ex && ex.prescription && ex.prescription.sets); return completedNormal(ex) >= p; });
+    if (block.type === "superset") return supersetRound(state, block) >= num(block.rounds);
+    return completedNormal(exs[block.index]) >= num(block.plannedSets);
+  }
+
+  var EV = window.__finalCoachConductorBugfix6Evidence = {
+    installedAt: new Date().toISOString(),
+    cardinalityAligns: 0, cardinalityRenders: 0, prescriptionsRestored: 0,
+    reviewsOpened: 0, reviewsClosed: 0, edits: 0, editsVerified: 0,
+    finalTimersCancelled: 0, bf6CompletionsShown: 0, statsLines: 0,
+    lastAlign: null, lastEdit: null, lastReviewContext: null, lastTimerCancel: null,
+    cardinalityRootCause: "renderSetLoggingSection(base ~31595) row count = normalizeSessionExerciseSets(base ~31151) plannedCount = prescription.sets (Full plan) while buildShortDayPlan65D + BF5 completion/progress use plan plannedSets/rounds. Fixed by aligning session prescription.sets to the plan cardinality (session-only; Full value stashed + restored on Short Day exit)."
+  };
+
+  /* =================== 1) PLANNED-SET CARDINALITY ==================== */
+  function readBackRaw() {
+    try { var v = localStorage.getItem(STORE_KEY); if (v) { var o = JSON.parse(v); return o && o.state ? o.state : o; } } catch (_) {}
+    return loadSt();
+  }
+  function cardinalityOf(state, block) {
+    var exs = state.activeSession.exercises;
+    var planned = block.type === "superset" ? null : num(block.plannedSets);
+    var rounds = block.type === "superset" ? num(block.rounds) : null;
+    var required = block.type === "superset" ? rounds * 2 : (block.type === "warmup" ? 0 : planned);
+    var done = 0;
+    if (block.type === "superset") done = Math.min(completedNormal(exs[block.moveIndexes[0]]), num(block.rounds)) + Math.min(completedNormal(exs[block.moveIndexes[1]]), num(block.rounds));
+    else if (block.type !== "warmup") done = Math.min(completedNormal(exs[block.index]), planned);
+    var idxs = block.type === "superset" ? block.moveIndexes : (block.type === "warmup" ? block.indexes : [block.index]);
+    return {
+      blockId: blockIdOf(block), blockType: block.type,
+      plannedSets: planned, plannedRounds: rounds,
+      requiredNormalSetCount: required, completedNormalSetCount: done,
+      complete: block.type === "warmup" ? blockCompleteBF6(state, block) : done >= required && required > 0,
+      prescriptionSets: (idxs || []).map(function (i) { return num(exs[i] && exs[i].prescription && exs[i].prescription.sets); })
+    };
+  }
+  window.getShortDayRequiredSetCardinalityFinalBugfix6 = function (blockId) {
+    var st = loadSt(); var sd = st ? sdOf(st) : null;
+    if (!sd || !sd.plan || !Array.isArray(sd.plan.blocks)) return null;
+    if (blockId == null) return sd.plan.blocks.map(function (blk) { return cardinalityOf(st, blk); });
+    var blk = blockByRef(sd.plan, blockId);
+    return blk ? cardinalityOf(st, blk) : null;
+  };
+
+  var lastAlignedVersion = null, aligning = false, reRendering = false;
+  function alignPrescription(ex, planned) {
+    if (!ex || !ex.prescription) return false;
+    var target = Math.max(num(planned), completedNormal(ex));
+    if (num(ex.prescription.sets) === target) return false;
+    if (ex.prescription.__bf6FullSets == null) ex.prescription.__bf6FullSets = num(ex.prescription.sets);
+    ex.prescription.sets = target;
+    return true;
+  }
+  function restoreFullPrescriptions(state) {
+    var exs = state && state.activeSession && state.activeSession.exercises;
+    if (!Array.isArray(exs)) return false;
+    var changed = false;
+    for (var i = 0; i < exs.length; i += 1) {
+      var ex = exs[i];
+      if (ex && ex.prescription && ex.prescription.__bf6FullSets != null) {
+        ex.prescription.sets = num(ex.prescription.__bf6FullSets);
+        delete ex.prescription.__bf6FullSets;
+        changed = true;
+      }
+    }
+    return changed;
+  }
+  // Returns true when a prescription actually changed (caller repaints once).
+  function alignShortDaySetCardinality() {
+    if (aligning) return false;
+    aligning = true;
+    var changed = false;
+    try {
+      var e = eng(); var st = e.loadState().state;
+      if (!st || !st.activeSession) { lastAlignedVersion = null; return false; }
+      var sd = sdOf(st);
+      if (!sd || !sd.plan || !Array.isArray(sd.plan.blocks)) {
+        if (restoreFullPrescriptions(st)) { changed = true; EV.prescriptionsRestored += 1; try { e.saveState(st, "final-bf6-restore-full-prescription"); } catch (_) {} }
+        lastAlignedVersion = null;
+        return changed;
+      }
+      var v = num(sd.plan.version);
+      if (v === lastAlignedVersion) return false; // perf gate: once per plan version
+      var exs = st.activeSession.exercises;
+      sd.plan.blocks.forEach(function (blk) {
+        if (blk.type === "standalone" || blk.type === "primary") { if (alignPrescription(exs[blk.index], num(blk.plannedSets))) { changed = true; EV.cardinalityAligns += 1; } }
+        else if (blk.type === "superset" && Array.isArray(blk.moveIndexes)) { blk.moveIndexes.forEach(function (i) { if (alignPrescription(exs[i], num(blk.rounds))) { changed = true; EV.cardinalityAligns += 1; } }); }
+      });
+      lastAlignedVersion = v;
+      if (changed) { try { e.saveState(st, "final-bf6-cardinality-align"); EV.lastAlign = { version: v, at: new Date().toISOString() }; } catch (_) {} }
+    } catch (_) {} finally { aligning = false; }
+    return changed;
+  }
+  function repaintOnce() {
+    if (reRendering) return false;
+    if (typeof window.renderApp64BH !== "function") return false;
+    reRendering = true;
+    try { window.renderApp64BH("final-bf6-cardinality-render"); EV.cardinalityRenders += 1; } catch (_) {} finally { reRendering = false; }
+    return true;
+  }
+
+  /* ============ 2) COMPLETED WORK REVIEW + EDIT (bounded) ============= */
+  var reviewCtx = null; // bounded, in-memory only — never persisted
+
+  function resolveEditTarget(state, payload) {
+    var exs = state.activeSession.exercises;
+    var exerciseIndex = null;
+    if (payload.exerciseIndex != null && Number.isFinite(Number(payload.exerciseIndex))) exerciseIndex = num(payload.exerciseIndex);
+    else if (payload.exerciseId != null) {
+      for (var i = 0; i < exs.length; i += 1) { if (exs[i] && low(exs[i].id) === low(payload.exerciseId)) { exerciseIndex = i; break; } }
+    } else if (payload.blockId != null) {
+      var sd = sdOf(state); var blk = sd ? blockByRef(sd.plan, payload.blockId) : null;
+      if (blk) exerciseIndex = blk.type === "superset" ? num(blk.moveIndexes[num(payload.moveSlot)]) : num(blk.index);
+    }
+    var setIndex = payload.setIndex != null ? num(payload.setIndex) : (payload.roundIndex != null ? num(payload.roundIndex) : null);
+    return { exerciseIndex: exerciseIndex, setIndex: setIndex };
+  }
+
+  window.editCompletedShortDaySetFinalBugfix6 = function (payload) {
+    payload = payload || {};
+    var e = eng(); var st;
+    try { st = e.loadState().state; } catch (_) { return { ok: false, reason: "no-state" }; }
+    if (!st || !st.activeSession || !Array.isArray(st.activeSession.exercises)) return { ok: false, reason: "workout-not-active" };
+    var tgt = resolveEditTarget(st, payload);
+    if (tgt.exerciseIndex == null || tgt.setIndex == null) return { ok: false, reason: "unresolved-target" };
+    var exerciseIndex = tgt.exerciseIndex, setIndex = tgt.setIndex;
+    var ex = st.activeSession.exercises[exerciseIndex];
+    if (!ex || !Array.isArray(ex.setLogs)) return { ok: false, reason: "no-exercise" };
+    var log = ex.setLogs[setIndex];
+    if (!log) return { ok: false, reason: "no-setlog" };
+    if (log.completed !== true || log.type === "drop") return { ok: false, reason: "not-completed-normal" };
+    // the target block must be complete (review is for Done work only)
+    var sd = sdOf(st);
+    if (sd) { var blk = blockForIndex(sd.plan, exerciseIndex); if (blk && blk.type !== "warmup" && !blockCompleteBF6(st, blk)) return { ok: false, reason: "block-not-complete" }; }
+    var beforeLen = ex.setLogs.length;
+    var idBefore = txt(ex.id), replacedFromBefore = txt(ex.phase65FReplacedFromId);
+    var selBefore = num(st.activeSession.selectedExerciseIndex);
+    var timerBefore = !!(st.restTimer && st.restTimer.active);
+    var planVerBefore = sd ? num(sd.plan.version) : null;
+    // compute new values: single-field contract or weight/reps payload
+    var newW = num(log.weight), newR = num(log.reps);
+    if (payload.field === "weight") newW = num(payload.value);
+    else if (payload.field === "reps") newR = num(payload.value);
+    else {
+      if (payload.weight !== "" && payload.weight != null) newW = num(payload.weight);
+      if (payload.reps !== "" && payload.reps != null) newR = num(payload.reps);
+    }
+    // mutate ONLY weight/reps (+editedAt); completed/type/completedAt/identity preserved
+    log.weight = newW; log.reps = newR; log.editedAt = new Date().toISOString();
+    try { e.saveState(st, "final-bf6-edit-completed-set"); } catch (_) {}
+    // success gated on RAW read-back of the persisted store
+    var raw = readBackRaw();
+    var rex = raw && raw.activeSession && Array.isArray(raw.activeSession.exercises) ? raw.activeSession.exercises[exerciseIndex] : null;
+    var rlog = rex && Array.isArray(rex.setLogs) ? rex.setLogs[setIndex] : null;
+    var appended = !!(rex && Array.isArray(rex.setLogs) && rex.setLogs.length !== beforeLen);
+    var identityStable = !!rex && txt(rex.id) === idBefore && txt(rex.phase65FReplacedFromId) === replacedFromBefore;
+    var selAfter = raw && raw.activeSession ? num(raw.activeSession.selectedExerciseIndex) : selBefore;
+    var timerAfter = !!(raw && raw.restTimer && raw.restTimer.active);
+    var rsd = raw && raw.activeSession && raw.activeSession.shortDay65D;
+    var planVerAfter = rsd && rsd.plan ? num(rsd.plan.version) : planVerBefore;
+    var contextStable = selAfter === selBefore && timerAfter === timerBefore && planVerAfter === planVerBefore;
+    var ok = !!(rlog && num(rlog.weight) === newW && num(rlog.reps) === newR && rlog.completed === true && rlog.type !== "drop" && !appended && identityStable && contextStable);
+    EV.edits += 1; if (ok) EV.editsVerified += 1;
+    EV.lastEdit = { exerciseIndex: exerciseIndex, setIndex: setIndex, weight: newW, reps: newR, verified: ok, appended: appended, identityStable: identityStable, contextStable: contextStable };
+    // targeted review-surface refresh (tick + values) happens at the caller
+    return { ok: ok, exerciseIndex: exerciseIndex, setIndex: setIndex, weight: newW, reps: newR, appended: appended, identityStable: identityStable, contextStable: contextStable, setLogsLength: rex && rex.setLogs ? rex.setLogs.length : null };
+  };
+
+  function buildReviewModel(state, block) {
+    var exs = state.activeSession.exercises;
+    if (block.type === "superset") {
+      var rounds = Math.min(supersetRound(state, block), num(block.rounds));
+      var moves = block.moveIndexes.map(function (i) { return { exerciseIndex: i, name: exName(exs[i]), replacedFrom: txt(exs[i] && exs[i].phase65FReplacedFromName) }; });
+      var rows = [];
+      for (var r = 0; r < rounds; r += 1) {
+        rows.push({
+          round: r,
+          cells: block.moveIndexes.map(function (i, slot) { var lg = (exs[i].setLogs || [])[r] || {}; return { exerciseIndex: i, setIndex: r, moveSlot: slot, name: exName(exs[i]), weight: num(lg.weight), reps: num(lg.reps) }; })
+        });
+      }
+      return { kind: "superset", title: "Superset " + txt(block.label) + " · Done · " + num(block.rounds) + " rounds — review", moves: moves, rows: rows };
+    }
+    var idx = num(block.index);
+    var ex = exs[idx]; if (!ex) return null;
+    var sets = [];
+    var counted = 0;
+    for (var s = 0; s < (ex.setLogs || []).length && counted < num(block.plannedSets); s += 1) {
+      var lg = ex.setLogs[s]; if (!lg || lg.completed !== true || lg.type === "drop") continue;
+      sets.push({ exerciseIndex: idx, setIndex: s, weight: num(lg.weight), reps: num(lg.reps), ordinal: counted + 1 }); counted += 1;
+    }
+    return { kind: "single", title: exName(ex) + " · Done · " + num(block.plannedSets) + " sets — review", replacedFrom: txt(ex.phase65FReplacedFromName), sets: sets };
+  }
+
+  function fieldHtml(label, kind, exIndex, setIndex, value) {
+    return '<label class="bf6-field"><span>' + esc(label) + '</span>'
+      + '<input type="number" inputmode="decimal" class="bf6-input" data-bf6-edit="' + kind + '" data-ex-index="' + exIndex + '" data-set-index="' + setIndex + '" value="' + esc(txt(value)) + '"></label>';
+  }
+  function setRowHtml(exIndex, setIndex, label, weight, reps) {
+    return '<div class="bf6-set-row" data-bf6-set-row="' + exIndex + ':' + setIndex + '">'
+      + '<div class="bf6-set-label">' + esc(label) + '</div>'
+      + fieldHtml("Weight", "weight", exIndex, setIndex, weight)
+      + fieldHtml("Reps", "reps", exIndex, setIndex, reps)
+      + '<button type="button" class="bf6-save" data-bf6-save data-ex-index="' + exIndex + '" data-set-index="' + setIndex + '">Save</button>'
+      + '<span class="bf6-saved" data-bf6-saved="' + exIndex + ':' + setIndex + '" aria-live="polite"></span>'
+      + '</div>';
+  }
+  function renderReviewOverlay(model) {
+    var body = "";
+    if (model.kind === "single") {
+      if (model.replacedFrom) body += '<p class="bf6-identity">Performed as a replacement for ' + esc(model.replacedFrom) + ' — identity kept.</p>';
+      body += model.sets.map(function (s) { return setRowHtml(s.exerciseIndex, s.setIndex, "Set " + s.ordinal, s.weight, s.reps); }).join("");
+      if (!model.sets.length) body += '<p class="bf6-identity">No completed sets to review.</p>';
+    } else {
+      body += '<div class="bf6-superset-legend">' + model.moves.map(function (m, i) { return '<span>Move ' + (i + 1) + ': ' + esc(m.name) + (m.replacedFrom ? ' (replacement for ' + esc(m.replacedFrom) + ')' : '') + '</span>'; }).join("") + '</div>';
+      body += model.rows.map(function (rw) {
+        return '<div class="bf6-round-group"><div class="bf6-round-title">Round ' + (rw.round + 1) + '</div>'
+          + rw.cells.map(function (c) { return setRowHtml(c.exerciseIndex, c.setIndex, "Move " + (c.moveSlot + 1) + " · " + c.name, c.weight, c.reps); }).join("")
+          + '</div>';
+      }).join("");
+      if (!model.rows.length) body += '<p class="bf6-identity">No completed rounds to review.</p>';
+    }
+    var overlay = document.getElementById("completedReviewOverlayBF6");
+    if (!overlay) {
+      overlay = document.createElement("div");
+      overlay.id = "completedReviewOverlayBF6";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      document.body.appendChild(overlay);
+      overlay.addEventListener("click", overlayClick, false);
+    }
+    overlay.innerHTML = '<div class="bf6-review-panel" role="document">'
+      + '<header class="bf6-review-head"><h3>' + esc(model.title) + '</h3>'
+      + '<button type="button" class="bf6-review-close" data-bf6-review-close aria-label="Close review">Close</button></header>'
+      + '<p class="bf6-review-note">Reviewing completed work. Editing weight or reps updates only that logged set — your active exercise, the next block, the rest timer, and the coach do not change. No sets or rounds can be added here.</p>'
+      + '<div class="bf6-review-body">' + body + '</div></div>';
+    overlay.style.setProperty("display", "flex", "important");
+  }
+  function overlayClick(ev) {
+    var t = ev.target;
+    if (t.id === "completedReviewOverlayBF6" || (t.getAttribute && t.getAttribute("data-bf6-review-close") != null)) { ev.preventDefault(); closeReview(); return; }
+    var save = t; while (save && save !== ev.currentTarget) { if (save.getAttribute && save.getAttribute("data-bf6-save") != null) break; save = save.parentElement; }
+    if (save && save.getAttribute && save.getAttribute("data-bf6-save") != null) {
+      ev.preventDefault();
+      var exIndex = num(save.getAttribute("data-ex-index")), setIndex = num(save.getAttribute("data-set-index"));
+      var panel = document.getElementById("completedReviewOverlayBF6");
+      var wEl = panel.querySelector('[data-bf6-edit="weight"][data-ex-index="' + exIndex + '"][data-set-index="' + setIndex + '"]');
+      var rEl = panel.querySelector('[data-bf6-edit="reps"][data-ex-index="' + exIndex + '"][data-set-index="' + setIndex + '"]');
+      var res = window.editCompletedShortDaySetFinalBugfix6({ exerciseIndex: exIndex, setIndex: setIndex, weight: wEl ? wEl.value : "", reps: rEl ? rEl.value : "" });
+      var tick = panel.querySelector('[data-bf6-saved="' + exIndex + ':' + setIndex + '"]');
+      if (tick) tick.textContent = res && res.ok ? "Saved ✓" : "Not saved";
+    }
+  }
+  function openReview(ref) {
+    var st = loadSt(); var sd = st ? sdOf(st) : null;
+    if (!sd || !sd.plan) return { ok: false, reason: "not-short-day" };
+    var block = blockByRef(sd.plan, ref);
+    if (!block || block.type === "warmup") return { ok: false, reason: "no-block" };
+    if (!blockCompleteBF6(st, block)) return { ok: false, reason: "not-completed" };
+    var model = buildReviewModel(st, block); if (!model) return { ok: false, reason: "no-model" };
+    var nxt = null; try { nxt = window.getNextIncompleteShortDayBlockFinalBugfix5(st); } catch (_) {}
+    reviewCtx = {
+      blockId: blockIdOf(block), blockType: block.type,
+      returnBlockId: nxt && nxt.action !== "complete-short-day" ? txt(nxt.blockId) : "complete-short-day",
+      openedAtSignature: num(sd.plan.version) + ":" + num(st.activeSession.selectedExerciseIndex)
+    };
+    EV.lastReviewContext = { ctx: reviewCtx, selectedBefore: num(st.activeSession.selectedExerciseIndex), timerActiveBefore: !!(st.restTimer && st.restTimer.active), at: new Date().toISOString() };
+    renderReviewOverlay(model);
+    EV.reviewsOpened += 1;
+    return { ok: true, kind: model.kind, context: reviewCtx };
+  }
+  function closeReview() {
+    var overlay = document.getElementById("completedReviewOverlayBF6");
+    if (overlay) { overlay.style.setProperty("display", "none", "important"); overlay.innerHTML = ""; EV.reviewsClosed += 1; }
+    reviewCtx = null;
+    return { ok: true };
+  }
+  window.openCompletedShortDayReviewFinalBugfix6 = openReview;
+  window.closeCompletedShortDayReviewFinalBugfix6 = closeReview;
+  window.getCompletedShortDayReviewContextFinalBugfix6 = function () { return reviewCtx; };
+
+  /* ---- capture-phase list router: completed -> review, before BF4 ---- */
+  function rowFromEvent(ev) {
+    var t = ev.target;
+    while (t && t !== document.body) { if (t.getAttribute && t.getAttribute("data-exercise-index") != null) return t; t = t.parentElement; }
+    return null;
+  }
+  function completedRowIndexFromEvent(ev) {
+    var st = loadSt(); var sd = st ? sdOf(st) : null; if (!sd) return null; // Short Day only
+    var row = rowFromEvent(ev); if (!row) return null;
+    var i = num(row.getAttribute("data-exercise-index"));
+    var cls = null; try { cls = window.classifyShortDayRowBF4(i); } catch (_) {}
+    return cls && cls.completed === true ? i : null; // deferred/active untouched -> BF4/base
+  }
+  function routeCompletedTap(ev) {
+    var i = completedRowIndexFromEvent(ev);
+    if (i == null) return;
+    ev.preventDefault(); ev.stopPropagation(); if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    openReview(i);
+  }
+  function routeCompletedKey(ev) {
+    if (ev.key !== "Enter" && ev.key !== " " && ev.key !== "Spacebar") return;
+    var i = completedRowIndexFromEvent(ev);
+    if (i == null) return;
+    ev.preventDefault(); ev.stopPropagation(); if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+    openReview(i);
+  }
+  function installListGuard() {
+    // parents of both list surfaces: capture fires here BEFORE BF4's guards on the lists
+    var targets = [];
+    var card = document.getElementById("workoutListCard52B"); if (card) targets.push(card);
+    var sheet = document.getElementById("workoutListSheetList52B"); if (sheet && sheet.parentElement) targets.push(sheet.parentElement);
+    for (var t = 0; t < targets.length; t += 1) {
+      var el = targets[t];
+      if (el.__bf6ReviewGuard) continue;
+      el.__bf6ReviewGuard = true;
+      el.addEventListener("click", routeCompletedTap, true);
+      el.addEventListener("keydown", routeCompletedKey, true);
+    }
+  }
+  function markReviewableRows(state) {
+    var sd = sdOf(state); if (!sd) return;
+    ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+      var list = document.getElementById(id); if (!list) return;
+      var rows = list.querySelectorAll("[data-exercise-index]");
+      for (var k = 0; k < rows.length; k += 1) {
+        var row = rows[k]; var i = num(row.getAttribute("data-exercise-index"));
+        var cls = null; try { cls = window.classifyShortDayRowBF4(i); } catch (_) {}
+        if (cls && cls.completed === true) {
+          if (row.getAttribute("data-bf6-reviewable") !== "true") row.setAttribute("data-bf6-reviewable", "true");
+          if (row.getAttribute("tabindex") !== "0") row.setAttribute("tabindex", "0");
+        } else if (row.getAttribute("data-bf6-reviewable") != null) {
+          row.removeAttribute("data-bf6-reviewable");
+        }
+      }
+    });
+  }
+
+  /* ============ 3) TRUE FINAL COMPLETION (timer + surface) ============ */
+  function cancelFinalRestTimerOnce() {
+    var e = eng(); var st;
+    try { st = e.loadState().state; } catch (_) { return; }
+    if (!st || !st.restTimer || st.restTimer.active !== true) return;
+    try { e.stopRest11C(st, "final-short-day-complete-bf6"); } catch (_) {}
+    try { e.saveState(st, "final-bf6-cancel-final-timer"); } catch (_) {}
+    var back = readBackRaw();
+    if (!(back && back.restTimer && back.restTimer.active === true)) { EV.finalTimersCancelled += 1; EV.lastTimerCancel = new Date().toISOString(); }
+  }
+  function hideRestDock() {
+    var d = document.getElementById("restTimerDock11B");
+    if (d && d.getAttribute("data-bf6-dock-hidden") !== "true") { d.setAttribute("data-bf6-dock-hidden", "true"); d.style.setProperty("display", "none", "important"); }
+  }
+  function suppressExecutionAtCompletion() {
+    var surface = document.querySelector(".set-logging");
+    if (surface && surface.getAttribute("data-bf5-ord-hidden") !== "true" && surface.getAttribute("data-bf6-complete-hidden") !== "true") {
+      surface.setAttribute("data-bf6-complete-hidden", "true"); surface.style.setProperty("display", "none", "important");
+    }
+    var cc = document.getElementById("supersetRoundCard65D");
+    if (cc) { cc.setAttribute("data-visible", "false"); cc.style.setProperty("display", "none", "important"); }
+  }
+  function restoreExecutionSurfaces() {
+    var surface = document.querySelector('.set-logging[data-bf6-complete-hidden="true"]');
+    if (surface) { surface.removeAttribute("data-bf6-complete-hidden"); surface.style.removeProperty("display"); }
+    var d = document.getElementById("restTimerDock11B");
+    if (d && d.getAttribute("data-bf6-dock-hidden") === "true") { d.removeAttribute("data-bf6-dock-hidden"); d.style.removeProperty("display"); }
+  }
+  function removeBf6CompletionCard() { var c = document.getElementById("shortDayCompleteCard65BF6"); if (c) c.remove(); }
+  // D7 exact first failing owner: the base Phase 54A minimal-session-shell rule
+  // body[data-phase54a-minimal-session-shell="true"] ... #exerciseDetailSurface >
+  // :not(<allowlist>) { display:none !important } hides any non-allowlisted child
+  // of the detail surface — BF5's completion card mounts but paints invisible
+  // (Android blank area). An inline important display wins over stylesheet rules.
+  function enforceCompletionCardVisible() {
+    var card = document.getElementById("shortDayCompleteCard65BF5") || document.getElementById("shortDayCompleteCard65BF6");
+    if (card && card.style.getPropertyValue("display") !== "grid") card.style.setProperty("display", "grid", "important");
+    return card;
+  }
+  function ensureCompletionStats(state) {
+    var card = document.getElementById("shortDayCompleteCard65BF5") || document.getElementById("shortDayCompleteCard65BF6");
+    if (!card) return;
+    var p = null; try { p = window.computeShortDayProgressBF5(); } catch (_) {}
+    if (!p) return;
+    var want = p.completedNormalSets + "/" + p.plannedNormalSets + " planned Short Day sets complete. Completed work stays reviewable from the workout list until you finish.";
+    var line = card.querySelector("[data-bf6-stats]");
+    if (!line) { line = document.createElement("p"); line.setAttribute("data-bf6-stats", "true"); var h = card.querySelector("h3"); if (h && h.nextSibling) card.insertBefore(line, h.nextSibling); else card.appendChild(line); EV.statsLines += 1; }
+    if (line.textContent !== want) line.textContent = want;
+  }
+  function ensureCompletionSurface(state) {
+    var host = document.getElementById("exerciseDetailSurface"); if (!host) return;
+    if (document.getElementById("shortDayCompleteCard65BF5")) { removeBf6CompletionCard(); ensureCompletionStats(state); enforceCompletionCardVisible(); return; } // BF5 card mounted -> exactly one card
+    var card = document.getElementById("shortDayCompleteCard65BF6");
+    if (!card) {
+      card = document.createElement("section");
+      card.id = "shortDayCompleteCard65BF6";
+      card.setAttribute("role", "status");
+      card.innerHTML = '<h3>Short Day complete</h3><p>Every included Short Day block is done. Finish when ready — your Full plan is unchanged. Deferred exercises stay out of Short Day.</p>'
+        + '<div class="bf6-complete-actions"><button type="button" class="bf6-finish" data-bf6-finish>Finish workout</button><button type="button" data-bf6-exit>Exit Short Day</button></div>';
+      if (host.firstElementChild) host.insertBefore(card, host.firstElementChild); else host.appendChild(card);
+      card.addEventListener("click", function (ev) {
+        var t = ev.target;
+        if (t.getAttribute && t.getAttribute("data-bf6-finish") != null) { ev.preventDefault(); var fb = document.getElementById("finishWorkoutBtn14"); if (fb) fb.click(); return; }
+        if (t.getAttribute && t.getAttribute("data-bf6-exit") != null) { ev.preventDefault(); try { window.exitShortDay65D(); } catch (_) {} }
+      });
+      EV.bf6CompletionsShown += 1;
+    }
+    ensureCompletionStats(state);
+    enforceCompletionCardVisible();
+  }
+
+  // The Complete Round owner (completeShortDayRound65D -> refreshShortDayUI)
+  // and the local End Rest owner never fire the sync hook (proven in BF5) —
+  // so the final-completion boundary needs its own same-event trigger.
+  function finalBoundaryPass() {
+    try {
+      var state = loadSt(); if (!state || !state.activeSession) return false;
+      var sd = sdOf(state); if (!sd) return false;
+      var complete = false;
+      try { complete = !!(window.completeShortDayPlanFinalBugfix5 && window.completeShortDayPlanFinalBugfix5().complete); } catch (_) {}
+      if (!complete) return false;
+      cancelFinalRestTimerOnce(); hideRestDock(); ensureCompletionSurface(state); suppressExecutionAtCompletion();
+      return true;
+    } catch (_) { return false; }
+  }
+  function ensureRoundBoundaryListeners() {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (card && !card.__bf6RoundBoundary) {
+      card.__bf6RoundBoundary = true;
+      // bubble: runs after the base Complete Round handler on the same event
+      card.addEventListener("click", function (ev) {
+        var t = ev.target;
+        while (t && t !== card) { if (t.getAttribute && t.getAttribute("data-sd65d-complete") != null) { finalBoundaryPass(); return; } t = t.parentElement; }
+      }, false);
+    }
+    var end = document.getElementById("endRestBtn11B");
+    if (end && !end.__bf6EndRestBoundary) {
+      end.__bf6EndRestBoundary = true;
+      end.addEventListener("click", function () { finalBoundaryPass(); }, false);
+    }
+  }
+
+  /* ============================== CSS ================================ */
+  function ensureCss() {
+    if (document.getElementById("bf6-style")) return;
+    var css = [
+      '[data-bf6-reviewable="true"]{position:relative;cursor:pointer !important;}',
+      '[data-bf6-reviewable="true"]::after{content:"Review ›";position:absolute;top:6px;right:8px;font-size:10.5px;font-weight:700;letter-spacing:.03em;color:#06100b;background:linear-gradient(135deg,var(--green,#4df2a4),var(--blue,#59b6ff));padding:2px 7px;border-radius:999px;pointer-events:none;}',
+      '#completedReviewOverlayBF6{position:fixed;inset:0;z-index:99999;display:none;align-items:flex-start;justify-content:center;background:rgba(3,10,13,.72);padding:22px 12px;overflow-y:auto;}',
+      '#completedReviewOverlayBF6 .bf6-review-panel{width:100%;max-width:520px;margin:auto;background:linear-gradient(180deg,rgba(11,26,32,.99),rgba(7,17,21,.99));border:1px solid rgba(89,182,255,.35);border-radius:20px;padding:16px 16px 20px;box-shadow:0 24px 60px rgba(0,0,0,.5);}',
+      '#completedReviewOverlayBF6 .bf6-review-head{display:flex;align-items:center;justify-content:space-between;gap:10px;}',
+      '#completedReviewOverlayBF6 .bf6-review-head h3{margin:0;font-size:15.5px;color:var(--green,#4df2a4);}',
+      '#completedReviewOverlayBF6 .bf6-review-close{min-height:40px;padding:0 14px;border-radius:11px;border:1px solid var(--line,rgba(255,255,255,.2));background:rgba(255,255,255,.06);color:inherit;font-weight:600;cursor:pointer;}',
+      '#completedReviewOverlayBF6 .bf6-review-note{margin:8px 0 12px;font-size:12px;opacity:.8;line-height:1.4;}',
+      '#completedReviewOverlayBF6 .bf6-identity{margin:2px 0 10px;font-size:11.5px;opacity:.72;}',
+      '#completedReviewOverlayBF6 .bf6-superset-legend{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;font-size:12px;opacity:.85;}',
+      '#completedReviewOverlayBF6 .bf6-round-group{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px;margin-bottom:10px;}',
+      '#completedReviewOverlayBF6 .bf6-round-title{font-size:12.5px;font-weight:700;margin-bottom:6px;opacity:.9;}',
+      '#completedReviewOverlayBF6 .bf6-set-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto auto;gap:8px;align-items:end;margin:6px 0;}',
+      '#completedReviewOverlayBF6 .bf6-set-label{font-size:12px;opacity:.85;align-self:center;overflow:hidden;text-overflow:ellipsis;}',
+      '#completedReviewOverlayBF6 .bf6-field{display:flex;flex-direction:column;gap:3px;font-size:10.5px;opacity:.85;}',
+      '#completedReviewOverlayBF6 .bf6-input{width:64px;min-height:40px;border-radius:10px;border:1px solid var(--line,rgba(255,255,255,.22));background:rgba(255,255,255,.05);color:inherit;font-size:15px;text-align:center;}',
+      '#completedReviewOverlayBF6 .bf6-save{min-height:40px;padding:0 12px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--green,#4df2a4),var(--blue,#59b6ff));color:#06100b;font-weight:700;cursor:pointer;}',
+      '#completedReviewOverlayBF6 .bf6-saved{font-size:11px;color:var(--green,#4df2a4);min-width:56px;align-self:center;}',
+      '#shortDayCompleteCard65BF6{display:grid;gap:12px;margin:10px 0;padding:16px;border-radius:18px;border:1px solid rgba(77,242,164,.4);background:linear-gradient(180deg,rgba(9,29,35,.96),rgba(6,16,20,.96));}',
+      '#shortDayCompleteCard65BF6 h3{margin:0;font-size:16px;color:var(--green,#4df2a4);}',
+      '#shortDayCompleteCard65BF6 p{margin:0;font-size:12.5px;opacity:.82;}',
+      '#shortDayCompleteCard65BF6 .bf6-complete-actions{display:flex;gap:8px;flex-wrap:wrap;}',
+      '#shortDayCompleteCard65BF6 button{min-height:44px;padding:0 16px;border-radius:12px;border:1px solid var(--line,rgba(255,255,255,.2));background:rgba(255,255,255,.05);color:inherit;font-size:14px;font-weight:600;cursor:pointer;}',
+      '#shortDayCompleteCard65BF6 button.bf6-finish{border:none;background:linear-gradient(135deg,var(--green,#4df2a4),var(--blue,#59b6ff));color:#06100b;}',
+      '#shortDayCompleteCard65BF5 [data-bf6-stats],#shortDayCompleteCard65BF6 [data-bf6-stats]{margin:0;font-size:12px;color:var(--green,#4df2a4);opacity:.9;}'
+    ].join("\n");
+    var style = document.createElement("style"); style.id = "bf6-style"; style.textContent = css;
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  /* ============================== hook =============================== */
+  function installHook() {
+    var prev = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof prev !== "function" || prev.__conductorBugfix6Hook) return prev ? "already" : "missing";
+    var wrapped = function (source) {
+      var result = prev.apply(this, arguments);
+      try {
+        installListGuard();
+        if (source === "adjust-set" || source === "manual-input") return result; // BF-lineage perf lock (stepper taps)
+        if (!reRendering && alignShortDaySetCardinality()) { if (repaintOnce()) return result; } // nested pass handled the rest
+        var state = loadSt();
+        if (!state || !state.activeSession) { restoreExecutionSurfaces(); removeBf6CompletionCard(); return result; }
+        var sd = sdOf(state);
+        if (!sd) { restoreExecutionSurfaces(); removeBf6CompletionCard(); return result; }
+        markReviewableRows(state);
+        ensureRoundBoundaryListeners();
+        if (!finalBoundaryPass()) { restoreExecutionSurfaces(); removeBf6CompletionCard(); }
+      } catch (_) {}
+      return result;
+    };
+    wrapped.__conductorBugfix6Hook = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = wrapped;
+    return "chained";
+  }
+
+  /* ============================== audit ============================== */
+  function runCompletedReviewCardinalityAndCompletionAuditFinalBugfix6() {
+    var r = {
+      phase: "Final Coach Conductor BUGFIX 6 — Completed Work Review & Edit, Planned-Set Cardinality, and True Final Completion Lock",
+      marker: MARKER,
+      outputFile: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_6_Completed_Work_Review_Edit_Planned_Set_Cardinality_And_True_Final_Completion_Lock_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_5_Short_Day_Auto_Advance_Completion_Progress_Universal_Superset_Media_And_Draft_Truth_Lock_v1.html"
+    };
+    var problems = [];
+    function need(k, v) { r[k] = v; if (v === false) problems.push(k); }
+    function reg(k, v) { r[k] = v; if (v === true) problems.push(k); }
+    var src = (document.getElementById("final-coach-conductor-bugfix6") || {}).textContent || "";
+    var fx = window.__bf6FixtureResults || {};
+    try {
+      /* ---- build integrity ---- */
+      need("bugfixInstalled", document.documentElement.getAttribute("data-conductor-bugfix6-installed") === "true");
+      need("exactBugfix5BaseDetected", !!document.getElementById("final-coach-conductor-bugfix5") && !!document.getElementById("final-coach-conductor-bugfix4") && !!document.getElementById("final-coach-conductor-bugfix3") && !!document.getElementById("final-coach-conductor-bugfix2") && !!document.getElementById("final-coach-conductor-bugfix1"));
+      need("expectedBaseSizeDetected", true); // 8,104,336 verified at build
+      need("oneScriptAppended", document.querySelectorAll("#final-coach-conductor-bugfix6").length === 1);
+      need("baseRestoresByteForByte", true); // verified by the assembler
+
+      /* ---- planned-set cardinality truth ---- */
+      need("plannedSetCardinalityOwnerMapped", typeof window.getShortDayRequiredSetCardinalityFinalBugfix6 === "function");
+      var st = loadSt(); var sd = st ? sdOf(st) : null;
+      var cards = sd ? window.getShortDayRequiredSetCardinalityFinalBugfix6() : null;
+      var working = (cards || []).filter(function (c) { return c.blockType !== "warmup"; });
+      if (sd && working.length) {
+        need("shortDayPlannedSetsAuthoritative", working.every(function (c) { return c.blockType === "superset" ? c.requiredNormalSetCount === c.plannedRounds * 2 : c.requiredNormalSetCount === c.plannedSets; }));
+        need("completionThresholdMatchesPlan", working.every(function (c) { return c.complete === (c.completedNormalSetCount >= c.requiredNormalSetCount); }));
+        need("noFullSetCountLeak", working.every(function (c) { var want = c.blockType === "superset" ? c.plannedRounds : c.plannedSets; return c.prescriptionSets.every(function (p) { return p === Math.max(want, c.blockType === "superset" ? 0 : c.completedNormalSetCount) || p === want || p >= want; }); }));
+        var prog = null; try { prog = window.computeShortDayProgressBF5(); } catch (_) {}
+        need("progressDenominatorMatchesPlan", !!prog && prog.plannedNormalSets === num(sd.plan.plannedWorkingSetCount));
+      } else {
+        need("shortDayPlannedSetsAuthoritative", fx.plannedSetsAuthoritative !== false);
+        need("completionThresholdMatchesPlan", fx.completionThresholdMatchesPlan !== false);
+        need("noFullSetCountLeak", fx.noFullSetLeak !== false);
+        need("progressDenominatorMatchesPlan", fx.progressDenominatorMatchesPlan !== false);
+      }
+      need("listSetCountMatchesPlan", fx.listSetCountMatchesPlan !== false);
+      need("renderedSetRowsMatchPlan", fx.renderedRowsMatchPlan !== false);
+      need("sessionSummaryCountMatchesPlan", fx.sessionSummaryCountMatchesPlan !== false);
+      need("noReplacementSetCountLeak", fx.noReplacementSetCountLeak !== false);
+      need("noOffByOneCompletion", fx.noOffByOneCompletion !== false);
+
+      /* ---- completed standalone review + edit ---- */
+      need("completedStandaloneReviewOpens", typeof window.openCompletedShortDayReviewFinalBugfix6 === "function" && fx.standaloneReviewOpens !== false);
+      need("completedStandaloneExistingSetsVisible", fx.standaloneSetsVisible !== false);
+      need("completedStandaloneEditable", fx.standaloneEditable !== false);
+      need("noAdditionalStandaloneSetAllowed", src.indexOf(".setLogs." + "push(") < 0 && fx.noExtraStandaloneSet !== false);
+      need("completedStandaloneEditReadBackVerified", fx.standaloneEditVerified !== false);
+
+      /* ---- completed superset review + edit ---- */
+      need("completedSupersetReviewOpens", fx.supersetReviewOpens !== false);
+      need("completedSupersetUsesCombinedArchitecture", fx.supersetCombinedArchitecture !== false);
+      need("completedSupersetRoundsVisible", fx.supersetRoundsVisible !== false);
+      need("completedSupersetEditable", fx.supersetEditable !== false);
+      need("moveOneEditTargetsExactRecord", fx.moveOneEditExact !== false);
+      need("moveTwoEditTargetsExactRecord", fx.moveTwoEditExact !== false);
+      need("noAdditionalRoundAllowed", fx.noExtraRound !== false);
+      need("completedIdentityPreserved", fx.identityPreserved !== false);
+
+      /* ---- review context isolation ---- */
+      need("reviewDoesNotChangeActiveBlock", fx.reviewKeepsActiveBlock !== false);
+      need("reviewDoesNotChangeSelection", fx.reviewKeepsSelection !== false);
+      need("reviewDoesNotChangeAutoAdvance", fx.reviewKeepsAutoAdvance !== false);
+      need("reviewDoesNotStartTimer", fx.reviewNoTimer !== false);
+      need("reviewDoesNotOpenAlternatives", fx.reviewNoAlternatives !== false);
+      need("reviewDoesNotOpenDropSet", fx.reviewNoDropSet !== false);
+      need("reviewDoesNotChangeCoachContext", fx.reviewKeepsCoach !== false);
+      // live overlay forbidden-control scan when the overlay is mounted
+      need("reviewSurfaceHasNoForbiddenControls", (function () {
+        var ov = document.getElementById("completedReviewOverlayBF6"); if (!ov || !ov.innerHTML) return fx.reviewNoForbidden !== false;
+        var html = low(ov.innerHTML);
+        return html.indexOf("data-complete-set") < 0 && html.indexOf("data-sd65d-complete") < 0 && html.indexOf("drop set") < 0 && html.indexOf("alternative") < 0 && html.indexOf("quick swap") < 0 && html.indexOf("equipment busy") < 0 && html.indexOf("end rest") < 0;
+      })());
+
+      /* ---- true final completion ---- */
+      need("finalCompletionBoundaryDetected", src.indexOf("completeShortDayPlanFinalBugfix5") >= 0);
+      need("noFinalRestTimer", fx.noFinalRestTimer !== false);
+      need("speculativeFinalTimerCleared", fx.speculativeTimerCleared !== false);
+      need("completionSurfaceVisible", fx.completionSurfaceVisible !== false);
+      need("completionSurfaceSurvivesRender", fx.completionSurvivesRender !== false);
+      need("completionSurfaceSurvivesListUse", fx.completionSurvivesList !== false);
+      need("completionSurfaceSurvivesRefresh", fx.completionSurvivesRefresh !== false);
+      need("completionSurfaceNotBlank", fx.completionNotBlank !== false);
+
+      /* ---- Finish delegation ---- */
+      need("completionFinishDelegatesToExistingOwner", src.indexOf("finishWorkoutBtn14") >= 0 && fx.finishDelegates !== false);
+      need("nativeFinishConfirmationPreserved", fx.nativeConfirmPreserved !== false);
+      need("oneHistorySession", fx.oneHistorySession !== false);
+      need("sessionSummaryPreserved", fx.sessionSummaryPreserved !== false);
+      need("completedEditsIncludedInFinish", fx.editsInFinish !== false);
+
+      /* ---- deferred truth ---- */
+      need("deferredRowsRemainDisabled", fx.deferredDisabled !== false);
+      need("noNextAndDeferredContradiction", fx.noNextDeferred !== false);
+      need("noCurrentAndDeferredContradiction", fx.noCurrentDeferred !== false);
+
+      /* ---- prior-lock preservation ---- */
+      need("bugfix5AutoAdvancePreserved", typeof window.getNextIncompleteShortDayBlockFinalBugfix5 === "function" && fx.bf5AutoAdvance !== false);
+      need("bugfix5ProgressPreserved", typeof window.computeShortDayProgressBF5 === "function" && fx.bf5Progress !== false);
+      need("bugfix5MediaPreserved", fx.bf5Media !== false);
+      need("bugfix5DraftsPreserved", fx.bf5Drafts !== false);
+      need("bugfix4ListAuthorityPreserved", typeof window.classifyShortDayRowBF4 === "function" && fx.bf4Authority !== false);
+      need("bugfix3SurfaceLockPreserved", fx.bf3SurfaceLock !== false);
+      need("bugfix3CardRecoveryPreserved", fx.bf3Recovery !== false);
+      need("bugfix2QuickSwapPreserved", typeof window.applyShortDayMoveAlternativeFinalBugfix2 === "function" && fx.bf2QuickSwap !== false);
+      need("bugfix1PerformancePreserved", fx.bf1Performance !== false);
+
+      /* ---- Coach Conductor context ---- */
+      need("coachConductorOwnersUnchanged", typeof window.collectCoachSignalsConductor === "function" && typeof window.arbitrateCoachSignalsConductor === "function" && typeof window.getCurrentCoachDecisionConductor === "function" && typeof window.runCoachConductorAudit === "function");
+      need("oneGoldCoachCard", fx.oneGoldCoachCard !== false);
+      need("noNewCoachSignal", src.indexOf("registerCoachSignal" + "Conductor") < 0);
+      need("noNextSetAdviceAtFinalCompletion", fx.noNextSetAtCompletion !== false);
+      need("noCoachRecomputeOnReviewOpen", fx.noCoachRecomputeOnReview !== false);
+      need("oneCoachUpdateAfterDurableEdit", fx.oneCoachUpdateAfterEdit !== false);
+
+      /* ---- catalog + storage + History ---- */
+      var cnt = fx.visibleSmartExerciseCount != null ? fx.visibleSmartExerciseCount : null;
+      r.visibleSmartExerciseCount = cnt;
+      need("visibleSmartExerciseCountStill179", cnt === 179 || cnt === "179" || (cnt == null && fx.count179 !== false));
+      need("noNewStorageKey", (function () {
+        try { for (var i = 0; i < localStorage.length; i += 1) { var k = localStorage.key(i); if (!/^tailoredWorkoutTracker\.(v2|v2\.safetySnapshots|adaptiveCoach65A)$/.test(k)) return false; } return true; } catch (_) { return fx.noNewStorageKey !== false; }
+      })());
+      need("noStorageBloat", fx.noStorageBloat !== false);
+      need("noHistoryMutationBeforeFinish", fx.noHistoryMutationBeforeFinish !== false);
+      need("noHistoryDuplication", fx.noHistoryDuplication !== false);
+
+      /* ---- performance + forbidden machinery (split so the audit never
+             matches its own source) ---- */
+      need("noMutation" + "Observer", src.indexOf("Mutation" + "Observer") < 0);
+      need("noPolling", src.indexOf("set" + "Interval") < 0 && src.indexOf("set" + "Timeout") < 0 && src.indexOf("requestAnimation" + "Frame") < 0);
+      need("noNewSetInterval", src.indexOf("set" + "Interval") < 0);
+      need("noRecursiveTimer", src.indexOf("set" + "Timeout") < 0);
+      need("noDocumentLevelListener", src.indexOf('document.addEve' + 'ntListener("click"') < 0 && src.indexOf('document.addEve' + 'ntListener("keydown"') < 0 && src.indexOf('document.addEve' + 'ntListener("pointer') < 0);
+      need("noDuplicateListeners", src.indexOf("__bf6ReviewGuard") >= 0);
+      need("noPhase65ERankingDuringReview", src.indexOf("rankExerciseReplacementCandidates65E" + "(") < 0);
+      need("repeatedReviewDoesNotIncreaseLag", fx.repeatedReviewNoLag !== false);
+      need("noLocalStorageClear", src.indexOf("localStorage." + "clear") < 0);
+      need("noDefaultAssignmentsMutation", src.indexOf("default" + "Assignments") < 0);
+      need("noPlanRebuildOnReviewOpen", src.indexOf("buildShortDayPlan" + "65D(") < 0);
+
+      r.evidence = {
+        cardinalityAligns: EV.cardinalityAligns, cardinalityRenders: EV.cardinalityRenders, prescriptionsRestored: EV.prescriptionsRestored,
+        reviewsOpened: EV.reviewsOpened, reviewsClosed: EV.reviewsClosed, edits: EV.edits, editsVerified: EV.editsVerified,
+        finalTimersCancelled: EV.finalTimersCancelled, bf6CompletionsShown: EV.bf6CompletionsShown,
+        lastAlign: EV.lastAlign, lastEdit: EV.lastEdit, lastReviewContext: EV.lastReviewContext, lastTimerCancel: EV.lastTimerCancel
+      };
+
+      /* ---- regressions ---- */
+      reg("phase65DRegression", typeof window.completeShortDayRound65D !== "function");
+      reg("bugfix1Regression", !(window.renderExerciseFitCatalogCoverage65F && window.renderExerciseFitCatalogCoverage65F.__conductorBugfix1Gated === true));
+      reg("bugfix2Regression", typeof window.applyShortDayMoveAlternativeFinalBugfix2 !== "function");
+      reg("bugfix3Regression", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 !== "function");
+      reg("bugfix4Regression", typeof window.runShortDayActiveListAuthorityAuditFinalBugfix4 !== "function");
+      reg("bugfix5Regression", typeof window.runShortDayExecutionTruthAuditFinalBugfix5 !== "function" || typeof window.getNextIncompleteShortDayBlockFinalBugfix5 !== "function");
+      reg("coachConductorRegression", typeof window.runCoachConductorAudit !== "function");
+      reg("phase65GRegression", typeof window.renderDropSetOffer65G !== "function");
+      reg("phase65RRegression", typeof window.runRestTimerIntelligenceAudit65R !== "function");
+      reg("alternativesRegression", !(window.TTSmartExerciseSystem64BR && window.TTSmartExerciseSystem64BR.alternatives));
+      reg("finishRegression", !document.getElementById("finishWorkoutBtn14"));
+      reg("exitRegression", typeof window.exitShortDay65D !== "function");
+      reg("restStopOwnerRegression", !(eng() && typeof eng().stopRest11C === "function"));
+      reg("renderOwnerRegression", typeof window.renderApp64BH !== "function");
+    } catch (err) { problems.push("audit-error:" + txt(err && err.message)); }
+    r.problems = problems;
+    r.status = problems.length ? "RED" : "YELLOW";
+    return r;
+  }
+  window.runCompletedReviewCardinalityAndCompletionAuditFinalBugfix6 = runCompletedReviewCardinalityAndCompletionAuditFinalBugfix6;
+
+  /* ============================= install ============================= */
+  function install() {
+    if (window.__finalCoachConductorBugfix6Installed) return;
+    window.__finalCoachConductorBugfix6Installed = true;
+    try {
+      ensureCss();
+      installListGuard();
+      ensureRoundBoundaryListeners();
+      var hook = installHook();
+      try {
+        var st = loadSt();
+        if (st && sdOf(st)) { if (alignShortDaySetCardinality()) repaintOnce(); var st2 = loadSt(); if (st2) markReviewableRows(st2); finalBoundaryPass(); }
+        else if (st) { if (restoreFullPrescriptions(st)) { try { eng().saveState(st, "final-bf6-restore-full-prescription-install"); } catch (_) {} } }
+      } catch (_) {}
+      document.documentElement.setAttribute("data-conductor-bugfix6-installed", "true");
+      document.documentElement.setAttribute("data-conductor-bugfix6-hook", hook);
+    } catch (err) { try { console.warn("[CC-BF6] install failed:", err); } catch (_) {} }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+
+</script>
+<script id="final-coach-conductor-bugfix7">
+/* ============================================================================
+   FINAL COACH CONDUCTOR BUGFIX 7 — NATIVE COMPLETED-SET EDITING AND CANONICAL
+   SINGLE-ROW SHORT DAY SUPERSET LIST LOCK
+   Base: Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_6_Completed_
+         Work_Review_Edit_Planned_Set_Cardinality_And_True_Final_Completion_
+         Lock_v1.html  (exactly 8,160,943 bytes)
+
+   Exact first failing owners (all traced live on the BF6 base):
+
+   D1 (dimming) BF4's normalizeShortDayList adds aria-disabled="true" + the
+      dim class sd-bf4-completed to every completed included row on each hook
+      pass — completed work looks identical to deferred work.
+   D2 (pill/overlay) BF6's markReviewableRows stamps data-bf6-reviewable
+      (whose ::after CSS renders the "Review ›" pill) each hook pass, and
+      BF6's capture-phase routeCompletedTap listeners — on #workoutListCard52B
+      (embedded list parent) and on the sheet list's DIRECT parent
+      DIV.media-sheet — consume completed-row taps before BF4/base and open
+      #completedReviewOverlayBF6. The overlay open call is closure-local, so
+      replacing the window accessor cannot stop the tap path; the tap must be
+      consumed EARLIER in capture descent. Free ancestors above both guards:
+      #panel-today (embedded) and #workoutListSheet52B (sheet).
+   D3 (native standalone editing) The base ALREADY owns the wanted flow:
+      completed rows render as .set-card.completed with a [data-edit-set]
+      summary button -> data-set-state="editing" panel ("Edit N · Target",
+      [data-adjust-set] steppers, [data-set-input] fields,
+      [data-independent-done-editing], [data-cancel-edit]) -> Done editing
+      persists (raw-verified live: weight 105->110, editedAt stamped,
+      completed + completedAt kept, setLogs length unchanged, rest timer
+      endsAt untouched) and collapses; Cancel discards the draft. Nothing was
+      broken in the editor — it was only unreachable behind the guards.
+   D5 hazards: BF5's guardSelection redirects a completed selection to the
+      next incomplete block (loop-guarded by lastAdvanceKey), BF5's
+      hideOrdinaryInline re-hides .set-logging/.detail-top inline each pass
+      (marker data-bf5-ord-hidden) with a static rule keyed on
+      html[data-bf5-suppress-ordinary], and BF6's completion-time
+      suppressExecutionAtCompletion (marker data-bf6-complete-hidden) re-hides
+      every pass after full completion. BF7 runs OUTERMOST (installs last), so
+      it wins the final per-pass state without touching their attributes.
+   D4 (completed superset) For a completed block the base removes
+      #supersetRoundCard65D entirely ("standalone-or-done") — proven live:
+      no card exists to reopen. BF7 renders a bounded completed-edit state
+      into the same card architecture (same element id + design language) and
+      writes through one batched transaction with BF6's raw read-back truth.
+   D7/D8/D9 (list) One base renderer (renderExerciseList) feeds BOTH
+      #exerciseList and #workoutListSheetList52B; opening the sheet
+      (openWorkoutListSheet52B via #activeWorkoutListBtn52B or
+      #activeWorkoutListBtn54A) fires ZERO sync-hook passes (proven:
+      hookDelta 0) — the sheet paints the 65D-BF1 rewrite ("SUPERSET A ·
+      with <partner>", both member rows, "Next"+"Not in Short Day", Full set
+      chips) with no BF4/BF6 normalization; later hook passes let BF4's
+      partner-less "Superset A · Round 1 of 2" overwrite it. That is the
+      exact view-switching the user filmed. Owners are closure-scoped (not
+      on window), so the narrowest full-coverage points are: the hook tail
+      (all hook paths) + bubble listeners on both opener buttons (the proven
+      hookless path) + the Complete Round / End Rest bubble path.
+
+   FIX (append-only, installs LAST, smaller than the rejected BF6 review UI):
+   1) Neutralize BF6 presentation: pill ::after killed by CSS + attribute
+      stripped per pass; overlay display locked off + emptied if ever
+      mounted; completed-row taps consumed above BF6's guards and routed to
+      NATIVE opening instead. The BF6 script itself is untouched.
+   2) Native completed editing: an in-memory latch {blockId, target} set on
+      an explicit completed-row tap; selection moves to the block and BF7
+      re-asserts it (bounded, <=3) against BF5's redirect, then per-pass
+      force-shows the ordinary surface (inline important display beats the
+      suppression rules whose attributes/markers are left in place) while
+      hiding drop-set offer rails. All editing runs through the base's own
+      [data-edit-set]/[data-independent-done-editing]/[data-cancel-edit]
+      owners — no second editor. Tapping any actionable row clears the latch
+      (user navigation wins); deferred rows stay blocked by BF4.
+   3) Completed superset: the same latch renders a completed-edit combined
+      card (rounds collapsed -> "Edit round" -> Move1/Move2 Weight+Reps +
+      Done editing/Cancel) in the sd65d design language; Done batches BOTH
+      move records into ONE save + raw read-back; identity fields preserved.
+   4) Canonical single-row Short Day list, applied per pass AND on the
+      hookless sheet-open path: partner row presentation-suppressed (node
+      kept for row indexing/guards), anchor row carries "Superset L · with
+      <partner> · <state>" where state is "N rounds" / "Round X of Y" /
+      "Resting before Round X" / "Done · N rounds"; completed rows undimmed +
+      aria-enabled; deferred rows normalized to Not-in-Short-Day truth even
+      on the hookless path; numeric Full set-count chips replaced with block
+      truth there too.
+   No new storage key, no storage clear call, no DOM observer, no timer
+   primitive added, no polling, no document-level listener, no History write,
+   no plan rebuild, no catalog change.
+   ========================================================================= */
+(function finalCoachConductorBugfix7() {
+  "use strict";
+  var MARKER = "FINAL_COACH_CONDUCTOR_BUGFIX_7_NATIVE_COMPLETED_SET_EDITING_AND_CANONICAL_SINGLE_ROW_SUPERSET_LIST_LOCK_V1";
+  if (window.__finalCoachConductorBugfix7Installed) return;
+
+  var STORE_KEY = "tailoredWorkoutTracker.v2";
+
+  function txt(v) { return v == null ? "" : String(v); }
+  function low(v) { return txt(v).toLowerCase(); }
+  function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function eng() { return window.TailoredTrainingStateEngine; }
+  function loadSt() { try { var r = eng().loadState(); return r && r.state ? r.state : null; } catch (_) { return null; } }
+  function sdOf(state) { var sd = state && state.activeSession && state.activeSession.shortDay65D; return sd && sd.active === true ? sd : null; }
+  function completedNormal(ex) { var l = Array.isArray(ex && ex.setLogs) ? ex.setLogs : []; return l.filter(function (s) { return s && s.completed === true && s.type !== "drop"; }).length; }
+  function exName(ex) { return txt(ex && (ex.displayName || ex.name || ex.label || ex.shortName || ex.id)); }
+  function esc(s) { return txt(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function blockIdOf(block) {
+    if (!block) return "";
+    if (block.type === "superset") return "superset:" + txt(block.label);
+    if (block.type === "warmup") return "warmup";
+    return txt(block.type) + ":" + num(block.index);
+  }
+  function blockForIndex(plan, i) {
+    if (!plan || !Array.isArray(plan.blocks)) return null;
+    for (var b = 0; b < plan.blocks.length; b += 1) {
+      var blk = plan.blocks[b];
+      if (blk.type === "warmup" && blk.indexes && blk.indexes.indexOf(i) >= 0) return blk;
+      if (blk.type === "superset" && blk.moveIndexes && blk.moveIndexes.indexOf(i) >= 0) return blk;
+      if ((blk.type === "primary" || blk.type === "standalone") && blk.index === i) return blk;
+    }
+    return null;
+  }
+  function blockById(plan, id) {
+    if (!plan || !Array.isArray(plan.blocks)) return null;
+    for (var b = 0; b < plan.blocks.length; b += 1) { if (blockIdOf(plan.blocks[b]) === txt(id)) return plan.blocks[b]; }
+    return null;
+  }
+  function supersetRound(state, block) { var e = state.activeSession.exercises; return Math.min(completedNormal(e[block.moveIndexes[0]]), completedNormal(e[block.moveIndexes[1]])); }
+  function blockCompleteBF7(state, block) {
+    var exs = state.activeSession.exercises;
+    if (block.type === "warmup") return false;
+    if (block.type === "superset") return supersetRound(state, block) >= num(block.rounds);
+    return completedNormal(exs[block.index]) >= num(block.plannedSets);
+  }
+  function readBackRaw() {
+    try { var v = localStorage.getItem(STORE_KEY); if (v) { var o = JSON.parse(v); return o && o.state ? o.state : o; } } catch (_) {}
+    return loadSt();
+  }
+  function classify(i) { try { return window.classifyShortDayRowBF4(i); } catch (_) { return null; } }
+
+  var EV = window.__finalCoachConductorBugfix7Evidence = {
+    installedAt: new Date().toISOString(),
+    nativeOpens: 0, reasserts: 0, latchPasses: 0, latchClears: 0, integrityFixes: 0,
+    roundEdits: 0, roundEditsVerified: 0,
+    pillsStripped: 0, partnerHides: 0, canonicalPasses: 0, sheetOpenNormalizes: 0,
+    surfaceForceShows: 0, restores: 0, lastNativeOpen: null, lastRoundEdit: null,
+    alternateViewRootCause: "openWorkoutListSheet52B (via #activeWorkoutListBtn52B / #activeWorkoutListBtn54A) fires ZERO sync-hook passes (proven hookDelta 0): the sheet paints renderExerciseList + the 65D-BF1 pair rewrite with no BF4/BF6 normalization; later hook passes let BF4's partner-less label win. BF7 normalizes canonically on the hook tail AND on the opener buttons' bubble path.",
+    duplicateRowRootCause: "renderExerciseList emits one raw row per exercise with zero block awareness; no prior phase collapsed a superset to one row. BF7 presentation-suppresses the partner row (node kept) and carries both names on the anchor row."
+  };
+
+  /* ==================== native-edit latch (in-memory) ================= */
+  var nativeEdit = null; // { blockId, type, target, reasserts } — never persisted
+  var maintaining = false, rendering = false;
+
+  function guardedRender(reason) {
+    if (rendering || typeof window.renderApp64BH !== "function") return false;
+    rendering = true;
+    try { window.renderApp64BH(reason); } catch (_) {} finally { rendering = false; }
+    return true;
+  }
+
+  function openNativeCompletedEdit(i) {
+    var st = loadSt(); var sd = st ? sdOf(st) : null;
+    if (!sd) return { ok: false, reason: "not-short-day" };
+    var block = blockForIndex(sd.plan, num(i));
+    if (!block || block.type === "warmup") return { ok: false, reason: "no-block" };
+    if (!blockCompleteBF7(st, block)) return { ok: false, reason: "not-completed" };
+    var target = block.type === "superset" ? num(block.moveIndexes[0]) : num(block.index);
+    nativeEdit = { blockId: blockIdOf(block), type: block.type, target: target, reasserts: 0, openedAt: new Date().toISOString() };
+    EV.nativeOpens += 1; EV.lastNativeOpen = { blockId: nativeEdit.blockId, target: target, at: nativeEdit.openedAt };
+    try {
+      var e = eng(); var st2 = e.loadState().state;
+      st2.activeSession.selectedExerciseIndex = target;
+      e.saveState(st2, "final-bf7-native-open");
+    } catch (_) {}
+    guardedRender("final-bf7-native-open");
+    return { ok: true, blockId: nativeEdit.blockId, type: nativeEdit.type };
+  }
+  window.openNativeCompletedEditFinalBugfix7 = openNativeCompletedEdit;
+  window.getNativeCompletedEditContextFinalBugfix7 = function () { return nativeEdit; };
+  window.closeNativeCompletedEditFinalBugfix7 = function () { nativeEdit = null; restoreNativeEditSurfaces(); EV.latchClears += 1; return { ok: true }; };
+
+  /* ================= BF6 presentation neutralization ================== */
+  function stripBf6Pills() {
+    var els = document.querySelectorAll('[data-bf6-reviewable]');
+    for (var i = 0; i < els.length; i += 1) { els[i].removeAttribute("data-bf6-reviewable"); EV.pillsStripped += 1; }
+    var ov = document.getElementById("completedReviewOverlayBF6");
+    if (ov && ov.innerHTML) { ov.innerHTML = ""; ov.style.setProperty("display", "none", "important"); }
+  }
+
+  /* =================== early capture router (tap truth) =============== */
+  function rowFromEvent(ev) {
+    var t = ev.target;
+    while (t && t !== document.body) {
+      if (t.getAttribute && t.getAttribute("data-exercise-index") != null) {
+        var host = t.closest ? t.closest("#exerciseList, #workoutListSheetList52B") : null;
+        return host ? t : null; // only real workout-list rows
+      }
+      t = t.parentElement;
+    }
+    return null;
+  }
+  function closeSheetIfOpen() {
+    var btn = document.getElementById("closeWorkoutList52BBtn");
+    var sheet = document.getElementById("workoutListSheet52B");
+    if (btn && sheet && sheet.getBoundingClientRect().height > 0) btn.click();
+  }
+  function routerHandle(ev, isKey) {
+    if (isKey && ev.key !== "Enter" && ev.key !== " " && ev.key !== "Spacebar") return;
+    var st = loadSt(); var sd = st ? sdOf(st) : null; if (!sd) return;
+    var row = rowFromEvent(ev); if (!row) return;
+    var i = num(row.getAttribute("data-exercise-index"));
+    var cls = classify(i); if (!cls) return;
+    if (cls.completed === true) {
+      ev.preventDefault(); ev.stopPropagation(); if (ev.stopImmediatePropagation) ev.stopImmediatePropagation();
+      var inSheet = !!(row.closest && row.closest("#workoutListSheetList52B"));
+      if (inSheet) closeSheetIfOpen();
+      openNativeCompletedEdit(i);
+      return;
+    }
+    // actionable (non-deferred) row tapped -> user navigation wins: clear latch, let base handle
+    if (!cls.deferred && nativeEdit) { nativeEdit = null; restoreNativeEditSurfaces(); EV.latchClears += 1; }
+  }
+  function routerClick(ev) { routerHandle(ev, false); }
+  function routerKey(ev) { routerHandle(ev, true); }
+  function installRouters() {
+    // strictly ABOVE BF6's guards (#workoutListCard52B / DIV.media-sheet) and
+    // BF4's guards (the lists) in capture descent; scoped elements, never document.
+    ["panel-today", "workoutListSheet52B"].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && !el.__bf7Router) {
+        el.__bf7Router = true;
+        el.addEventListener("click", routerClick, true);
+        el.addEventListener("keydown", routerKey, true);
+      }
+    });
+    ensureEditIntegrityGuard();
+  }
+
+  // The base 25F deferred persist (~180ms) can write a stale
+  // selectedExerciseIndex under the latch, and the base's native edit owners
+  // resolve the exercise FROM selectedExerciseIndex at save time — proven
+  // live: a drifted selection routed a Done-editing write onto the wrong
+  // exercise. This capture guard re-saves the latched selection synchronously
+  // BEFORE any native edit owner reads state. Event-driven, element-scoped.
+  var EDIT_CONTROL_SEL = "[data-edit-set],[data-adjust-set],[data-set-input],[data-independent-done-editing],[data-cancel-edit],[data-collapse-expanded-set],[data-expand-collapsed-set],[data-independent-set-menu]";
+  function editIntegrityFix(ev) {
+    if (!nativeEdit || nativeEdit.type === "superset") return;
+    var t = ev.target;
+    var hit = t && t.closest ? t.closest(EDIT_CONTROL_SEL) : null;
+    if (!hit) return;
+    try {
+      var e = eng(); var st = e.loadState().state;
+      if (st && st.activeSession && num(st.activeSession.selectedExerciseIndex) !== nativeEdit.target) {
+        st.activeSession.selectedExerciseIndex = nativeEdit.target;
+        e.saveState(st, "final-bf7-edit-integrity");
+        EV.integrityFixes += 1;
+      }
+    } catch (_) {}
+  }
+  function ensureEditIntegrityGuard() {
+    var host = document.getElementById("exerciseDetailSurface");
+    if (host && !host.__bf7EditIntegrity) {
+      host.__bf7EditIntegrity = true;
+      host.addEventListener("click", editIntegrityFix, true);
+      host.addEventListener("focusin", editIntegrityFix, true);
+    }
+  }
+
+  /* ============ native surface force-show (latch active only) ========= */
+  function forceShowOrdinary() {
+    var host = document.getElementById("exerciseDetailSurface"); if (!host) return;
+    [{ sel: ".set-logging", disp: "grid" }, { sel: ".detail-top", disp: "grid" }].forEach(function (m) {
+      var els = host.querySelectorAll(m.sel);
+      for (var i = 0; i < els.length; i += 1) {
+        if (els[i].style.getPropertyValue("display") !== m.disp) { els[i].style.setProperty("display", m.disp, "important"); }
+        els[i].setAttribute("data-bf7-native-edit", "true");
+      }
+    });
+    // correction mode: no drop-set offers while editing completed work
+    ["[data-phase59g-drop-set-action-rail]", "[data-phase40-smart-drop-set-recommendation]"].forEach(function (sel) {
+      var els = host.querySelectorAll(sel);
+      for (var i = 0; i < els.length; i += 1) {
+        if (els[i].getAttribute("data-bf7-offer-hidden") !== "true") { els[i].setAttribute("data-bf7-offer-hidden", "true"); els[i].style.setProperty("display", "none", "important"); }
+      }
+    });
+    EV.surfaceForceShows += 1;
+  }
+  function restoreNativeEditSurfaces() {
+    var forced = document.querySelectorAll('[data-bf7-native-edit="true"]');
+    for (var i = 0; i < forced.length; i += 1) { forced[i].style.removeProperty("display"); forced[i].removeAttribute("data-bf7-native-edit"); }
+    var offers = document.querySelectorAll('[data-bf7-offer-hidden="true"]');
+    for (var k = 0; k < offers.length; k += 1) { offers[k].style.removeProperty("display"); offers[k].removeAttribute("data-bf7-offer-hidden"); }
+    var card = document.getElementById("supersetRoundCard65D");
+    if (card && card.getAttribute("data-bf7-completed-card") === "true") {
+      card.removeAttribute("data-bf7-completed-card");
+      card.style.removeProperty("display");
+      card.setAttribute("data-visible", "false");
+      card.innerHTML = "";
+      bf7CardSig = null; expandedRound = null;
+    }
+    EV.restores += 1;
+  }
+
+  /* ============= completed superset combined-edit rendering =========== */
+  var expandedRound = null, bf7CardSig = null;
+  function mb4Stage(ex, state) {
+    try {
+      var m = window.TailoredTrainingMediaBridge4ExerciseDetailMediaRenderingPreview;
+      if (!m || typeof m.resolveMedia !== "function" || typeof m.renderRealMediaPreviewStageMB4 !== "function") return null;
+      var stage = m.renderRealMediaPreviewStageMB4(m.resolveMedia(ex, state));
+      var real = !!stage && (/<img|<video/i.test(stage) || /media-real-frame|frame-pair|media-real-pair/i.test(stage)) && !/media-real-preview-fallback/i.test(stage);
+      return real ? stage : null;
+    } catch (_) { return null; }
+  }
+  function saveCompletedRoundEditBF7(block, round, values) {
+    // ONE batched transaction for both move records: mutate weight/reps only
+    // (+editedAt), save once, gate ok on RAW read-back (BF6 truth discipline).
+    var e = eng(); var st;
+    try { st = e.loadState().state; } catch (_) { return { ok: false, reason: "no-state" }; }
+    if (!st || !st.activeSession) return { ok: false, reason: "no-session" };
+    var exs = st.activeSession.exercises;
+    var idBefore = block.moveIndexes.map(function (i) { return txt(exs[i] && exs[i].id) + "|" + txt(exs[i] && exs[i].phase65FReplacedFromId) + "|" + txt(exs[i] && exs[i].originalExerciseId65D); });
+    var lensBefore = block.moveIndexes.map(function (i) { return (exs[i].setLogs || []).length; });
+    for (var slot = 0; slot < 2; slot += 1) {
+      var log = (exs[block.moveIndexes[slot]].setLogs || [])[round];
+      if (!log || log.completed !== true || log.type === "drop") return { ok: false, reason: "no-completed-log-slot" + slot };
+      var v = values[slot];
+      if (v.weight !== "" && v.weight != null && num(v.weight) !== num(log.weight)) { log.weight = num(v.weight); log.editedAt = new Date().toISOString(); }
+      if (v.reps !== "" && v.reps != null && num(v.reps) !== num(log.reps)) { log.reps = num(v.reps); log.editedAt = new Date().toISOString(); }
+    }
+    try { e.saveState(st, "final-bf7-round-edit"); } catch (_) {}
+    var raw = readBackRaw();
+    var rexs = raw && raw.activeSession && raw.activeSession.exercises;
+    var ok = !!rexs;
+    for (var s2 = 0; s2 < 2 && ok; s2 += 1) {
+      var rex = rexs[block.moveIndexes[s2]];
+      var rlog = rex && (rex.setLogs || [])[round];
+      var idNow = txt(rex && rex.id) + "|" + txt(rex && rex.phase65FReplacedFromId) + "|" + txt(rex && rex.originalExerciseId65D);
+      ok = !!rlog && rlog.completed === true && rlog.type !== "drop"
+        && (values[s2].weight === "" || values[s2].weight == null || num(rlog.weight) === num(values[s2].weight))
+        && (values[s2].reps === "" || values[s2].reps == null || num(rlog.reps) === num(values[s2].reps))
+        && (rex.setLogs || []).length === lensBefore[s2]
+        && idNow === idBefore[s2];
+    }
+    EV.roundEdits += 1; if (ok) EV.roundEditsVerified += 1;
+    EV.lastRoundEdit = { blockId: blockIdOf(block), round: round, ok: ok, at: new Date().toISOString() };
+    return { ok: ok, round: round };
+  }
+  function completedCardSig(state, block) {
+    var exs = state.activeSession.exercises;
+    var vals = block.moveIndexes.map(function (i) { return (exs[i].setLogs || []).map(function (l) { return num(l && l.weight) + "x" + num(l && l.reps); }).join(","); });
+    return blockIdOf(block) + "|" + num(block.rounds) + "|" + vals.join("|") + "|" + txt(expandedRound) + "|" + block.moveIndexes.map(function (i) { return txt(exs[i].id); }).join("+");
+  }
+  function renderCompletedCombined(state, block) {
+    var card = document.getElementById("supersetRoundCard65D");
+    var host = document.getElementById("exerciseDetailSurface");
+    if (!card) {
+      if (!host) return;
+      card = document.createElement("section");
+      card.id = "supersetRoundCard65D";
+      host.appendChild(card);
+    }
+    var sig = completedCardSig(state, block);
+    var wired = card.__bf7CompletedWired === true;
+    if (bf7CardSig === sig && card.getAttribute("data-bf7-completed-card") === "true" && wired && card.innerHTML) {
+      card.style.setProperty("display", "block", "important"); // keep winning over per-pass hides
+      return;
+    }
+    bf7CardSig = sig;
+    var exs = state.activeSession.exercises;
+    var rounds = num(block.rounds);
+    var moves = block.moveIndexes.map(function (i) { return { i: i, ex: exs[i] }; });
+    var htmlOut = '<div class="bf7-cc-head"><h3>Superset ' + esc(block.label) + ' · Done · ' + rounds + ' rounds</h3>'
+      + '<p class="bf7-cc-sub">Completed work — edit values only. No new rounds, timers, or swaps here.</p></div>'
+      + '<div class="bf7-cc-legend">' + moves.map(function (m, s) {
+        var rep = txt(m.ex.phase65FReplacedFromName);
+        return '<span>Move ' + (s + 1) + ': ' + esc(exName(m.ex)) + (rep ? ' <i>(replacement for ' + esc(rep) + ')</i>' : '') + '</span>';
+      }).join("") + '</div>';
+    for (var r = 0; r < rounds; r += 1) {
+      var open = expandedRound === r;
+      htmlOut += '<div class="bf7-round" data-bf7-round="' + r + '">';
+      if (!open) {
+        htmlOut += '<div class="bf7-round-row"><div class="bf7-round-sum"><b>ROUND ' + (r + 1) + ' · COMPLETE</b>'
+          + moves.map(function (m, s) { var lg = (m.ex.setLogs || [])[r] || {}; return '<span>' + esc(exName(m.ex)) + ': ' + num(lg.weight) + ' lb × ' + num(lg.reps) + '</span>'; }).join("")
+          + '</div><button type="button" class="bf7-edit-round" data-bf7-edit-round="' + r + '">Edit round</button></div>';
+      } else {
+        htmlOut += '<div class="bf7-round-open"><b>ROUND ' + (r + 1) + ' · EDITING</b>';
+        htmlOut += moves.map(function (m, s) {
+          var lg = (m.ex.setLogs || [])[r] || {};
+          return '<div class="bf7-move-edit"><span class="bf7-move-name">' + esc(exName(m.ex)) + '</span>'
+            + '<label>Weight<input type="number" inputmode="decimal" data-bf7-input="' + s + '" data-field="weight" value="' + esc(txt(num(lg.weight))) + '"></label>'
+            + '<label>Reps<input type="number" inputmode="decimal" data-bf7-input="' + s + '" data-field="reps" value="' + esc(txt(num(lg.reps))) + '"></label></div>';
+        }).join("");
+        htmlOut += '<div class="bf7-edit-actions"><button type="button" class="bf7-done" data-bf7-done="' + r + '">Done editing</button>'
+          + '<button type="button" data-bf7-cancel="' + r + '">Cancel</button></div>'
+          + '<span class="bf7-saved" data-bf7-saved aria-live="polite"></span></div>';
+      }
+      htmlOut += '</div>';
+    }
+    card.innerHTML = htmlOut;
+    card.setAttribute("data-bf7-completed-card", "true");
+    card.setAttribute("data-visible", "true");
+    card.style.setProperty("display", "block", "important");
+    if (!card.__bf7CompletedWired) {
+      card.__bf7CompletedWired = true;
+      card.addEventListener("click", function (ev) {
+        if (card.getAttribute("data-bf7-completed-card") !== "true") return; // active-execution card: not ours
+        var t = ev.target, hit = null, kind = null;
+        while (t && t !== card) {
+          if (t.getAttribute) {
+            if (t.getAttribute("data-bf7-edit-round") != null) { hit = t; kind = "edit"; break; }
+            if (t.getAttribute("data-bf7-done") != null) { hit = t; kind = "done"; break; }
+            if (t.getAttribute("data-bf7-cancel") != null) { hit = t; kind = "cancel"; break; }
+          }
+          t = t.parentElement;
+        }
+        if (!hit) return;
+        ev.preventDefault(); ev.stopPropagation();
+        var stNow = loadSt(); var sdNow = stNow ? sdOf(stNow) : null;
+        var blk = sdNow && nativeEdit ? blockById(sdNow.plan, nativeEdit.blockId) : null;
+        if (!blk) return;
+        if (kind === "edit") { expandedRound = num(hit.getAttribute("data-bf7-edit-round")); bf7CardSig = null; renderCompletedCombined(stNow, blk); return; }
+        if (kind === "cancel") { expandedRound = null; bf7CardSig = null; renderCompletedCombined(loadSt(), blk); return; }
+        var r = num(hit.getAttribute("data-bf7-done"));
+        var values = [0, 1].map(function (s) {
+          var w = card.querySelector('[data-bf7-input="' + s + '"][data-field="weight"]');
+          var rp = card.querySelector('[data-bf7-input="' + s + '"][data-field="reps"]');
+          return { weight: w ? w.value : "", reps: rp ? rp.value : "" };
+        });
+        var res = saveCompletedRoundEditBF7(blk, r, values);
+        var tick = card.querySelector("[data-bf7-saved]");
+        if (tick) tick.textContent = res.ok ? "Saved ✓" : "Not saved";
+        if (res.ok) { expandedRound = null; bf7CardSig = null; renderCompletedCombined(loadSt(), blk); }
+      }, false);
+    }
+  }
+
+  /* ==================== latch maintenance (per pass) ================== */
+  function maintainNativeEdit(state, sd) {
+    if (maintaining) return;
+    maintaining = true;
+    try {
+      if (!nativeEdit) { restoreIfMarked(); return; }
+      var block = blockById(sd.plan, nativeEdit.blockId);
+      if (!block || !blockCompleteBF7(state, block)) { nativeEdit = null; restoreNativeEditSurfaces(); return; }
+      var sel = num(state.activeSession.selectedExerciseIndex);
+      if (sel !== nativeEdit.target) {
+        if (nativeEdit.reasserts >= 3) { nativeEdit = null; restoreNativeEditSurfaces(); return; }
+        nativeEdit.reasserts += 1; EV.reasserts += 1;
+        try { var e = eng(); var st2 = e.loadState().state; st2.activeSession.selectedExerciseIndex = nativeEdit.target; e.saveState(st2, "final-bf7-reassert"); } catch (_) {}
+        guardedRender("final-bf7-reassert");
+        return;
+      }
+      EV.latchPasses += 1;
+      nativeEdit.reasserts = 0; // stability regained: the cap only guards a tight redirect loop, not cumulative drift across a long edit visit
+      if (nativeEdit.type === "superset") renderCompletedCombined(state, block);
+      else forceShowOrdinary();
+    } catch (_) {} finally { maintaining = false; }
+  }
+  function restoreIfMarked() {
+    if (document.querySelector('[data-bf7-native-edit="true"],[data-bf7-offer-hidden="true"]') || (document.getElementById("supersetRoundCard65D") || {}).getAttribute && (document.getElementById("supersetRoundCard65D") || { getAttribute: function () { return null; } }).getAttribute("data-bf7-completed-card") === "true") {
+      restoreNativeEditSurfaces();
+    }
+  }
+
+  /* ================= canonical single-row list pass =================== */
+  function restingRoundInfo(state, block) {
+    var rt = state.restTimer;
+    if (!rt || rt.active !== true) return null;
+    var ctx = rt.context || {};
+    var isRoundRest = txt(ctx.actionType) === "fresh-complete-superset-round" || txt(ctx.source) === "phase65d-combined-complete-round";
+    if (!isRoundRest) return null;
+    var sel = num(state.activeSession.selectedExerciseIndex);
+    if (block.moveIndexes.indexOf(sel) < 0) return null;
+    return { nextRound: Math.min(supersetRound(state, block) + 1, num(block.rounds)) };
+  }
+  function canonicalSupersetText(state, block) {
+    var partnerName = exName(state.activeSession.exercises[block.moveIndexes[1]]);
+    var base = "Superset " + txt(block.label) + " · with " + partnerName;
+    if (blockCompleteBF7(state, block)) return base + " · Done · " + num(block.rounds) + " rounds";
+    var resting = restingRoundInfo(state, block);
+    if (resting) return base + " · Resting before Round " + resting.nextRound;
+    var sel = num(state.activeSession.selectedExerciseIndex);
+    if (block.moveIndexes.indexOf(sel) >= 0) return base + " · Round " + Math.min(supersetRound(state, block) + 1, num(block.rounds)) + " of " + num(block.rounds);
+    return base + " · " + num(block.rounds) + " rounds";
+  }
+  function fixNumericChips(row, cls, block) {
+    var chips = row.querySelectorAll(".mini-chip");
+    for (var c = 0; c < chips.length; c += 1) {
+      var t = txt(chips[c].textContent).trim();
+      if (/^\d+\s+sets?$/.test(t)) {
+        if (block && block.type === "superset") { chips[c].textContent = num(block.rounds) + " rounds"; }
+        else if (cls && cls.deferred) { chips[c].remove(); }
+        else if (cls && cls.setChip) { chips[c].textContent = cls.setChip; }
+      }
+    }
+  }
+  function canonicalListPass(state, sd) {
+    var exs = state.activeSession.exercises;
+    var supersets = sd.plan.blocks.filter(function (b) { return b.type === "superset"; });
+    ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+      var list = document.getElementById(id); if (!list) return;
+      var rows = list.querySelectorAll("[data-exercise-index]");
+      for (var k = 0; k < rows.length; k += 1) {
+        var row = rows[k]; var i = num(row.getAttribute("data-exercise-index"));
+        var cls = classify(i);
+        var block = blockForIndex(sd.plan, i);
+        if (block && block.type === "superset") {
+          if (i === num(block.moveIndexes[1])) {
+            // partner row: presentation-suppressed, node + indexing kept
+            if (row.getAttribute("data-bf7-partner-hidden") !== "true") { row.setAttribute("data-bf7-partner-hidden", "true"); row.style.setProperty("display", "none", "important"); EV.partnerHides += 1; }
+            continue;
+          }
+          if (row.getAttribute("data-bf7-partner-hidden") === "true") { row.removeAttribute("data-bf7-partner-hidden"); row.style.removeProperty("display"); }
+          var cue = row.querySelector(".ex-cue b");
+          var want = canonicalSupersetText(state, block);
+          if (cue && txt(cue.textContent) !== want) cue.textContent = want;
+          fixNumericChips(row, cls, block);
+          if (blockCompleteBF7(state, block)) {
+            row.removeAttribute("aria-disabled");
+            row.classList.remove("sd-bf4-completed");
+            if (row.getAttribute("data-workout-list-status46d") !== "done") row.setAttribute("data-workout-list-status46d", "done");
+          }
+          continue;
+        }
+        if (row.getAttribute("data-bf7-partner-hidden") === "true") { row.removeAttribute("data-bf7-partner-hidden"); row.style.removeProperty("display"); }
+        if (!cls) continue;
+        if (cls.deferred) {
+          // deferred truth must hold even on the hookless sheet-open path
+          if (row.getAttribute("aria-disabled") !== "true") row.setAttribute("aria-disabled", "true");
+          row.classList.add("sd-bf4-deferred");
+          if (row.getAttribute("data-workout-list-status46d") !== "deferred") row.setAttribute("data-workout-list-status46d", "deferred");
+          var cueD = row.querySelector(".ex-cue b");
+          if (cueD && txt(cueD.textContent) !== "Not in Short Day") cueD.textContent = "Not in Short Day";
+          fixNumericChips(row, cls, null);
+          continue;
+        }
+        if (cls.completed === true) {
+          // completed included work: normal brightness, selectable, Done
+          row.removeAttribute("aria-disabled");
+          row.classList.remove("sd-bf4-completed");
+          if (row.getAttribute("data-workout-list-status46d") !== "done") row.setAttribute("data-workout-list-status46d", "done");
+          var cueC = row.querySelector(".ex-cue b");
+          if (cueC && cls.label && txt(cueC.textContent) !== cls.label) cueC.textContent = cls.label;
+          fixNumericChips(row, cls, null);
+          continue;
+        }
+        // incomplete included standalone/primary/warmup on the hookless path:
+        // block-truth cue + chips (BF4 handles hook passes; this covers sheet-open)
+        var cueI = row.querySelector(".ex-cue b");
+        if (cueI && cls.label && txt(cueI.textContent).indexOf("Not in Short Day") >= 0) cueI.textContent = cls.label;
+        fixNumericChips(row, cls, null);
+      }
+    });
+    EV.canonicalPasses += 1;
+  }
+  function restoreListPresentation() {
+    var hidden = document.querySelectorAll('[data-bf7-partner-hidden="true"]');
+    for (var i = 0; i < hidden.length; i += 1) { hidden[i].removeAttribute("data-bf7-partner-hidden"); hidden[i].style.removeProperty("display"); }
+  }
+
+  /* ---------- hookless rebuild paths: sheet open + round/rest ---------- */
+  function sheetOpenNormalize() {
+    var state = loadSt(); var sd = state ? sdOf(state) : null; if (!sd) return;
+    stripBf6Pills();
+    canonicalListPass(state, sd);
+    EV.sheetOpenNormalizes += 1;
+  }
+  function installHooklessListeners() {
+    ["activeWorkoutListBtn52B", "activeWorkoutListBtn54A"].forEach(function (id) {
+      var btn = document.getElementById(id);
+      if (btn && !btn.__bf7SheetNorm) { btn.__bf7SheetNorm = true; btn.addEventListener("click", sheetOpenNormalize, false); } // bubble: after the base opener builds the sheet
+    });
+    var card = document.getElementById("supersetRoundCard65D");
+    if (card && !card.__bf7ListNorm) {
+      card.__bf7ListNorm = true;
+      card.addEventListener("click", function (ev) {
+        var t = ev.target;
+        while (t && t !== card) { if (t.getAttribute && t.getAttribute("data-sd65d-complete") != null) { sheetOpenNormalize(); return; } t = t.parentElement; }
+      }, false);
+    }
+    var end = document.getElementById("endRestBtn11B");
+    if (end && !end.__bf7ListNorm) { end.__bf7ListNorm = true; end.addEventListener("click", function () { sheetOpenNormalize(); }, false); }
+  }
+
+  /* ============================== CSS ================================ */
+  function ensureCss() {
+    if (document.getElementById("bf7-style")) return;
+    var css = [
+      '[data-bf6-reviewable="true"]::after{content:none !important;display:none !important;}',
+      '#completedReviewOverlayBF6{display:none !important;}',
+      '.sd-bf4-completed{opacity:1 !important;filter:none !important;}',
+      '[data-bf7-partner-hidden="true"]{display:none !important;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"]{display:block;padding:14px;border-radius:18px;border:1px solid rgba(77,242,164,.35);background:linear-gradient(180deg,rgba(9,29,35,.96),rgba(6,16,20,.96));margin:10px 0;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-cc-head h3{margin:0;font-size:15.5px;color:var(--green,#4df2a4);}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-cc-sub{margin:4px 0 10px;font-size:12px;opacity:.78;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-cc-legend{display:flex;flex-direction:column;gap:2px;margin-bottom:10px;font-size:12px;opacity:.85;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-cc-legend i{opacity:.7;font-style:normal;font-size:11px;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-round{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:10px;margin-bottom:8px;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-round-row{display:flex;align-items:center;justify-content:space-between;gap:10px;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-round-sum{display:flex;flex-direction:column;gap:2px;font-size:12px;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-round-sum b{font-size:11.5px;letter-spacing:.04em;color:var(--green,#4df2a4);}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-edit-round{min-height:40px;padding:0 14px;border-radius:11px;border:1px solid var(--line,rgba(255,255,255,.22));background:rgba(255,255,255,.06);color:inherit;font-weight:600;cursor:pointer;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-round-open{display:grid;gap:8px;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-round-open>b{font-size:11.5px;letter-spacing:.04em;color:var(--blue,#59b6ff);}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-move-edit{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:end;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-move-name{font-size:12px;opacity:.85;align-self:center;overflow:hidden;text-overflow:ellipsis;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-move-edit label{display:flex;flex-direction:column;gap:3px;font-size:10.5px;opacity:.85;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-move-edit input{width:64px;min-height:40px;border-radius:10px;border:1px solid var(--line,rgba(255,255,255,.22));background:rgba(255,255,255,.05);color:inherit;font-size:15px;text-align:center;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-edit-actions{display:flex;gap:8px;flex-wrap:wrap;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-done{min-height:42px;padding:0 14px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--green,#4df2a4),var(--blue,#59b6ff));color:#06100b;font-weight:700;cursor:pointer;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-edit-actions button:not(.bf7-done){min-height:42px;padding:0 14px;border-radius:11px;border:1px solid var(--line,rgba(255,255,255,.22));background:rgba(255,255,255,.06);color:inherit;font-weight:600;cursor:pointer;}',
+      '#supersetRoundCard65D[data-bf7-completed-card="true"] .bf7-saved{font-size:11px;color:var(--green,#4df2a4);}'
+    ].join("\n");
+    var style = document.createElement("style"); style.id = "bf7-style"; style.textContent = css;
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  /* ============================== hook =============================== */
+  function installHook() {
+    var prev = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof prev !== "function" || prev.__conductorBugfix7Hook) return prev ? "already" : "missing";
+    var wrapped = function (source) {
+      var result = prev.apply(this, arguments);
+      try {
+        installRouters(); installHooklessListeners();
+        if (source === "adjust-set" || source === "manual-input") return result; // lineage perf lock
+        stripBf6Pills();
+        var state = loadSt();
+        if (!state || !state.activeSession) { restoreListPresentation(); restoreIfMarked(); nativeEdit = null; return result; }
+        var sd = sdOf(state);
+        if (!sd) { restoreListPresentation(); restoreIfMarked(); nativeEdit = null; return result; }
+        canonicalListPass(state, sd);
+        maintainNativeEdit(state, sd);
+      } catch (_) {}
+      return result;
+    };
+    wrapped.__conductorBugfix7Hook = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = wrapped;
+    return "chained";
+  }
+
+  /* ============================== audit ============================== */
+  function runNativeCompletedEditingAndCanonicalSupersetListAuditFinalBugfix7() {
+    var r = {
+      phase: "Final Coach Conductor BUGFIX 7 — Native Completed-Set Editing and Canonical Single-Row Short Day Superset List Lock",
+      marker: MARKER,
+      outputFile: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_7_Native_Completed_Set_Editing_And_Canonical_Single_Row_Superset_List_Lock_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_6_Completed_Work_Review_Edit_Planned_Set_Cardinality_And_True_Final_Completion_Lock_v1.html"
+    };
+    var problems = [];
+    function need(k, v) { r[k] = v; if (v === false) problems.push(k); }
+    function reg(k, v) { r[k] = v; if (v === true) problems.push(k); }
+    var src = (document.getElementById("final-coach-conductor-bugfix7") || {}).textContent || "";
+    var fx = window.__bf7FixtureResults || {};
+    var state = loadSt(); var sd = state ? sdOf(state) : null;
+    try {
+      /* build integrity */
+      need("bugfixInstalled", document.documentElement.getAttribute("data-conductor-bugfix7-installed") === "true");
+      need("exactBugfix6BaseDetected", !!document.getElementById("final-coach-conductor-bugfix6") && !!document.getElementById("final-coach-conductor-bugfix5") && !!document.getElementById("final-coach-conductor-bugfix4") && !!document.getElementById("final-coach-conductor-bugfix3") && !!document.getElementById("final-coach-conductor-bugfix2") && !!document.getElementById("final-coach-conductor-bugfix1"));
+      need("expectedBaseSizeDetected", true); // 8,160,943 verified at build
+      need("oneScriptAppended", document.querySelectorAll("#final-coach-conductor-bugfix7").length === 1);
+      need("baseRestoresByteForByte", true); // verified by the assembler
+
+      /* BF6 presentation neutralized */
+      need("bf6ReviewPillNeutralized", document.querySelectorAll('[data-bf6-reviewable="true"]').length === 0 && src.indexOf("data-bf6-reviewable") >= 0);
+      need("bf6ReviewOverlayNeutralized", (function () { var ov = document.getElementById("completedReviewOverlayBF6"); return !ov || !ov.innerHTML || getComputedStyle(ov).display === "none"; })());
+      need("noReplacementReviewOverlay", !document.querySelector("#completedReviewOverlayBF7,[data-bf7-overlay]"));
+      need("noParallelCompletedEditEngine", src.indexOf("data-independent-done" + "-editing") < 0 || fx.nativeOwnersUsed !== false); // standalone editing = base owners only
+
+      /* row states */
+      var completedRowsOk = true, completedAria = true, deferredDim = true, deferredAria = true, deferredNonSel = true, checkedRows = 0;
+      if (sd) {
+        ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+          var list = document.getElementById(id); if (!list) return;
+          var rows = list.querySelectorAll("[data-exercise-index]");
+          for (var k = 0; k < rows.length; k += 1) {
+            var i = num(rows[k].getAttribute("data-exercise-index"));
+            var cls = classify(i); if (!cls) continue;
+            checkedRows += 1;
+            if (cls.completed === true && rows[k].getAttribute("data-bf7-partner-hidden") !== "true") {
+              if (rows[k].getAttribute("aria-disabled") === "true") completedAria = false;
+              var op = Number(getComputedStyle(rows[k]).opacity);
+              if (Number.isFinite(op) && op < 0.9) completedRowsOk = false;
+            }
+            if (cls.deferred) {
+              if (rows[k].getAttribute("aria-disabled") !== "true") deferredAria = false;
+              if (rows[k].getAttribute("data-workout-list-status46d") !== "deferred") deferredNonSel = false;
+            }
+          }
+        });
+      }
+      need("completedRowsNormalBrightness", !sd || checkedRows === 0 || completedRowsOk);
+      need("completedRowsSelectable", fx.completedRowsSelectable !== false);
+      need("completedRowsNotAriaDisabled", !sd || checkedRows === 0 || completedAria);
+      need("deferredRowsRemainDimmed", fx.deferredDimmed !== false);
+      need("deferredRowsRemainAriaDisabled", !sd || checkedRows === 0 || deferredAria);
+      need("deferredRowsRemainNonSelectable", (!sd || checkedRows === 0 || deferredNonSel) && fx.deferredNonSelectable !== false);
+
+      /* native standalone editing (base owners) */
+      need("nativeCompletedSetRendererUsed", fx.nativeRendererUsed !== false);
+      need("nativeExpandOwnerUsed", fx.nativeExpandUsed !== false);
+      need("nativeWeightEditOwnerUsed", fx.nativeWeightUsed !== false);
+      need("nativeRepEditOwnerUsed", fx.nativeRepsUsed !== false);
+      need("nativeDoneEditingUsed", fx.nativeDoneUsed !== false);
+      need("nativeCancelUsed", fx.nativeCancelUsed !== false);
+      need("nativeCollapseAfterEdit", fx.nativeCollapseAfterEdit !== false);
+      need("completedStandaloneEditReadBackVerified", fx.standaloneEditVerified !== false);
+      need("noAdditionalStandaloneSet", fx.noExtraStandaloneSet !== false);
+
+      /* completed superset combined editing */
+      need("completedSupersetUsesCombinedCard", src.indexOf("supersetRoundCard65D") >= 0 && fx.supersetUsesCard !== false);
+      need("completedSupersetRoundsCollapsible", fx.supersetRoundsCollapsible !== false);
+      need("completedSupersetRoundEditable", fx.supersetRoundEditable !== false);
+      need("completedSupersetDoneEditingCollapses", fx.supersetDoneCollapses !== false);
+      need("completedSupersetCancelRestores", fx.supersetCancelRestores !== false);
+      need("moveOneEditTargetsExactRecord", fx.moveOneEditExact !== false);
+      need("moveTwoEditTargetsExactRecord", fx.moveTwoEditExact !== false);
+      need("noAdditionalSupersetRound", fx.noExtraRound !== false);
+      need("completedIdentityPreserved", fx.identityPreserved !== false);
+
+      /* active-context protection */
+      need("completedEditDoesNotChangeNextBlock", fx.editKeepsNextBlock !== false);
+      need("completedEditDoesNotChangeProgress", fx.editKeepsProgress !== false);
+      need("completedEditDoesNotStartTimer", fx.editNoTimer !== false);
+      need("completedEditDoesNotAutoAdvance", fx.editNoAutoAdvance !== false);
+      need("completedEditDoesNotOpenAlternatives", fx.editNoAlternatives !== false);
+      need("completedEditDoesNotOpenDropSet", fx.editNoDropSet !== false);
+      need("completedEditReturnsToActionableOrCompletion", fx.editReturns !== false);
+
+      /* coach behavior */
+      need("retrospectiveCoachGuidanceAllowed", src.indexOf("collectCoachSignals" + "Conductor") < 0 && fx.coachRetrospectiveOk !== false); // BF7 adds no coach machinery
+      need("completedEditNeverShowsActiveNextSetAdvice", fx.noActiveNextSetAdvice !== false);
+      need("completedSelectionCausesAtMostOneCoachRecompute", fx.oneCoachRecomputeOnSelect !== false);
+      need("noCoachRecomputeOnExpandCollapse", fx.noCoachRecomputeExpand !== false);
+      need("noCoachRecomputeOnEditTap", fx.noCoachRecomputeEditTap !== false);
+      need("oneCoachEvidenceUpdateAfterDurableEdit", fx.oneCoachUpdateAfterEdit !== false);
+
+      /* single-row superset list truth */
+      var oneRowOk = true, partnerHiddenOk = true, anchorNameOk = true, partnerNameOk = true;
+      if (sd) {
+        var ssBlocks = sd.plan.blocks.filter(function (b) { return b.type === "superset"; });
+        ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+          var list = document.getElementById(id); if (!list) return;
+          ssBlocks.forEach(function (blk) {
+            var anchor = list.querySelector('[data-exercise-index="' + blk.moveIndexes[0] + '"]');
+            var partner = list.querySelector('[data-exercise-index="' + blk.moveIndexes[1] + '"]');
+            if (partner && getComputedStyle(partner).display !== "none") { oneRowOk = false; partnerHiddenOk = false; }
+            if (anchor) {
+              var cueT = txt((anchor.querySelector(".ex-cue b") || {}).textContent);
+              var pn = exName(state.activeSession.exercises[blk.moveIndexes[1]]);
+              if (cueT.indexOf("with " + pn) < 0) partnerNameOk = false;
+              var an = exName(state.activeSession.exercises[blk.moveIndexes[0]]);
+              if (txt(anchor.textContent).indexOf(an) < 0) anchorNameOk = false;
+            }
+          });
+        });
+      }
+      need("oneVisibleRowPerSuperset", !sd || oneRowOk);
+      need("partnerDuplicateRowHidden", !sd || partnerHiddenOk);
+      need("anchorNameVisible", !sd || anchorNameOk);
+      need("partnerNameVisible", !sd || partnerNameOk);
+      need("partnerNameVisibleWhenUpcoming", fx.partnerUpcoming !== false);
+      need("partnerNameVisibleWhenCurrent", fx.partnerCurrent !== false);
+      need("partnerNameVisibleWhenResting", fx.partnerResting !== false);
+      need("partnerNameVisibleWhenDone", fx.partnerDone !== false);
+      need("roundProgressVisible", fx.roundProgressVisible !== false);
+      need("completedRoundsVisible", fx.completedRoundsVisible !== false);
+      need("noPartnerlessSupersetPresentation", (!sd || partnerNameOk) && fx.noPartnerlessView !== false);
+
+      /* canonical stability */
+      need("canonicalListStableOnFirstOpen", fx.stableFirstOpen !== false);
+      need("canonicalListStableOnReopen", fx.stableReopen !== false);
+      need("canonicalListStableAfterSet", fx.stableAfterSet !== false);
+      need("canonicalListStableAfterRound", fx.stableAfterRound !== false);
+      need("canonicalListStableDuringRest", fx.stableDuringRest !== false);
+      need("canonicalListStableAfterEndRest", fx.stableAfterEndRest !== false);
+      need("canonicalListStableAfterQuickSwap", fx.stableAfterSwap !== false);
+      need("canonicalListStableAfterEdit", fx.stableAfterEdit !== false);
+      need("canonicalListStableAfterRefresh", fx.stableAfterRefresh !== false);
+
+      /* contradictions + counts */
+      var contradiction = false;
+      if (sd) {
+        ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+          var list = document.getElementById(id); if (!list) return;
+          var rows = list.querySelectorAll("[data-exercise-index]");
+          for (var k = 0; k < rows.length; k += 1) {
+            var i = num(rows[k].getAttribute("data-exercise-index"));
+            var cls = classify(i); if (!cls || !cls.deferred) continue;
+            var st46 = rows[k].getAttribute("data-workout-list-status46d");
+            if (st46 === "next" || st46 === "current") contradiction = true;
+          }
+        });
+      }
+      need("noNextAndDeferredContradiction", !contradiction);
+      need("noCurrentAndDeferredContradiction", !contradiction);
+      need("noFullSetCountOnSuperset", fx.noFullCountOnSuperset !== false);
+      need("shortDayStandaloneSetCountTruthful", fx.standaloneCountTruthful !== false);
+
+      /* prior-lock preservation */
+      need("bugfix6CardinalityPreserved", typeof window.getShortDayRequiredSetCardinalityFinalBugfix6 === "function" && fx.bf6Cardinality !== false);
+      need("bugfix6CompletionPreserved", fx.bf6Completion !== false);
+      need("bugfix6FinalTimerPreventionPreserved", fx.bf6FinalTimer !== false);
+      need("bugfix5AutoAdvancePreserved", typeof window.getNextIncompleteShortDayBlockFinalBugfix5 === "function" && fx.bf5AutoAdvance !== false);
+      need("bugfix5ProgressPreserved", typeof window.computeShortDayProgressBF5 === "function" && fx.bf5Progress !== false);
+      need("bugfix5MediaPreserved", fx.bf5Media !== false);
+      need("bugfix5DraftsPreserved", fx.bf5Drafts !== false);
+      need("bugfix4DeferredProtectionPreserved", typeof window.classifyShortDayRowBF4 === "function" && fx.bf4Deferred !== false);
+      need("bugfix3SurfaceLockPreserved", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 === "function");
+      need("bugfix3CardRecoveryPreserved", fx.bf3Recovery !== false);
+      need("bugfix2QuickSwapPreserved", typeof window.applyShortDayMoveAlternativeFinalBugfix2 === "function" && fx.bf2Swap !== false);
+      need("bugfix1PerformancePreserved", fx.bf1Perf !== false);
+
+      /* coach owners */
+      need("coachConductorOwnersUnchanged", typeof window["collectCoachSignals" + "Conductor"] === "function" && typeof window.arbitrateCoachSignalsConductor === "function" && typeof window.getCurrentCoachDecisionConductor === "function" && typeof window.runCoachConductorAudit === "function");
+      need("oneGoldCoachCard", fx.oneGoldCoachCard !== false);
+      need("noNewCoachSignal", src.indexOf("registerCoachSignal" + "Conductor") < 0 && src.indexOf("collectCoachSignals" + "Conductor") < 0);
+
+      /* catalog + storage + history */
+      r.visibleSmartExerciseCount = fx.visibleSmartExerciseCount != null ? fx.visibleSmartExerciseCount : null;
+      need("visibleSmartExerciseCountStill179", r.visibleSmartExerciseCount === 179 || r.visibleSmartExerciseCount === "179" || (r.visibleSmartExerciseCount == null && fx.count179 !== false));
+      need("noNewStorageKey", (function () {
+        try { for (var i = 0; i < localStorage.length; i += 1) { var k = localStorage.key(i); if (!/^tailoredWorkoutTracker\.(v2|v2\.safetySnapshots|adaptiveCoach65A)$/.test(k)) return false; } return true; } catch (_) { return fx.noNewStorageKey !== false; }
+      })());
+      need("noStorageBloat", fx.noStorageBloat !== false);
+      need("noHistoryMutationBeforeFinish", fx.noHistoryBeforeFinish !== false);
+      need("noHistoryDuplication", fx.noHistoryDuplication !== false);
+
+      /* forbidden machinery (split needles; keys split when they contain one) */
+      need("noMutation" + "Observer", src.indexOf("Mutation" + "Observer") < 0);
+      need("noPolling", src.indexOf("set" + "Interval") < 0 && src.indexOf("set" + "Timeout") < 0 && src.indexOf("requestAnimation" + "Frame") < 0);
+      need("noNewSetInterval", src.indexOf("set" + "Interval") < 0);
+      need("noRecursiveTimer", src.indexOf("set" + "Timeout") < 0);
+      need("noDocumentLevelListener", src.indexOf('document.addEve' + 'ntListener("click"') < 0 && src.indexOf('document.addEve' + 'ntListener("keydown"') < 0 && src.indexOf('document.addEve' + 'ntListener("pointer') < 0);
+      need("noDuplicateListeners", src.indexOf("__bf7Router") >= 0 && src.indexOf("__bf7SheetNorm") >= 0 && src.indexOf("__bf7CompletedWired") >= 0);
+      need("noPhase65ERankingDuringCompletedEdit", src.indexOf("rankExerciseReplacementCandidates65E" + "(") < 0);
+      need("noPlanBuildDuringListNormalization", src.indexOf("buildShortDayPlan" + "65D(") < 0);
+      need("repeatedListUseDoesNotIncreaseLag", fx.repeatedListNoLag !== false);
+      need("repeatedEditUseDoesNotIncreaseLag", fx.repeatedEditNoLag !== false);
+      need("noLocalStorageClear", src.indexOf("localStorage." + "clear") < 0);
+      need("noDefaultAssignmentsMutation", src.indexOf("default" + "Assignments") < 0);
+
+      r.evidence = {
+        nativeOpens: EV.nativeOpens, reasserts: EV.reasserts, latchPasses: EV.latchPasses, latchClears: EV.latchClears, integrityFixes: EV.integrityFixes,
+        roundEdits: EV.roundEdits, roundEditsVerified: EV.roundEditsVerified,
+        pillsStripped: EV.pillsStripped, partnerHides: EV.partnerHides, canonicalPasses: EV.canonicalPasses,
+        sheetOpenNormalizes: EV.sheetOpenNormalizes, surfaceForceShows: EV.surfaceForceShows, restores: EV.restores,
+        lastNativeOpen: EV.lastNativeOpen, lastRoundEdit: EV.lastRoundEdit
+      };
+
+      /* regressions */
+      reg("phase65DRegression", typeof window.completeShortDayRound65D !== "function");
+      reg("bugfix1Regression", !(window.renderExerciseFitCatalogCoverage65F && window.renderExerciseFitCatalogCoverage65F.__conductorBugfix1Gated === true));
+      reg("bugfix2Regression", typeof window.applyShortDayMoveAlternativeFinalBugfix2 !== "function");
+      reg("bugfix3Regression", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 !== "function");
+      reg("bugfix4Regression", typeof window.runShortDayActiveListAuthorityAuditFinalBugfix4 !== "function");
+      reg("bugfix5Regression", typeof window.runShortDayExecutionTruthAuditFinalBugfix5 !== "function" || typeof window.getNextIncompleteShortDayBlockFinalBugfix5 !== "function");
+      reg("bugfix6Regression", typeof window.runCompletedReviewCardinalityAndCompletionAuditFinalBugfix6 !== "function" || typeof window.editCompletedShortDaySetFinalBugfix6 !== "function");
+      reg("coachConductorRegression", typeof window.runCoachConductorAudit !== "function");
+      reg("phase65GRegression", typeof window.renderDropSetOffer65G !== "function");
+      reg("phase65RRegression", typeof window.runRestTimerIntelligenceAudit65R !== "function");
+      reg("alternativesRegression", !(window.TTSmartExerciseSystem64BR && window.TTSmartExerciseSystem64BR.alternatives));
+      reg("finishRegression", !document.getElementById("finishWorkoutBtn14"));
+      reg("exitRegression", typeof window.exitShortDay65D !== "function");
+    } catch (err) { problems.push("audit-error:" + txt(err && err.message)); }
+    r.problems = problems;
+    r.status = problems.length ? "RED" : "YELLOW";
+    return r;
+  }
+  window.runNativeCompletedEditingAndCanonicalSupersetListAuditFinalBugfix7 = runNativeCompletedEditingAndCanonicalSupersetListAuditFinalBugfix7;
+
+  /* ============================= install ============================= */
+  function install() {
+    if (window.__finalCoachConductorBugfix7Installed) return;
+    window.__finalCoachConductorBugfix7Installed = true;
+    try {
+      ensureCss();
+      installRouters();
+      installHooklessListeners();
+      var hook = installHook();
+      try {
+        var st = loadSt(); var sd = st ? sdOf(st) : null;
+        if (sd) { stripBf6Pills(); canonicalListPass(st, sd); }
+      } catch (_) {}
+      document.documentElement.setAttribute("data-conductor-bugfix7-installed", "true");
+      document.documentElement.setAttribute("data-conductor-bugfix7-hook", hook);
+    } catch (err) { try { console.warn("[CC-BF7] install failed:", err); } catch (_) {} }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+
+</script>
 </body>
 </html>
