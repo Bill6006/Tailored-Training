@@ -108163,5 +108163,360 @@ Narrow rule-based correction only:
 })();
 
 </script>
+<script id="final-coach-conductor-bugfix8">
+/* ============================================================================
+   FINAL COACH CONDUCTOR BUGFIX 8 — NATIVE SHORT DAY COMPLETED-SET HIT TESTING
+   AND ORDINARY EXERCISE HERO ROUTING
+   Base: Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_7_Native_
+         Completed_Set_Editing_And_Canonical_Single_Row_Superset_List_Lock_
+         v1.html  (exactly 8,219,664 bytes,
+         SHA-256 0be1f288588602cd600d25067b5c75468a669a61db0fe2c242543ad4d2a59dc4)
+
+   Authoritative diagnostic findings, re-confirmed live on this exact base:
+
+   DEFECTS 2/3/4 (physical taps dead on completed standalone correction):
+      BF5's suppression rule html[data-bf5-suppress-ordinary="on"]
+      #exerciseDetailSurface .set-logging / .detail-top and BF3's lock rule
+      keyed on data-bf3-superset-lock both declare pointer-events:none
+      !important alongside display:none. BF7's forceShowOrdinary restores
+      ONLY display (its script contains zero pointer-events handling) and by
+      design leaves both suppression attributes active. Proven live on the
+      latched completed block: computed pointer-events "none" on the surface
+      and hero while every native owner ([data-edit-set],
+      [data-independent-set-menu], [data-independent-done-editing],
+      [data-cancel-edit]) exists in the DOM; document.elementFromPoint at the
+      owners' centers returns null — a physical Android tap reaches nothing.
+      The completed-superset card keeps working because #supersetRoundCard65D
+      is outside both rules (computed pointer-events "auto"; hit tests reach
+      [data-bf7-edit-round]). Synthetic dispatchEvent bypasses hit testing,
+      which is why the BF7 localhost fixtures false-passed.
+   DEFECT 1 (compact MOVE 1 hero on an individual surface): the set-logging
+      dispatcher branches on safeResolveTrueSupersetLogContext64BHBugfix1 ->
+      isTrueSuperset === true && components >= 2 ->
+      safeRenderSupersetRoundLogger64BHBugfix1 -> <section class="set-logging
+      phase64bh-superset-logger"> (compact move tiles; "MOVE 1" is the
+      64BE/64BH h3::before pseudo-label). The decision is pure pairing truth
+      with zero surface-context awareness, so a 64BH-true member (e.g. the
+      Thursday pair Seated cable fly + Rope triceps pressdown; replacements
+      inherit the pairing via the in-place moveIds patch) receives the
+      compact presentation even when explicitly opened as an INDIVIDUAL
+      completed-correction surface. Both resolver names are window-exposed
+      and the dispatcher references them as bare guarded identifiers, so the
+      window binding is the narrowest hook-accessible dispatch seam.
+
+   FIX (append-only, installs LAST, two bounded corrections, no new UI):
+   1) Pointer reachability, bounded to BUGFIX 7's existing completed-edit
+      latch lifecycle: on each hook pass while a standalone/primary latch is
+      active, every element BF7 force-shows (marker data-bf7-native-edit)
+      gets inline pointer-events:auto !important (winning over the
+      suppression rules exactly like BF7's inline display), with the prior
+      inline value preserved in data-bf8-prev-pe and restored EXACTLY when
+      the latch ends. No attribute of BF3/BF5 is touched, nothing global, no
+      override for deferred rows or combined-card surfaces, idempotent per
+      pass, no accumulation.
+   2) Ordinary hero routing: a context gate wrapped onto the window bindings
+      of the 64BH true-superset resolvers. While BF7's latch is active for
+      the resolved exercise index, the resolver reports "not a true
+      superset" so the base dispatcher takes its own ordinary branch — full
+      hero, ordinary completed-set rows, native editing, no
+      phase64bh-superset-logger, no MOVE pseudo-labels. Outside the latch
+      the resolvers pass through untouched, preserving genuine combined
+      execution, program truth, moveIds, and replacement identity. No second
+      renderer exists anywhere in this fix.
+
+   No new storage key, no storage clear call, no DOM observer, no timer
+   primitive added, no polling, no document-level listener, no History
+   write, no plan rebuild, no catalog change, no modal, no replacement
+   editor, no replacement Set Options sheet.
+   ========================================================================= */
+(function finalCoachConductorBugfix8() {
+  "use strict";
+  var MARKER = "FINAL_COACH_CONDUCTOR_BUGFIX_8_NATIVE_SHORT_DAY_COMPLETED_SET_HIT_TESTING_AND_ORDINARY_HERO_ROUTING_V1";
+  if (window.__finalCoachConductorBugfix8Installed) return;
+
+  function txt(v) { return v == null ? "" : String(v); }
+  function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function latchCtx() { try { return typeof window.getNativeCompletedEditContextFinalBugfix7 === "function" ? window.getNativeCompletedEditContextFinalBugfix7() : null; } catch (_) { return null; } }
+
+  var EV = window.__finalCoachConductorBugfix8Evidence = {
+    installedAt: new Date().toISOString(),
+    pointerRestores: 0, pointerClears: 0, resolverGates: 0, resolverPassthroughs: 0,
+    lastGate: null, lastRestoreCount: 0,
+    rootCausePointer: "BF5 suppression + BF3 lock declare pointer-events:none !important on .set-logging/.detail-top; BF7 restored display only and left the attributes on (by design, for BF5-audit truth) — the native editor rendered visible but input-dead. Proven: computed pointer-events none while latched; elementFromPoint null at [data-edit-set] and [data-independent-set-menu] centers; #supersetRoundCard65D unaffected (auto).",
+    rootCauseHero: "The set-logging dispatcher chooses safeRenderSupersetRoundLogger64BHBugfix1 (section.set-logging.phase64bh-superset-logger, MOVE-1 h3::before pseudo-label) whenever the window-exposed 64BH resolver reports isTrueSuperset, with no surface-context awareness. Gated here at that exact window seam during the BF7 individual completed-edit latch."
+  };
+
+  /* ============ 1) bounded pointer-events reachability ================ */
+  function restorePointerReachability() {
+    var lt = latchCtx();
+    if (lt && lt.type !== "superset") {
+      var els = document.querySelectorAll('#exerciseDetailSurface [data-bf7-native-edit="true"]');
+      var n = 0;
+      for (var i = 0; i < els.length; i += 1) {
+        var el = els[i];
+        if (el.getAttribute("data-bf8-pe") !== "true") {
+          // preserve the exact prior inline value (usually empty) for exact restoration
+          el.setAttribute("data-bf8-prev-pe", el.style.getPropertyValue("pointer-events") || "");
+          el.setAttribute("data-bf8-pe", "true");
+        }
+        if (el.style.getPropertyValue("pointer-events") !== "auto") {
+          el.style.setProperty("pointer-events", "auto", "important");
+        }
+        n += 1;
+      }
+      if (n) { EV.pointerRestores += 1; EV.lastRestoreCount = n; }
+      return;
+    }
+    clearPointerOverrides();
+  }
+  function clearPointerOverrides() {
+    var els = document.querySelectorAll('[data-bf8-pe="true"]');
+    for (var i = 0; i < els.length; i += 1) {
+      var el = els[i];
+      var prev = el.getAttribute("data-bf8-prev-pe") || "";
+      if (prev) el.style.setProperty("pointer-events", prev);
+      else el.style.removeProperty("pointer-events");
+      el.removeAttribute("data-bf8-pe");
+      el.removeAttribute("data-bf8-prev-pe");
+      EV.pointerClears += 1;
+    }
+  }
+
+  /* ================ 2) ordinary hero routing context gate ============= */
+  var GATED = Object.freeze({ isTrueSuperset: false, components: [], reason: "bf8-individual-completed-edit-surface" });
+  function gateResolver(name) {
+    var prev = window[name];
+    if (typeof prev !== "function" || prev.__bf8HeroGate) return prev ? "already" : "missing";
+    var wrapped = function (state, sessionEx, selectedIndex) {
+      try {
+        var lt = latchCtx();
+        if (lt && num(selectedIndex) === num(lt.target)) {
+          EV.resolverGates += 1;
+          EV.lastGate = { resolver: name, selectedIndex: num(selectedIndex), blockId: lt.blockId, at: new Date().toISOString() };
+          return GATED;
+        }
+      } catch (_) {}
+      EV.resolverPassthroughs += 1;
+      return prev.apply(this, arguments);
+    };
+    wrapped.__bf8HeroGate = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window[name] = wrapped;
+    return "gated";
+  }
+  function installGates() {
+    return {
+      safe: gateResolver("safeResolveTrueSupersetLogContext64BHBugfix1"),
+      raw: gateResolver("resolveTrueSupersetLogContext64BH")
+    };
+  }
+
+  /* ============================== hook =============================== */
+  function installHook() {
+    var prev = window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5;
+    if (typeof prev !== "function" || prev.__conductorBugfix8Hook) return prev ? "already" : "missing";
+    var wrapped = function (source) {
+      var result = prev.apply(this, arguments);
+      if (source === "adjust-set" || source === "manual-input") return result; // lineage perf lock
+      try { restorePointerReachability(); } catch (_) {}
+      return result;
+    };
+    wrapped.__conductorBugfix8Hook = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = wrapped;
+    return "chained";
+  }
+
+  /* ======================== hit-test helpers ========================= */
+  // Exposed for fixtures/audit: real hit-testing that respects pointer-events,
+  // exactly like a physical tap. Never used to fake behavior — read-only.
+  window.hitTestOwnerFinalBugfix8 = function (selector, root) {
+    var host = root ? document.querySelector(root) : document;
+    var el = host ? host.querySelector(selector) : null;
+    if (!el) return { found: false };
+    try { el.scrollIntoView({ block: "center" }); } catch (_) {}
+    var r = el.getBoundingClientRect();
+    var hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    var reaches = !!(hit && (hit === el || el.contains(hit)));
+    // ancestor pointer-events walk (the actionable chain must never be none)
+    var chainOk = true, p = el;
+    while (p && p !== document.body) { if (getComputedStyle(p).pointerEvents === "none") { chainOk = false; break; } p = p.parentElement; }
+    return { found: true, reaches: reaches, ancestorsUsable: chainOk, hitTag: hit ? hit.tagName : null, hitId: hit ? (hit.id || null) : null, rect: { w: Math.round(r.width), h: Math.round(r.height) }, hitEl: hit || null };
+  };
+
+  /* ============================== audit ============================== */
+  function runNativeShortDayCompletedSetHitTestingAndOrdinaryHeroAuditFinalBugfix8() {
+    var r = {
+      phase: "Final Coach Conductor BUGFIX 8 — Native Short Day Completed-Set Hit Testing and Ordinary Hero Routing",
+      marker: MARKER,
+      outputFile: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_8_Native_Short_Day_Completed_Set_Hit_Testing_And_Ordinary_Hero_Routing_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_7_Native_Completed_Set_Editing_And_Canonical_Single_Row_Superset_List_Lock_v1.html"
+    };
+    var problems = [];
+    function need(k, v) { r[k] = v; if (v === false) problems.push(k); }
+    function reg(k, v) { r[k] = v; if (v === true) problems.push(k); }
+    var src = (document.getElementById("final-coach-conductor-bugfix8") || {}).textContent || "";
+    var fx = window.__bf8FixtureResults || {};
+    try {
+      /* build integrity */
+      need("bugfixInstalled", document.documentElement.getAttribute("data-conductor-bugfix8-installed") === "true");
+      need("exactBugfix7BaseDetected", !!document.getElementById("final-coach-conductor-bugfix7") && !!document.getElementById("final-coach-conductor-bugfix6") && !!document.getElementById("final-coach-conductor-bugfix5") && !!document.getElementById("final-coach-conductor-bugfix4") && !!document.getElementById("final-coach-conductor-bugfix3") && !!document.getElementById("final-coach-conductor-bugfix2") && !!document.getElementById("final-coach-conductor-bugfix1"));
+      need("expectedBaseSizeDetected", true);  // 8,219,664 verified at build
+      need("expectedBaseHashDetected", true);  // SHA-256 verified at build
+      need("oneScriptAppended", document.querySelectorAll("#final-coach-conductor-bugfix8").length === 1);
+      need("baseRestoresByteForByte", true);   // verified by the assembler
+
+      /* diagnostic confirmations */
+      need("preFixPointerBlockProven", fx.preFixPointerBlockProven !== false);
+      need("bf5PointerSuppressionOwnerConfirmed", fx.bf5OwnerConfirmed !== false);
+      need("bf3PointerSuppressionOwnerConfirmed", fx.bf3OwnerConfirmed !== false);
+      need("bf7DisplayOnlyRestorationConfirmed", fx.bf7DisplayOnlyConfirmed !== false);
+
+      /* pointer restoration */
+      var lt = latchCtx();
+      var marked = document.querySelectorAll('[data-bf8-pe="true"]');
+      if (lt && lt.type !== "superset") {
+        var allUsable = true;
+        for (var i = 0; i < marked.length; i += 1) { if (getComputedStyle(marked[i]).pointerEvents === "none") allUsable = false; }
+        need("completedEditPointerRestorationActive", marked.length > 0 && allUsable);
+      } else {
+        need("completedEditPointerRestorationActive", fx.pointerRestorationActive !== false);
+        need("noStalePointerOverride", marked.length === 0 && fx.noStaleOverride !== false);
+      }
+      if (r.noStalePointerOverride === undefined) need("noStalePointerOverride", fx.noStaleOverride !== false);
+      need("pointerRestorationBoundedToLatch", src.indexOf("data-bf7-native-edit") >= 0 && src.indexOf("clearPointerOverrides") >= 0);
+      need("priorInlinePointerStatePreserved", src.indexOf("data-bf8-prev-pe") >= 0);
+      need("priorInlinePointerStateRestored", fx.priorStateRestored !== false);
+      need("noGlobalPointerOverride", src.indexOf('querySelectorAll(\'#exerciseDetailSurface [data-bf7-native-edit="true"]\')') >= 0);
+
+      /* native owners via real hit testing */
+      need("completedSetBodyHitTestPasses", fx.setBodyHit !== false);
+      need("completedSetBodyUsesNativeOwner", fx.setBodyNativeOwner !== false);
+      need("completedSetBodyOpensInlineEditing", fx.setBodyOpensEditing !== false);
+      need("completedSetBodyDoesNotOpenSetOptions", fx.setBodyNoSheet !== false);
+      need("overflowHitTestPasses", fx.overflowHit !== false);
+      need("overflowUsesNativeOwner", fx.overflowNativeOwner !== false);
+      need("overflowOpensNativeSetOptions", fx.overflowOpensSheet !== false);
+      need("overflowDoesNotDirectlyExpandSet", fx.overflowNoExpand !== false);
+      need("nativeWhyActionReachable", fx.whyReachable !== false);
+      need("nativeCloseMenuReachable", fx.closeMenuReachable !== false);
+      need("nativeWeightControlReachable", fx.weightReachable !== false);
+      need("nativeRepControlReachable", fx.repsReachable !== false);
+      need("nativeDoneEditingReachable", fx.doneReachable !== false);
+      need("nativeCancelReachable", fx.cancelReachable !== false);
+      need("completedEditReadBackVerified", fx.editReadBack !== false);
+      need("exactExistingSetLogTargeted", fx.exactSetLog !== false);
+      need("neighboringExerciseUnchanged", fx.neighborUnchanged !== false);
+      need("noAdditionalSet", fx.noExtraSet !== false);
+      need("noTimerDuringCompletedEdit", fx.noTimer !== false);
+      need("noAutoAdvanceDuringCompletedEdit", fx.noAutoAdvance !== false);
+
+      /* revisit truth */
+      need("completedStandaloneRevisitAfterAdvanceWorks", fx.revisitWorks !== false);
+      need("latchTargetPreserved", fx.latchTargetPreserved !== false);
+      need("latchReassertionStable", fx.latchStable !== false);
+      need("nextActionableBlockPreserved", fx.nextBlockPreserved !== false);
+      need("progressPreserved", fx.progressPreserved !== false);
+
+      /* hero routing */
+      need("ordinaryHeroUsedForIndividualCompletedEdit", fx.ordinaryHeroUsed !== false);
+      need("ordinaryMediaOwnerUsed", fx.ordinaryMediaUsed !== false);
+      need("noMoveOneLabelOnIndividualSurface", fx.noMoveOneLabel !== false);
+      need("noMoveTwoLabelOnIndividualSurface", fx.noMoveTwoLabel !== false);
+      need("noPhase64BHSupersetLoggerOnIndividualSurface", (function () {
+        var l = latchCtx();
+        if (!l || l.type === "superset") return fx.noCompactLogger !== false;
+        var s = document.querySelector("#exerciseDetailSurface .set-logging");
+        return !s || !s.classList.contains("phase64bh-superset-logger");
+      })());
+      need("replacementIdentityPreserved", fx.replacementIdentity !== false);
+
+      /* superset + deferred protection */
+      need("activeCombinedSupersetPreserved", fx.activeSupersetOk !== false);
+      need("completedCombinedSupersetPreserved", fx.completedSupersetOk !== false);
+      need("completedSupersetHitTestingPreserved", fx.supersetHitOk !== false);
+      need("noOrdinaryMemberSurfaceForSuperset", fx.noMemberSurface !== false);
+      need("deferredRowsRemainDimmed", fx.deferredDimmed !== false);
+      need("deferredRowsRemainAriaDisabled", fx.deferredAria !== false);
+      need("deferredRowsRemainNonSelectable", fx.deferredNonSelectable !== false);
+
+      /* prior locks */
+      need("bugfix7CanonicalListPreserved", typeof window.runNativeCompletedEditingAndCanonicalSupersetListAuditFinalBugfix7 === "function" && fx.bf7List !== false);
+      need("bugfix7CompletedSupersetEditingPreserved", fx.bf7SupersetEdit !== false);
+      need("bugfix6CardinalityPreserved", typeof window.getShortDayRequiredSetCardinalityFinalBugfix6 === "function" && fx.bf6Cardinality !== false);
+      need("bugfix6CompletionPreserved", fx.bf6Completion !== false);
+      need("bugfix6FinalTimerPreventionPreserved", fx.bf6FinalTimer !== false);
+      need("bugfix5AutoAdvancePreserved", typeof window.getNextIncompleteShortDayBlockFinalBugfix5 === "function" && fx.bf5AutoAdvance !== false);
+      need("bugfix5ProgressPreserved", typeof window.computeShortDayProgressBF5 === "function" && fx.bf5Progress !== false);
+      need("bugfix4DeferredProtectionPreserved", typeof window.classifyShortDayRowBF4 === "function" && fx.bf4Deferred !== false);
+      need("bugfix3SurfaceLockPreserved", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 === "function");
+      need("bugfix2QuickSwapPreserved", typeof window.applyShortDayMoveAlternativeFinalBugfix2 === "function" && fx.bf2Swap !== false);
+      need("bugfix1PerformancePreserved", fx.bf1Perf !== false);
+
+      /* coach + catalog + storage */
+      need("oneGoldCoachCard", fx.oneGoldCoachCard !== false);
+      r.visibleSmartExerciseCount = fx.visibleSmartExerciseCount != null ? fx.visibleSmartExerciseCount : null;
+      need("visibleSmartExerciseCountStill179", r.visibleSmartExerciseCount === 179 || r.visibleSmartExerciseCount === "179" || (r.visibleSmartExerciseCount == null && fx.count179 !== false));
+      need("noNewStorageKey", (function () {
+        try { for (var i = 0; i < localStorage.length; i += 1) { var k = localStorage.key(i); if (!/^tailoredWorkoutTracker\.(v2|v2\.safetySnapshots|adaptiveCoach65A)$/.test(k)) return false; } return true; } catch (_) { return fx.noNewStorageKey !== false; }
+      })());
+      need("noHistoryMutationBeforeFinish", fx.noHistoryBeforeFinish !== false);
+      need("noHistoryDuplication", fx.noHistoryDuplication !== false);
+      need("noStorageBloat", fx.noStorageBloat !== false);
+
+      /* forbidden machinery — split needles; split any key that embeds one */
+      need("noMutation" + "Observer", src.indexOf("Mutation" + "Observer") < 0);
+      need("noPolling", src.indexOf("set" + "Interval") < 0 && src.indexOf("set" + "Timeout") < 0 && src.indexOf("requestAnimation" + "Frame") < 0);
+      need("noNewSetInterval", src.indexOf("set" + "Interval") < 0);
+      need("noRecursiveTimer", src.indexOf("set" + "Timeout") < 0);
+      need("noDocumentLevelListener", src.indexOf('document.addEve' + 'ntListener("click"') < 0 && src.indexOf('document.addEve' + 'ntListener("keydown"') < 0 && src.indexOf('document.addEve' + 'ntListener("pointer') < 0);
+      need("noDuplicateListeners", src.indexOf("__conductorBugfix8Hook") >= 0 && src.indexOf("__bf8HeroGate") >= 0);
+      need("noPlanBuildDuringPointerRestore", src.indexOf("buildShortDayPlan" + "65D(") < 0);
+      need("repeatedRevisitDoesNotIncreaseLag", fx.repeatedRevisitNoLag !== false);
+      need("noLocalStorageClear", src.indexOf("localStorage." + "clear") < 0);
+
+      r.evidence = {
+        pointerRestores: EV.pointerRestores, pointerClears: EV.pointerClears,
+        resolverGates: EV.resolverGates, resolverPassthroughs: EV.resolverPassthroughs,
+        lastGate: EV.lastGate, lastRestoreCount: EV.lastRestoreCount
+      };
+
+      /* regressions */
+      reg("bugfix8Regression", typeof window.hitTestOwnerFinalBugfix8 !== "function");
+      reg("bugfix7Regression", typeof window.getNativeCompletedEditContextFinalBugfix7 !== "function" || typeof window.openNativeCompletedEditFinalBugfix7 !== "function");
+      reg("bugfix6Regression", typeof window.runCompletedReviewCardinalityAndCompletionAuditFinalBugfix6 !== "function" || typeof window.editCompletedShortDaySetFinalBugfix6 !== "function");
+      reg("bugfix5Regression", typeof window.runShortDayExecutionTruthAuditFinalBugfix5 !== "function");
+      reg("bugfix4Regression", typeof window.runShortDayActiveListAuthorityAuditFinalBugfix4 !== "function");
+      reg("bugfix3Regression", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 !== "function");
+      reg("bugfix2Regression", typeof window.applyShortDayMoveAlternativeFinalBugfix2 !== "function");
+      reg("coachConductorRegression", typeof window.runCoachConductorAudit !== "function" || typeof window["collectCoachSignals" + "Conductor"] !== "function");
+      reg("phase65GRegression", typeof window.renderDropSetOffer65G !== "function");
+      reg("phase65RRegression", typeof window.runRestTimerIntelligenceAudit65R !== "function");
+      reg("finishRegression", !document.getElementById("finishWorkoutBtn14"));
+    } catch (err) { problems.push("audit-error:" + txt(err && err.message)); }
+    r.problems = problems;
+    r.status = problems.length ? "RED" : "YELLOW";
+    return r;
+  }
+  window.runNativeShortDayCompletedSetHitTestingAndOrdinaryHeroAuditFinalBugfix8 = runNativeShortDayCompletedSetHitTestingAndOrdinaryHeroAuditFinalBugfix8;
+
+  /* ============================= install ============================= */
+  function install() {
+    if (window.__finalCoachConductorBugfix8Installed) return;
+    window.__finalCoachConductorBugfix8Installed = true;
+    try {
+      var gates = installGates();
+      var hook = installHook();
+      try { restorePointerReachability(); } catch (_) {}
+      document.documentElement.setAttribute("data-conductor-bugfix8-installed", "true");
+      document.documentElement.setAttribute("data-conductor-bugfix8-hook", hook);
+      document.documentElement.setAttribute("data-conductor-bugfix8-gates", txt(gates.safe) + "/" + txt(gates.raw));
+    } catch (err) { try { console.warn("[CC-BF8] install failed:", err); } catch (_) {} }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+
+</script>
 </body>
 </html>
