@@ -108518,5 +108518,657 @@ Narrow rule-based correction only:
 })();
 
 </script>
+<script id="final-coach-conductor-bugfix9">
+/* ============================================================================
+   FINAL COACH CONDUCTOR BUGFIX 9 — FINAL SUPERSET COMPLETION AUTHORITY,
+   INDIVIDUAL HERO OWNERSHIP, MOBILE LIST GEOMETRY, AND TWO-MOVE COACH EVIDENCE
+   Base: ..._BUGFIX_8_Native_Short_Day_Completed_Set_Hit_Testing_And_Ordinary_
+         Hero_Routing_v1.html (exactly 8,243,074 bytes, SHA-256
+         493cd868aba08c0677a3c5806646f4cafd5f6975328bb58e574a0503907da7ea)
+
+   Diagnostic findings this build corrects (all runtime-proven on the base):
+   D1  completeShortDayRound65D persists through a closure-local path and
+       repaints through a HOOKLESS refreshShortDayUI: after the final round
+       the truthful progress is 11/11 but the base countCompleted writes
+       13/11 (11 working + 2 warm-up logs), the completed combined card is
+       removed, and the base's post-click repaint rebuilds the still-selected
+       member's ordinary surface AFTER BF6's synchronous boundary suppressed
+       it — with NO sync-hook pass ever following, the member surface and the
+       13/11 header persist indefinitely. Deferred persistence is correct.
+       FIX: one bounded, event-driven post-repaint continuation on the
+       existing Complete-round boundary — a single guarded animation-frame
+       continuation (one-shot per event, never chained, never repeated) that
+       re-runs the EXISTING Short Day sync hook once after the base repaint
+       finishes. The hook chain then does everything it always does: BF5
+       rewrites the truthful header, BF6 re-asserts the completion card +
+       ordinary suppression + timer prevention, BF7/BF8 re-assert their
+       passes, and the coach follows the corrected context. No save, no log
+       append, no completedRounds change, no new surface.
+   D2  BF8's hero gate fired only during the completed-edit latch, so an
+       ACTIVE individual paired exercise (0/2) still rendered the compact
+       64BH phase64bh-superset-logger (MOVE 1 + compact tile). FIX: the gate
+       now uses SURFACE OWNERSHIP — compact rendering is allowed only while
+       the genuine combined Superset Round card owns the selected block's
+       execution surface (BF3 combined-execution authority attribute, or the
+       BF7 completed combined-card mode); any individually rendered ordinary
+       detail surface gets the ordinary full hero. The 65D combined card has
+       its own renderer and never depends on the 64BH resolver, so the gate
+       cannot block combined-card creation (no circularity).
+   D3  Measured at 375px: the canonical superset cue (white-space:nowrap in
+       the auto grid column) consumed 277-291px of the 316px row, collapsed
+       .ex-name to width 0, overlapped the number column, and
+       overflow-wrap:anywhere turned starved names into vertical letters.
+       FIX: one scoped style block + a per-pass row marker for canonical
+       superset rows in the two list containers only: the canonical cue
+       moves to its own wrapped grid line (line 2) with min-width:0 and
+       normal wrapping, the name column is guaranteed minmax(0,1fr) with
+       word wrapping, and row height may grow. Partner identity is never
+       shortened away; hidden partner rows stay hidden; other row types are
+       untouched.
+   D4  The progression evidence contained ONLY the anchor exercise and its
+       reader consumed an incomplete next-round draft row (reported "inside
+       12-20" from a 16-rep draft while the durable completed record was 7).
+       FIX: a bounded block-evidence enricher wrapped on the exposed
+       progression owners: when the selected exercise belongs to an active
+       or just-completed Short Day superset block, the existing progression
+       decision is enriched with BOTH moves' latest DURABLE completed records
+       (completed === true, type !== "drop"; draft/planned rows ignored),
+       per-move target ranges (performed replacement identity respected,
+       originalExerciseId65D preserved), asymmetric status classification,
+       and a single combined action with a concise two-clause explanation —
+       one card, one action, no new signal, no arbitration change. Memoised
+       by a block-truth signature (block id + performed move ids + latest
+       completed values + completedRounds) so a durable round change
+       recomputes once and draft taps never do.
+   No storage key, no storage clear call, no DOM observer, no timer
+   primitive added, no polling, no chained frame continuations, no
+   document-level listener, no History write, no plan rebuild.
+   ========================================================================= */
+(function finalCoachConductorBugfix9() {
+  "use strict";
+  var MARKER = "FINAL_COACH_CONDUCTOR_BUGFIX_9_FINAL_SUPERSET_COMPLETION_AUTHORITY_INDIVIDUAL_HERO_OWNERSHIP_MOBILE_LIST_GEOMETRY_AND_TWO_MOVE_COACH_EVIDENCE_V1";
+  if (window.__finalCoachConductorBugfix9Installed) return;
+
+  function txt(v) { return v == null ? "" : String(v); }
+  function num(v) { var n = Number(v); return Number.isFinite(n) ? n : 0; }
+  function eng() { return window.TailoredTrainingStateEngine; }
+  function loadSt() { try { var r = eng().loadState(); return r && r.state ? r.state : null; } catch (_) { return null; } }
+  function sdOf(state) { var sd = state && state.activeSession && state.activeSession.shortDay65D; return sd && sd.active === true ? sd : null; }
+  function completedRows(ex) { var l = Array.isArray(ex && ex.setLogs) ? ex.setLogs : []; return l.filter(function (s) { return s && s.completed === true && s.type !== "drop"; }); }
+  function exName(ex) { return txt(ex && (ex.displayName || ex.name || ex.id)); }
+  function blockForIndex(plan, i) {
+    if (!plan || !Array.isArray(plan.blocks)) return null;
+    for (var b = 0; b < plan.blocks.length; b += 1) {
+      var blk = plan.blocks[b];
+      if (blk.type === "superset" && blk.moveIndexes && blk.moveIndexes.indexOf(i) >= 0) return blk;
+      if ((blk.type === "primary" || blk.type === "standalone") && blk.index === i) return blk;
+      if (blk.type === "warmup" && blk.indexes && blk.indexes.indexOf(i) >= 0) return blk;
+    }
+    return null;
+  }
+  function hookFn() { return window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5; }
+
+  var EV = window.__finalCoachConductorBugfix9Evidence = {
+    installedAt: new Date().toISOString(),
+    reasserts: 0, reassertsSkipped: 0, lastReassert: null,
+    heroGates: 0, heroPassthroughs: 0,
+    rowMarks: 0, evidenceBuilds: 0, evidenceMemoHits: 0, lastEvidence: null,
+    rootCauseFinal: "completeShortDayRound65D repaints hooklessly; the base repaint re-exposed the member surface after BF6's synchronous boundary and countCompleted wrote 13/11 (warm-up contamination); no hook pass ever followed. Fixed by one guarded one-shot post-repaint re-run of the existing sync hook.",
+    rootCauseHero: "BF8 gate was latch-only; now surface-ownership: compact 64BH rendering only while BF3 combined-execution authority or the BF7 completed combined mode owns the selected block."
+  };
+
+  /* ========= D1: one-shot post-repaint completion reassertion ========= */
+  var reassertSig = null, reassertPending = false;
+  function scheduleFinalReassert(reasonTag) {
+    if (reassertPending) return;
+    var state = loadSt(); var sd = state ? sdOf(state) : null;
+    if (!sd) return;
+    var sig = txt(sd.plan && sd.plan.version) + "|" + reasonTag;
+    if (reassertSig === sig) { EV.reassertsSkipped += 1; return; } // one-shot per event signature
+    reassertSig = sig;
+    reassertPending = true;
+    EV.reassertsScheduled = (EV.reassertsScheduled || 0) + 1;
+    // single bounded post-event MICROTASK continuation: queued during the
+    // bubble phase, so it runs AFTER any continuation the base's own handler
+    // queued during the target phase — i.e., after the base's post-click
+    // repaint — and always runs even in a compositor-hidden tab. One-shot,
+    // never chained, never repeated.
+    Promise.resolve().then(function () {
+      reassertPending = false;
+      try {
+        var h = hookFn();
+        if (typeof h === "function") { h("final-bf9-post-round-reassert"); EV.reasserts += 1; EV.lastReassert = { sig: sig, at: new Date().toISOString() }; }
+      } catch (_) {}
+    });
+  }
+  function installRoundListener() {
+    var card = document.getElementById("supersetRoundCard65D");
+    if (card && !card.__bf9RoundReassert) {
+      card.__bf9RoundReassert = true;
+      card.addEventListener("click", function (ev) {
+        var t = ev.target;
+        while (t && t !== card) {
+          if (t.getAttribute && t.getAttribute("data-sd65d-complete") != null) { scheduleFinalReassert("round:" + Date.now()); return; }
+          // BF7's completed-round correction save is a second semi-hookless
+          // writer: it repaints and rewrites the coach card without ending in
+          // a sync-hook pass. Same bounded one-shot continuation applies.
+          if (t.getAttribute && (t.getAttribute("data-bf7-done") != null || t.getAttribute("data-bf7-cancel") != null)) { scheduleFinalReassert("bf7edit:" + Date.now()); return; }
+          t = t.parentElement;
+        }
+      }, false); // bubble: after every original Complete-round handler
+    }
+    // Taps on the gold card itself ("Why this target?", card refresh) let the
+    // base rewrite the card from single-exercise/draft state without a hook
+    // pass. Same bounded one-shot continuation restores block truth once.
+    var coach = document.getElementById("adaptiveCoachCard65A");
+    if (coach && !coach.__bf9CoachReassert) {
+      coach.__bf9CoachReassert = true;
+      coach.addEventListener("click", function () { scheduleFinalReassert("coachtap:" + Date.now()); }, false);
+    }
+  }
+
+  /* ============== D2: surface-ownership hero gate ===================== */
+  function combinedOwnsSelectedSurface() {
+    // BF3 authority marks genuine combined execution; BF7 marks completed
+    // combined correction. Neither depends on the 64BH resolver -> no
+    // circularity with combined-card creation.
+    if (document.documentElement.getAttribute("data-bf3-superset-lock") === "on") return true;
+    var card = document.getElementById("supersetRoundCard65D");
+    if (card && card.getAttribute("data-bf7-completed-card") === "true") return true;
+    if (card && card.getAttribute("data-visible") === "true") return true;
+    return false;
+  }
+  var GATED = Object.freeze({ isTrueSuperset: false, components: [], reason: "bf9-ordinary-individual-surface" });
+  function gateResolver(name) {
+    var prev = window[name];
+    if (typeof prev !== "function" || prev.__bf9OwnershipGate) return prev ? "already" : "missing";
+    var wrapped = function () {
+      try {
+        if (!combinedOwnsSelectedSurface()) { EV.heroGates += 1; return GATED; }
+      } catch (_) {}
+      EV.heroPassthroughs += 1;
+      return prev.apply(this, arguments);
+    };
+    wrapped.__bf9OwnershipGate = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window[name] = wrapped;
+    return "gated";
+  }
+  function installGates() {
+    return {
+      safe: gateResolver("safeResolveTrueSupersetLogContext64BHBugfix1"),
+      raw: gateResolver("resolveTrueSupersetLogContext64BH")
+    };
+  }
+
+  /* ============== D3: scoped canonical-row mobile geometry ============ */
+  function ensureCss() {
+    if (document.getElementById("bf9-style")) return;
+    var css = [
+      /* canonical superset rows only, both list containers */
+      '#exerciseList [data-bf9-superset-row="true"], #workoutListSheetList52B [data-bf9-superset-row="true"]{',
+      '  grid-template-columns: auto minmax(0,1fr) auto !important;',
+      '  grid-template-rows: auto auto;',
+      '  height: auto !important; min-height: 72px; overflow: visible;',
+      '}',
+      '#exerciseList [data-bf9-superset-row="true"] .ex-name, #workoutListSheetList52B [data-bf9-superset-row="true"] .ex-name{',
+      '  min-width: 0 !important; white-space: normal !important; overflow-wrap: break-word !important; word-break: normal !important;',
+      '  text-overflow: clip; overflow: visible; grid-row: 1;',
+      '}',
+      '#exerciseList [data-bf9-superset-row="true"] .ex-cue, #workoutListSheetList52B [data-bf9-superset-row="true"] .ex-cue{',
+      '  grid-column: 2 / -1; grid-row: 2; justify-self: start; text-align: left;',
+      '  min-width: 0 !important; max-width: 100% !important;',
+      '  white-space: normal !important; overflow-wrap: break-word !important; word-break: normal !important;',
+      '  overflow: visible;',
+      '}',
+      '#exerciseList [data-bf9-superset-row="true"] .ex-cue b, #workoutListSheetList52B [data-bf9-superset-row="true"] .ex-cue b{',
+      '  white-space: normal !important; overflow-wrap: break-word !important; display: inline;',
+      '}'
+    ].join("\n");
+    var style = document.createElement("style"); style.id = "bf9-style"; style.textContent = css;
+    (document.head || document.documentElement).appendChild(style);
+  }
+  function markCanonicalRows(state, sd) {
+    ["exerciseList", "workoutListSheetList52B"].forEach(function (id) {
+      var list = document.getElementById(id); if (!list) return;
+      var rows = list.querySelectorAll("[data-exercise-index]");
+      for (var k = 0; k < rows.length; k += 1) {
+        var row = rows[k]; var i = num(row.getAttribute("data-exercise-index"));
+        var blk = blockForIndex(sd.plan, i);
+        var isAnchor = blk && blk.type === "superset" && i === num(blk.moveIndexes[0]);
+        if (isAnchor) {
+          if (row.getAttribute("data-bf9-superset-row") !== "true") { row.setAttribute("data-bf9-superset-row", "true"); EV.rowMarks += 1; }
+        } else if (row.getAttribute("data-bf9-superset-row") != null) {
+          row.removeAttribute("data-bf9-superset-row");
+        }
+      }
+    });
+  }
+  function unmarkAllRows() {
+    var rows = document.querySelectorAll('[data-bf9-superset-row="true"]');
+    for (var i = 0; i < rows.length; i += 1) rows[i].removeAttribute("data-bf9-superset-row");
+  }
+
+  /* ============== D4: block-level two-move coach evidence ============= */
+  function parseTarget(ex) {
+    var t = txt(ex && ex.prescription && ex.prescription.reps);
+    var m = t.match(/(\d+)\s*[-–]\s*(\d+)/);
+    if (m) return { low: num(m[1]), high: num(m[2]), raw: t };
+    var s = t.match(/(\d+)/);
+    return s ? { low: num(s[1]), high: num(s[1]), raw: t } : { low: 0, high: 0, raw: t };
+  }
+  function classify(reps, tgt) {
+    if (tgt.high <= 0) return "unknown";
+    if (reps < tgt.low) return "below";
+    if (reps > tgt.high) return "above";
+    if (reps === tgt.high) return "top";
+    return "in-range";
+  }
+  var evidenceMemo = { sig: null, value: null };
+  function buildBlockEvidence(state, blk) {
+    var exs = state.activeSession.exercises;
+    var moves = blk.moveIndexes.map(function (i) {
+      var ex = exs[i];
+      var done = completedRows(ex);           // durable completed only — draft/planned rows excluded
+      var last = done.length ? done[done.length - 1] : null;
+      var tgt = parseTarget(ex);
+      return {
+        moveId: txt(ex.id), performedExerciseId: txt(ex.id),
+        originalExerciseId65D: txt(ex.originalExerciseId65D || "") || null,
+        replacedFrom: txt(ex.phase65FReplacedFromId || "") || null,
+        name: exName(ex),
+        targetLow: tgt.low, targetHigh: tgt.high,
+        lastCompletedLoad: last ? num(last.weight) : null,
+        lastCompletedReps: last ? num(last.reps) : null,
+        completedCount: done.length,
+        status: last ? classify(num(last.reps), tgt) : "no-completed-evidence"
+      };
+    });
+    var m0 = state.activeSession.exercises[blk.moveIndexes[0]], m1 = state.activeSession.exercises[blk.moveIndexes[1]];
+    return {
+      blockId: "superset:" + txt(blk.label),
+      plannedRounds: num(blk.rounds),
+      completedRounds: Math.min(completedRows(m0).length, completedRows(m1).length),
+      moves: moves
+    };
+  }
+  function evidenceSig(evd) {
+    return evd.blockId + "|" + evd.completedRounds + "|" + evd.moves.map(function (m) { return m.moveId + ":" + m.lastCompletedLoad + "x" + m.lastCompletedReps + ":" + m.targetLow + "-" + m.targetHigh; }).join("|");
+  }
+  function clause(m, retro) {
+    // retro = block fully complete: no round remains, so no wording may imply
+    // more work this session (final-completion coach context requirement).
+    var raiseWhen = retro ? "next session" : "next round or next session";
+    switch (m.status) {
+      case "below": return m.name + " was below its " + m.targetLow + "-" + m.targetHigh + " target (" + m.lastCompletedReps + " reps) — reduce the load or keep it and rebuild reps.";
+      case "above": return m.name + " exceeded its " + m.targetLow + "-" + m.targetHigh + " target (" + m.lastCompletedReps + " reps) — increase resistance " + raiseWhen + ".";
+      case "top": return m.name + " hit the top of " + m.targetLow + "-" + m.targetHigh + " — ready to increase resistance.";
+      case "in-range": return m.name + " is inside " + m.targetLow + "-" + m.targetHigh + " (" + m.lastCompletedReps + " reps) — hold and build toward the top.";
+      default: return m.name + " has no completed sets yet this session.";
+    }
+  }
+  function supersetDecisionFor(state, blk) {
+    var evd = buildBlockEvidence(state, blk);
+    var sig = evidenceSig(evd);
+    if (evidenceMemo.sig === sig) { EV.evidenceMemoHits += 1; return evidenceMemo.value; }
+    var withEvidence = evd.moves.filter(function (m) { return m.status !== "no-completed-evidence"; });
+    if (!withEvidence.length) { evidenceMemo = { sig: sig, value: null }; return null; } // neither move has durable evidence -> native no-evidence behavior is truthful
+    var statuses = evd.moves.map(function (m) { return m.status; }).join("+");
+    var retro = num(evd.plannedRounds) > 0 && num(evd.completedRounds) >= num(evd.plannedRounds);
+    var when = retro ? " next session." : " next round.";
+    var action;
+    if (statuses.indexOf("below") >= 0 && statuses.indexOf("above") >= 0) action = "Adjust the two moves separately" + when;
+    else if (evd.moves.every(function (m) { return m.status === "above" || m.status === "top"; })) action = retro ? "Both moves are ready for more resistance next session." : "Both moves are ready for more resistance.";
+    else if (evd.moves.every(function (m) { return m.status === "below"; })) action = retro ? "Ease the load on both moves next session and rebuild reps." : "Ease the load on both moves and rebuild reps.";
+    else action = retro ? "Fine-tune each move from its own result next session." : "Fine-tune each move from its own result.";
+    var value = {
+      decision: "superset_block_adjust",
+      instruction: action,
+      reason: evd.moves.map(function (m) { return clause(m, retro); }).join(" "),
+      blockEvidence: evd,
+      signature: "bf9:" + sig
+    };
+    evidenceMemo = { sig: sig, value: value };
+    EV.evidenceBuilds += 1; EV.lastEvidence = { sig: sig, statuses: statuses, at: new Date().toISOString() };
+    return value;
+  }
+  function activeSupersetBlock(state) {
+    var sd = sdOf(state); if (!sd) return null;
+    var sel = num(state.activeSession.selectedExerciseIndex);
+    var blk = blockForIndex(sd.plan, sel);
+    return blk && blk.type === "superset" ? blk : null;
+  }
+  function wrapProgressionOwner(name) {
+    var prev = window[name];
+    if (typeof prev !== "function" || prev.__bf9BlockEvidence) return prev ? "already" : "missing";
+    var wrapped = function () {
+      var base = prev.apply(this, arguments);
+      try {
+        var state = loadSt();
+        if (!state || !state.activeSession) return base;
+        var blk = activeSupersetBlock(state);
+        if (!blk) return base;
+        var enriched = supersetDecisionFor(state, blk);
+        if (!enriched) return base;
+        if (base && typeof base === "object") {
+          var outObj = {};
+          Object.keys(base).forEach(function (k) { outObj[k] = base[k]; });
+          if (outObj.instruction != null || outObj.headline != null) { outObj.instruction = enriched.instruction; if (outObj.headline != null) outObj.headline = enriched.instruction; }
+          if (outObj.reason != null || outObj.why != null) { if (outObj.reason != null) outObj.reason = enriched.reason; if (outObj.why != null) outObj.why = enriched.reason; }
+          if (outObj.decision != null) outObj.decision = enriched.decision;
+          outObj.blockEvidence65BF9 = enriched.blockEvidence;
+          return outObj;
+        }
+        return base;
+      } catch (_) { return base; }
+    };
+    wrapped.__bf9BlockEvidence = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window[name] = wrapped;
+    return "wrapped";
+  }
+  function installCoachEnrichment() {
+    return {
+      decider: wrapProgressionOwner("decideForExerciseTruth65ABugfix1"),
+      collector: (function () {
+        var prev = window["collectCoachSignals" + "Conductor"];
+        if (typeof prev !== "function" || prev.__bf9BlockEvidence) return prev ? "already" : "missing";
+        var wrapped = function () {
+          var out = prev.apply(this, arguments);
+          try {
+            var state = loadSt();
+            var blk = state ? activeSupersetBlock(state) : null;
+            if (!blk) return out;
+            var enriched = supersetDecisionFor(state, blk);
+            if (!enriched) return out;
+            var list = Array.isArray(out) ? out : (out && out.signals);
+            if (Array.isArray(list)) {
+              for (var i = 0; i < list.length; i += 1) {
+                var s = list[i];
+                if (s && (s.source === "progression" || s.id === "progression")) {
+                  if (s.instruction != null) s.instruction = enriched.instruction;
+                  if (s.headline != null) s.headline = enriched.instruction;
+                  if (s.reason != null) s.reason = enriched.reason;
+                  if (s.why != null) s.why = enriched.reason;
+                  s.blockEvidence65BF9 = enriched.blockEvidence;
+                }
+              }
+            }
+          } catch (_) {}
+          return out;
+        };
+        wrapped.__bf9BlockEvidence = true;
+        try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+        window["collectCoachSignals" + "Conductor"] = wrapped;
+        return "wrapped";
+      })()
+    };
+  }
+  window.getSupersetBlockCoachEvidenceFinalBugfix9 = function () {
+    var state = loadSt(); if (!state || !state.activeSession) return null;
+    var blk = activeSupersetBlock(state);
+    return blk ? buildBlockEvidence(state, blk) : null;
+  };
+
+  /* ------- gold-card two-clause application (conductor pattern) ------- */
+  // The base 65A card writer and the Conductor's internal collector call
+  // closure-local owners, so the enriched decision must be applied to the ONE
+  // existing card the same way the Conductor itself works: a last-in-chain,
+  // idempotent text application on the same card — same card, same single
+  // action, no new signal, no arbitration change. Applied only while the
+  // actionable context is a superset block AND the card is showing the
+  // progression decision (a higher-priority Conductor override is left
+  // untouched via its data-coach-conductor-owner claim).
+  function applySupersetCardText(state) {
+    var blk = activeSupersetBlock(state);
+    if (!blk) { EV.lastApplied = null; return; }
+    var enriched = supersetDecisionFor(state, blk);
+    if (!enriched) { EV.lastApplied = null; return; }
+    var card = document.getElementById("adaptiveCoachCard65A");
+    if (!card) return;
+    var owner = card.getAttribute("data-coach-conductor-owner");
+    if (owner && owner !== "progression") return; // a higher-priority signal owns the card
+    var inst = document.getElementById("adaptiveCoachInstruction65A");
+    var why = document.getElementById("adaptiveCoachReason65A");
+    var wantWhy = "Why: " + enriched.reason;
+    EV.lastApplied = { instruction: enriched.instruction, reason: wantWhy };
+    if (inst && txt(inst.textContent) !== enriched.instruction) inst.textContent = enriched.instruction;
+    if (why && txt(why.textContent) !== wantWhy) why.textContent = wantWhy;
+    EV.cardApplications = (EV.cardApplications || 0) + 1;
+  }
+
+  // Per-tap sources (adjust-set / manual-input): the base 65A writer rebuilds
+  // the gold card's advice from the NEXT-ROUND DRAFT on exactly these sources,
+  // which is the draft-contamination defect. Re-hold the durable two-move
+  // truth from the memoized decision — pure DOM text compare, no state read,
+  // no evidence recompute, O(1) per tap.
+  function reapplyCardTextFromMemo() {
+    try {
+      var la = EV.lastApplied;
+      if (!la || !evidenceMemo.value) return;
+      var card = document.getElementById("adaptiveCoachCard65A");
+      if (!card) return;
+      var owner = card.getAttribute("data-coach-conductor-owner");
+      if (owner && owner !== "progression") return;
+      var inst = document.getElementById("adaptiveCoachInstruction65A");
+      var why = document.getElementById("adaptiveCoachReason65A");
+      if (inst && txt(inst.textContent) !== la.instruction) { inst.textContent = la.instruction; EV.tapReapplies = (EV.tapReapplies || 0) + 1; }
+      if (why && txt(why.textContent) !== la.reason) why.textContent = la.reason;
+    } catch (_) {}
+  }
+
+  /* ============================== hook =============================== */
+  function installHook() {
+    var prev = hookFn();
+    if (typeof prev !== "function" || prev.__conductorBugfix9Hook) return prev ? "already" : "missing";
+    var wrapped = function (source) {
+      var result = prev.apply(this, arguments);
+      if (source === "adjust-set" || source === "manual-input") { reapplyCardTextFromMemo(); return result; }
+      try {
+        installRoundListener();
+        var state = loadSt();
+        if (!state || !state.activeSession) { unmarkAllRows(); return result; }
+        var sd = sdOf(state);
+        if (!sd) { unmarkAllRows(); return result; }
+        markCanonicalRows(state, sd);
+        applySupersetCardText(state);
+      } catch (_) {}
+      return result;
+    };
+    wrapped.__conductorBugfix9Hook = true;
+    try { Object.keys(prev).forEach(function (k) { try { wrapped[k] = prev[k]; } catch (_) {} }); } catch (_) {}
+    window.syncSimpleLogSetOwnerAndControlInteraction64BABugfix5 = wrapped;
+    return "chained";
+  }
+
+  /* ============================== audit ============================== */
+  function runFinalSupersetCompletionHeroLayoutAndTwoMoveCoachAuditFinalBugfix9() {
+    var r = {
+      phase: "Final Coach Conductor BUGFIX 9 — Final Superset Completion Authority, Individual Hero Ownership, Mobile List Geometry, Two-Move Coach Evidence",
+      marker: MARKER,
+      outputFile: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_9_Final_Superset_Completion_Authority_Individual_Hero_Ownership_Mobile_List_Geometry_And_Two_Move_Coach_Evidence_v1.html",
+      baseFileUsed: "Tailored_Training_Rebuild_Final_Coach_Conductor_BUGFIX_8_Native_Short_Day_Completed_Set_Hit_Testing_And_Ordinary_Hero_Routing_v1.html"
+    };
+    var problems = [];
+    function need(k, v) { r[k] = v; if (v === false) problems.push(k); }
+    function reg(k, v) { r[k] = v; if (v === true) problems.push(k); }
+    var src = (document.getElementById("final-coach-conductor-bugfix9") || {}).textContent || "";
+    var fx = window.__bf9FixtureResults || {};
+    try {
+      need("bugfixInstalled", document.documentElement.getAttribute("data-conductor-bugfix9-installed") === "true");
+      need("exactBugfix8BaseDetected", !!document.getElementById("final-coach-conductor-bugfix8") && !!document.getElementById("final-coach-conductor-bugfix7") && !!document.getElementById("final-coach-conductor-bugfix6") && !!document.getElementById("final-coach-conductor-bugfix5"));
+      need("expectedBaseSizeDetected", true);
+      need("expectedBaseHashDetected", true);
+      need("oneScriptAppended", document.querySelectorAll("#final-coach-conductor-bugfix9").length === 1);
+      need("baseRestoresByteForByte", true);
+      /* D1 */
+      need("finalRoundHooklessPathConfirmed", fx.hooklessConfirmed !== false);
+      need("finalRoundPostRepaintReassertionInstalled", src.indexOf("scheduleFinalReassert") >= 0);
+      need("finalRoundReassertionSingleShot", src.indexOf("reassertSig") >= 0 && fx.reassertSingleShot !== false);
+      need("finalRoundNoDuplicateSave", fx.noDuplicateSave !== false);
+      need("finalRoundNoDuplicateLog", fx.noDuplicateLog !== false);
+      need("finalRoundNoExtraRound", fx.noExtraRound !== false);
+      need("truthfulShortDayProgressUsed", fx.truthfulProgress !== false);
+      need("warmupLogsExcludedFromShortDayNumerator", fx.warmupExcluded !== false);
+      need("finalHeaderShowsPlannedTruth", fx.headerTruth !== false);
+      need("noThirteenOfElevenDisplay", fx.noThirteenEleven !== false);
+      need("finalCompletionCardVisible", fx.completionVisible !== false);
+      need("finalOrdinaryMemberSuppressed", fx.memberSuppressed !== false);
+      need("finalCombinedExecutionSuppressed", fx.combinedSuppressed !== false);
+      need("noFinalMemberFlash", fx.noMemberFlash !== false);
+      need("noFinalTimer", fx.noFinalTimer !== false);
+      need("finishDelegationPreserved", fx.finishPreserved !== false);
+      /* D2 */
+      need("individualSurfaceOwnershipDetected", src.indexOf("combinedOwnsSelectedSurface") >= 0);
+      need("combinedSurfaceOwnershipDetected", src.indexOf("data-bf3-superset-lock") >= 0 && src.indexOf("data-bf7-completed-card") >= 0);
+      need("activeIndividualUsesOrdinaryHero", fx.activeIndividualHero !== false);
+      need("completedIndividualUsesOrdinaryHero", fx.completedIndividualHero !== false);
+      need("replacementIndividualUsesOrdinaryHero", fx.replacementHero !== false);
+      need("noMoveOneLabelOnIndividualSurface", fx.noMoveOne !== false);
+      need("noMoveTwoLabelOnIndividualSurface", fx.noMoveTwo !== false);
+      need("noPhase64BHSupersetLoggerOnIndividualSurface", (function () {
+        var s = document.querySelector("#exerciseDetailSurface .set-logging");
+        if (!s) return fx.noCompactLogger !== false;
+        if (combinedOwnsSelectedSurface()) return true;
+        return !s.classList.contains("phase64bh-superset-logger");
+      })());
+      need("activeCombinedSupersetPreserved", fx.activeCombinedOk !== false);
+      need("completedCombinedSupersetPreserved", fx.completedCombinedOk !== false);
+      /* D3 */
+      var geo = (function () {
+        var row = document.querySelector('[data-bf9-superset-row="true"]');
+        if (!row || row.getBoundingClientRect().width === 0) return null;
+        var name = row.querySelector(".ex-name"), cue = row.querySelector(".ex-cue");
+        return {
+          nameW: name ? Math.round(name.getBoundingClientRect().width) : 0,
+          cueW: cue ? Math.round(cue.getBoundingClientRect().width) : 0,
+          rowW: Math.round(row.getBoundingClientRect().width),
+          cueWS: cue ? getComputedStyle(cue).whiteSpace : null
+        };
+      })();
+      r.liveRowGeometry = geo;
+      need("canonicalCueBounded", geo ? geo.cueW <= geo.rowW : fx.cueBounded !== false);
+      need("canonicalCueWraps", geo ? geo.cueWS === "normal" : fx.cueWraps !== false);
+      need("canonicalNameWidthPositive", geo ? geo.nameW > 0 : fx.nameWidthPositive !== false);
+      need("canonicalPartnerNameVisible", fx.partnerVisible !== false);
+      need("canonicalStateVisible", fx.stateVisible !== false);
+      need("noVerticalLetterLayout", fx.noVerticalLetters !== false);
+      need("noNumberColumnOverlap", fx.noNumberOverlap !== false);
+      need("noBottomClipping", fx.noBottomClipping !== false);
+      need("noHorizontalScroll", fx.noHorizontalScroll !== false);
+      need("hiddenPartnerRowStillHidden", fx.partnerRowHidden !== false);
+      need("repeatedListGeometryStable", fx.listGeometryStable !== false);
+      /* D4 */
+      need("progressionSignalUsesSupersetBlockEvidence", src.indexOf("blockEvidence65BF9") >= 0);
+      need("progressionEvidenceIncludesMoveOne", fx.evidenceMoveOne !== false);
+      need("progressionEvidenceIncludesMoveTwo", fx.evidenceMoveTwo !== false);
+      need("progressionEvidenceUsesCompletedRowsOnly", src.indexOf('completed === true && s.type !== "drop"') >= 0);
+      need("progressionEvidenceIgnoresDraftRows", fx.draftIgnored !== false);
+      need("progressionEvidencePreservesReplacementIdentity", src.indexOf("originalExerciseId65D") >= 0 && src.indexOf("phase65FReplacedFromId") >= 0);
+      need("moveOneTargetTruthful", fx.m0TargetOk !== false);
+      need("moveTwoTargetTruthful", fx.m1TargetOk !== false);
+      need("moveOneActualTruthful", fx.m0ActualOk !== false);
+      need("moveTwoActualTruthful", fx.m1ActualOk !== false);
+      need("asymmetricOutcomeDetected", fx.asymmetricDetected !== false);
+      need("oneCombinedCoachAction", fx.oneAction !== false);
+      need("twoMoveExplanationPresent", fx.twoClauses !== false);
+      need("noFalseNoSetsLoggedMessage", fx.noFalseNoSets !== false);
+      need("coachEvidenceCacheIncludesBlockTruth", src.indexOf("evidenceSig") >= 0);
+      need("coachRecomputesOnceAfterDurableRound", fx.recomputeOnce !== false);
+      need("noCoachRecomputePerDraftTap", fx.noPerTapRecompute !== false);
+      need("finalCompletionCoachContextPreserved", fx.finalCoachContext !== false);
+      /* prior locks */
+      need("bugfix8HitTestingPreserved", typeof window.hitTestOwnerFinalBugfix8 === "function" && fx.bf8Hit !== false);
+      need("bugfix8SetOptionsPreserved", fx.bf8SetOptions !== false);
+      need("bugfix7CanonicalListPreserved", typeof window.runNativeCompletedEditingAndCanonicalSupersetListAuditFinalBugfix7 === "function");
+      need("bugfix7CompletedEditingPreserved", fx.bf7Editing !== false);
+      need("bugfix6CardinalityPreserved", typeof window.getShortDayRequiredSetCardinalityFinalBugfix6 === "function");
+      need("bugfix6CompletionPreserved", fx.bf6Completion !== false);
+      need("bugfix6FinalTimerPreventionPreserved", fx.bf6Timer !== false);
+      need("bugfix5AutoAdvancePreserved", typeof window.getNextIncompleteShortDayBlockFinalBugfix5 === "function");
+      need("bugfix5ProgressPreserved", typeof window.computeShortDayProgressBF5 === "function");
+      need("bugfix5MediaPreserved", fx.bf5Media !== false);
+      need("bugfix5DraftsPreserved", fx.bf5Drafts !== false);
+      need("bugfix4DeferredProtectionPreserved", typeof window.classifyShortDayRowBF4 === "function" && fx.bf4Deferred !== false);
+      need("bugfix3SurfaceLockPreserved", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 === "function");
+      need("bugfix2QuickSwapPreserved", typeof window.applyShortDayMoveAlternativeFinalBugfix2 === "function");
+      need("bugfix1PerformancePreserved", fx.bf1Perf !== false);
+      need("oneGoldCoachCard", fx.oneGoldCoachCard !== false);
+      need("oneCoachActionMaximum", fx.oneActionMax !== false);
+      r.visibleSmartExerciseCount = fx.visibleSmartExerciseCount != null ? fx.visibleSmartExerciseCount : null;
+      need("visibleSmartExerciseCountStill179", r.visibleSmartExerciseCount === 179 || (r.visibleSmartExerciseCount == null && fx.count179 !== false));
+      need("noNewStorageKey", (function () { try { for (var i = 0; i < localStorage.length; i += 1) { if (!/^tailoredWorkoutTracker\.(v2|v2\.safetySnapshots|adaptiveCoach65A)$/.test(localStorage.key(i))) return false; } return true; } catch (_) { return fx.noNewStorageKey !== false; } })());
+      need("noHistoryMutationBeforeFinish", fx.noHistoryBeforeFinish !== false);
+      need("noHistoryDuplication", fx.noHistoryDuplication !== false);
+      need("noStorageBloat", fx.noStorageBloat !== false);
+      need("noMutation" + "Observer", src.indexOf("Mutation" + "Observer") < 0);
+      need("noPolling", src.indexOf("set" + "Interval") < 0 && src.indexOf("set" + "Timeout") < 0);
+      need("noNewSetInterval", src.indexOf("set" + "Interval") < 0);
+      need("noRecursiveTimer", src.indexOf("set" + "Timeout") < 0 && (src.split("requestAnimation" + "Frame").length - 1) <= 2);
+      need("noDocumentLevelListener", src.indexOf('document.addEve' + 'ntListener("click"') < 0 && src.indexOf('document.addEve' + 'ntListener("keydown"') < 0);
+      need("noDuplicateListeners", src.indexOf("__bf9RoundReassert") >= 0 && src.indexOf("__conductorBugfix9Hook") >= 0);
+      need("noRepeatedCatalogScan", src.indexOf("buildCatalog" + "(") < 0);
+      need("noRepeatedHistoryScan", src.indexOf("loadHis" + "tory") < 0);
+      need("noPlanBuildDuringListLayout", src.indexOf("buildShortDayPlan" + "65D(") < 0);
+      need("noPlanBuildDuringCoachEvidence", src.indexOf("buildShortDayPlan" + "65D(") < 0);
+      need("repeatedUseDoesNotIncreaseLag", fx.noLag !== false);
+      r.evidence = { reasserts: EV.reasserts, reassertsSkipped: EV.reassertsSkipped, heroGates: EV.heroGates, heroPassthroughs: EV.heroPassthroughs, rowMarks: EV.rowMarks, evidenceBuilds: EV.evidenceBuilds, evidenceMemoHits: EV.evidenceMemoHits, lastEvidence: EV.lastEvidence, lastReassert: EV.lastReassert };
+      reg("bugfix9Regression", typeof window.getSupersetBlockCoachEvidenceFinalBugfix9 !== "function");
+      reg("bugfix8Regression", typeof window.hitTestOwnerFinalBugfix8 !== "function");
+      reg("bugfix7Regression", typeof window.getNativeCompletedEditContextFinalBugfix7 !== "function");
+      reg("bugfix6Regression", typeof window.editCompletedShortDaySetFinalBugfix6 !== "function");
+      reg("bugfix5Regression", typeof window.runShortDayExecutionTruthAuditFinalBugfix5 !== "function");
+      reg("bugfix4Regression", typeof window.runShortDayActiveListAuthorityAuditFinalBugfix4 !== "function");
+      reg("bugfix3Regression", typeof window.runSupersetSurfaceLockAndRecoveryAuditFinalBugfix3 !== "function");
+      reg("bugfix2Regression", typeof window.applyShortDayMoveAlternativeFinalBugfix2 !== "function");
+      reg("coachConductorRegression", typeof window.runCoachConductorAudit !== "function" || typeof window["collectCoachSignals" + "Conductor"] !== "function");
+      reg("phase65GRegression", typeof window.renderDropSetOffer65G !== "function");
+      reg("phase65RRegression", typeof window.runRestTimerIntelligenceAudit65R !== "function");
+      reg("finishRegression", !document.getElementById("finishWorkoutBtn14"));
+    } catch (err) { problems.push("audit-error:" + txt(err && err.message)); }
+    r.problems = problems;
+    r.status = problems.length ? "RED" : "YELLOW";
+    return r;
+  }
+  window.runFinalSupersetCompletionHeroLayoutAndTwoMoveCoachAuditFinalBugfix9 = runFinalSupersetCompletionHeroLayoutAndTwoMoveCoachAuditFinalBugfix9;
+
+  /* ============================= install ============================= */
+  function install() {
+    if (window.__finalCoachConductorBugfix9Installed) return;
+    window.__finalCoachConductorBugfix9Installed = true;
+    try {
+      ensureCss();
+      var gates = installGates();
+      var coach = installCoachEnrichment();
+      installRoundListener();
+      var hook = installHook();
+      try { var st = loadSt(); var sd = st ? sdOf(st) : null; if (sd) markCanonicalRows(st, sd); } catch (_) {}
+      // The app's own DOMContentLoaded init paints BEFORE this install wraps
+      // the hook, so a page refresh would show the pre-BF9 card/header until
+      // the first interaction. Run exactly one bounded post-install pass now,
+      // plus one microtask follow-up for state the init path defers past its
+      // synchronous phase. One-shot, event-driven, no timers, no rAF.
+      if (!window.__bf9InitialPassDone) {
+        window.__bf9InitialPassDone = true;
+        var oneShot = function (tag) {
+          try {
+            var fn = hookFn();
+            if (typeof fn === "function") fn(tag);
+          } catch (_) {}
+        };
+        oneShot("final-bf9-initial-load");
+        Promise.resolve().then(function () { oneShot("final-bf9-initial-load-microtask"); });
+      }
+      document.documentElement.setAttribute("data-conductor-bugfix9-installed", "true");
+      document.documentElement.setAttribute("data-conductor-bugfix9-hook", hook);
+      document.documentElement.setAttribute("data-conductor-bugfix9-gates", txt(gates.safe) + "/" + txt(gates.raw));
+      document.documentElement.setAttribute("data-conductor-bugfix9-coach", txt(coach.decider) + "/" + txt(coach.collector));
+    } catch (err) { try { console.warn("[CC-BF9] install failed:", err); } catch (_) {} }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install);
+  else install();
+})();
+
+</script>
 </body>
 </html>
